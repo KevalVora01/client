@@ -21,7 +21,7 @@ const LoginPage = () => {
       navigate('/', { replace: true });
       showSuccess('Login successful!');
     } catch {
-      showError('Invalid email or password. Please try again.');
+      showError('Invalid Credentials. Please try again.');
     } finally {
       setIsLoading(false);
     }

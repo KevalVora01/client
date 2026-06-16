@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import LoginPage from '../features/auth/pages/LoginPage';
+import AdminLayout from '../components/layout/AdminLayout/AdminLayout';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Dashboard — coming soon</div>;
@@ -25,8 +26,9 @@ const AppRoutes = () => {
 
         {/* ─── Protected routes (admin only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/" element={<Dashboard />} />
-          {/* Add more admin routes here as you build each module:
+          <Route element={<AdminLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            {/* Add more admin routes here as you build each module:
               <Route path="/apartments" element={<ApartmentsPage />} />
               <Route path="/residents" element={<ResidentsPage />} />
               <Route path="/complaints" element={<ComplaintsPage />} />
@@ -35,7 +37,8 @@ const AppRoutes = () => {
               <Route path="/events" element={<EventsPage />} />
               <Route path="/visitors" element={<VisitorsPage />} />
               <Route path="/dashboard" element={<AdminDashboardPage />} />
-          */}
+              */}
+          </Route>
         </Route>
 
         {/* ─── Utility routes ───────────────────────────────── */}

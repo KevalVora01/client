@@ -30,17 +30,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const silentRefresh = async () => {
-      if (isRefreshingRef.current) return; 
+      if (isRefreshingRef.current) return;
       isRefreshingRef.current = true;
 
-      console.log('🔄 silentRefresh started');
       try {
         const { accessToken, user } = await refreshTokenApi();
-        console.log('✅ refresh success', { accessToken, user });
         setAccessToken(accessToken);
         setUser(user);
-      } catch (err) {
-        console.log('❌ refresh failed', err);
+      } catch {
         setAccessToken(null);
         setUser(null);
       } finally {

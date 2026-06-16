@@ -1,0 +1,56 @@
+/* ── Shell ── */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background-color: #1e3a8a;
+}
+
+/* ── Brand ── */
+.sidebar__brand-name {
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.sidebar__brand-role {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── Nav link ── */
+.sidebar__nav-link {
+  font-size: 0.92rem;
+  opacity: 0.82;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.sidebar__nav-link:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__nav-link--active {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* ── Footer ── */
+.sidebar__footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sidebar__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
+.sidebar__user-name {
+  font-size: 0.88rem;
+}
+
+.sidebar__user-role {
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}

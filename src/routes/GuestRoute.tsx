@@ -2,13 +2,27 @@ import { Navigate, Outlet } from 'react-router-dom';
 import useAuth from '../features/auth/hooks/useAuth';
 
 const GuestRoute = () => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
 
   // Still attempting silent refresh — don't redirect yet
   if (isLoading) return null;
 
-  // Already logged in → redirect away from login page
-  return isAuthenticated ? <Navigate to="/" replace /> : <Outlet />;
+  // Already logged in → redirect away from login page to their proper home
+  if (isAuthenticated && user) {
+    const role = user.role?.toLowerCase();
+
+    if (role === 'resident') {
+      return <Navigate to="/resident" replace />;
+    }
+    if (role === 'security') {
+      return <Navigate to="/security" replace />;
+    }
+    // Default fallback for admins
+    return <Navigate to="/" replace />;
+  }
+
+  // Not logged in → let them see the login page
+  return <Outlet />;
 };
 
 export default GuestRoute;

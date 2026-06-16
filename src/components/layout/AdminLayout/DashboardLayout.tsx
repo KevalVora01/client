@@ -1,8 +1,7 @@
-// src/components/layout/AdminLayout.tsx
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 
-const AdminLayout = () => (
+const DashboardLayout = () => (
   <div className="d-flex">
     <Sidebar />
     <main className="flex-grow-1 bg-light" style={{ minHeight: '100vh' }}>
@@ -11,4 +10,4 @@ const AdminLayout = () => (
   </div>
 );
 
-export default AdminLayout;
+export default DashboardLayout;

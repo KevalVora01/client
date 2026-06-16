@@ -8,26 +8,62 @@ import {
   ReceiptText,
   CalendarDays,
   History,
+  UserCheck,
+  UserMinus,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../features/auth/hooks/useAuth';
+import type { UserRole } from '../../../features/auth/types/auth.types';
 import './Sidebar.css';
 
-const navItems = [
-  { label: 'Dashboard',  icon: LayoutDashboard,        path: '/' },
-  { label: 'Residents',  icon: Users,                  path: '/residents' },
-  { label: 'Apartments', icon: Building2,              path: '/apartments' },
-  { label: 'Notices',    icon: Megaphone,              path: '/notices' },
-  { label: 'Complaints', icon: MessageSquareWarning,   path: '/complaints' },
-  { label: 'Billing',    icon: ReceiptText,            path: '/billing' },
-  { label: 'Events',     icon: CalendarDays,           path: '/events' },
-  { label: 'Logs',       icon: History,                path: '/logs' },
-];
+// ─── Types ────────────────────────────────────────────────────────
+interface NavItem {
+  label: string;
+  icon: LucideIcon;
+  path: string;
+}
 
+// ─── Nav config per role ──────────────────────────────────────────
+const navConfig: Record<UserRole, NavItem[]> = {
+  admin: [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'Residents', icon: Users, path: '/residents' },
+    { label: 'Apartments', icon: Building2, path: '/apartments' },
+    { label: 'Notices', icon: Megaphone, path: '/notices' },
+    { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
+    { label: 'Billing', icon: ReceiptText, path: '/billing' },
+    { label: 'Events', icon: CalendarDays, path: '/events' },
+    { label: 'Logs', icon: History, path: '/logs' },
+  ],
+  resident: [
+    { label: 'My Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'Notices', icon: Megaphone, path: '/notices' },
+    { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
+    { label: 'My Invoices', icon: ReceiptText, path: '/invoices' },
+    { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
+    { label: 'Events', icon: CalendarDays, path: '/events' },
+  ],
+  security: [
+    { label: 'Visitor Check-In', icon: UserCheck, path: '/checkin' },
+    { label: 'Visitor Check-Out', icon: UserMinus, path: '/checkout' },
+    { label: 'Visitor Logs', icon: History, path: '/logs' },
+  ],
+};
+
+// ─── Component ────────────────────────────────────────────────────
 const Sidebar = () => {
   const { user } = useAuth();
 
+  const role: UserRole = user?.role ?? 'resident';
+  const navItems = navConfig[role];
+
   const initials = user?.name
-    ? user.name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    ? user.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
     : 'AD';
 
   return (
@@ -38,8 +74,8 @@ const Sidebar = () => {
         <h5 className="sidebar__brand-name fw-bold text-white mb-0">
           Civic Horizon
         </h5>
-        <span className="sidebar__brand-role text-uppercase text-white opacity-75 small fw-semibold">
-          {user?.role ?? 'Admin'}
+        <span className="sidebar__brand-role text-uppercase text-white opacity-75 fw-semibold">
+          {role}
         </span>
       </div>
 
@@ -52,10 +88,11 @@ const Sidebar = () => {
                 to={path}
                 end={path === '/'}
                 className={({ isActive }) =>
-                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none text-white ${isActive ? 'sidebar__nav-link--active' : ''}`
+                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none text-white${isActive ? ' sidebar__nav-link--active' : ''
+                  }`
                 }
               >
-                <Icon size={20} strokeWidth={1.8} />
+                <Icon size={20} strokeWidth={1.8} className="flex-shrink-0" />
                 <span className="sidebar__nav-label fw-medium">{label}</span>
               </NavLink>
             </li>
@@ -65,15 +102,21 @@ const Sidebar = () => {
 
       {/* ── User footer ── */}
       <div className="sidebar__footer d-flex align-items-center gap-3 px-3 py-3">
-        <div className="sidebar__avatar d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0">
+        <div
+          className="sidebar__avatar d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+        >
           {initials}
         </div>
         <div className="overflow-hidden">
           <p className="sidebar__user-name text-white fw-semibold mb-0 text-truncate">
-            {user?.name ?? 'Admin User'}
+            {user?.name ?? 'User'}
           </p>
           <p className="sidebar__user-role text-uppercase text-white opacity-75 mb-0 text-truncate">
-            {user?.role ?? 'Admin'}
+            {role === 'admin'
+              ? 'Admin'
+              : role === 'resident'
+                ? 'Resident'
+                : 'Security Officer'}
           </p>
         </div>
       </div>

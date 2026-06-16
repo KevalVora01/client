@@ -20,7 +20,7 @@
 .sidebar__nav-link {
   font-size: 0.92rem;
   opacity: 0.82;
-  transition: opacity 0.15s ease, background 0.15s ease;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
 }
 
 .sidebar__nav-link:hover {

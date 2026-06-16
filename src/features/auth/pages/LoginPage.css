@@ -1,0 +1,69 @@
+/* ============ Page layout ============ */
+.login-page {
+  background: linear-gradient(180deg, #eef1f5 0%, #e7eaef 100%);
+}
+
+.login-page__container {
+  max-width: 492px;
+  margin-bottom: 3rem;
+}
+
+/* ============ Brand header ============ */
+.login-brand__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e3a8a;
+}
+
+.login-brand__title {
+  font-weight: 800;
+  font-size: 2rem;
+  color: #1e3a8a;
+  letter-spacing: -0.02em;
+}
+
+.login-brand__subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* ============ Card ============ */
+.login-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+}
+
+.login-card__heading {
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: #111827;
+}
+
+.login-card__subtext {
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* ============ Footer ============ */
+.login-footer__support {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.login-footer__support a {
+  color: #1e3a8a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer__support a:hover {
+  text-decoration: underline;
+}
+
+.login-footer__badges {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}

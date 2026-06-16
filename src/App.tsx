@@ -1,13 +1,12 @@
-import { Routes, Route } from 'react-router-dom'
-import LoginPage from './pages/LoginPage/LoginPage'
-
+import { AuthProvider } from './context/AuthContext';
+import AppRoutes from './routes/AppRoutes';
 
 const App = () => {
   return (
-    <Routes>
-      <Route path="/" element={<LoginPage />} />
-    </Routes>
-  )
-}
+    <AuthProvider>
+      <AppRoutes />
+    </AuthProvider>
+  );
+};
 
-export default App
+export default App;

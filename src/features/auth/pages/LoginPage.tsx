@@ -5,26 +5,23 @@ import useAuth from '../hooks/useAuth';
 import type { LoginPayload } from '../types/auth.types';
 import './LoginPage.css';
 import LoginForm from '../components/LoginForm';
+import { showError, showSuccess } from '../../../utils/toast';
 
 const LoginPage = () => {
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleLogin = async (payload: LoginPayload) => {
-    setError(null);
+
     setIsLoading(true);
     try {
       await login(payload);
       navigate('/', { replace: true });
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Invalid email or password. Please try again.');
-      }
+      showSuccess('Login successful!');
+    } catch {
+      showError('Invalid email or password. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -52,9 +49,7 @@ const LoginPage = () => {
 
           <LoginForm
             onSubmit={handleLogin}
-            isLoading={isLoading}
-            error={error}
-          />
+            isLoading={isLoading} />
         </div>
 
         {/* Footer */}

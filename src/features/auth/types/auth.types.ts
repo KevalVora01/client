@@ -36,6 +36,7 @@ export interface AuthResponse {
 
 export interface RefreshTokenResponse {
   accessToken: string;
+  user: User;
 }
 
 export interface MeResponse {

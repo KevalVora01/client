@@ -4,9 +4,10 @@ import {
   useEffect,
   useCallback,
   type ReactNode,
+  useRef,
 } from 'react';
 import { setAccessToken } from '../config/api';
-import { loginApi, logoutApi, refreshTokenApi, getMeApi } from '../features/auth/api/authApi';
+import { loginApi, logoutApi, refreshTokenApi } from '../features/auth/api/authApi';
 import type { User, LoginPayload } from '../features/auth/types/auth.types';
 
 // ─── Context type ─────────────────────────────────────────────────
@@ -25,16 +26,21 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const isRefreshingRef = useRef(false);
 
   useEffect(() => {
     const silentRefresh = async () => {
-      try {
-        const { accessToken } = await refreshTokenApi();
-        setAccessToken(accessToken);
+      if (isRefreshingRef.current) return; 
+      isRefreshingRef.current = true;
 
-        const { user } = await getMeApi();
+      console.log('🔄 silentRefresh started');
+      try {
+        const { accessToken, user } = await refreshTokenApi();
+        console.log('✅ refresh success', { accessToken, user });
+        setAccessToken(accessToken);
         setUser(user);
-      } catch {
+      } catch (err) {
+        console.log('❌ refresh failed', err);
         setAccessToken(null);
         setUser(null);
       } finally {
@@ -42,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    silentRefresh();  
+    silentRefresh();
   }, []);
 
   const login = useCallback(async (payload: LoginPayload): Promise<void> => {

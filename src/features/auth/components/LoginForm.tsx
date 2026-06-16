@@ -6,12 +6,11 @@ import './LoginForm.css';
 interface LoginFormProps {
   onSubmit: (payload: LoginPayload) => Promise<void>;
   isLoading: boolean;
-  error: string | null;
 }
 
 type Role = UserRole;
 
-const LoginForm = ({ onSubmit, isLoading, error }: LoginFormProps) => {
+const LoginForm = ({ onSubmit, isLoading }: LoginFormProps) => {
   const [role, setRole] = useState<Role>('admin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,13 +23,6 @@ const LoginForm = ({ onSubmit, isLoading, error }: LoginFormProps) => {
 
   return (
     <form onSubmit={handleSubmit}>
-
-      {/* Error alert */}
-      {error && (
-        <div className="alert alert-danger py-2 mb-3" role="alert">
-          {error}
-        </div>
-      )}
 
       {/* Access Role */}
       <div className="mb-3">

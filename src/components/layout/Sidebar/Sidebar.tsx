@@ -10,10 +10,11 @@ import {
   History,
   UserCheck,
   UserMinus,
-  Home,
+  HelpCircle,
+  LogOut,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import useAuth from '../../../features/auth/hooks/useAuth';
+import useAuth from '../../../hooks/useAuth';
 import type { UserRole } from '../../../features/auth/types/auth.types';
 import './Sidebar.css';
 
@@ -27,55 +28,53 @@ interface NavItem {
 // ─── Nav config per role ──────────────────────────────────────────
 const navConfig: Record<UserRole, NavItem[]> = {
   admin: [
-    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-    { label: 'Residents', icon: Users, path: '/residents' },
-    { label: 'Apartments', icon: Building2, path: '/apartments' },
-    { label: 'Notices', icon: Megaphone, path: '/notices' },
-    { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
-    { label: 'Billing', icon: ReceiptText, path: '/billing' },
-    { label: 'Events', icon: CalendarDays, path: '/events' },
-    { label: 'Logs', icon: History, path: '/logs' },
+    { label: 'Dashboard',  icon: LayoutDashboard,       path: '/' },
+    { label: 'Residents',  icon: Users,                 path: '/residents' },
+    { label: 'Apartments', icon: Building2,             path: '/apartments' },
+    { label: 'Notices',    icon: Megaphone,             path: '/notices' },
+    { label: 'Complaints', icon: MessageSquareWarning,  path: '/complaints' },
+    { label: 'Billing',    icon: ReceiptText,           path: '/billing' },
+    { label: 'Events',     icon: CalendarDays,          path: '/events' },
+    { label: 'Logs',       icon: History,               path: '/logs' },
   ],
   resident: [
-    { label: 'My Dashboard', icon: LayoutDashboard, path: '/' },
-    { label: 'Notices', icon: Megaphone, path: '/notices' },
-    { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
-    { label: 'My Invoices', icon: ReceiptText, path: '/invoices' },
-    { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
-    { label: 'Events', icon: CalendarDays, path: '/events' },
+    { label: 'My Dashboard',  icon: LayoutDashboard,       path: '/' },
+    { label: 'Notices',       icon: Megaphone,             path: '/notices' },
+    { label: 'My Complaints', icon: MessageSquareWarning,  path: '/complaints' },
+    { label: 'My Invoices',   icon: ReceiptText,           path: '/invoices' },
+    { label: 'My Visitors',   icon: UserCheck,             path: '/visitors' },
+    { label: 'Events',        icon: CalendarDays,          path: '/events' },
   ],
   security: [
-    { label: 'Visitor Check-In', icon: UserCheck, path: '/checkin' },
-    { label: 'Visitor Check-Out', icon: UserMinus, path: '/checkout' },
-    { label: 'Visitor Logs', icon: History, path: '/logs' },
+    { label: 'Visitor Check-In',  icon: UserCheck,  path: '/checkin' },
+    { label: 'Visitor Check-Out', icon: UserMinus,  path: '/checkout' },
+    { label: 'Visitor Logs',      icon: History,    path: '/logs' },
   ],
+};
+
+// ─── Role subtitle ────────────────────────────────────────────────
+const roleLabel: Record<UserRole, string> = {
+  admin:    'Property Admin',
+  resident: 'Resident',
+  security: 'Security Staff',
 };
 
 // ─── Component ────────────────────────────────────────────────────
 const Sidebar = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const role: UserRole = user?.role ?? 'resident';
   const navItems = navConfig[role];
-
-  const initials = user?.name
-    ? user.name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2)
-    : 'AD';
 
   return (
     <div className="sidebar d-flex flex-column">
 
       {/* ── Brand ── */}
       <div className="sidebar__brand px-3 pt-4 pb-3">
-        <h5 className="sidebar__brand-name fw-bold text-white mb-0 d-flex justify-content-evenly align-items-center">
-          <Home size={28} strokeWidth={2} />
-          Civic Horizon
-        </h5>
+        <h5 className="sidebar__brand-name mb-0">Civic Horizon</h5>
+        <span className="sidebar__brand-role text-uppercase">
+          {roleLabel[role]}
+        </span>
       </div>
 
       {/* ── Nav ── */}
@@ -87,7 +86,8 @@ const Sidebar = () => {
                 to={path}
                 end={path === '/'}
                 className={({ isActive }) =>
-                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none text-white${isActive ? ' sidebar__nav-link--active' : ''
+                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none${
+                    isActive ? ' sidebar__nav-link--active' : ''
                   }`
                 }
               >
@@ -99,25 +99,19 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {/* ── User footer ── */}
-      <div className="sidebar__footer d-flex align-items-center gap-3 px-3 py-3">
-        <div
-          className="sidebar__avatar d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+      {/* ── Bottom actions ── */}
+      <div className="sidebar__bottom px-2 py-3 d-flex flex-column gap-1">
+        <button className="sidebar__bottom-btn d-flex align-items-center gap-3 px-3 py-2 rounded">
+          <HelpCircle size={20} strokeWidth={1.8} className="flex-shrink-0" />
+          <span className="fw-medium">Support</span>
+        </button>
+        <button
+          className="sidebar__bottom-btn d-flex align-items-center gap-3 px-3 py-2 rounded"
+          onClick={logout}
         >
-          {initials}
-        </div>
-        <div className="overflow-hidden">
-          <p className="sidebar__user-name text-white fw-semibold mb-0 text-truncate">
-            {user?.name ?? 'User'}
-          </p>
-          <p className="sidebar__user-role text-uppercase text-white opacity-75 mb-0 text-truncate">
-            {role === 'admin'
-              ? 'Admin'
-              : role === 'resident'
-                ? 'Resident'
-                : 'Security Officer'}
-          </p>
-        </div>
+          <LogOut size={20} strokeWidth={1.8} className="flex-shrink-0" />
+          <span className="fw-medium">Logout</span>
+        </button>
       </div>
 
     </div>

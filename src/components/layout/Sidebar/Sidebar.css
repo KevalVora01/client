@@ -2,49 +2,65 @@
 .sidebar {
   width: 240px;
   min-height: 100vh;
-  background-color: #1e3a8a;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
 }
 
 /* ── Brand ── */
+.sidebar__brand {
+  border-bottom: 1px solid #f3f4f6;
+}
+
 .sidebar__brand-name {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+
+.sidebar__brand-role {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #6b7280;
 }
 
 /* ── Nav link ── */
 .sidebar__nav-link {
   font-size: 0.92rem;
-  opacity: 0.82;
-  transition: opacity 0.15s ease, background-color 0.15s ease;
+  color: #4b5563;
+  padding-top: 0.65rem !important;
+  padding-bottom: 0.65rem !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .sidebar__nav-link:hover {
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: #e0e7ff;
+  color: #4b5563;
 }
 
 .sidebar__nav-link--active {
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.15) !important;
+  background-color: #e0e7ff !important;
+  color: #4b5563 !important;
 }
 
-/* ── Footer ── */
-.sidebar__footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+/* ── Bottom actions ── */
+.sidebar__bottom {
+  border-top: 1px solid #e5e7eb;
 }
 
-.sidebar__avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.2);
-  font-size: 0.8rem;
+.sidebar__bottom-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-size: 0.92rem;
+  color: #4b5563;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.sidebar__user-name {
-  font-size: 0.88rem;
-}
-
-.sidebar__user-role {
-  font-size: 0.68rem;
-  letter-spacing: 0.06em;
+.sidebar__bottom-btn:hover {
+  background-color: #f3f4f6;
+  color: #111827;
 }

@@ -10,7 +10,6 @@ import {
   History,
   UserCheck,
   UserMinus,
-  HelpCircle,
   LogOut,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -54,9 +53,9 @@ const navConfig: Record<UserRole, NavItem[]> = {
 
 // ─── Role subtitle ────────────────────────────────────────────────
 const roleLabel: Record<UserRole, string> = {
-  admin:    'Property Admin',
+  admin:    'Admin',
   resident: 'Resident',
-  security: 'Security Staff',
+  security: 'Security',
 };
 
 // ─── Component ────────────────────────────────────────────────────
@@ -99,18 +98,29 @@ const Sidebar = () => {
         </ul>
       </nav>
 
-      {/* ── Bottom actions ── */}
-      <div className="sidebar__bottom px-2 py-3 d-flex flex-column gap-1">
-        <button className="sidebar__bottom-btn d-flex align-items-center gap-3 px-3 py-2 rounded">
-          <HelpCircle size={20} strokeWidth={1.8} className="flex-shrink-0" />
-          <span className="fw-medium">Support</span>
-        </button>
+      {/* ── Profile card ── */}
+      <div className="sidebar__profile d-flex align-items-center justify-content-between px-3 py-3">
+        <div className="d-flex align-items-center gap-2 overflow-hidden">
+          <img
+            src="https://github.com/shadcn.png"
+            alt="Profile"
+            className="sidebar__profile-img flex-shrink-0"
+          />
+          <div className="overflow-hidden">
+            <p className="sidebar__user-name fw-semibold mb-0 text-truncate">
+              {user?.name ?? 'User'}
+            </p>
+            <p className="sidebar__user-role text-uppercase mb-0 text-truncate">
+              {roleLabel[role]}
+            </p>
+          </div>
+        </div>
         <button
-          className="sidebar__bottom-btn d-flex align-items-center gap-3 px-3 py-2 rounded"
+          className="sidebar__logout-btn flex-shrink-0"
           onClick={logout}
+          aria-label="Logout"
         >
-          <LogOut size={20} strokeWidth={1.8} className="flex-shrink-0" />
-          <span className="fw-medium">Logout</span>
+          <LogOut size={18} strokeWidth={1.8} />
         </button>
       </div>
 

@@ -10,6 +10,7 @@ import {
   History,
   UserCheck,
   UserMinus,
+  Home,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../features/auth/hooks/useAuth';
@@ -71,12 +72,10 @@ const Sidebar = () => {
 
       {/* ── Brand ── */}
       <div className="sidebar__brand px-3 pt-4 pb-3">
-        <h5 className="sidebar__brand-name fw-bold text-white mb-0">
+        <h5 className="sidebar__brand-name fw-bold text-white mb-0 d-flex justify-content-evenly align-items-center">
+          <Home size={28} strokeWidth={2} />
           Civic Horizon
         </h5>
-        <span className="sidebar__brand-role text-uppercase text-white opacity-75 fw-semibold">
-          {role}
-        </span>
       </div>
 
       {/* ── Nav ── */}

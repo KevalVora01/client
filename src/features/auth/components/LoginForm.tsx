@@ -88,18 +88,6 @@ const LoginForm = ({ onSubmit, isLoading }: LoginFormProps) => {
         </div>
       </div>
 
-      {/* Keep me logged in */}
-      <div className="form-check mb-4">
-        <input
-          type="checkbox"
-          className="form-check-input keep-logged-in"
-          id="keepLoggedIn"
-        />
-        <label className="form-check-label keep-logged-in__label" htmlFor="keepLoggedIn">
-          Keep me logged in
-        </label>
-      </div>
-
       {/* Submit */}
       <button
         type="submit"

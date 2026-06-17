@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Home, ShieldCheck } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 import type { LoginPayload } from '../types/auth.types';
@@ -50,21 +50,6 @@ const LoginPage = () => {
           <LoginForm
             onSubmit={handleLogin}
             isLoading={isLoading} />
-        </div>
-
-        {/* Footer */}
-        <div className="login-footer text-center mt-4">
-          <p className="login-footer__support mb-2">
-            Need technical assistance? <a href="#">Contact Support</a>
-          </p>
-          <div className="login-footer__badges d-flex justify-content-center gap-4">
-            <span className="d-inline-flex align-items-center">
-              <ShieldCheck size={14} className="me-1" /> 256-bit SSL
-            </span>
-            <span className="d-inline-flex align-items-center">
-              <ShieldCheck size={14} className="me-1" /> GDPR Compliant
-            </span>
-          </div>
         </div>
 
       </div>

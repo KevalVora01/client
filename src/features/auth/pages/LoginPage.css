@@ -46,24 +46,3 @@
   font-size: 0.9rem;
   color: #6b7280;
 }
-
-/* ============ Footer ============ */
-.login-footer__support {
-  font-size: 0.9rem;
-  color: #4b5563;
-}
-
-.login-footer__support a {
-  color: #1e3a8a;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.login-footer__support a:hover {
-  text-decoration: underline;
-}
-
-.login-footer__badges {
-  font-size: 0.78rem;
-  color: #9ca3af;
-}

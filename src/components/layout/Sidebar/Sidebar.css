@@ -7,13 +7,7 @@
 
 /* ── Brand ── */
 .sidebar__brand-name {
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-}
-
-.sidebar__brand-role {
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
+  font-size: 1.2rem;
 }
 
 /* ── Nav link ── */

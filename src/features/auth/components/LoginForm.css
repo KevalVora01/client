@@ -102,17 +102,6 @@
   text-decoration: underline;
 }
 
-/* ============ Keep me logged in ============ */
-.keep-logged-in__label {
-  font-size: 0.9rem;
-  color: #374151;
-}
-
-.keep-logged-in:checked {
-  background-color: #1e3a8a;
-  border-color: #1e3a8a;
-}
-
 /* ============ Submit button ============ */
 .signin-btn {
   background-color: #1e3a8a;

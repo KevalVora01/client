@@ -9,17 +9,3 @@ export interface ApiError {
   error: string;
   details?: string[];
 }
-
-export interface PaginationMeta {
-  currentPage: number;
-  itemsPerPage: number;
-  totalItems: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  meta: PaginationMeta;
-}

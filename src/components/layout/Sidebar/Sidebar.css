@@ -28,7 +28,7 @@
 /* ── Nav link ── */
 .sidebar__nav-link {
   font-size: 0.92rem;
-  color: #4b5563;
+  color: #2c2f33;
   padding-top: 0.65rem !important;
   padding-bottom: 0.65rem !important;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -41,7 +41,7 @@
 
 .sidebar__nav-link--active {
   background-color: #e0e7ff !important;
-  color: #4b5563 !important;
+  color: #2c2f33 !important;
 }
 
 /* ── Bottom actions ── */

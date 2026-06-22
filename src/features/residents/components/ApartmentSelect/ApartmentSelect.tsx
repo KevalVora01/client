@@ -1,5 +1,3 @@
-// src/features/residents/components/ApartmentSelect/ApartmentSelect.tsx
-
 import { useState, useRef, useEffect } from "react";
 import "./ApartmentSelect.css";
 

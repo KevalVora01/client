@@ -17,6 +17,8 @@ import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import type { UserRole } from '../../../features/auth/types/auth.types';
 import './Sidebar.css';
+import { useState } from 'react';
+import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface NavItem {
@@ -65,6 +67,8 @@ const roleLabel: Record<UserRole, string> = {
 
 const Sidebar = ({ onClose }: SidebarProps) => {
   const { user, logout } = useAuth();
+
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const role: UserRole = user?.role ?? 'resident';
   const navItems = navConfig[role];
@@ -120,9 +124,24 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             </p>
           </div>
         </div>
-        <button className="sidebar__logout-btn flex-shrink-0" onClick={logout} aria-label="Logout">
+        <button
+          className="sidebar__logout-btn flex-shrink-0"
+          onClick={() => setShowLogoutConfirm(true)}
+          aria-label="Logout"
+        >
           <LogOut size={18} strokeWidth={1.8} />
         </button>
+
+        <ConfirmDialog
+          show={showLogoutConfirm}
+          title="Log Out"
+          message="Are you sure you want to log out of your account?"
+          confirmLabel="Log Out"
+          cancelLabel="Stay"
+          variant="danger"
+          onConfirm={() => { setShowLogoutConfirm(false); logout(); }}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
       </div>
 
     </div>

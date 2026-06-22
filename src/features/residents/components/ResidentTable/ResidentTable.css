@@ -5,31 +5,21 @@
   font-size: 0.875rem;
 }
 
-.rt-table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-.rt-table-wrapper .table-responsive {
-  overflow: visible;
-}
-
 .rt-table thead th {
-  font-size: 0.75rem;
+  font-size: 0.68rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #000;
   background: #f8f9fb;
-  border-bottom: 1px solid #e9ecef;
+  border: 1.5px solid #f3f4f6;
   padding: 0.75rem 1rem;
   white-space: nowrap;
   text-align: left;
 }
 
 .rt-table tbody tr {
-  border-bottom: 1px solid #f3f4f6;
+  border: 1.5px solid #f3f4f6;
   transition: background 0.12s;
 }
 
@@ -67,7 +57,6 @@
 
 .rt-name {
   font-weight: 600;
-  color: #000;
   font-size: 0.875rem;
   margin: 0;
   line-height: 1.3;
@@ -75,26 +64,24 @@
 
 .rt-email {
   font-size: 0.775rem;
-  color: #000;
   margin: 0;
 }
 
 .rt-unit {
   font-weight: 500;
-  color: #000;
   font-size: 0.875rem;
   margin: 0;
 }
 
 .rt-floor {
   font-size: 0.775rem;
-  color: #000;
+  color: #9ca3af;
   margin: 0;
 }
 
 .rt-muted {
   font-size: 0.875rem;
-  color: #000;
+  color: #9ca3af;
 }
 
 /* ── Badges ── */
@@ -140,7 +127,7 @@
 .rt-actions__trigger {
   background: none;
   border: none;
-  color: #000;
+  /* color: #9ca3af; */
   font-size: 1.1rem;
   width: 30px;
   height: 30px;
@@ -158,8 +145,6 @@
 }
 
 .rt-actions__menu {
-  top: calc(100% + 4px);
-  z-index: 50;
   background: #fff;
   border: 1px solid #e9ecef;
   border-radius: 10px;
@@ -180,7 +165,7 @@
   border-radius: 7px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: #374151;
+  color: #000;
   cursor: pointer;
   transition: background 0.1s;
   text-align: left;
@@ -240,7 +225,7 @@
 
 .rt-empty__title {
   font-weight: 600;
-  color: #6b7280;
+  color: #000;
   margin: 0 0 4px;
   font-size: 0.9rem;
 }
@@ -249,9 +234,4 @@
   font-size: 0.8rem;
   color: #9ca3af;
   margin: 0;
-}
-
-.residents-table-card__footer {
-  padding: 12px 20px;
-  border-top: 1px solid #f3f4f6;
 }

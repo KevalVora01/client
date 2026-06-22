@@ -1,9 +1,13 @@
 /* ── Shell ── */
 .sidebar {
   width: 240px;
-  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
   background-color: #ffffff;
   border-right: 1px solid #e5e7eb;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 /* ── Brand ── */
@@ -36,7 +40,7 @@
 
 .sidebar__nav-link:hover {
   background-color: #e0e7ff;
-  color: #4b5563;
+  color: #2c2f33;
 }
 
 .sidebar__nav-link--active {
@@ -51,7 +55,7 @@
   border: none;
   background: transparent;
   font-size: 0.92rem;
-  color: #4b5563;
+  color: #2c2f33;
   cursor: pointer;
   text-align: left;
   transition: background-color 0.15s ease, color 0.15s ease;
@@ -59,7 +63,7 @@
 
 .sidebar__bottom-btn:hover {
   background-color: #e0e7ff;
-  color: #4b5563;
+  color: #2c2f33;
 }
 
 /* ── Profile card ── */
@@ -102,4 +106,27 @@
   background-color: #fee2e2;
   border-color: #fecaca;
   color: #ef4444;
+}
+
+
+.sidebar__close-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__close-btn:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 760px) {
+  .sidebar__close-btn {
+    display: flex;
+  }
 }

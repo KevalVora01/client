@@ -1,17 +1,40 @@
+// src/components/layout/AdminLayout/DashboardLayout.tsx
+
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import Topbar from '../Topbar/Topbar';
+import { useSidebar } from '../../../hooks/useSidebar';
+import './DashboardLayout.css';
 
-const DashboardLayout = () => (
-  <div className="d-flex" style={{ minHeight: '100vh' }}>
-    <Sidebar />
-    <div className="d-flex flex-column flex-grow-1">  {/* ← column wrapper */}
-      <Topbar />
-      <main className="flex-grow-1 bg-light p-4">
-        <Outlet />
-      </main>
+const DashboardLayout = () => {
+  const { isOpen, toggle, close } = useSidebar();
+
+  return (
+    <div className="dashboard-layout">
+
+      {/* ── Mobile overlay ── */}
+      {isOpen && (
+        <div
+          className="dashboard-layout__overlay"
+          onClick={close}
+        />
+      )}
+
+      {/* ── Sidebar ── */}
+      <div className={`dashboard-layout__sidebar ${isOpen ? 'dashboard-layout__sidebar--open' : ''}`}>
+        <Sidebar onClose={close} />
+      </div>
+
+      {/* ── Main ── */}
+      <div className="dashboard-layout__main">
+        <Topbar onMenuClick={toggle} />
+        <main className="dashboard-layout__content">
+          <Outlet />
+        </main>
+      </div>
+
     </div>
-  </div>
-);
+  );
+};
 
 export default DashboardLayout;

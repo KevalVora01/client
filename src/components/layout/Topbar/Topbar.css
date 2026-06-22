@@ -70,3 +70,26 @@
   border-radius: 50%;
   border: 1.5px solid #ffffff;
 }
+
+/* show only on mobile */
+.topbar__menu-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  color: #374151;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.topbar__menu-btn:hover {
+  background: #f3f4f6;
+}
+
+@media (max-width: 760px) {
+  .topbar__menu-btn {
+    display: flex;
+  }
+}

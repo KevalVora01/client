@@ -11,6 +11,7 @@ import {
   UserCheck,
   UserMinus,
   LogOut,
+  X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -24,42 +25,45 @@ interface NavItem {
   path: string;
 }
 
+interface SidebarProps {
+  onClose?: () => void;
+}
+
 // ─── Nav config per role ──────────────────────────────────────────
 const navConfig: Record<UserRole, NavItem[]> = {
   admin: [
-    { label: 'Dashboard',  icon: LayoutDashboard,       path: '/' },
-    { label: 'Residents',  icon: Users,                 path: '/residents' },
-    { label: 'Apartments', icon: Building2,             path: '/apartments' },
-    { label: 'Notices',    icon: Megaphone,             path: '/notices' },
-    { label: 'Complaints', icon: MessageSquareWarning,  path: '/complaints' },
-    { label: 'Billing',    icon: ReceiptText,           path: '/billing' },
-    { label: 'Events',     icon: CalendarDays,          path: '/events' },
-    { label: 'Logs',       icon: History,               path: '/logs' },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'Residents', icon: Users, path: '/residents' },
+    { label: 'Apartments', icon: Building2, path: '/apartments' },
+    { label: 'Notices', icon: Megaphone, path: '/notices' },
+    { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
+    { label: 'Billing', icon: ReceiptText, path: '/billing' },
+    { label: 'Events', icon: CalendarDays, path: '/events' },
+    { label: 'Logs', icon: History, path: '/logs' },
   ],
   resident: [
-    { label: 'My Dashboard',  icon: LayoutDashboard,       path: '/' },
-    { label: 'Notices',       icon: Megaphone,             path: '/notices' },
-    { label: 'My Complaints', icon: MessageSquareWarning,  path: '/complaints' },
-    { label: 'My Invoices',   icon: ReceiptText,           path: '/invoices' },
-    { label: 'My Visitors',   icon: UserCheck,             path: '/visitors' },
-    { label: 'Events',        icon: CalendarDays,          path: '/events' },
+    { label: 'My Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'Notices', icon: Megaphone, path: '/notices' },
+    { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
+    { label: 'My Invoices', icon: ReceiptText, path: '/invoices' },
+    { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
+    { label: 'Events', icon: CalendarDays, path: '/events' },
   ],
   security: [
-    { label: 'Visitor Check-In',  icon: UserCheck,  path: '/checkin' },
-    { label: 'Visitor Check-Out', icon: UserMinus,  path: '/checkout' },
-    { label: 'Visitor Logs',      icon: History,    path: '/logs' },
+    { label: 'Visitor Check-In', icon: UserCheck, path: '/checkin' },
+    { label: 'Visitor Check-Out', icon: UserMinus, path: '/checkout' },
+    { label: 'Visitor Logs', icon: History, path: '/logs' },
   ],
 };
 
 // ─── Role subtitle ────────────────────────────────────────────────
 const roleLabel: Record<UserRole, string> = {
-  admin:    'Admin',
+  admin: 'Admin',
   resident: 'Resident',
   security: 'Security',
 };
 
-// ─── Component ────────────────────────────────────────────────────
-const Sidebar = () => {
+const Sidebar = ({ onClose }: SidebarProps) => {
   const { user, logout } = useAuth();
 
   const role: UserRole = user?.role ?? 'resident';
@@ -69,11 +73,14 @@ const Sidebar = () => {
     <div className="sidebar d-flex flex-column">
 
       {/* ── Brand ── */}
-      <div className="sidebar__brand px-3 pt-4 pb-3">
-        <h5 className="sidebar__brand-name mb-0">Civic Horizon</h5>
-        <span className="sidebar__brand-role text-uppercase">
-          {roleLabel[role]}
-        </span>
+      <div className="sidebar__brand px-3 pt-4 pb-3 d-flex align-items-center justify-content-between">
+        <div>
+          <h5 className="sidebar__brand-name mb-0">Civic Horizon</h5>
+          <span className="sidebar__brand-role text-uppercase">{roleLabel[role]}</span>
+        </div>
+        <button className="sidebar__close-btn" onClick={onClose} aria-label="Close sidebar">
+          <X size={18} strokeWidth={1.8} />
+        </button>
       </div>
 
       {/* ── Nav ── */}
@@ -85,9 +92,7 @@ const Sidebar = () => {
                 to={path}
                 end={path === '/'}
                 className={({ isActive }) =>
-                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none${
-                    isActive ? ' sidebar__nav-link--active' : ''
-                  }`
+                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none${isActive ? ' sidebar__nav-link--active' : ''}`
                 }
               >
                 <Icon size={20} strokeWidth={1.8} className="flex-shrink-0" />
@@ -115,11 +120,7 @@ const Sidebar = () => {
             </p>
           </div>
         </div>
-        <button
-          className="sidebar__logout-btn flex-shrink-0"
-          onClick={logout}
-          aria-label="Logout"
-        >
+        <button className="sidebar__logout-btn flex-shrink-0" onClick={logout} aria-label="Logout">
           <LogOut size={18} strokeWidth={1.8} />
         </button>
       </div>

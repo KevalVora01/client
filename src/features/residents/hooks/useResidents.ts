@@ -1,0 +1,90 @@
+// src/features/residents/hooks/useResidents.ts
+
+import { useState, useEffect } from "react";
+import { residentApi } from "../api/residentApi";
+import type { ResidentDetail, ResidentFilters } from "../types/resident.types";
+import type { PaginatedResult } from "../../../types/pagination.types";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
+
+export const useResidents = () => {
+  const [residents, setResidents] = useState<ResidentDetail[]>([]);
+  const [pagination, setPagination] = useState<Omit<PaginatedResult<ResidentDetail>, "items">>({
+    totalCount: 0,
+    pageNumber: 1,
+    pageSize: 10,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  const [filters, setFilters] = useState<ResidentFilters>({
+    pageNumber: 1,
+    pageSize: 10,
+    search: undefined,
+    apartmentId: undefined,
+    isActive: undefined,
+    isOwner: undefined,
+  });
+
+  const [loading, setLoading] = useState<boolean>(false); 
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetch = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await residentApi.getResidents(filters);
+        if (!cancelled) {
+          setResidents(response.items);
+          setPagination({
+            totalCount: response.totalCount,
+            pageNumber: response.pageNumber,
+            pageSize: response.pageSize,
+            totalPages: response.totalPages,
+            hasNextPage: response.hasNextPage,
+            hasPreviousPage: response.hasPreviousPage,
+          });
+        }
+      } catch (err: unknown) {
+        if (!cancelled) {
+          setError(getErrorMessage(err, "Failed to fetch residents"));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetch();
+
+    return () => { cancelled = true; };
+  }, [filters, refreshKey]);
+
+  const updateFilters = (newFilters: Partial<ResidentFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      pageNumber: 1,
+    }));
+  };
+
+  const changePage = (pageNumber: number) => {
+    setFilters((prev) => ({ ...prev, pageNumber }));
+  };
+
+  const refetch = () => setRefreshKey((prev) => prev + 1);
+
+  return {
+    residents,
+    pagination,
+    filters,
+    loading,
+    error,
+    updateFilters,
+    changePage,
+    refetch,
+  };
+};

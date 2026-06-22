@@ -1,0 +1,7 @@
+#isOwner:checked {
+  background-color: #1a1f36;
+  border-color: #1a1f36;
+}
+#isOwner:focus {
+  box-shadow: 0 0 0 3px rgba(26, 31, 54, 0.2);
+}

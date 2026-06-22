@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { CreateResidentPayload } from "../../types/resident.types";
+import './AddResidentModal.css';
+import ApartmentSelect from "../ApartmentSelect/ApartmentSelect";
 
 interface AddResidentModalProps {
   show: boolean;
@@ -36,8 +38,8 @@ const AddResidentModal = ({
       [name]: type === "checkbox"
         ? (e.target as HTMLInputElement).checked
         : name === "apartmentId"
-        ? Number(value)
-        : value,
+          ? Number(value)
+          : value,
     }));
     setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
@@ -73,6 +75,11 @@ const AddResidentModal = ({
     setFormErrors({});
     onClose();
   };
+
+  useEffect(() => {
+    if (show) document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, [show]);
 
   if (!show) return null;
 
@@ -179,16 +186,20 @@ const AddResidentModal = ({
                   <label className="form-label small">
                     Apartment <span className="text-danger">*</span>
                   </label>
-                  <select
-                    name="apartmentId"
-                    className={`form-select ${formErrors.apartmentId ? "is-invalid" : ""}`}
-                    value={form.apartmentId || "0"}
-                    onChange={handleChange}
-                  >
-                    <option value="">Select apartment</option>
-                    <option value="1">1</option>
-                    {/* populate from apartments API once built */}
-                  </select>
+                  <ApartmentSelect
+                    value={form.apartmentId}
+                    onChange={(val) => {
+                      setForm((prev) => ({ ...prev, apartmentId: val }));
+                      setFormErrors((prev) => ({ ...prev, apartmentId: undefined }));
+                    }}
+                    options={[
+                      { value: 1, label: "A-101", floor: "Floor 1", block: "Block A" },
+                      { value: 2, label: "A-102", floor: "Floor 1", block: "Block A" },
+                      { value: 3, label: "C-201", floor: "Floor 2", block: "Block B" },
+                      // populate from API
+                    ]}
+                    error={formErrors.apartmentId}
+                  />
                   {formErrors.apartmentId && <div className="invalid-feedback">{formErrors.apartmentId}</div>}
                 </div>
 
@@ -215,6 +226,7 @@ const AddResidentModal = ({
                       className="form-check-input"
                       checked={form.isOwner}
                       onChange={handleChange}
+                      style={{ width: "1.25em", height: "1.25em" }}
                     />
                     <label className="form-check-label small" htmlFor="isOwner">
                       This resident is an owner
@@ -235,8 +247,9 @@ const AddResidentModal = ({
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn"
                 disabled={loading}
+                style={{ background: "#1a1f36", color: "#fff" }}
               >
                 {loading ? (
                   <>

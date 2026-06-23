@@ -3,7 +3,8 @@ import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 import LoginPage from '../features/auth/pages/LoginPage';
 import DashboardLayout from '../components/layout/AdminLayout/DashboardLayout';
-import ResidentsPage from '../features/residents/pages/ResidentsPage';
+import ResidentsPage from '../features/residents/pages/ResidentsPage/ResidentsPage';
+import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage/ResidentDetailPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -25,6 +26,7 @@ const AppRoutes = () => {
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/residents" element={<ResidentsPage />} />
+            <Route path="/residents/:id" element={<ResidentDetailPage />} />
             {/* rest of admin routes */}
           </Route>
         </Route>

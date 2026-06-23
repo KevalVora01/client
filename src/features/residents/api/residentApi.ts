@@ -20,7 +20,7 @@ export const residentApi = {
 
   getResident: async (id: number): Promise<ResidentDetail> => {
     const response = await api.get(`/residents/${id}`);
-    return response.data.data;
+    return response.data.data.data;
   },
 
   createResident: async (payload: CreateResidentPayload): Promise<ResidentDetail> => {

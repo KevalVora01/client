@@ -1,13 +1,13 @@
 import { UserPlus } from "lucide-react";
-import { useResidentsPage } from "../hooks/useResidentsPage";
-import ResidentStatsCards from "../components/ResidentStatsCards/ResidentStatsCards";
-import ResidentFiltersComponent from "../components/ResidentFilters/ResidentFilters";
-import ResidentTable from "../components/ResidentTable/ResidentTable";
-import Pagination from "../../../components/Pagination/Pagination";
+import { useResidentsPage } from "../../hooks/useResidentsPage";
+import ResidentStatsCards from "../../components/ResidentStatsCards/ResidentStatsCards";
+import ResidentFiltersComponent from "../../components/ResidentFilters/ResidentFilters";
+import ResidentTable from "../../components/ResidentTable/ResidentTable";
+import Pagination from "../../../../components/Pagination/Pagination";
 import "./ResidentsPage.css";
-import ResidentFormModal from "../components/ResidentFormModal/ResidentFormModal";
-import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
-import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+import ResidentFormModal from "../../components/ResidentFormModal/ResidentFormModal";
+import type { CreateResidentPayload, UpdateResidentPayload } from "../../types/resident.types";
+import ConfirmDialog from "../../../../components/ConfirmDialog/ConfirmDialog";
 
 const ResidentsPage = () => {
   const {

@@ -7,6 +7,7 @@ import type {
   UpdateResidentPayload,
 } from "../types/resident.types";
 import { showSuccess } from "../../../utils/toast";
+import { useNavigate } from "react-router-dom";
 
 export const useResidentsPage = () => {
   // ── Data ──────────────────────────────────────────────────
@@ -33,8 +34,10 @@ export const useResidentsPage = () => {
   const [selectedResident, setSelectedResident] = useState<ResidentDetail | null>(null);
 
   // ── Handlers ──────────────────────────────────────────────
+  const navigate = useNavigate();
+  
   const handleView = (resident: ResidentDetail) => {
-    console.log("View resident", resident.id);
+    navigate(`/residents/${resident.id}`);
   };
 
   const handleEdit = (resident: ResidentDetail) => {

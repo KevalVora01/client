@@ -1,10 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
-import LoginPage from '../features/auth/pages/LoginPage';
+import LoginPage from '../features/auth/pages/LoginPage/LoginPage';
 import DashboardLayout from '../components/layout/AdminLayout/DashboardLayout';
 import ResidentsPage from '../features/residents/pages/ResidentsPage/ResidentsPage';
 import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage/ResidentDetailPage';
+import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage/ResetPasswordPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -19,6 +21,8 @@ const AppRoutes = () => {
         {/* ─── Guest routes (only for unauthenticated users) ─── */}
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
         {/* ─── Protected routes (admin only) ───────────────── */}

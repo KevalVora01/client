@@ -42,3 +42,12 @@ export interface RefreshTokenResponse {
 export interface MeResponse {
   user: User;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface ResetPasswordPayload {
+  token: string;
+  newPassword: string;
+}

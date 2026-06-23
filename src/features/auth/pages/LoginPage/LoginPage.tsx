@@ -1,7 +1,8 @@
 import { Mail, Lock, Eye, EyeOff, Home } from 'lucide-react';
-import useLogin from '../hooks/useLogin';
-import type { UserRole } from '../types/auth.types';
 import './LoginPage.css';
+import { Link } from 'react-router-dom';
+import useLogin from '../../hooks/useLogin';
+import type { UserRole } from '../../types/auth.types';
 
 const LoginPage = () => {
   const {
@@ -79,7 +80,7 @@ const LoginPage = () => {
                 <label className="field-label mb-0" htmlFor="password">
                   Password
                 </label>
-                <a href="#" className="forgot-link">Forgot?</a>
+                <Link to="/forgot-password" className="forgot-link">Forgot?</Link>
               </div>
               <div className="input-with-icon">
                 <Lock size={18} className="input-with-icon__icon" />

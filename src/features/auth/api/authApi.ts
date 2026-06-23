@@ -36,3 +36,13 @@ export const getMeApi = async (): Promise<MeResponse> => {
 export const logoutApi = async (): Promise<void> => {
   await api.post('/auth/logout');
 };
+
+// ─── Forgot password ──────────────────────────────────────────────
+export const forgotPasswordApi = async (email: string): Promise<void> => {
+  await api.post('/auth/forgot-password', { email });
+};
+
+// ─── Reset password ───────────────────────────────────────────────
+export const resetPasswordApi = async (token: string, newPassword: string): Promise<void> => {
+  await api.post('/auth/reset-password', { token, newPassword });
+};

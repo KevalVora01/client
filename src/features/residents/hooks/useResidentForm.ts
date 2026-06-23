@@ -1,5 +1,3 @@
-// src/features/residents/hooks/useResidentForm.ts
-
 import { useState, useEffect } from "react";
 import type { ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import { useScrollLock } from "../../../hooks/useScrollLock";

@@ -1,16 +1,7 @@
-import type { ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from "../../types/resident.types";
+import type { CreateResidentPayload, UpdateResidentPayload, ResidentFormModalProps } from "../../types/resident.types";
 import { useResidentForm } from "../../hooks/useResidentForm";
 import ApartmentSelect from "../ApartmentSelect/ApartmentSelect";
 import "./ResidentFormModal.css";
-
-interface ResidentFormModalProps {
-  show: boolean;
-  mode: "add" | "edit";
-  resident?: ResidentDetail | null;
-  loading: boolean;
-  onClose: () => void;
-  onSubmit: (payload: CreateResidentPayload | UpdateResidentPayload, id?: number) => Promise<boolean>;
-}
 
 const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }: ResidentFormModalProps) => {
   const { isEdit, form, formErrors, handleChange, setAddField, setEditField, handleSubmit, handleClose } =
@@ -50,8 +41,8 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
                 <div className="col-md-6">
                   <label className="form-label rfm-label">Full name <span className="text-danger">*</span></label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="name"
                     autoComplete="name"
                     className={`form-control rfm-input ${formErrors.name ? "is-invalid" : ""}`}
@@ -81,8 +72,8 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
                 <div className="col-md-6">
                   <label className="form-label rfm-label">Phone <span className="text-danger">*</span></label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     name="phone"
                     autoComplete="phone"
                     className={`form-control rfm-input ${formErrors.phone ? "is-invalid" : ""}`}

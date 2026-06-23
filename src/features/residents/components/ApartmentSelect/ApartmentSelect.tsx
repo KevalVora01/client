@@ -1,20 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import "./ApartmentSelect.css";
-
-interface ApartmentOption {
-  value: number;
-  label: string;
-  floor?: string;
-  block?: string;
-}
-
-interface ApartmentSelectProps {
-  value: number;
-  onChange: (value: number) => void;
-  options: ApartmentOption[];
-  error?: string;
-  placeholder?: string;
-}
+import type { ApartmentSelectProps } from "../../types/resident.types";
 
 const ApartmentSelect = ({
   value,

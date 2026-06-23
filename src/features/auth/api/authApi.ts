@@ -1,5 +1,5 @@
 import api from '../../../config/api';
-import type { ApiResponse } from '../../../types/api';
+import type { ApiResponse } from '../../../types/api.types';
 import type {
   LoginPayload,
   RegisterPayload,

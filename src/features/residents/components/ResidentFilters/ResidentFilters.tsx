@@ -1,11 +1,6 @@
 import { useState } from "react";
-import type { ResidentFilters } from "../../types/resident.types";
+import type { ResidentFiltersProps } from "../../types/resident.types";
 import "./ResidentFilters.css";
-
-interface ResidentFiltersProps {
-  filters: ResidentFilters;
-  onFilterChange: (filters: Partial<ResidentFilters>) => void;
-}
 
 const ResidentFiltersComponent = ({
   filters,

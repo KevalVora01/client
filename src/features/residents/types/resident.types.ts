@@ -63,4 +63,42 @@ export interface AddResidentModalProps {
   onSubmit: (payload: CreateResidentPayload) => Promise<boolean>;
 }
 
+export interface ResidentFormModalProps {
+  show: boolean;
+  mode: "add" | "edit";
+  resident?: ResidentDetail | null;
+  loading: boolean;
+  onClose: () => void;
+  onSubmit: (payload: CreateResidentPayload | UpdateResidentPayload, id?: number) => Promise<boolean>;
+}
+
+export interface ResidentFiltersProps {
+  filters: ResidentFilters;
+  onFilterChange: (filters: Partial<ResidentFilters>) => void;
+}
+
+export interface ResidentTableProps {
+  residents: ResidentDetail[];
+  loading: boolean;
+  onView: (resident: ResidentDetail) => void;
+  onEdit: (resident: ResidentDetail) => void;
+  onDeactivate: (resident: ResidentDetail) => void;
+}
+
+
+export interface ApartmentOption {
+  value: number;
+  label: string;
+  floor?: string;
+  block?: string;
+}
+
+export interface ApartmentSelectProps {
+  value: number;
+  onChange: (value: number) => void;
+  options: ApartmentOption[];
+  error?: string;
+  placeholder?: string;
+}
+
 export type ResidentsResponse = PaginatedResult<ResidentDetail>;

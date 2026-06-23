@@ -6,7 +6,7 @@
 /* ── Trigger ── */
 .apt-select__trigger {
   width: 100%;
-  height: 38px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -17,7 +17,6 @@
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
   text-align: left;
-  z-index: 1000;
 }
 
 .apt-select__trigger:focus,

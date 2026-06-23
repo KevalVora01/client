@@ -55,4 +55,12 @@ export interface ResidentFilters extends PaginatedRequest {
   isOwner?: boolean;
 }
 
+export interface AddResidentModalProps {
+  show: boolean;
+  loading: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSubmit: (payload: CreateResidentPayload) => Promise<boolean>;
+}
+
 export type ResidentsResponse = PaginatedResult<ResidentDetail>;

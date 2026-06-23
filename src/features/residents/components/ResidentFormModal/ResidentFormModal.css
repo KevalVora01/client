@@ -1,0 +1,128 @@
+/* Backdrop */
+.rfm-backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Modal shape */
+.rfm-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+/* Header */
+.rfm-header {
+  position: relative;
+  border-bottom: 1px solid #f3f4f6;
+  padding: 1.25rem 1.5rem 1rem;
+  align-items: flex-start;
+}
+
+.rfm-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1f36;
+  margin: 0 0 2px;
+}
+
+.rfm-subtitle {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Custom close */
+.rfm-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e9ecef;
+  border-radius: 7px;
+  background: #fff;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.12s, color 0.12s;
+}
+
+/* Section label */
+.rfm-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin: 0 0 0.85rem;
+}
+
+.rfm-divider {
+  border-color: #f3f4f6;
+  margin: 1.1rem 0;
+}
+
+/* Inputs */
+.rfm-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+.rfm-input {
+  font-size: 0.875rem;
+  border-color: #e5e7eb;
+  color: #1a1f36;
+  border-radius: 8px;
+}
+
+.rfm-input:focus {
+  border-color: #000;
+  box-shadow: none;
+}
+
+/* Checkbox */
+.rfm-checkbox:checked {
+  background-color: #1a1f36;
+  border-color: #1a1f36;
+}
+
+.rfm-checkbox:focus {
+  box-shadow: 0 0 0 3px rgba(26, 31, 54, 0.15);
+}
+
+/* Footer */
+.rfm-footer {
+  border-top: 1px solid #f3f4f6;
+  padding: 1rem 1.5rem;
+}
+
+.rfm-footer .btn {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.rfm-btn-submit {
+  background: #1a1f36;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.rfm-btn-submit:hover:not(:disabled) {
+  background: #1a1f36;
+  color: #fff;
+  border-color: #1a1f36;
+}
+
+.rfm-btn-submit:disabled {
+  opacity: 0.55;
+}

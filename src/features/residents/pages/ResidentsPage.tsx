@@ -1,36 +1,27 @@
-import { useState } from 'react';
-import { UserPlus } from 'lucide-react';
-import { useResidents } from '../hooks/useResidents';
-import { useResidentMutations } from '../hooks/useResidentMutations';
-import type { ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from '../types/resident.types';
-import ResidentStatsCards from '../components/ResidentStatsCards/ResidentStatsCards';
-import ResidentFiltersComponent from '../components/ResidentFilters/ResidentFilters';
-import ResidentTable from '../components/ResidentTable/ResidentTable';
-import Pagination from '../../../components/Pagination/Pagination';
-import AddResidentModal from '../components/AddResidentModal/AddResidentModal';
-import EditResidentModal from '../components/EditResidentModal/EditResidentModal';
-import DeactivateConfirmModal from '../components/DeactivateConfirmModal/DeactivateConfirmModal';
-import './ResidentsPage.css';
+import { UserPlus } from "lucide-react";
+import { useResidentsPage } from "../hooks/useResidentsPage";
+import ResidentStatsCards from "../components/ResidentStatsCards/ResidentStatsCards";
+import ResidentFiltersComponent from "../components/ResidentFilters/ResidentFilters";
+import ResidentTable from "../components/ResidentTable/ResidentTable";
+import Pagination from "../../../components/Pagination/Pagination";
+import "./ResidentsPage.css";
+import ResidentFormModal from "../components/ResidentFormModal/ResidentFormModal";
+import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 const ResidentsPage = () => {
-  const { residents, pagination, filters, loading, error, updateFilters, changePage, refetch } = useResidents();
   const {
-    createResident, createLoading, createError,
-    updateResident, updateLoading, updateError,
-    deactivateResident, deactivateLoading, deactivateError,
-  } = useResidentMutations(refetch);
-
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeactivateModal, setShowDeactivateModal] = useState(false);
-  const [selectedResident, setSelectedResident] = useState<ResidentDetail | null>(null);
-
-  const handleEdit = (resident: ResidentDetail) => { setSelectedResident(resident); setShowEditModal(true); };
-  const handleDeactivate = (resident: ResidentDetail) => { setSelectedResident(resident); setShowDeactivateModal(true); };
-  const handleView = (resident: ResidentDetail) => { console.log('View resident', resident.id); };
-  const handleCreate = async (payload: CreateResidentPayload): Promise<boolean> => await createResident(payload);
-  const handleUpdate = async (id: number, payload: UpdateResidentPayload): Promise<boolean> => await updateResident(id, payload);
-  const handleDeactivateConfirm = async (id: number): Promise<boolean> => await deactivateResident(id);
+    residents, pagination, filters, loading, error,
+    updateFilters, changePage, refetch,
+    showAddModal, showEditModal, showDeactivateModal,
+    setShowAddModal, selectedResident,
+    createLoading, createError,
+    updateLoading, updateError,
+    deactivateLoading, 
+    handleView, handleEdit, handleDeactivate,
+    handleCreate, handleUpdate, handleDeactivateConfirm,
+    handleCloseEdit, handleCloseDeactivate,
+  } = useResidentsPage();
 
   return (
     <div className="residents-page">
@@ -50,10 +41,7 @@ const ResidentsPage = () => {
       </div>
 
       {/* ── Stats ── */}
-      <ResidentStatsCards
-        residents={residents}
-        totalCount={pagination.totalCount}
-      />
+      <ResidentStatsCards residents={residents} totalCount={pagination.totalCount} />
 
       {/* ── Table card ── */}
       <div className="residents-table-card">
@@ -82,9 +70,36 @@ const ResidentsPage = () => {
       </div>
 
       {/* ── Modals ── */}
-      <AddResidentModal show={showAddModal} loading={createLoading} error={createError} onClose={() => setShowAddModal(false)} onSubmit={handleCreate} />
-      <EditResidentModal key={selectedResident?.id} show={showEditModal} loading={updateLoading} error={updateError} resident={selectedResident} onClose={() => { setShowEditModal(false); setSelectedResident(null); }} onSubmit={handleUpdate} />
-      <DeactivateConfirmModal show={showDeactivateModal} loading={deactivateLoading} error={deactivateError} resident={selectedResident} onClose={() => { setShowDeactivateModal(false); setSelectedResident(null); }} onConfirm={handleDeactivateConfirm} />
+      <ResidentFormModal
+        key={selectedResident?.id ?? "add"}
+        show={showAddModal || showEditModal}
+        mode={showEditModal ? "edit" : "add"}
+        resident={selectedResident}
+        loading={showEditModal ? updateLoading : createLoading}
+        error={showEditModal ? updateError : createError}
+        onClose={showEditModal ? handleCloseEdit : () => setShowAddModal(false)}
+        onSubmit={(payload, id) =>
+          showEditModal
+            ? handleUpdate(id!, payload as UpdateResidentPayload)
+            : handleCreate(payload as CreateResidentPayload)
+        }
+      />
+
+      <ConfirmDialog
+        show={showDeactivateModal}
+        title="Deactivate Resident"
+        message={
+          selectedResident
+            ? `Are you sure you want to deactivate ${selectedResident.user.name}? They will lose access to the system.`
+            : "Are you sure you want to deactivate this resident?"
+        }
+        confirmLabel="Yes, Deactivate"
+        variant="warning"
+        loading={deactivateLoading}
+        onConfirm={() => selectedResident && handleDeactivateConfirm(selectedResident.id)}
+        onCancel={handleCloseDeactivate}
+      />
+
     </div>
   );
 };

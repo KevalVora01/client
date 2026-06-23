@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import "./ConfirmDialog.css";
+import { useScrollLock } from "../../hooks/useScrollLock";
 
 type ConfirmVariant = "danger" | "warning" | "info";
 
@@ -51,10 +52,7 @@ const ConfirmDialog = ({
   const config = VARIANT_CONFIG[variant];
 
   // lock body scroll
-  useEffect(() => {
-    if (show) document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [show]);
+  useScrollLock(show);
 
   // close on Escape
   useEffect(() => {

@@ -1,5 +1,3 @@
-// src/features/residents/hooks/useResidents.ts
-
 import { useState, useEffect } from "react";
 import { residentApi } from "../api/residentApi";
 import type { ResidentDetail, ResidentFilters } from "../types/resident.types";

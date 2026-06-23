@@ -46,10 +46,6 @@
   flex-shrink: 0;
 }
 
-.residents-page__add-btn:hover {
-  background: #2d3561;
-}
-
 /* ── Error banner ── */
 .residents-page__error {
   display: flex;

@@ -2,79 +2,61 @@ import { useState } from "react";
 import { residentApi } from "../api/residentApi";
 import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
-
-interface MutationState {
-  loading: boolean;
-  error: string | null;
-}
+import { showError } from "../../../utils/toast";
 
 export const useResidentMutations = (onSuccess?: () => void) => {
-  const [createState, setCreateState] = useState<MutationState>({ loading: false, error: null });
-  const [updateState, setUpdateState] = useState<MutationState>({ loading: false, error: null });
-  const [deactivateState, setDeactivateState] = useState<MutationState>({ loading: false, error: null });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [deactivateLoading, setDeactivateLoading] = useState(false);
 
   const createResident = async (payload: CreateResidentPayload): Promise<boolean> => {
     try {
-      setCreateState({ loading: true, error: null });
+      setCreateLoading(true);
       await residentApi.createResident(payload);
       onSuccess?.();
       return true;
     } catch (err: unknown) {
-      setCreateState((prev) => ({
-        ...prev,
-        error: getErrorMessage(err, "Failed to create resident"),
-      }));
+      showError(getErrorMessage(err, "Failed to create resident"));
       return false;
     } finally {
-      setCreateState((prev) => ({ ...prev, loading: false }));
+      setCreateLoading(false);
     }
   };
 
   const updateResident = async (id: number, payload: UpdateResidentPayload): Promise<boolean> => {
     try {
-      setUpdateState({ loading: true, error: null });
+      setUpdateLoading(true);
       await residentApi.updateResident(id, payload);
       onSuccess?.();
       return true;
     } catch (err: unknown) {
-      setUpdateState((prev) => ({
-        ...prev,
-        error: getErrorMessage(err, "Failed to update resident"),
-      }));
+      showError(getErrorMessage(err, "Failed to update resident"));
       return false;
     } finally {
-      setUpdateState((prev) => ({ ...prev, loading: false }));
+      setUpdateLoading(false);
     }
   };
 
   const deactivateResident = async (id: number): Promise<boolean> => {
     try {
-      setDeactivateState({ loading: true, error: null });
+      setDeactivateLoading(true);
       await residentApi.deactivateResident(id);
       onSuccess?.();
       return true;
     } catch (err: unknown) {
-      setDeactivateState((prev) => ({
-        ...prev,
-        error: getErrorMessage(err, "Failed to deactivate resident"),
-      }));
+      showError(getErrorMessage(err, "Failed to deactivate resident"));
       return false;
     } finally {
-      setDeactivateState((prev) => ({ ...prev, loading: false }));
+      setDeactivateLoading(false);
     }
   };
 
   return {
     createResident,
-    createLoading: createState.loading,
-    createError: createState.error,
-
+    createLoading,
     updateResident,
-    updateLoading: updateState.loading,
-    updateError: updateState.error,
-
+    updateLoading,
     deactivateResident,
-    deactivateLoading: deactivateState.loading,
-    deactivateError: deactivateState.error,
+    deactivateLoading,
   };
 };

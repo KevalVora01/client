@@ -6,6 +6,7 @@ import type {
   CreateResidentPayload,
   UpdateResidentPayload,
 } from "../types/resident.types";
+import { showSuccess } from "../../../utils/toast";
 
 export const useResidentsPage = () => {
   // ── Data ──────────────────────────────────────────────────
@@ -21,9 +22,8 @@ export const useResidentsPage = () => {
   } = useResidents();
 
   const {
-    createResident, createLoading, createError,
-    updateResident, updateLoading, updateError,
-    deactivateResident, deactivateLoading, deactivateError,
+    createResident, createLoading, updateResident, updateLoading,
+    deactivateResident, deactivateLoading,
   } = useResidentMutations(refetch);
 
   // ── Modal state ───────────────────────────────────────────
@@ -47,14 +47,23 @@ export const useResidentsPage = () => {
     setShowDeactivateModal(true);
   };
 
-  const handleCreate = async (payload: CreateResidentPayload): Promise<boolean> =>
-    await createResident(payload);
+  const handleCreate = async (payload: CreateResidentPayload): Promise<boolean> => {
+    const success = await createResident(payload);
+    if (success) showSuccess("Resident created successfully");
+    return success;
+  };
 
-  const handleUpdate = async (id: number, payload: UpdateResidentPayload): Promise<boolean> =>
-    await updateResident(id, payload);
+  const handleUpdate = async (id: number, payload: UpdateResidentPayload): Promise<boolean> => {
+    const success = await updateResident(id, payload);
+    if (success) showSuccess("Resident updated successfully");
+    return success;
+  };
 
-  const handleDeactivateConfirm = async (id: number): Promise<boolean> =>
-    await deactivateResident(id);
+  const handleDeactivateConfirm = async (id: number): Promise<boolean> => {
+    const success = await deactivateResident(id);
+    if (success) showSuccess("Resident deactivated successfully");
+    return success;
+  };
 
   const handleCloseEdit = () => {
     setShowEditModal(false);
@@ -87,9 +96,9 @@ export const useResidentsPage = () => {
     selectedResident,
 
     // mutation state
-    createLoading, createError,
-    updateLoading, updateError,
-    deactivateLoading, deactivateError,
+    createLoading,
+    updateLoading,
+    deactivateLoading,
 
     // handlers
     handleView,

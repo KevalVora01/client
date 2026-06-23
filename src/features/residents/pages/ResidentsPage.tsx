@@ -11,13 +11,11 @@ import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 const ResidentsPage = () => {
   const {
-    residents, pagination, filters, loading, error,
-    updateFilters, changePage, refetch,
+    residents, pagination, filters, loading,
+    updateFilters, changePage,
     showAddModal, showEditModal, showDeactivateModal,
     setShowAddModal, selectedResident,
-    createLoading, createError,
-    updateLoading, updateError,
-    deactivateLoading, 
+    deactivateLoading,
     handleView, handleEdit, handleDeactivate,
     handleCreate, handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate,
@@ -49,13 +47,6 @@ const ResidentsPage = () => {
           <ResidentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
 
-        {error && (
-          <div className="residents-page__error">
-            {error}
-            <button onClick={refetch} className="residents-page__retry">Retry</button>
-          </div>
-        )}
-
         <ResidentTable
           residents={residents}
           loading={loading}
@@ -75,8 +66,7 @@ const ResidentsPage = () => {
         show={showAddModal || showEditModal}
         mode={showEditModal ? "edit" : "add"}
         resident={selectedResident}
-        loading={showEditModal ? updateLoading : createLoading}
-        error={showEditModal ? updateError : createError}
+        loading={showEditModal ? false : false}
         onClose={showEditModal ? handleCloseEdit : () => setShowAddModal(false)}
         onSubmit={(payload, id) =>
           showEditModal

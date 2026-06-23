@@ -8,12 +8,11 @@ interface ResidentFormModalProps {
   mode: "add" | "edit";
   resident?: ResidentDetail | null;
   loading: boolean;
-  error: string | null;
   onClose: () => void;
   onSubmit: (payload: CreateResidentPayload | UpdateResidentPayload, id?: number) => Promise<boolean>;
 }
 
-const ResidentFormModal = ({ show, mode, resident, loading, error, onClose, onSubmit }: ResidentFormModalProps) => {
+const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }: ResidentFormModalProps) => {
   const { isEdit, form, formErrors, handleChange, setAddField, setEditField, handleSubmit, handleClose } =
     useResidentForm({ show, mode, resident, onSubmit, onClose });
 
@@ -45,20 +44,16 @@ const ResidentFormModal = ({ show, mode, resident, loading, error, onClose, onSu
           <form onSubmit={handleSubmit}>
             <div className="modal-body">
 
-              {/* ── API error ── */}
-              {error && (
-                <div className="alert alert-danger d-flex align-items-center gap-2 py-2 small">
-                  <i className="bi bi-exclamation-circle-fill" /> {error}
-                </div>
-              )}
-
               {/* ── User Account ── */}
               <p className="rfm-section-label">User Account</p>
               <div className="row g-3 mb-3">
 
                 <div className="col-md-6">
                   <label className="form-label rfm-label">Full name <span className="text-danger">*</span></label>
-                  <input type="text" name="name"
+                  <input 
+                    type="text" 
+                    name="name"
+                    autoComplete="name"
                     className={`form-control rfm-input ${formErrors.name ? "is-invalid" : ""}`}
                     placeholder="Enter full name"
                     value={isEdit ? editForm.name ?? "" : addForm.name}
@@ -71,7 +66,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, error, onClose, onSu
                 {!isEdit && (
                   <div className="col-md-6">
                     <label className="form-label rfm-label">Email <span className="text-danger">*</span></label>
-                    <input type="email" name="email"
+                    <input
+                      type="email"
+                      name="email"
+                      autoComplete="email"
                       className={`form-control rfm-input ${formErrors.email ? "is-invalid" : ""}`}
                       placeholder="Enter email address"
                       value={addForm.email}
@@ -83,7 +81,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, error, onClose, onSu
 
                 <div className="col-md-6">
                   <label className="form-label rfm-label">Phone <span className="text-danger">*</span></label>
-                  <input type="text" name="phone"
+                  <input 
+                    type="text" 
+                    name="phone"
+                    autoComplete="phone"
                     className={`form-control rfm-input ${formErrors.phone ? "is-invalid" : ""}`}
                     placeholder="Enter 10-digit phone number"
                     value={isEdit ? editForm.phone ?? "" : addForm.phone}
@@ -96,7 +97,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, error, onClose, onSu
                 {!isEdit && (
                   <div className="col-md-6">
                     <label className="form-label rfm-label">Password <span className="text-danger">*</span></label>
-                    <input type="password" name="password"
+                    <input
+                      type="password"
+                      name="password"
+                      autoComplete="new-password"
                       className={`form-control rfm-input ${formErrors.password ? "is-invalid" : ""}`}
                       placeholder="Min 8 characters"
                       value={addForm.password}

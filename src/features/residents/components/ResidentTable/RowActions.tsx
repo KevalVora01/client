@@ -1,5 +1,3 @@
-// src/features/residents/components/ResidentTable/RowActions.tsx
-
 import { useState, useRef, useEffect } from "react";
 import type { ResidentDetail } from "../../types/resident.types";
 

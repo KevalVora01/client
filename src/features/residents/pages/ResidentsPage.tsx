@@ -86,7 +86,11 @@ const ResidentsPage = () => {
         confirmLabel="Yes, Deactivate"
         variant="warning"
         loading={deactivateLoading}
-        onConfirm={() => selectedResident && handleDeactivateConfirm(selectedResident.id)}
+        onConfirm={async () => {
+          if (!selectedResident) return;
+          const success = await handleDeactivateConfirm(selectedResident.id);
+          if (success) handleCloseDeactivate();
+        }}
         onCancel={handleCloseDeactivate}
       />
 

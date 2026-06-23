@@ -49,30 +49,51 @@ const SkeletonRow = () => (
 );
 
 // ── Row actions dropdown ────────────────────────────────────
-const RowActions = ({ resident, onView, onEdit, onDeactivate }) => {
+const RowActions = ({ resident, onView, onEdit, onDeactivate }: {
+  resident: ResidentDetail;
+  onView: () => void;
+  onEdit: () => void;
+  onDeactivate: () => void;
+}) => {
   const [open, setOpen] = useState(false);
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const ref = useRef<HTMLDivElement>(null);
 
+  const calculatePos = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setMenuPos({
+        top: rect.bottom + 4,
+        left: rect.right - 148,
+      });
+    }
+  };
+
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
+
+    const handleScrollOrResize = () => {
+      if (open) calculatePos(); // recalculate on scroll
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [open]);
 
   const handleOpen = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setMenuPos({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.right + window.scrollX - 148,
-      });
-    }
+    calculatePos();
     setOpen((p) => !p);
   };
 

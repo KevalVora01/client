@@ -43,7 +43,6 @@ const ResidentDetailPage = () => {
     );
   }
 
-  // ── guard 1: loading
   if (loading) {
     return (
       <div className="rd-page">
@@ -54,29 +53,22 @@ const ResidentDetailPage = () => {
     );
   }
 
-  // ── guard 2: error or no data
   if (error || !resident) {
     return (
       <div className="rd-page">
         <div className="rd-error">
-          <p>{error ?? "Resident not found"}</p>
+          <i className="bi bi-exclamation-circle rd-error__icon" />
+          <p className="rd-error__title">Failed to load resident</p>
+          <p className="rd-error__sub">{error ?? "Resident not found"}</p>
+          <button className="rd-back-btn" onClick={() => navigate('/residents')}>
+            <ArrowLeft size={16} /> Back to residents
+          </button>
         </div>
       </div>
     );
   }
 
-  // ── guard 3: user data missing
-  if (!resident.user) {
-    return (
-      <div className="rd-page">
-        <div className="rd-error">
-          <p>Resident data incomplete</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ── safe to access resident.user from here
+  // safe to access resident.user from here
   const { bg, color } = getAvatarColor(resident.user.name);
 
   const infoCards = [

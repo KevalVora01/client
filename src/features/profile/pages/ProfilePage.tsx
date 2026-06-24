@@ -36,47 +36,19 @@ const ProfilePage = () => {
         </div>
       </div>
 
-      {/* ── Grid ── */}
+      {/* ── Side by side ── */}
       <div className="pf-grid">
-
         <PersonalInfoForm
           user={user}
           loading={updateLoading}
           onSubmit={updateProfile}
         />
-
-        {/* ── Account details ── */}
-        <div className="pf-card">
-          <div className="pf-card__head">
-            <div className="pf-card__title">
-              <i className="bi bi-shield-check" /> Account details
-            </div>
-          </div>
-          <div className="pf-stat-list">
-            <div className="pf-stat-row">
-              <span className="pf-stat-label"><i className="bi bi-person-badge" /> Role</span>
-              <span className="pf-stat-val">{user.role.charAt(0).toUpperCase() + user.role.slice(1)}</span>
-            </div>
-            <div className="pf-stat-row">
-              <span className="pf-stat-label"><i className="bi bi-calendar-plus" /> Member since</span>
-              <span className="pf-stat-val">{new Date(user.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
-            </div>
-            <div className="pf-stat-row">
-              <span className="pf-stat-label"><i className="bi bi-circle-fill pf-dot--active" /> Status</span>
-              <span className="pf-stat-val">{user.isActive ? 'Active' : 'Inactive'}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* ── Change password ── */}
-        <div className="pf-full">
-          <ChangePasswordForm
-            loading={passwordLoading}
-            onSubmit={changePassword}
-          />
-        </div>
-
+        <ChangePasswordForm
+          loading={passwordLoading}
+          onSubmit={changePassword}
+        />
       </div>
+
     </div>
   );
 };

@@ -17,6 +17,7 @@ export interface AuthContextType {
   isLoading: boolean;
   login: (payload: LoginPayload) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updated: Partial<User>) => void;
 }
 
 // ─── Context ──────────────────────────────────────────────────────
@@ -65,12 +66,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  const updateUser = useCallback((updated: Partial<User>) => {
+    setUser((prev) => prev ? { ...prev, ...updated } : prev);
+  }, []);
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
     isLoading,
     login,
     logout,
+    updateUser, 
   };
 
   return (

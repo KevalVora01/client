@@ -52,7 +52,7 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
         </div>
       </div>
 
-      <div className="pf-card__footer">
+      <div className="pf-card__footer" style={{ justifyContent: 'flex-end' }}>
         <button type="submit" className="pf-btn pf-btn--primary" disabled={loading}>
           {loading
             ? <><span className="pf-spinner" /> Saving...</>

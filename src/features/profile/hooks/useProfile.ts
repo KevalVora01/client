@@ -3,8 +3,10 @@ import { profileApi } from "../api/profileApi";
 import type { UpdateProfilePayload, ChangePasswordPayload } from "../types/profile.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { showSuccess, showError } from "../../../utils/toast";
+import useAuth from "../../../hooks/useAuth";
 
 export const useProfile = () => {
+  const { updateUser } = useAuth(); 
   const [updateLoading, setUpdateLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
@@ -12,6 +14,7 @@ export const useProfile = () => {
     try {
       setUpdateLoading(true);
       await profileApi.updateProfile(payload);
+      updateUser(payload); 
       showSuccess("Profile updated successfully");
       return true;
     } catch (err: unknown) {

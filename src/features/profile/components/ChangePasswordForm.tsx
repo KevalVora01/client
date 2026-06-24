@@ -35,7 +35,7 @@ const ChangePasswordForm = ({ loading, onSubmit }: ChangePasswordFormProps) => {
         </div>
       </div>
 
-      <div className="pf-form-grid pf-form-grid--3">
+      <div className="pf-form-grid" style={{ gridTemplateColumns: '1fr' }}>
         <div className="pf-field">
           <label>Current password</label>
           <input
@@ -69,8 +69,7 @@ const ChangePasswordForm = ({ loading, onSubmit }: ChangePasswordFormProps) => {
         </div>
       </div>
 
-      <div className="pf-card__footer">
-        <span className="pf-field__hint">Use at least 8 characters with uppercase, number and special character.</span>
+      <div className="pf-card__footer" style={{ justifyContent: 'flex-end' }}>
         <button type="submit" className="pf-btn pf-btn--primary" disabled={loading}>
           {loading
             ? <><span className="pf-spinner" /> Updating...</>

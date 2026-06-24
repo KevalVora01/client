@@ -7,6 +7,7 @@ import ResidentsPage from '../features/residents/pages/ResidentsPage/ResidentsPa
 import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage/ResidentDetailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage/ResetPasswordPage';
+import ProfilePage from '../features/profile/pages/ProfilePage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -45,11 +46,17 @@ const AppRoutes = () => {
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['security']} />}>
-          <Route element={<DashboardLayout />}>  {/* same layout */}
+          <Route element={<DashboardLayout />}>
             <Route path="/security" element={<SecurityDashboard />} />
             {/* <Route path="/checkin" element={<CheckInPage />} />
             <Route path="/checkout" element={<CheckOutPage />} />
             <Route path="/logs" element={<VisitorLogsPage />} /> */}
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>
 

@@ -1,0 +1,319 @@
+/* ── Page ── */
+.pf-page {
+  padding: 28px 32px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Hero ── */
+.pf-hero {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.pf-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.pf-hero__name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.pf-hero__meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.pf-hero__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.pf-hero__badges {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Badges ── */
+.pf-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: capitalize;
+}
+
+.pf-badge--role {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.pf-badge--active {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.pf-badge--inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* ── Grid ── */
+.pf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.pf-full {
+  grid-column: 1 / -1;
+}
+
+/* ── Card ── */
+.pf-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+
+.pf-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.pf-card__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pf-card__title i {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.pf-card__footer {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* ── Form ── */
+.pf-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.pf-form-grid--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.pf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pf-field--full {
+  grid-column: 1 / -1;
+}
+
+.pf-field label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.pf-field input {
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  padding: 0 12px;
+  font-size: 0.875rem;
+  background: #ffffff;
+  color: #374151;
+  font-family: inherit;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pf-field input:focus {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.pf-field input[readonly] {
+  background: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.pf-field__hint {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.pf-field__error {
+  font-size: 0.75rem;
+  color: #dc2626;
+}
+
+/* ── Stat list ── */
+.pf-stat-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pf-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.875rem;
+}
+
+.pf-stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.pf-stat-label {
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.pf-stat-label i {
+  font-size: 0.9rem;
+}
+
+.pf-stat-val {
+  font-weight: 600;
+  color: #111827;
+}
+
+.pf-dot--active {
+  font-size: 8px;
+  color: #16a34a;
+}
+
+/* ── Button ── */
+.pf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #374151;
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pf-btn--primary {
+  background: #1a1f36;
+  color: #ffffff;
+  border-color: #1a1f36;
+}
+
+.pf-btn--primary:hover {
+  background: #111827;
+}
+
+.pf-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Spinner ── */
+.pf-spinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: pf-spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+@keyframes pf-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .pf-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-full {
+    grid-column: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .pf-page {
+    padding: 16px;
+  }
+
+  .pf-form-grid--3 {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pf-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -19,6 +19,7 @@ import type { UserRole } from '../../../features/auth/types/auth.types';
 import './Sidebar.css';
 import { useState } from 'react';
 import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
+import { getAvatarColor, getInitials } from '../../../features/residents/components/ResidentTable/residentTableHelpers';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface NavItem {
@@ -67,7 +68,7 @@ const roleLabel: Record<UserRole, string> = {
 
 const Sidebar = ({ onClose }: SidebarProps) => {
   const { user, logout } = useAuth();
-
+  const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const role: UserRole = user?.role ?? 'resident';
@@ -109,12 +110,23 @@ const Sidebar = ({ onClose }: SidebarProps) => {
 
       {/* ── Profile card ── */}
       <div className="sidebar__profile d-flex align-items-center justify-content-between px-3 py-3">
-        <div className="d-flex align-items-center gap-2 overflow-hidden">
-          <img
-            src="https://github.com/shadcn.png"
-            alt="Profile"
-            className="sidebar__profile-img flex-shrink-0"
-          />
+        <div
+          className="d-flex align-items-center gap-2 overflow-hidden"
+          style={{ cursor: 'pointer' }}
+          onClick={() => navigate('/profile')}
+        >
+          {/* ✅ avatar instead of static image */}
+          <div
+            className="sidebar__profile-img flex-shrink-0 d-flex align-items-center justify-content-center fw-semibold"
+            style={{
+              background: getAvatarColor(user?.name ?? '').bg,
+              color: getAvatarColor(user?.name ?? '').color,
+              borderRadius: '50%',
+              fontSize: '0.75rem',
+            }}
+          >
+            {getInitials(user?.name ?? '')}
+          </div>
           <div className="overflow-hidden">
             <p className="sidebar__user-name fw-semibold mb-0 text-truncate">
               {user?.name ?? 'User'}

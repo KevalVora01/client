@@ -9,7 +9,6 @@ const ForgotPasswordPage = () => {
     setEmail,
     isLoading,
     isSubmitted,
-    error,
     handleSubmit,
   } = useForgotPassword();
 
@@ -59,14 +58,6 @@ const ForgotPasswordPage = () => {
               </p>
 
               <form onSubmit={handleSubmit}>
-
-                {/* Error */}
-                {error && (
-                  <div className="fp-error mb-3">
-                    <i className="bi bi-exclamation-circle me-2" />
-                    {error}
-                  </div>
-                )}
 
                 {/* Email */}
                 <div className="mb-4">

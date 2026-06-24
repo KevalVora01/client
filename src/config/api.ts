@@ -54,6 +54,8 @@ const skipRefreshUrls = [
   '/auth/login',
   '/auth/logout',
   '/auth/me',
+  '/auth/forgot-password',
+  '/auth/reset-password',
 ];
 
 api.interceptors.response.use(

@@ -1,5 +1,3 @@
-/* src/features/residents/pages/ResidentDetailPage.css */
-
 /* ── Page ── */
 .rd-page {
   padding: 28px 32px;
@@ -133,6 +131,11 @@
 }
 
 .rd-btn--danger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rd-btn--secondary:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }

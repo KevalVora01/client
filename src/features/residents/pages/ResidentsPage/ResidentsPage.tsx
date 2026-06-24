@@ -60,7 +60,6 @@ const ResidentsPage = () => {
         </div>
       </div>
 
-      {/* ── Modals ── */}
       <ResidentFormModal
         key={selectedResident?.id ?? "add"}
         show={showAddModal || showEditModal}

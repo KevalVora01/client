@@ -1,13 +1,25 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Mail, Building2, Calendar, UserCheck } from 'lucide-react';
 import { useResident } from '../../hooks/useResident';
+import { useResidentsPage } from '../../hooks/useResidentsPage';
 import { getAvatarColor, getInitials, formatDate } from '../../components/ResidentTable/residentTableHelpers';
+import ResidentFormModal from '../../components/ResidentFormModal/ResidentFormModal';
+import ConfirmDialog from '../../../../components/ConfirmDialog/ConfirmDialog';
+import type { UpdateResidentPayload } from '../../types/resident.types';
 import './ResidentDetailPage.css';
 
 const ResidentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { resident, loading, error } = useResident(Number(id));
+  const { resident, loading, error, refetch } = useResident(Number(id));
+
+  const {
+    showEditModal, showDeactivateModal,
+    selectedResident, deactivateLoading,
+    handleEdit, handleDeactivate,
+    handleUpdate, handleDeactivateConfirm,
+    handleCloseEdit, handleCloseDeactivate,
+  } = useResidentsPage();
 
   if (loading) {
     return (
@@ -43,73 +55,27 @@ const ResidentDetailPage = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <div className="rd-page">
-        <div className="rd-loading">
-          {/* skeleton */}
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !resident) {
-    return (
-      <div className="rd-page">
-        <div className="rd-error">
-          <i className="bi bi-exclamation-circle rd-error__icon" />
-          <p className="rd-error__title">Failed to load resident</p>
-          <p className="rd-error__sub">{error ?? "Resident not found"}</p>
-          <button className="rd-back-btn" onClick={() => navigate('/residents')}>
-            <ArrowLeft size={16} /> Back to residents
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // safe to access resident.user from here
   const { bg, color } = getAvatarColor(resident.user.name);
 
   const infoCards = [
+    { icon: Phone, label: 'Phone', value: resident.user.phone, accent: 'rd-info-card--blue' },
     {
-      icon: Phone,
-      label: 'Phone',
-      value: resident.user.phone,
-      accent: 'rd-info-card--blue',
-    },
-    {
-      icon: Building2,
-      label: 'Apartment',
-      value: resident.apartment
-        ? `Unit ${resident.apartment.flateNumber}, Block ${resident.apartment.block}`
-        : '—',
+      icon: Building2, label: 'Apartment',
+      value: resident.apartment ? `Unit ${resident.apartment.flateNumber}, Block ${resident.apartment.block}` : '—',
       accent: 'rd-info-card--green',
     },
-    {
-      icon: Calendar,
-      label: 'Move-in Date',
-      value: formatDate(resident.moveInDate),
-      accent: 'rd-info-card--purple',
-    },
-    {
-      icon: UserCheck,
-      label: 'Resident Type',
-      value: resident.isOwner ? 'Owner' : 'Tenant',
-      accent: 'rd-info-card--amber',
-    },
+    { icon: Calendar, label: 'Move-in Date', value: formatDate(resident.moveInDate), accent: 'rd-info-card--purple' },
+    { icon: UserCheck, label: 'Resident Type', value: resident.isOwner ? 'Owner' : 'Tenant', accent: 'rd-info-card--amber' },
   ];
 
   return (
     <div className="rd-page">
 
-      {/* ── Back button ── */}
       <button className="rd-back-btn" onClick={() => navigate('/residents')}>
         <ArrowLeft size={16} strokeWidth={2} />
         Back to residents
       </button>
 
-      {/* ── Profile header ── */}
       <div className="rd-header">
         <div className="rd-header__left">
           <div className="rd-avatar" style={{ background: bg, color }}>
@@ -135,12 +101,14 @@ const ResidentDetailPage = () => {
         <div className="rd-header__actions">
           <button
             className="rd-btn rd-btn--secondary"
-            onClick={() => navigate('/residents')}
+            onClick={() => handleEdit(resident)}
+            disabled={!resident.isActive}
           >
             <i className="bi bi-pencil me-1" /> Edit
           </button>
           <button
             className="rd-btn rd-btn--danger"
+            onClick={() => handleDeactivate(resident)}
             disabled={!resident.isActive}
           >
             <i className="bi bi-person-x me-1" /> Deactivate
@@ -148,7 +116,6 @@ const ResidentDetailPage = () => {
         </div>
       </div>
 
-      {/* ── Info cards ── */}
       <div className="rd-info-grid">
         {infoCards.map((card) => {
           const Icon = card.icon;
@@ -166,7 +133,6 @@ const ResidentDetailPage = () => {
         })}
       </div>
 
-      {/* ── Family members ── */}
       <div className="rd-section">
         <div className="rd-section__header">
           <h6 className="rd-section__title">Family Members</h6>
@@ -177,7 +143,6 @@ const ResidentDetailPage = () => {
         </div>
       </div>
 
-      {/* ── Vehicles ── */}
       <div className="rd-section">
         <div className="rd-section__header">
           <h6 className="rd-section__title">Vehicles</h6>
@@ -187,6 +152,42 @@ const ResidentDetailPage = () => {
           <p className="rd-placeholder__text">Vehicles module coming soon</p>
         </div>
       </div>
+
+      <ResidentFormModal
+        key={selectedResident?.id ?? "edit"}
+        show={showEditModal ? true : false}
+        mode="edit"
+        resident={selectedResident}
+        loading={false}
+        onClose={handleCloseEdit}
+        onSubmit={async (payload, id) => {
+          const success = await handleUpdate(id!, payload as UpdateResidentPayload);
+          if (success) refetch();
+          return success;
+        }}
+      />
+
+      <ConfirmDialog
+        show={showDeactivateModal}
+        title="Deactivate Resident"
+        message={
+          selectedResident
+            ? `Are you sure you want to deactivate ${selectedResident.user.name}? They will lose access to the system.`
+            : "Are you sure you want to deactivate this resident?"
+        }
+        confirmLabel="Yes, Deactivate"
+        variant="warning"
+        loading={deactivateLoading}
+        onConfirm={async () => {
+          if (!selectedResident) return;
+          const success = await handleDeactivateConfirm(selectedResident.id);
+          if (success) {
+            refetch();
+            handleCloseDeactivate();
+          }
+        }}
+        onCancel={handleCloseDeactivate}
+      />
 
     </div>
   );

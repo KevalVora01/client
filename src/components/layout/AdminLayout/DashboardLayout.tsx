@@ -1,5 +1,3 @@
-// src/components/layout/AdminLayout/DashboardLayout.tsx
-
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import Topbar from '../Topbar/Topbar';

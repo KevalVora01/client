@@ -7,8 +7,12 @@ export const useScrollLock = (active: boolean) => {
     if (!active) return;
 
     lockCount++;
+
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
     document.documentElement.style.overflow = "hidden";
     document.body.style.overflow = "hidden";
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
       lockCount--;
@@ -16,6 +20,7 @@ export const useScrollLock = (active: boolean) => {
         lockCount = 0;
         document.documentElement.style.overflow = "";
         document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
       }
     };
   }, [active]);

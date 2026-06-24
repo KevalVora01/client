@@ -32,8 +32,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       label: 'Apartment',
       render: (r) => r.apartment ? (
         <>
-          <p className="rt-unit">Unit {r.apartment.flateNumber}</p>
-          <p className="rt-floor">Floor {r.apartment.block}</p>
+          <p className="rt-unit">{r.apartment.flateNumber}</p>
+          <p className="rt-floor">Block {r.apartment.block}, Floor {r.apartment.floorNumber}</p>
         </>
       ) : <span className="rt-muted">—</span>,
     },

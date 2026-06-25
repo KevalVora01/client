@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import { useScrollLock } from "../../../hooks/useScrollLock";
 
@@ -40,12 +40,6 @@ export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: Use
     setAddForm(initialAdd);
     setFormErrors({});
   };
-
-  // Body scroll lock
-  useEffect(() => {
-    if (show) document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
-  }, [show]);
 
   // ── Change handlers ───────────────────────────────────────
   const handleAddChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

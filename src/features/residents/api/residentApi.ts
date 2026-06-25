@@ -15,7 +15,6 @@ export const residentApi = {
     if (filters.isOwner !== undefined) params.append("isOwner", String(filters.isOwner));
 
     const response = await api.get(`/residents?${params.toString()}`);
-    console.log(response.data.data.data);
     return response.data.data.data;
   },
 
@@ -39,3 +38,5 @@ export const residentApi = {
   },
 
 };
+
+// 21

@@ -40,7 +40,7 @@ const ForgotPasswordPage = () => {
                 a password reset link. Check your inbox and spam folder.
               </p>
               <p className="fp-success__note">
-                The link expires in <strong>30 minutes</strong>.
+                The link expires in <strong>10 minutes</strong>.
               </p>
               <Link to="/login" className="fp-back-link mt-4">
                 <ArrowLeft size={16} strokeWidth={2} />

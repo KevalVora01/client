@@ -9,18 +9,27 @@ export const useScrollLock = (active: boolean) => {
     lockCount++;
 
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    const mainEl = document.querySelector('.dashboard-layout__main') as HTMLElement;
 
-    document.documentElement.style.overflow = "hidden";
-    document.body.style.overflow = "hidden";
-    document.body.style.paddingRight = `${scrollbarWidth}px`;
+    if (mainEl) {
+      mainEl.style.overflow = 'hidden';
+      mainEl.style.paddingRight = `${scrollbarWidth}px`;
+    } else {
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
 
     return () => {
       lockCount--;
       if (lockCount <= 0) {
         lockCount = 0;
-        document.documentElement.style.overflow = "";
-        document.body.style.overflow = "";
-        document.body.style.paddingRight = "";
+        if (mainEl) {
+          mainEl.style.overflow = '';
+          mainEl.style.paddingRight = '';
+        } else {
+          document.body.style.overflow = '';
+          document.body.style.paddingRight = '';
+        }
       }
     };
   }, [active]);

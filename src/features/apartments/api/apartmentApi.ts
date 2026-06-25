@@ -36,5 +36,5 @@ export const apartmentApi = {
     const response = await api.put<ApiResponse<{ data: Apartment }>>(`/apartments/${id}`, payload);
     return response.data.data.data;
   },
-
+  
 };

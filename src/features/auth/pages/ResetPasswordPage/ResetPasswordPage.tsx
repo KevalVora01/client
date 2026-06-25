@@ -32,7 +32,7 @@ const ResetPasswordPage = () => {
               This password reset link is invalid or has expired.
               Please request a new one.
             </p>
-            <Link to="/forgot-password" className="rp-submit-btn d-inline-block text-decoration-none text-center w-100 mb-3">
+            <Link to="/forgot-password" className="rp-submit-btn text-decoration-none text-center w-100 mb-3">
               REQUEST NEW LINK
             </Link>
             <div className="text-center">

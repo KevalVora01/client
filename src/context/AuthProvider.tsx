@@ -1,29 +1,12 @@
 import {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-  useRef,
+  useState, useEffect, useCallback, useRef, type ReactNode
 } from 'react';
+import { AuthContext } from './AuthContext';
+import type { AuthContextType } from './AuthContext';
 import { setAccessToken } from '../config/api';
 import { loginApi, logoutApi, refreshTokenApi } from '../features/auth/api/authApi';
 import type { User, LoginPayload } from '../features/auth/types/auth.types';
 
-// ─── Context type ─────────────────────────────────────────────────
-export interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (payload: LoginPayload) => Promise<void>;
-  logout: () => Promise<void>;
-  updateUser: (updated: Partial<User>) => void;
-}
-
-// ─── Context ──────────────────────────────────────────────────────
-export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// ─── Provider ─────────────────────────────────────────────────────
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -33,7 +16,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const silentRefresh = async () => {
       if (isRefreshingRef.current) return;
       isRefreshingRef.current = true;
-
       try {
         const { accessToken, user } = await refreshTokenApi();
         setAccessToken(accessToken);
@@ -45,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
       }
     };
-
     silentRefresh();
   }, []);
 
@@ -76,7 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isLoading,
     login,
     logout,
-    updateUser, 
+    updateUser,
   };
 
   return (

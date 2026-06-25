@@ -53,7 +53,6 @@ const skipRefreshUrls = [
   '/auth/refresh',
   '/auth/login',
   '/auth/logout',
-  '/auth/me',
   '/auth/forgot-password',
   '/auth/reset-password',
 ];
@@ -99,8 +98,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         setAccessToken(null);
+        window.location.href = '/login';
         return Promise.reject(refreshError);
-
       } finally {
         isRefreshing = false;
       }

@@ -22,19 +22,19 @@ const VARIANT_CONFIG = {
     icon: "bi-trash3",
     iconBg: "#fef2f2",
     iconColor: "#dc2626",
-    btnClass: "cd-btn--danger",
+    btnClass: "btn-danger",
   },
   warning: {
     icon: "bi-person-x",
     iconBg: "#fffbeb",
     iconColor: "#d97706",
-    btnClass: "cd-btn--warning",
+    btnClass: "btn-warning",
   },
   info: {
     icon: "bi-info-circle",
     iconBg: "#eff6ff",
     iconColor: "#2563eb",
-    btnClass: "cd-btn--info",
+    btnClass: "btn-primary",
   },
 };
 
@@ -51,10 +51,8 @@ const ConfirmDialog = ({
 }: ConfirmDialogProps) => {
   const config = VARIANT_CONFIG[variant];
 
-  // lock body scroll
   useScrollLock(show);
 
-  // close on Escape
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onCancel(); };
     document.addEventListener("keydown", handler);
@@ -65,33 +63,43 @@ const ConfirmDialog = ({
 
   return createPortal(
     <div className="cd-backdrop" onClick={onCancel}>
-      <div className="cd-dialog" onClick={(e) => e.stopPropagation()}>
-
+      <div
+        className="bg-white rounded-3 p-4 position-relative d-flex flex-column align-items-center text-center cd-dialog"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Close button */}
-        <button className="cd-close" onClick={onCancel} aria-label="Close">
+        <button
+          className="btn btn-sm position-absolute cd-close"
+          style={{ top: 22, right: 22 }}
+          onClick={onCancel}
+          aria-label="Close"
+        >
           <i className="bi bi-x" />
         </button>
 
         {/* Icon */}
-        <div className="cd-icon-wrap" style={{ background: config.iconBg }}>
+        <div
+          className="rounded-circle d-flex align-items-center justify-content-center mb-3 cd-icon-wrap"
+          style={{ background: config.iconBg }}
+        >
           <i className={`bi ${config.icon}`} style={{ color: config.iconColor }} />
         </div>
 
         {/* Text */}
-        <h6 className="cd-title">{title}</h6>
-        <p className="cd-message">{message}</p>
+        <h6 className="fw-bold mb-1" style={{ color: '#1a1f36' }}>{title}</h6>
+        <p className="text-muted mb-4" style={{ fontSize: '0.875rem', lineHeight: 1.5 }}>{message}</p>
 
         {/* Actions */}
-        <div className="cd-footer">
+        <div className="d-flex gap-2 w-100">
           <button
-            className="cd-btn cd-btn--cancel"
+            className="btn btn-outline-secondary flex-fill"
             onClick={onCancel}
             disabled={loading}
           >
             {cancelLabel}
           </button>
           <button
-            className={`cd-btn ${config.btnClass}`}
+            className={`btn ${config.btnClass} flex-fill text-white`}
             onClick={onConfirm}
             disabled={loading}
           >
@@ -101,7 +109,6 @@ const ConfirmDialog = ({
             }
           </button>
         </div>
-
       </div>
     </div>,
     document.body

@@ -1,0 +1,110 @@
+/* Backdrop */
+.afm-backdrop {
+  background: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Modal shape */
+.afm-content {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  background: #fff;
+}
+
+/* Header */
+.afm-header {
+  position: relative;
+  border-bottom: 1px solid #f3f4f6;
+  padding: 1.25rem 1.5rem 1rem;
+  align-items: flex-start;
+}
+
+.afm-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1f36;
+  margin: 0 0 2px;
+}
+
+.afm-subtitle {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Close button */
+.afm-close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #e9ecef;
+  border-radius: 7px;
+  background: #fff;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.afm-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* Label */
+.afm-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 5px;
+}
+
+/* Input */
+.afm-input {
+  font-size: 0.875rem;
+  border-color: #e5e7eb;
+  color: #1a1f36;
+  border-radius: 8px;
+}
+
+.afm-input:focus {
+  border-color: #1a1f36;
+  box-shadow: none;
+}
+
+/* Footer */
+.afm-footer {
+  border-top: 1px solid #f3f4f6;
+  padding: 1rem 1.5rem;
+}
+
+.afm-footer .btn {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+/* Submit button */
+.afm-btn-submit {
+  background: #1a1f36;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.afm-btn-submit:hover:not(:disabled) {
+  background: #2d3555;
+  color: #fff;
+  border-color: #2d3555;
+}
+
+.afm-btn-submit:disabled {
+  opacity: 0.55;
+}

@@ -115,7 +115,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
           style={{ cursor: 'pointer' }}
           onClick={() => navigate('/profile')}
         >
-          {/* ✅ avatar instead of static image */}
+          {/* avatar image */}
           <div
             className="sidebar__profile-img flex-shrink-0 d-flex align-items-center justify-content-center fw-semibold"
             style={{

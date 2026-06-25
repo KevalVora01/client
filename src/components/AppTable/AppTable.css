@@ -1,44 +1,12 @@
-.app-table__wrapper {
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-}
-
-.app-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.875rem;
-}
-
-.app-table thead th {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #6b7280;
-  background: #f8f9fb;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 0.75rem 1rem;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.app-table tbody tr {
-  border-bottom: 1px solid #f3f4f6;
-  transition: background 0.12s;
-}
-
-.app-table tbody tr:last-child {
-  border-bottom: none;
-}
-
-.app-table tbody tr:hover {
-  background: #f9fafb;
-}
-
 .app-table td {
   padding: 0.9rem 1rem;
   vertical-align: middle;
+}
+
+.app-table thead th {
+  padding: 0.75rem 1rem;
+  white-space: nowrap;
+  text-align: left;
 }
 
 /* ── Skeleton ── */
@@ -50,32 +18,20 @@
 }
 
 @keyframes app-table-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
-/* ── Empty state ── */
-.app-table__empty {
-  text-align: center;
-  padding: 3.5rem 1rem;
-}
-
-.app-table__empty-icon {
-  font-size: 2.25rem;
-  color: #d1d5db;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.app-table__empty-title {
+/* ── Table header ── */
+.app-table thead th {
+  font-size: 0.68rem;
   font-weight: 600;
-  color: #374151;
-  margin: 0 0 4px;
-  font-size: 0.9rem;
-}
-
-.app-table__empty-sub {
-  font-size: 0.8rem;
-  color: #9ca3af;
-  margin: 0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: #f8f9fb;
 }

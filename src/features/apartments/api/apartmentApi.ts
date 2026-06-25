@@ -27,6 +27,13 @@ export const apartmentApi = {
     return response.data.data.data;
   },
 
+  getVacantApartments: async (): Promise<Apartment[]> => {
+    const response = await api.get<ApiResponse<{ data: ApartmentsResponse }>>(
+      '/apartments?pageSize=100&pageNumber=1'
+    );
+    return response.data.data.data.items.filter((a) => !a.isOccupied);
+  },
+
   createApartment: async (payload: CreateApartmentPayload): Promise<Apartment> => {
     const response = await api.post<ApiResponse<{ data: Apartment }>>('/apartments', payload);
     return response.data.data.data;

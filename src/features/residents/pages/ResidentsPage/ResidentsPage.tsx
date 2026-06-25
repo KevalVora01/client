@@ -20,19 +20,20 @@ const ResidentsPage = () => {
     handleCreate, handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate,
   } = useResidentsPage();
-
   return (
     <div className="residents-page">
 
       {/* ── Header ── */}
-      <div className="residents-page__header">
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <h4 className="residents-page__title">Residents Management</h4>
-          <p className="residents-page__subtitle">
+          <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
+            Residents Management
+          </h4>
+          <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
             Oversee all resident accounts, tenancy status, and unit allocations.
           </p>
         </div>
-        <button className="residents-page__add-btn" onClick={() => setShowAddModal(true)}>
+        <button className="page-add-btn" onClick={() => setShowAddModal(true)}>
           <UserPlus size={16} strokeWidth={2} />
           Add Resident
         </button>
@@ -42,8 +43,8 @@ const ResidentsPage = () => {
       <ResidentStatsCards residents={residents} totalCount={pagination.totalCount} />
 
       {/* ── Table card ── */}
-      <div className="residents-table-card">
-        <div className="residents-table-card__filters">
+      <div className="table-card">
+        <div className="table-card__filters">
           <ResidentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
 
@@ -55,7 +56,7 @@ const ResidentsPage = () => {
           onDeactivate={handleDeactivate}
         />
 
-        <div className="residents-table-card__footer">
+        <div className="table-card__footer">
           <Pagination pagination={pagination} onPageChange={changePage} />
         </div>
       </div>

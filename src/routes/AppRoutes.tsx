@@ -8,6 +8,8 @@ import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage/R
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage/ResetPasswordPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
+import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
+import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -32,6 +34,8 @@ const AppRoutes = () => {
             <Route path="/" element={<Dashboard />} />
             <Route path="/residents" element={<ResidentsPage />} />
             <Route path="/residents/:id" element={<ResidentDetailPage />} />
+            <Route path="/apartments" element={<ApartmentsPage />} />
+            <Route path="/apartments/:id" element={<ApartmentDetailPage />} />
             {/* rest of admin routes */}
           </Route>
         </Route>

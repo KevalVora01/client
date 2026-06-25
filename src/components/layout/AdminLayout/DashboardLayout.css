@@ -14,11 +14,15 @@
   flex-grow: 1;
   min-width: 0;
   background: #f3f4f6;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .dashboard-layout__content {
   flex-grow: 1;
   padding: 0;
+  overflow-y: auto;
+  height: 0;
 }
 
 /* ── Mobile overlay ── */

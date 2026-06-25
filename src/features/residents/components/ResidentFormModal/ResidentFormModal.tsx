@@ -1,6 +1,6 @@
 import type { CreateResidentPayload, UpdateResidentPayload, ResidentFormModalProps } from "../../types/resident.types";
 import { useResidentForm } from "../../hooks/useResidentForm";
-import ApartmentSelect from "../ApartmentSelect/ApartmentSelect";
+import ApartmentSelect from "../../../apartments/components/ApartmentSelect/ApartmentSelect";
 import "./ResidentFormModal.css";
 
 const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }: ResidentFormModalProps) => {
@@ -117,11 +117,6 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                       ? setEditField("apartmentId", val)
                       : setAddField("apartmentId", val)
                     }
-                    options={[
-                      { value: 1, label: "A-101", floor: "Floor 1", block: "Block A" },
-                      { value: 2, label: "A-102", floor: "Floor 1", block: "Block A" },
-                      { value: 3, label: "C-201", floor: "Floor 2", block: "Block B" },
-                    ]}
                     error={formErrors.apartmentId}
                   />
                 </div>

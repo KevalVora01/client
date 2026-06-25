@@ -61,7 +61,7 @@ const ResidentDetailPage = () => {
     { icon: Phone, label: 'Phone', value: resident.user.phone, accent: 'rd-info-card--blue' },
     {
       icon: Building2, label: 'Apartment',
-      value: resident.apartment ? `Unit ${resident.apartment.flateNumber}, Block ${resident.apartment.block}` : '—',
+      value: resident.apartment ? `${resident.apartment.flateNumber}` : '—',
       accent: 'rd-info-card--green',
     },
     { icon: Calendar, label: 'Move-in Date', value: formatDate(resident.moveInDate), accent: 'rd-info-card--purple' },

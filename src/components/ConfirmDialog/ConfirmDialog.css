@@ -12,36 +12,19 @@
 
 /* ── Dialog ── */
 .cd-dialog {
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
   max-width: 380px;
-  padding: 1.75rem 1.5rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  position: relative;
 }
 
 /* ── Close button ── */
 .cd-close {
-  position: absolute;
-  top: 22px;
-  right: 22px;
   width: 28px;
   height: 28px;
   border: 1px solid #e9ecef;
-  border-radius: 6px;
   background: #fff;
   color: #9ca3af;
   font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
+  padding: 0;
 }
 
 .cd-close:hover {
@@ -53,91 +36,8 @@
 .cd-icon-wrap {
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
   font-size: 1.4rem;
-}
-
-/* ── Text ── */
-.cd-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #1a1f36;
-  margin: 0 0 6px;
-}
-
-.cd-message {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin: 0 0 1.5rem;
-  line-height: 1.5;
-}
-
-/* ── Footer ── */
-.cd-footer {
-  display: flex;
-  gap: 8px;
-  width: 100%;
-}
-
-.cd-btn {
-  flex: 1;
-  height: 38px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: opacity 0.15s, background 0.15s;
-}
-
-.cd-btn:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.cd-btn--cancel {
-  background: #fff;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-}
-
-.cd-btn--cancel:hover:not(:disabled) {
-  background: #f9fafb;
-}
-
-.cd-btn--danger {
-  background: #dc2626;
-  color: #fff;
-}
-
-.cd-btn--danger:hover:not(:disabled) {
-  background: #b91c1c;
-}
-
-.cd-btn--warning {
-  background: #d97706;
-  color: #fff;
-}
-
-.cd-btn--warning:hover:not(:disabled) {
-  background: #b45309;
-}
-
-.cd-btn--info {
-  background: #2563eb;
-  color: #fff;
-}
-
-.cd-btn--info:hover:not(:disabled) {
-  background: #1d4ed8;
+  flex-shrink: 0;
 }
 
 /* ── Spinner ── */

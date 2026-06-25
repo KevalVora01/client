@@ -51,8 +51,8 @@ const AppTable = <T,>({
 
   if (loading) {
     return (
-      <div className="app-table__wrapper">
-        <table className="app-table">
+      <div className="table-responsive">
+        <table className="table mb-0 app-table">
           {thead}
           <tbody>
             {Array.from({ length: skeletonRows }).map((_, i) => (
@@ -66,17 +66,17 @@ const AppTable = <T,>({
 
   if (data.length === 0) {
     return (
-      <div className="app-table__empty">
-        <i className="bi bi-inbox app-table__empty-icon" aria-hidden="true" />
-        <p className="app-table__empty-title">{emptyTitle}</p>
-        <p className="app-table__empty-sub">{emptySubtitle}</p>
+      <div className="text-center py-5">
+        <i className="bi bi-inbox d-block mb-2 app-table__empty-icon" aria-hidden="true" />
+        <p className="fw-semibold text-secondary mb-1" style={{ fontSize: '0.9rem' }}>{emptyTitle}</p>
+        <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>{emptySubtitle}</p>
       </div>
     );
   }
 
   return (
-    <div className="app-table__wrapper">
-      <table className="app-table">
+    <div className="table-responsive">
+      <table className="table mb-0 app-table">
         {thead}
         <tbody>
           {data.map((row) => (

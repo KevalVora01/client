@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, Layers, Maximize2, Home } from 'lucide-react';
 import { useApartment } from '../hooks/useApartment';
-import { formatArea, formatFloor, apartmentTypeLabels } from '../components/ApartmentTable/apartmentTableHelpers';
+import { formatArea, formatFloor, apartmentTypeLabels } from '../components/apartmentTableHelpers';
 
 const ApartmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();

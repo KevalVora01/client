@@ -4,7 +4,7 @@ import { apartmentApi } from '../api/apartmentApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showInfo } from '../../../utils/toast';
 
-export const useApartmentSelect = () => {
+export const useApartmentSelect = (currentApartmentId?: number) => {
   const [apartments, setApartments] = useState<Apartment[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -14,6 +14,13 @@ export const useApartmentSelect = () => {
       setLoading(true);
       try {
         const data = await apartmentApi.getVacantApartments();
+        
+        // ✅ current apartment add karo agar list mein nahi hai
+        if (currentApartmentId && !data.find(a => a.id === currentApartmentId)) {
+          const current = await apartmentApi.getApartment(currentApartmentId);
+          if (current) data.unshift(current);
+        }
+
         if (!cancelled) {
           setApartments(data);
           if (data.length === 0) {
@@ -28,7 +35,7 @@ export const useApartmentSelect = () => {
     };
     fetch();
     return () => { cancelled = true; };
-  }, []);
+  }, [currentApartmentId]);
 
   return { apartments, loading };
 };

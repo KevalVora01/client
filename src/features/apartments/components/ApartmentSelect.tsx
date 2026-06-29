@@ -1,16 +1,15 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useApartmentSelect } from "../../hooks/useApartmentSelect";
+import { useApartmentSelect } from "../hooks/useApartmentSelect";
 
 interface ApartmentSelectProps {
   value: number;
   onChange: (val: number) => void;
-  error?: string;
   onBlur?: () => void;
-  showAll?: boolean;
+  error?: string;
+  currentApartmentId?: number;
 }
-
-const ApartmentSelect = ({ value, onChange, onBlur, error }: ApartmentSelectProps) => {
-  const { apartments, loading } = useApartmentSelect();
+const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }: ApartmentSelectProps) => {
+  const { apartments, loading } = useApartmentSelect(currentApartmentId);
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");

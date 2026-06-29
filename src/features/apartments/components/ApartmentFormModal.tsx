@@ -1,6 +1,6 @@
-import { useApartmentForm } from "../../hooks/useApartmentForm";
-import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from "../../types/apartment.types";
-import { ApartmentType } from "../../types/apartment.types";
+import { useApartmentForm } from "../hooks/useApartmentForm";
+import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from "../types/apartment.types";
+import { ApartmentType } from "../types/apartment.types";
 
 interface ApartmentFormModalProps {
   show: boolean;

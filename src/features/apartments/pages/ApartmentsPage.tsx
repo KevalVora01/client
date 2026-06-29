@@ -4,12 +4,12 @@ import { Plus } from 'lucide-react';
 import { useApartments } from '../hooks/useApartments';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from '../types/apartment.types';
-import ApartmentStatsCards from '../components/ApartmentStatsCards/ApartmentStatsCards';
-import ApartmentFiltersComponent from '../components/ApartmentFilters/ApartmentFilters';
-import ApartmentTable from '../components/ApartmentTable/ApartmentTable';
-import ApartmentFormModal from '../components/ApartmentFormModal/ApartmentFormModal';
+import ApartmentStatsCards from '../components/ApartmentStatsCards';
+import ApartmentFiltersComponent from '../components/ApartmentFilters';
+import ApartmentFormModal from '../components/ApartmentFormModal';
 import Pagination from '../../../components/Pagination/Pagination';
 import { showSuccess } from '../../../utils/toast';
+import ApartmentTable from '../components/ApartmentTable';
 
 const ApartmentsPage = () => {
   const { apartments, pagination, stats, filters, loading, error, updateFilters, changePage, refetch } = useApartments();

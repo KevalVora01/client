@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
-import LoginPage from '../features/auth/pages/LoginPage/LoginPage';
+import LoginPage from '../features/auth/pages/LoginPage';
 import DashboardLayout from '../components/layout/AdminLayout/DashboardLayout';
 import ResidentsPage from '../features/residents/pages/ResidentsPage';
 import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage';
-import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage/ForgotPasswordPage';
-import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage/ResetPasswordPage';
+import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
+import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';

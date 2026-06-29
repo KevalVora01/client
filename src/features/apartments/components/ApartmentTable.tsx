@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import type { TableColumn } from "../../../../components/AppTable/AppTable";
-import AppTable from "../../../../components/AppTable/AppTable";
-import type { Apartment } from "../../types/apartment.types";
+import type { TableColumn } from "../../../components/AppTable/AppTable";
+import AppTable from "../../../components/AppTable/AppTable";
+import type { Apartment } from "../types/apartment.types";
 import { apartmentTypeLabels, formatArea, formatFloor } from "./apartmentTableHelpers";
 
 interface ApartmentTableProps {

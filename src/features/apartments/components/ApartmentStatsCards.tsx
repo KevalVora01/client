@@ -1,5 +1,5 @@
 import { Building2, CheckCircle, XCircle, LayoutGrid } from 'lucide-react';
-import type { ApartmentStats } from '../../types/apartment.types';
+import type { ApartmentStats } from '../types/apartment.types';
 
 interface ApartmentStatsCardsProps {
   totalCount: number;

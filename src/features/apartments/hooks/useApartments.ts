@@ -9,7 +9,7 @@ export const useApartments = () => {
   const [pagination, setPagination] = useState<Omit<PaginatedResult<Apartment>, "items">>({
     totalCount: 0,
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
     totalPages: 0,
     hasNextPage: false,
     hasPreviousPage: false,
@@ -21,7 +21,7 @@ export const useApartments = () => {
   });
   const [filters, setFilters] = useState<ApartmentFilters>({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
     block: undefined,
     floorNumber: undefined,
     type: undefined,

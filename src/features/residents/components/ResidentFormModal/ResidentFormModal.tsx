@@ -1,6 +1,6 @@
 import type { ResidentFormModalProps } from "../../types/resident.types";
 import { useResidentForm } from "../../hooks/useResidentForm";
-import ApartmentSelect from "../../../apartments/components/ApartmentSelect/ApartmentSelect";
+import ApartmentSelect from "../../../apartments/components/ApartmentSelect";
 
 const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }: ResidentFormModalProps) => {
   const { isEdit, formik, handleClose, setApartmentId } =
@@ -10,11 +10,11 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
   return (
     <div
-      className="modal d-block"
+      className="modal d-block rfm-backdrop"
       onClick={onClose}
-      style={{ backgroundColor: "rgba(15, 23, 42, 0.45)" }}
+      style={{ backdropFilter: "blur(4px)" }}
     >
-      <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
           {/* ── Header ── */}
@@ -154,18 +154,14 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   <ApartmentSelect
                     value={formik.values.apartmentId ?? 0}
                     onChange={async (id) => {
-                      // 1. Update your custom state/hook hook
                       setApartmentId(id);
-
-                      // 2. Set Formik's field value explicitly and let it bubble up
                       await formik.setFieldValue('apartmentId', id, true);
-
-                      // 3. Force mark as touched and trigger an immediate validation sweep
                       formik.setFieldTouched('apartmentId', true, true);
                     }}
                     error={formik.touched.apartmentId && formik.errors.apartmentId
                       ? String(formik.errors.apartmentId)
                       : undefined}
+                    currentApartmentId={isEdit ? resident?.apartmentId : undefined}
                   />
                 </div>
 
@@ -239,10 +235,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
             <div className="modal-footer border-top border-light-subtle px-4 py-3">
               <button
                 type="button"
-                className="btn btn-outline-secondary border-light-subtle text-secondary px-3"
+                className="btn btn-outline-secondary rounded-2 px-3 small d-inline-flex align-items-center"
                 onClick={handleClose}
                 disabled={loading}
-                style={{ height: "38px", fontSize: "0.875rem", borderRadius: "8px" }}
+                style={{ height: "38px", fontSize: "0.875rem" }}
               >
                 Cancel
               </button>

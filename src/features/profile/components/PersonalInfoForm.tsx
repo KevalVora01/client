@@ -1,5 +1,4 @@
-import { useFormik } from "formik";
-import * as Yup from "yup";
+import { useState } from "react";
 import type { ProfileUser, UpdateProfilePayload } from "../types/profile.types";
 
 interface PersonalInfoFormProps {
@@ -8,80 +7,112 @@ interface PersonalInfoFormProps {
   onSubmit: (payload: UpdateProfilePayload) => Promise<boolean>;
 }
 
-const schema = Yup.object({
-  name: Yup.string().trim().min(2, "Name must be at least 2 characters").required("Name is required"),
-  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
-});
-
 const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) => {
+  const [name, setName] = useState(user.name);
+  const [phone, setPhone] = useState(user.phone);
 
-  const formik = useFormik({
-    initialValues: {
-      name: user.name,
-      phone: user.phone,
-    },
-    validationSchema: schema,
-    onSubmit: async (values) => {
-      await onSubmit(values);
-    },
-  });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit({ name, phone });
+  };
 
   return (
-    <form className="pf-card" onSubmit={formik.handleSubmit}>
-      <div className="pf-card__head">
-        <div className="pf-card__title">
-          <i className="bi bi-person" /> Personal info
-        </div>
+    // .pf-card -> card, border, white bg, rounded-3 (12px), custom padding match
+    <form className="card bg-white border border-light-subtle rounded-3 p-4 h-100 shadow-sm" onSubmit={handleSubmit}>
+
+      {/* ── Card Header (.pf-card__head) ── */}
+      <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
+        {/* .pf-card__title */}
+        <h5 className="fs-6 fw-bold text-dark m-0 d-flex align-items-center gap-2">
+          <i className="bi bi-person text-secondary" /> Personal info
+        </h5>
       </div>
 
-      <div className="pf-form-grid">
-        <div className="pf-field">
-          <label>Full name</label>
-          <input
-            type="text"
-            name="name"
-            value={formik.values.name}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder="Enter your name"
-            className={formik.touched.name && formik.errors.name ? "pf-input--error" : ""}
-          />
-          {formik.touched.name && formik.errors.name && (
-            <span className="pf-field__error">{formik.errors.name}</span>
-          )}
+      {/* ── Form Inputs Grid (.pf-form-grid) ── */}
+      <div className="row g-3">
+
+        {/* Full Name Field */}
+        <div className="col-12 col-md-6">
+          <div className="d-flex flex-column gap-1">
+            {/* .pf-field label styling */}
+            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
+              Full name
+            </label>
+            <input
+              type="text"
+              className="form-control text-dark bg-white"
+              style={{ height: '36px', fontSize: '0.875rem' }}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter your name"
+              required
+            />
+          </div>
         </div>
 
-        <div className="pf-field">
-          <label>Phone</label>
-          <input
-            type="text"
-            name="phone"
-            value={formik.values.phone}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder="10 digit number"
-            className={formik.touched.phone && formik.errors.phone ? "pf-input--error" : ""}
-          />
-          {formik.touched.phone && formik.errors.phone && (
-            <span className="pf-field__error">{formik.errors.phone}</span>
-          )}
+        {/* Phone Field */}
+        <div className="col-12 col-md-6">
+          <div className="d-flex flex-column gap-1">
+            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
+              Phone
+            </label>
+            <input
+              type="text"
+              className="form-control text-dark bg-white"
+              style={{ height: '36px', fontSize: '0.875rem' }}
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="10 digit number"
+              required
+            />
+          </div>
         </div>
 
-        <div className="pf-field pf-field--full">
-          <label>Email address</label>
-          <input type="text" value={user.email} readOnly />
-          <span className="pf-field__hint">Email cannot be changed. Contact support if needed.</span>
+        {/* Email Address Field (.pf-field--full -> col-12) */}
+        <div className="col-12">
+          <div className="d-flex flex-column gap-1">
+            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
+              Email address
+            </label>
+            <input
+              type="text"
+              className="form-control bg-light text-muted"
+              style={{ height: '36px', fontSize: '0.875rem', cursor: 'not-allowed' }}
+              value={user.email}
+              readOnly
+            />
+            {/* .pf-field__hint */}
+            <span className="text-muted small mt-1" style={{ fontSize: '0.75rem' }}>
+              Email cannot be changed. Contact support if needed.
+            </span>
+          </div>
         </div>
+
       </div>
 
-      <div className="pf-card__footer" style={{ justifyContent: 'flex-end' }}>
-        <button type="submit" className="pf-btn pf-btn--primary" disabled={loading}>
-          {loading
-            ? <><span className="pf-spinner" /> Saving...</>
-            : <><i className="bi bi-floppy" /> Save changes</>
-          }
+      {/* ── Card Footer (.pf-card__footer) ── */}
+      <div className="d-flex align-items-center justify-content-end mt-4 pt-2">
+        {/* .pf-btn .pf-btn--primary */}
+        <button
+          type="submit"
+          className="btn btn-dark d-inline-flex align-items-center gap-2"
+          disabled={loading}
+          style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+        >
+          {loading ? (
+            <>
+              {/* .pf-spinner -> spinner-border-sm */}
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+              Saving...
+            </>
+          ) : (
+            <>
+              <i className="bi bi-floppy" /> Save changes
+            </>
+          )}
         </button>
       </div>
+
     </form>
   );
 };

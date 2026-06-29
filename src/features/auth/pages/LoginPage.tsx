@@ -1,7 +1,7 @@
 import { Mail, Lock, Eye, EyeOff, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import useLogin from '../../hooks/useLogin';
-import type { UserRole } from '../../types/auth.types';
+import useLogin from '../hooks/useLogin';
+import type { UserRole } from '../types/auth.types';
 
 const LoginPage = () => {
   const {

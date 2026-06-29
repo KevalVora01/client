@@ -1,6 +1,5 @@
 import { useState } from "react";
-import type { ApartmentFilters } from "../../types/apartment.types";
-import { ApartmentType } from "../../types/apartment.types";
+import { ApartmentType, type ApartmentFilters } from "../types/apartment.types";
 
 interface ApartmentFiltersProps {
   filters: ApartmentFilters;

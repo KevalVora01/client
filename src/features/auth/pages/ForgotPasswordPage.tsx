@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Mail, Home, ArrowLeft } from 'lucide-react';
-import { useForgotPassword } from '../../hooks/useForgotPassword';
+import { useForgotPassword } from '../hooks/useForgotPassword';
 
 const ForgotPasswordPage = () => {
   const {

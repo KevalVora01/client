@@ -93,12 +93,4 @@ export interface ApartmentOption {
   block?: string;
 }
 
-export interface ApartmentSelectProps {
-  value: number;
-  onChange: (value: number) => void;
-  options: ApartmentOption[];
-  error?: string;
-  placeholder?: string;
-}
-
 export type ResidentsResponse = PaginatedResult<ResidentDetail>;

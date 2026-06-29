@@ -14,7 +14,6 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
         const { bg, color } = getAvatarColor(r.user.name);
         return (
           <div className="d-flex align-items-center gap-3 py-1">
-            {/* Round Avatar Container matching image dimensions exactly */}
             <div
               className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
               style={{
@@ -27,7 +26,6 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
             >
               {getInitials(r.user.name)}
             </div>
-            {/* Meta Text Stack */}
             <div>
               <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
                 {r.user.name}
@@ -46,10 +44,10 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       render: (r) => r.apartment ? (
         <div>
           <p className="fw-normal m-0 text-dark" style={{ fontSize: '0.9rem' }}>
-            Unit {r.apartment.flateNumber}
+            {r.apartment.flateNumber}
           </p>
           <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
-            Floor {r.apartment.floorNumber} - {r.apartment.block}
+          Block {r.apartment.block} - Floor {r.apartment.floorNumber}
           </p>
         </div>
       ) : <span className="text-muted small">—</span>,

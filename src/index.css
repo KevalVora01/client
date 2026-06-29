@@ -16,3 +16,8 @@
 body.modal-open {
   overflow: hidden !important;
 }
+
+.dropdown-item:disabled {
+  cursor: not-allowed;
+  pointer-events: auto !important;
+}

@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import "./ConfirmDialog.css";
 import { useScrollLock } from "../../hooks/useScrollLock";
 
 type ConfirmVariant = "danger" | "warning" | "info";

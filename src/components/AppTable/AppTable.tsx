@@ -1,5 +1,3 @@
-import './AppTable.css';
-
 export interface TableColumn<T> {
   key: string;
   label: string;
@@ -18,10 +16,13 @@ interface AppTableProps<T> {
 }
 
 const SkeletonRow = ({ columns }: { columns: number }) => (
-  <tr>
+  <tr className="placeholder-glow">
     {Array.from({ length: columns }).map((_, i) => (
-      <td key={i}>
-        <div className="app-table__skeleton" style={{ width: i === 0 ? 200 : 100, height: 13 }} />
+      <td key={i} className="py-3 px-3 align-middle">
+        <div
+          className={`placeholder rounded-1 col-${i === 0 ? '6' : '3'}`}
+          style={{ height: '13px' }}
+        />
       </td>
     ))}
   </tr>
@@ -38,11 +39,17 @@ const AppTable = <T,>({
 }: AppTableProps<T>) => {
 
   const thead = (
-    <thead>
+    <thead className="table-light border-bottom border-light-subtle">
       <tr>
         {columns.map((col) => (
-          <th key={col.key} style={col.width ? { width: col.width } : {}}>
-            {col.label}
+          <th
+            key={col.key}
+            className="text-uppercase text-secondary fw-semibold text-start py-2.5 px-3 text-nowrap"
+            style={col.width ? { width: col.width } : {}}
+          >
+            <span style={{ fontSize: '0.8rem', letterSpacing: '0.04em' }}>
+              {col.label}
+            </span>
           </th>
         ))}
       </tr>
@@ -52,7 +59,7 @@ const AppTable = <T,>({
   if (loading) {
     return (
       <div className="table-responsive">
-        <table className="table mb-0 app-table">
+        <table className="table align-middle mb-0">
           {thead}
           <tbody>
             {Array.from({ length: skeletonRows }).map((_, i) => (
@@ -67,22 +74,24 @@ const AppTable = <T,>({
   if (data.length === 0) {
     return (
       <div className="text-center py-5">
-        <i className="bi bi-inbox d-block mb-2 app-table__empty-icon" aria-hidden="true" />
-        <p className="fw-semibold text-secondary mb-1" style={{ fontSize: '0.9rem' }}>{emptyTitle}</p>
-        <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>{emptySubtitle}</p>
+        <i className="bi bi-inbox d-block mb-2 text-body-tertiary fs-2" aria-hidden="true" />
+        <p className="fw-semibold text-secondary mb-1 small">{emptyTitle}</p>
+        <p className="text-muted mb-0 extra-small">{emptySubtitle}</p>
       </div>
     );
   }
 
   return (
     <div className="table-responsive">
-      <table className="table mb-0 app-table">
+      <table className="table align-middle mb-0">
         {thead}
         <tbody>
           {data.map((row) => (
             <tr key={rowKey(row)}>
               {columns.map((col) => (
-                <td key={col.key}>{col.render(row)}</td>
+                <td key={col.key} className="py-3 px-3">
+                  {col.render(row)}
+                </td>
               ))}
             </tr>
           ))}

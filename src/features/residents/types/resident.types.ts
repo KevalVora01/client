@@ -45,7 +45,7 @@ export interface UpdateResidentPayload {
   phone?: string;
   apartmentId?: number;
   isOwner?: boolean;
-  moveOutDate?: string;
+  moveOutDate?: Date | string;
 }
 
 export interface ResidentFilters extends PaginatedRequest {

@@ -197,11 +197,21 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                       className="form-control shadow-none rounded-2 text-dark"
                       value={formik.values.moveOutDate ?? ""}
                       onChange={formik.handleChange}
+                      max={new Date().toISOString().split('T')[0]}
                       style={{
                         fontSize: "0.875rem",
                         borderColor: formik.touched.moveOutDate && formik.errors.moveOutDate ? "#dc3545" : "#e5e7eb"
                       }}
                     />
+                    {formik.touched.moveOutDate && formik.errors.moveOutDate && (
+                      <div className="text-danger small mt-1">{formik.errors.moveOutDate}</div>
+                    )}
+                    {formik.values.moveOutDate && (
+                      <div className="d-flex align-items-center gap-1 mt-2 small" style={{ color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 6, padding: '6px 10px' }}>
+                        <i className="bi bi-exclamation-triangle" />
+                        Setting a move-out date will deactivate this resident and free their apartment.
+                      </div>
+                    )}
                   </div>
                 )}
 

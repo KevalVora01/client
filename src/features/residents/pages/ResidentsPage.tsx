@@ -1,13 +1,12 @@
 import { UserPlus } from "lucide-react";
-import { useResidentsPage } from "../../hooks/useResidentsPage";
-import ResidentStatsCards from "../../components/ResidentStatsCards/ResidentStatsCards";
-import ResidentFiltersComponent from "../../components/ResidentFilters/ResidentFilters";
-import ResidentTable from "../../components/ResidentTable/ResidentTable";
-import Pagination from "../../../../components/Pagination/Pagination";
-import "./ResidentsPage.css";
-import ResidentFormModal from "../../components/ResidentFormModal/ResidentFormModal";
-import type { CreateResidentPayload, UpdateResidentPayload } from "../../types/resident.types";
-import ConfirmDialog from "../../../../components/ConfirmDialog/ConfirmDialog";
+import { useResidentsPage } from "../hooks/useResidentsPage";
+import ResidentStatsCards from "../components/ResidentStatsCards/ResidentStatsCards";
+import ResidentFiltersComponent from "../components/ResidentFilters/ResidentFilters";
+import ResidentTable from "../components/ResidentTable/ResidentTable";
+import Pagination from "../../../components/Pagination/Pagination";
+import ResidentFormModal from "../components/ResidentFormModal/ResidentFormModal";
+import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 const ResidentsPage = () => {
   const {
@@ -20,8 +19,10 @@ const ResidentsPage = () => {
     handleCreate, handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate,
   } = useResidentsPage();
+
   return (
-    <div className="residents-page">
+    /* Replaced .residents-page custom padding with responsive container fluid gutters */
+    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
@@ -29,38 +30,51 @@ const ResidentsPage = () => {
           <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
             Residents Management
           </h4>
-          <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
+          <p className="text-secondary mb-0 small">
             Oversee all resident accounts, tenancy status, and unit allocations.
           </p>
         </div>
-        <button className="page-add-btn" onClick={() => setShowAddModal(true)}>
+        
+        {/* Styled button to exactly match your app's core button theme layout styles */}
+        <button 
+          type="button"
+          className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm" 
+          onClick={() => setShowAddModal(true)}
+          style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
+        >
           <UserPlus size={16} strokeWidth={2} />
           Add Resident
         </button>
       </div>
 
-      {/* ── Stats ── */}
+      {/* ── Stats Cards Grid ── */}
       <ResidentStatsCards residents={residents} totalCount={pagination.totalCount} />
 
-      {/* ── Table card ── */}
-      <div className="table-card">
-        <div className="table-card__filters">
+      {/* ── Table Container Card ── */}
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
+        {/* Filters Wrapper Block */}
+        <div className="card-header bg-white border-bottom border-light-subtle p-3">
           <ResidentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
 
-        <ResidentTable
-          residents={residents}
-          loading={loading}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDeactivate={handleDeactivate}
-        />
+        {/* Dynamic List Table Area */}
+        <div className="table-responsive">
+          <ResidentTable
+            residents={residents}
+            loading={loading}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDeactivate={handleDeactivate}
+          />
+        </div>
 
-        <div className="table-card__footer">
+        {/* Dynamic List Footer Section */}
+        <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
           <Pagination pagination={pagination} onPageChange={changePage} />
         </div>
       </div>
 
+      {/* Form Action Triggers */}
       <ResidentFormModal
         key={selectedResident?.id ?? "add"}
         show={showAddModal || showEditModal}
@@ -75,6 +89,7 @@ const ResidentsPage = () => {
         }
       />
 
+      {/* Status Warning Triggers */}
       <ConfirmDialog
         show={showDeactivateModal}
         title="Deactivate Resident"

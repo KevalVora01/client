@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { ProfileUser, UpdateProfilePayload } from "../types/profile.types";
 
 interface PersonalInfoFormProps {
@@ -7,17 +8,26 @@ interface PersonalInfoFormProps {
   onSubmit: (payload: UpdateProfilePayload) => Promise<boolean>;
 }
 
-const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) => {
-  const [name, setName] = useState(user.name);
-  const [phone, setPhone] = useState(user.phone);
+const schema = Yup.object({
+  name: Yup.string().trim().min(2, "Name must be at least 2 characters").required("Name is required"),
+  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
+});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSubmit({ name, phone });
-  };
+const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) => {
+
+  const formik = useFormik({
+    initialValues: {
+      name: user.name,
+      phone: user.phone,
+    },
+    validationSchema: schema,
+    onSubmit: async (values) => {
+      await onSubmit(values);
+    },
+  });
 
   return (
-    <form className="pf-card" onSubmit={handleSubmit}>
+    <form className="pf-card" onSubmit={formik.handleSubmit}>
       <div className="pf-card__head">
         <div className="pf-card__title">
           <i className="bi bi-person" /> Personal info
@@ -29,22 +39,34 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
           <label>Full name</label>
           <input
             type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            name="name"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             placeholder="Enter your name"
-            required
+            className={formik.touched.name && formik.errors.name ? "pf-input--error" : ""}
           />
+          {formik.touched.name && formik.errors.name && (
+            <span className="pf-field__error">{formik.errors.name}</span>
+          )}
         </div>
+
         <div className="pf-field">
           <label>Phone</label>
           <input
             type="text"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            name="phone"
+            value={formik.values.phone}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             placeholder="10 digit number"
-            required
+            className={formik.touched.phone && formik.errors.phone ? "pf-input--error" : ""}
           />
+          {formik.touched.phone && formik.errors.phone && (
+            <span className="pf-field__error">{formik.errors.phone}</span>
+          )}
         </div>
+
         <div className="pf-field pf-field--full">
           <label>Email address</label>
           <input type="text" value={user.email} readOnly />

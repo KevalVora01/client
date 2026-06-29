@@ -1,4 +1,3 @@
-import { useState, useRef, useEffect } from "react";
 import type { ResidentDetail } from "../../types/resident.types";
 
 interface RowActionsProps {
@@ -9,75 +8,62 @@ interface RowActionsProps {
 }
 
 const RowActions = ({ resident, onView, onEdit, onDeactivate }: RowActionsProps) => {
-  const [open, setOpen] = useState(false);
-  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const ref = useRef<HTMLDivElement>(null);
-
-  const calculatePos = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setMenuPos({
-        top: rect.bottom + 4,
-        left: rect.right - 148,
-      });
-    }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-
-    const handleScrollOrResize = () => {
-      if (open) calculatePos();
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("scroll", handleScrollOrResize, true);
-    window.addEventListener("resize", handleScrollOrResize);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("scroll", handleScrollOrResize, true);
-      window.removeEventListener("resize", handleScrollOrResize);
-    };
-  }, [open]);
-
-  const handleOpen = () => {
-    calculatePos();
-    setOpen((p) => !p);
-  };
-
   return (
-    <div className="rt-actions" ref={ref}>
+    // position-relative keeps the dropdown aligned with the button context
+    <div className="dropdown position-relative">
       <button
-        ref={triggerRef}
-        className="rt-actions__trigger"
-        onClick={handleOpen}
-        aria-label="Row actions"
+        className="btn btn-link link-secondary p-0 border-0 d-flex align-items-center justify-content-center m-auto shadow-none"
+        type="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        style={{ width: "32px", height: "32px" }}
       >
-        <i className="bi bi-three-dots-vertical" />
+        <i className="bi bi-three-dots-vertical fs-5" style={{ color: "#4b5563" }} />
       </button>
 
-      {open && (
-        <div
-          className="rt-actions__menu"
-          style={{ position: "fixed", top: menuPos.top, left: menuPos.left, zIndex: 1050 }}
-        >
-          <button className="rt-actions__item" onClick={() => { onView(); setOpen(false); }}>
-            <i className="bi bi-eye" /> View details
+      {/* Popover card container matching your mockup design exactly */}
+      <ul
+        className="dropdown-menu dropdown-menu-end shadow border-0 p-2 m-0"
+        style={{
+          borderRadius: "12px",
+          minWidth: "155px",
+          backgroundColor: "#ffffff",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
+        }}
+      >
+        <li>
+          <button
+            className="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 fw-medium text-dark bg-transparent border-0"
+            style={{ fontSize: "0.875rem" }}
+            onClick={onView}
+          >
+            <i className="bi bi-eye text-muted fs-6" style={{ color: "#6b7280" }} /> View Details
           </button>
-          <button className="rt-actions__item" onClick={() => { onEdit(); setOpen(false); }} disabled={!resident.isActive}>
-            <i className="bi bi-pencil" /> Edit
+        </li>
+        <li>
+          <button
+            className="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 fw-medium text-dark bg-transparent border-0"
+            style={{ fontSize: "0.875rem" }}
+            onClick={onEdit}
+            disabled={!resident.isActive}
+          >
+            <i className="bi bi-pencil text-muted fs-6" style={{ color: "#6b7280" }} /> Edit Unit
           </button>
-          <button className="rt-actions__item rt-actions__item--danger" onClick={() => { onDeactivate(); setOpen(false); }} disabled={!resident.isActive}>
-            <i className="bi bi-person-x" /> Deactivate
+        </li>
+        <li>
+          <hr className="dropdown-divider my-1 border-light-subtle" />
+        </li>
+        <li>
+          <button
+            className="dropdown-item d-flex align-items-center gap-2 rounded-2 py-2 fw-medium text-danger bg-transparent border-0"
+            style={{ fontSize: "0.875rem" }}
+            onClick={onDeactivate}
+            disabled={!resident.isActive}
+          >
+            <i className="bi bi-person-x fs-6" /> Deactivate
           </button>
-        </div>
-      )}
+        </li>
+      </ul>
     </div>
   );
 };

@@ -9,7 +9,7 @@ export const useResidents = () => {
   const [pagination, setPagination] = useState<Omit<PaginatedResult<ResidentDetail>, "items">>({
     totalCount: 0,
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
     totalPages: 0,
     hasNextPage: false,
     hasPreviousPage: false,
@@ -17,7 +17,7 @@ export const useResidents = () => {
 
   const [filters, setFilters] = useState<ResidentFilters>({
     pageNumber: 1,
-    pageSize: 10,
+    pageSize: 5,
     search: undefined,
     apartmentId: undefined,
     isActive: undefined,
@@ -86,3 +86,5 @@ export const useResidents = () => {
     refetch,
   };
 };
+
+// 8

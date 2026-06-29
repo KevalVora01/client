@@ -14,9 +14,10 @@ const apartmentTypeLabels: Record<ApartmentType, string> = {
   [ApartmentType.THREE_BHK]: "3 BHK",
   [ApartmentType.FOUR_BHK]: "4 BHK",
 };
- 
+
 const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFiltersProps) => {
   const [search, setSearch] = useState(filters.block ?? "");
+  const [isFocused, setIsFocused] = useState(false); // 💡 State to smoothly toggle active border frames
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
@@ -25,6 +26,7 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
   };
 
   const handleSearchBlur = () => {
+    setIsFocused(false);
     onFilterChange({ block: search.trim().toUpperCase() || undefined });
   };
 
@@ -45,18 +47,28 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
 
       {/* Block search */}
       <div className="col-12 col-md-4">
-        <div className="input-group">
-          <span className="input-group-text bg-white border-end-0">
-            <i className="bi bi-search text-muted"></i>
-          </span>
+        {/* 💡 Replaced input-group with a custom controlled flex container wrapper */}
+        <div
+          className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary"
+          style={{
+            height: "46px",
+            transition: "border-color 0.15s, box-shadow 0.15s",
+            // Matches your application custom component focus layout perfectly!
+            borderColor: isFocused ? "#a5b4fc" : "#e5e7eb",
+            boxShadow: isFocused ? "0 0 0 3px rgba(26, 31, 54, 0.15)" : "none"
+          }}
+        >
+          <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
           <input
             type="text"
-            className="form-control border-start-0 ps-0"
+            className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
             placeholder="Search by block (e.g. A, B)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={handleSearchKeyDown}
+            onFocus={() => setIsFocused(true)}
             onBlur={handleSearchBlur}
+            style={{ fontSize: "0.875rem", outline: "none" }}
           />
         </div>
       </div>
@@ -65,7 +77,7 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
       <div className="col-6 col-md-2">
         <input
           type="number"
-          className="form-control"
+          className="form-control border-light-subtle shadow-none"
           placeholder="Floor no."
           min={0}
           value={filters.floorNumber ?? ""}
@@ -74,15 +86,17 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
               floorNumber: e.target.value ? Number(e.target.value) : undefined,
             })
           }
+          style={{ height: "46px", fontSize: "0.875rem" }}
         />
       </div>
 
       {/* Type */}
       <div className="col-6 col-md-2">
         <select
-          className="form-select"
+          className="form-select border-light-subtle shadow-none"
           value={filters.type ?? ""}
           onChange={handleTypeChange}
+          style={{ height: "46px", fontSize: "0.875rem" }}
         >
           <option value="">All types</option>
           {Object.entries(apartmentTypeLabels).map(([value, label]) => (
@@ -94,8 +108,12 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
       {/* Clear filters */}
       {hasActiveFilters && (
         <div className="col-auto">
-          <button className="btn btn-outline-secondary" onClick={handleReset}>
-            <i className="bi bi-x-circle me-1"></i>
+          <button
+            className="btn btn-outline-secondary d-flex align-items-center justify-content-center px-3"
+            onClick={handleReset}
+            style={{ height: "46px", fontSize: "0.85rem" }}
+          >
+            <i className="bi bi-x-circle me-2"></i>
             Clear filters
           </button>
         </div>

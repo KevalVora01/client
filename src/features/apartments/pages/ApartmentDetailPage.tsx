@@ -88,7 +88,6 @@ const ApartmentDetailPage = () => {
           <button
             className="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
             style={{ fontSize: '0.875rem' }}
-            onClick={() => navigate('/apartments')}
           >
             <i className="bi bi-pencil" /> Edit
           </button>

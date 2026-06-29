@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import type { ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import { useScrollLock } from "../../../hooks/useScrollLock";
 
@@ -12,120 +13,77 @@ interface UseResidentFormProps {
   onClose: () => void;
 }
 
-// ── Initial values ────────────────────────────────────────────
-const initialAdd: CreateResidentPayload = {
-  name: "", email: "", phone: "", password: "",
-  apartmentId: 0, isOwner: false, moveInDate: "",
-};
+// ── Yup Schemas ───────────────────────────────────────────────
+const addSchema = Yup.object({
+  name: Yup.string().trim().required("Name is required"),
+  email: Yup.string().trim().email("Invalid email").required("Email is required"),
+  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
+  password: Yup.string().min(8, "Minimum 8 characters").required("Password is required"),
+  moveInDate: Yup.string().required("Move-in date is required"),
+  apartmentId: Yup.number().min(1, "Please select an apartment").required("Please select an apartment"),
+  isOwner: Yup.boolean(),
+});
 
-const toEditForm = (r: ResidentDetail): UpdateResidentPayload => ({
-  name: r.user.name,
-  phone: r.user.phone,
-  apartmentId: r.apartmentId ?? undefined,
-  isOwner: r.isOwner,
-  moveOutDate: r.moveOutDate ?? undefined,
+const editSchema = Yup.object({
+  name: Yup.string().trim().required("Name cannot be empty"),
+  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
+  apartmentId: Yup.number().optional(),
+  isOwner: Yup.boolean().optional(),
+  moveOutDate: Yup.string().optional(),
 });
 
 // ── Hook ─────────────────────────────────────────────────────
 export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: UseResidentFormProps) => {
   const isEdit = mode === "edit";
 
-  const [addForm, setAddForm] = useState<CreateResidentPayload>(initialAdd);
-  const [editForm, setEditForm] = useState<UpdateResidentPayload>(
-    resident ? toEditForm(resident) : {}
-  );
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  useScrollLock(show);
 
-  const resetAdd = () => {
-    setAddForm(initialAdd);
-    setFormErrors({});
-  };
-
-  // ── Change handlers ───────────────────────────────────────
-  const handleAddChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    setAddForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : name === "apartmentId" ? Number(value) : value,
-    }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value, type } = e.target;
-    setEditForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : name === "apartmentId" ? Number(value) : value,
-    }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const setAddField = (name: keyof CreateResidentPayload, value: unknown) => {
-    setAddForm((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  const setEditField = (name: keyof UpdateResidentPayload, value: unknown) => {
-    setEditForm((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" }));
-  };
-
-  // ── Validation ────────────────────────────────────────────
-  const validateAdd = (): boolean => {
-    const errors: Record<string, string> = {};
-    if (!addForm.name.trim()) errors.name = "Name is required";
-    if (!addForm.email.trim()) errors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(addForm.email)) errors.email = "Invalid email";
-    if (!addForm.phone.trim()) errors.phone = "Phone is required";
-    else if (!/^\d{10}$/.test(addForm.phone)) errors.phone = "Phone must be 10 digits";
-    if (!addForm.password) errors.password = "Password is required";
-    else if (addForm.password.length < 8) errors.password = "Minimum 8 characters";
-    if (!addForm.moveInDate) errors.moveInDate = "Move-in date is required";
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const validateEdit = (): boolean => {
-    const errors: Record<string, string> = {};
-    if (editForm.name !== undefined && !editForm.name.trim()) errors.name = "Name cannot be empty";
-    if (editForm.phone !== undefined && !/^\d{10}$/.test(editForm.phone)) errors.phone = "Phone must be 10 digits";
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  // ── Submit & close ────────────────────────────────────────
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isEdit) {
-      if (!resident || !validateEdit()) return;
-      const success = await onSubmit(editForm, resident.id);
-      if (success) onClose();
-    } else {
-      if (!validateAdd()) return;
-      const success = await onSubmit(addForm);
-      if (success) { resetAdd(); onClose(); }
-    }
-  };
+  const formik = useFormik({
+    initialValues: isEdit
+      ? {
+        name: resident?.user.name ?? "",
+        phone: resident?.user.phone ?? "",
+        apartmentId: resident?.apartmentId ?? 0,
+        isOwner: resident?.isOwner ?? false,
+        moveOutDate: resident?.moveOutDate ?? "",
+      }
+      : {
+        name: "",
+        email: "",
+        phone: "",
+        password: "",
+        apartmentId: 0,
+        isOwner: false,
+        moveInDate: "",
+      },
+    validationSchema: isEdit ? editSchema : addSchema,
+    enableReinitialize: true,
+    onSubmit: async (values, { resetForm }) => {
+      if (isEdit) {
+        if (!resident) return;
+        const success = await onSubmit(values as UpdateResidentPayload, resident.id);
+        if (success) onClose();
+      } else {
+        const success = await onSubmit(values as CreateResidentPayload);
+        if (success) { resetForm(); onClose(); }
+      }
+    },
+  });
 
   const handleClose = () => {
-    if (!isEdit) resetAdd();
+    formik.resetForm();
     onClose();
   };
 
-  useScrollLock(show);
+  // ── ApartmentSelect helper ────────────────────────────────
+  const setApartmentId = (val: number) => {
+    formik.setFieldValue("apartmentId", val);
+  };
 
   return {
     isEdit,
-    form: isEdit ? editForm : addForm,
-    formErrors,
-    handleChange: isEdit ? handleEditChange : handleAddChange,
-    setAddField,
-    setEditField,
-    handleSubmit,
+    formik,
     handleClose,
+    setApartmentId,
   };
 };

@@ -3,8 +3,6 @@ import type { TableColumn } from '../../../../components/AppTable/AppTable';
 import type { ResidentDetail, ResidentTableProps } from '../../types/resident.types';
 import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
 import RowActions from './RowActions';
-import './ResidentTable.css'
-
 
 const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
 
@@ -15,13 +13,28 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       render: (r) => {
         const { bg, color } = getAvatarColor(r.user.name);
         return (
-          <div className="rt-resident">
-            <div className="rt-avatar" style={{ background: bg, color }}>
+          <div className="d-flex align-items-center gap-3 py-1">
+            {/* Round Avatar Container matching image dimensions exactly */}
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+              style={{
+                background: bg,
+                color: color,
+                width: '42px',
+                height: '42px',
+                fontSize: '0.85rem'
+              }}
+            >
               {getInitials(r.user.name)}
             </div>
+            {/* Meta Text Stack */}
             <div>
-              <p className="rt-name">{r.user.name}</p>
-              <p className="rt-email">{r.user.email}</p>
+              <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+                {r.user.name}
+              </p>
+              <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+                {r.user.email}
+              </p>
             </div>
           </div>
         );
@@ -31,17 +44,28 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       key: 'apartment',
       label: 'Apartment',
       render: (r) => r.apartment ? (
-        <>
-          <p className="rt-unit">{r.apartment.flateNumber}</p>
-          <p className="rt-floor">Block {r.apartment.block}, Floor {r.apartment.floorNumber}</p>
-        </>
-      ) : <span className="rt-muted">—</span>,
+        <div>
+          <p className="fw-normal m-0 text-dark" style={{ fontSize: '0.9rem' }}>
+            Unit {r.apartment.flateNumber}
+          </p>
+          <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+            Floor {r.apartment.floorNumber} - {r.apartment.block}
+          </p>
+        </div>
+      ) : <span className="text-muted small">—</span>,
     },
     {
       key: 'type',
       label: 'Type',
       render: (r) => (
-        <span className={`rt-badge rt-badge--${r.isOwner ? 'owner' : 'tenant'}`}>
+        <span
+          className="badge rounded-pill fw-medium px-3 py-2"
+          style={{
+            fontSize: '0.8rem',
+            backgroundColor: r.isOwner ? '#e0f2fe' : '#e0e7ff',
+            color: r.isOwner ? '#0369a1' : '#4f46e5'
+          }}
+        >
           {r.isOwner ? 'Owner' : 'Tenant'}
         </span>
       ),
@@ -49,13 +73,24 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'moveInDate',
       label: 'Move-in Date',
-      render: (r) => <span className="rt-muted">{formatDate(r.moveInDate)}</span>,
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveInDate)}
+        </span>
+      ),
     },
     {
       key: 'status',
       label: 'Status',
       render: (r) => (
-        <span className={`rt-badge rt-badge--${r.isActive ? 'active' : 'inactive'}`}>
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isActive ? '#f0fdf4' : '#e5e7eb',
+            color: r.isActive ? '#16a34a' : '#4b5563'
+          }}
+        >
           {r.isActive ? 'Active' : 'Inactive'}
         </span>
       ),

@@ -27,15 +27,13 @@ const ApartmentFormModal = ({
   onClose,
   onSubmit,
 }: ApartmentFormModalProps) => {
-  const { isEdit, addForm, editForm, formErrors, handleChange, handleSubmit, handleClose } =
-    useApartmentForm({ mode, apartment, onSubmit, onClose });
+  const { isEdit, formik, handleClose } = useApartmentForm({ mode, apartment, onSubmit, onClose });
 
   if (!show) return null;
 
   return (
-    /* Custom background color transparency handled cleanly via standard Bootstrap bg-opacity style overrides */
-    <div 
-      className="modal d-block bg-dark bg-opacity-50" 
+    <div
+      className="modal d-block bg-dark bg-opacity-50"
       onClick={onClose}
       style={{ backdropFilter: "blur(4px)" }}
     >
@@ -51,14 +49,14 @@ const ApartmentFormModal = ({
               <h5 className="modal-title fw-bold fs-6" style={{ color: "#1a1f36" }}>
                 {isEdit ? `Edit Apartment — ${apartment?.flateNumber}` : "Add New Apartment"}
               </h5>
-              <p className="text-muted mb-0 small" style={{ fontSize: "0.8rem" }}>
+              <p className="text-muted mb-0" style={{ fontSize: "0.8rem" }}>
                 {isEdit ? "Update the apartment details below." : "Fill in the details to create a new apartment unit."}
               </p>
             </div>
-            <button 
-              className="btn btn-outline-light border border-light-subtle text-secondary rounded-2 p-0 d-flex align-items-center justify-content-center position-absolute" 
-              onClick={handleClose} 
-              disabled={loading} 
+            <button
+              className="btn btn-outline-light border border-light-subtle text-secondary rounded-2 p-0 d-flex align-items-center justify-content-center position-absolute"
+              onClick={handleClose}
+              disabled={loading}
               aria-label="Close"
               style={{ width: "30px", height: "30px", top: "1.2rem", right: "1.2rem" }}
             >
@@ -66,9 +64,8 @@ const ApartmentFormModal = ({
             </button>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            {/* ── Body ── */}
-            <div className="modal-body p-4授">
+          <form onSubmit={formik.handleSubmit}>
+            <div className="modal-body p-4">
               <div className="row g-3">
 
                 {/* Block */}
@@ -80,13 +77,20 @@ const ApartmentFormModal = ({
                     type="text"
                     name="block"
                     autoComplete="off"
-                    className={`form-control rounded-2 shadow-none small ${formErrors.block ? "is-invalid" : "border-light-subtle"}`}
+                    className={`form-control rounded-2 shadow-none small ${formik.touched.block && formik.errors.block ? "is-invalid" : "border-light-subtle"}`}
                     placeholder="e.g. A"
-                    value={isEdit ? editForm.block ?? "" : addForm.block}
-                    onChange={handleChange}
+                    value={formik.values.block}
+                    onChange={(e) => {
+                      const val = e.target.value.toUpperCase().slice(0, 1);
+                      formik.setFieldValue('block', val);
+                    }}
+                    onBlur={formik.handleBlur}
+                    maxLength={1}
                     style={{ fontSize: "0.875rem" }}
                   />
-                  {formErrors.block && <div className="invalid-feedback">{formErrors.block}</div>}
+                  {formik.touched.block && formik.errors.block && (
+                    <div className="invalid-feedback">{formik.errors.block}</div>
+                  )}
                 </div>
 
                 {/* Floor Number */}
@@ -98,14 +102,17 @@ const ApartmentFormModal = ({
                     type="number"
                     name="floorNumber"
                     autoComplete="off"
-                    className={`form-control rounded-2 shadow-none small ${formErrors.floorNumber ? "is-invalid" : "border-light-subtle"}`}
+                    className={`form-control rounded-2 shadow-none small ${formik.touched.floorNumber && formik.errors.floorNumber ? "is-invalid" : "border-light-subtle"}`}
                     placeholder="e.g. 3"
-                    value={isEdit ? editForm.floorNumber ?? "" : addForm.floorNumber || ""}
-                    onChange={handleChange}
+                    value={formik.values.floorNumber || ""}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     min={0}
                     style={{ fontSize: "0.875rem" }}
                   />
-                  {formErrors.floorNumber && <div className="invalid-feedback">{formErrors.floorNumber}</div>}
+                  {formik.touched.floorNumber && formik.errors.floorNumber && (
+                    <div className="invalid-feedback">{formik.errors.floorNumber}</div>
+                  )}
                 </div>
 
                 {/* Unit Number — add only */}
@@ -118,27 +125,33 @@ const ApartmentFormModal = ({
                       type="text"
                       name="unitNumber"
                       autoComplete="off"
-                      className={`form-control rounded-2 shadow-none small ${formErrors.unitNumber ? "is-invalid" : "border-light-subtle"}`}
+                      className={`form-control rounded-2 shadow-none small ${'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && formik.errors.unitNumber ? "is-invalid" : "border-light-subtle"}`}
                       placeholder="e.g. 02"
-                      value={addForm.unitNumber}
-                      onChange={handleChange}
+                      value={'unitNumber' in formik.values ? (formik.values as CreateApartmentPayload).unitNumber : ""}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       style={{ fontSize: "0.875rem" }}
                     />
-                    {formErrors.unitNumber && <div className="invalid-feedback">{formErrors.unitNumber}</div>}
+                    {'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && (
+                      <div className="invalid-feedback">{formik.errors.unitNumber as string}</div>
+                    )}
                   </div>
                 )}
 
                 {/* Flat Number — edit only */}
                 {isEdit && (
                   <div className="col-md-4">
-                    <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>Flat Number</label>
+                    <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>
+                      Flat Number
+                    </label>
                     <input
                       type="text"
                       name="flateNumber"
                       autoComplete="off"
                       className="form-control rounded-2 shadow-none border-light-subtle small"
-                      value={editForm.flateNumber ?? ""}
-                      onChange={handleChange}
+                      value={'flateNumber' in formik.values ? (formik.values as UpdateApartmentPayload).flateNumber ?? "" : ""}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
                       style={{ fontSize: "0.875rem" }}
                     />
                   </div>
@@ -153,14 +166,17 @@ const ApartmentFormModal = ({
                     type="number"
                     name="areaSqft"
                     autoComplete="off"
-                    className={`form-control rounded-2 shadow-none small ${formErrors.areaSqft ? "is-invalid" : "border-light-subtle"}`}
+                    className={`form-control rounded-2 shadow-none small ${formik.touched.areaSqft && formik.errors.areaSqft ? "is-invalid" : "border-light-subtle"}`}
                     placeholder="e.g. 1200"
-                    value={isEdit ? editForm.areaSqft ?? "" : addForm.areaSqft || ""}
-                    onChange={handleChange}
+                    value={formik.values.areaSqft || ""}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     min={1}
                     style={{ fontSize: "0.875rem" }}
                   />
-                  {formErrors.areaSqft && <div className="invalid-feedback">{formErrors.areaSqft}</div>}
+                  {formik.touched.areaSqft && formik.errors.areaSqft && (
+                    <div className="invalid-feedback">{formik.errors.areaSqft}</div>
+                  )}
                 </div>
 
                 {/* Type */}
@@ -170,9 +186,10 @@ const ApartmentFormModal = ({
                   </label>
                   <select
                     name="type"
-                    className={`form-select rounded-2 shadow-none small ${formErrors.type ? "is-invalid" : "border-light-subtle"}`}
-                    value={isEdit ? editForm.type ?? "" : addForm.type}
-                    onChange={handleChange}
+                    className={`form-select rounded-2 shadow-none small ${formik.touched.type && formik.errors.type ? "is-invalid" : "border-light-subtle"}`}
+                    value={formik.values.type}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     style={{ fontSize: "0.875rem" }}
                   >
                     <option value="">Select type</option>
@@ -180,7 +197,9 @@ const ApartmentFormModal = ({
                       <option key={value} value={value}>{label}</option>
                     ))}
                   </select>
-                  {formErrors.type && <div className="invalid-feedback">{formErrors.type}</div>}
+                  {formik.touched.type && formik.errors.type && (
+                    <div className="invalid-feedback">{formik.errors.type}</div>
+                  )}
                 </div>
 
               </div>
@@ -200,14 +219,10 @@ const ApartmentFormModal = ({
               <button
                 type="submit"
                 className="btn text-white rounded-2 px-3 fw-medium small d-inline-flex align-items-center"
-                disabled={loading}
-                style={{ 
-                  height: "38px", 
-                  fontSize: "0.875rem",
-                  backgroundColor: "#1a1f36"
-                }}
+                disabled={loading || formik.isSubmitting}
+                style={{ height: "38px", fontSize: "0.875rem", backgroundColor: "#1a1f36" }}
               >
-                {loading ? (
+                {loading || formik.isSubmitting ? (
                   <>
                     <span className="spinner-border spinner-border-sm me-2" role="status" />
                     {isEdit ? "Saving..." : "Creating..."}

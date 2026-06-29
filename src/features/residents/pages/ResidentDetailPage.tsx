@@ -22,7 +22,7 @@ const ResidentDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="container-fluid p-4 d-flex flex-column gap-3 style-none">
+      <div className="container-fluid p-4 d-flex flex-column gap-3 style-none max-w-[100%]">
         <div className="d-flex flex-column gap-3">
           {/* Shimmer Skeltons */}
           <div className="placeholder-glow">

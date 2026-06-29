@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Mail, Home, ArrowLeft } from 'lucide-react';
 import { useForgotPassword } from '../../hooks/useForgotPassword';
-import './ForgotPasswordPage.css';
 
 const ForgotPasswordPage = () => {
   const {
@@ -13,36 +12,54 @@ const ForgotPasswordPage = () => {
   } = useForgotPassword();
 
   return (
-    <div className="fp-page d-flex align-items-center justify-content-center min-vh-100 px-3">
-      <div className="fp-container w-100">
+    <div className="d-flex align-items-center justify-content-center min-vh-100 px-3" style={{ backgroundColor: "#f3f4f6" }}>
+      <div className="w-100" style={{ maxWidth: "480px" }}>
 
         {/* ── Brand ── */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center gap-2 mb-2">
-            <div className="fp-brand__box d-flex align-items-center justify-content-center">
+            <div
+              className="d-flex align-items-center justify-content-center rounded-2"
+              style={{ width: "38px", height: "38px", backgroundColor: "#111827" }}
+            >
               <Home size={20} strokeWidth={2} color="#ffffff" />
             </div>
-            <span className="fp-brand__name">Civic Horizon</span>
+            <span className="fw-bold" style={{ fontSize: "1.3rem", color: "#111827" }}>
+              Civic Horizon
+            </span>
           </div>
         </div>
 
-        <div className="fp-card">
+        {/* ── Card ── */}
+        <div className="bg-white p-4 p-sm-5 rounded-3 border-0" style={{ boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)" }}>
           {isSubmitted ? (
 
             /* ── Success state ── */
-            <div className="fp-success">
-              <div className="fp-success__icon-box">
+            <div className="d-flex flex-column align-items-center text-center">
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center mb-3"
+                style={{ width: "64px", height: "64px", backgroundColor: "#eff6ff", color: "#2563eb" }}
+              >
                 <Mail size={28} strokeWidth={1.75} />
               </div>
-              <h2 className="fp-card__heading mb-1">Check your email</h2>
-              <p className="fp-card__subtext mb-4">
+              <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Check your email</h2>
+              <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>
                 If an account exists for <strong>{email}</strong>, we've sent
                 a password reset link. Check your inbox and spam folder.
               </p>
-              <p className="fp-success__note">
+              <p
+                className="m-0 border rounded-2 px-3 py-2 text-secondary"
+                style={{ fontSize: "0.85rem", backgroundColor: "#f9fafb", borderColor: "#e5e7eb" }}
+              >
                 The link expires in <strong>10 minutes</strong>.
               </p>
-              <Link to="/login" className="fp-back-link mt-4">
+              <Link
+                to="/login"
+                className="d-inline-flex align-items-center gap-2 mt-4 fw-semibold text-decoration-none"
+                style={{ fontSize: "0.875rem", color: "#374151", transition: "color 0.15s ease" }}
+                onMouseEnter={(e) => e.currentTarget.style.color = "#111827"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
+              >
                 <ArrowLeft size={16} strokeWidth={2} />
                 Back to login
               </Link>
@@ -52,8 +69,8 @@ const ForgotPasswordPage = () => {
 
             /* ── Form state ── */
             <>
-              <h2 className="fp-card__heading mb-1">Forgot password?</h2>
-              <p className="fp-card__subtext mb-4">
+              <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Forgot password?</h2>
+              <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>
                 Enter your email and we'll send you a link to reset your password.
               </p>
 
@@ -61,21 +78,47 @@ const ForgotPasswordPage = () => {
 
                 {/* Email */}
                 <div className="mb-4">
-                  <label className="field-label d-block" htmlFor="email">
+                  <label
+                    className="d-block fw-bold text-uppercase mb-2"
+                    htmlFor="email"
+                    style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
+                  >
                     Email Address
                   </label>
-                  <div className="input-with-icon">
-                    <Mail size={18} className="input-with-icon__icon" />
+                  <div className="position-relative d-flex align-items-center">
+                    <Mail
+                      size={18}
+                      className="position-absolute pe-none"
+                      style={{ left: "14px", color: "#9ca3af" }}
+                    />
                     <input
                       type="email"
                       id="email"
-                      className="form-control input-with-icon__control"
                       placeholder="name@society.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
                       disabled={isLoading}
                       required
+                      className="form-control shadow-none border"
+                      style={{
+                        paddingLeft: "42px",
+                        height: "46px",
+                        backgroundColor: "#f9fafb",
+                        borderColor: "#e5e7eb",
+                        fontSize: "0.95rem",
+                        borderRadius: "8px"
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.backgroundColor = "#ffffff";
+                        e.target.style.borderColor = "#111827";
+                        e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.backgroundColor = "#f9fafb";
+                        e.target.style.borderColor = "#e5e7eb";
+                        e.target.style.boxShadow = "none";
+                      }}
                     />
                   </div>
                 </div>
@@ -83,12 +126,35 @@ const ForgotPasswordPage = () => {
                 {/* Submit */}
                 <button
                   type="submit"
-                  className="fp-submit-btn w-100 mb-3"
                   disabled={isLoading}
+                  className="btn w-100 fw-bold border d-flex align-items-center justify-content-center mb-3"
+                  style={{
+                    backgroundColor: isLoading ? "#4b5563" : "#111827",
+                    borderColor: isLoading ? "#4b5563" : "#111827",
+                    color: "#ffffff",
+                    height: "50px",
+                    fontSize: "0.85rem",
+                    letterSpacing: "0.08em",
+                    borderRadius: "8px",
+                    cursor: isLoading ? "not-allowed" : "pointer",
+                    transition: "background-color 0.15s ease"
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.backgroundColor = "#1f2937";
+                      e.currentTarget.style.borderColor = "#1f2937";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isLoading) {
+                      e.currentTarget.style.backgroundColor = "#111827";
+                      e.currentTarget.style.borderColor = "#111827";
+                    }
+                  }}
                 >
                   {isLoading ? (
                     <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" />
+                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
                       Sending...
                     </>
                   ) : (
@@ -96,9 +162,15 @@ const ForgotPasswordPage = () => {
                   )}
                 </button>
 
-                {/* Back to login */}
+                {/* Back to login Link */}
                 <div className="text-center">
-                  <Link to="/login" className="fp-back-link">
+                  <Link
+                    to="/login"
+                    className="d-inline-flex align-items-center gap-2 fw-semibold text-decoration-none"
+                    style={{ fontSize: "0.875rem", color: "#374151", transition: "color 0.15s ease" }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = "#111827"}
+                    onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
+                  >
                     <ArrowLeft size={16} strokeWidth={2} />
                     Back to login
                   </Link>

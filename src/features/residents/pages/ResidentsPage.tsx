@@ -21,7 +21,6 @@ const ResidentsPage = () => {
   } = useResidentsPage();
 
   return (
-    /* Replaced .residents-page custom padding with responsive container fluid gutters */
     <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
       {/* ── Header ── */}
@@ -35,7 +34,6 @@ const ResidentsPage = () => {
           </p>
         </div>
         
-        {/* Styled button to exactly match your app's core button theme layout styles */}
         <button 
           type="button"
           className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm" 

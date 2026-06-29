@@ -86,5 +86,3 @@ export const useResidents = () => {
     refetch,
   };
 };
-
-// 8

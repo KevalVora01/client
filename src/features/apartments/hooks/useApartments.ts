@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { apartmentApi } from "../api/apartmentApi";
-import type { Apartment, ApartmentFilters } from "../types/apartment.types";
+import type { Apartment, ApartmentFilters, ApartmentStats } from "../types/apartment.types";
 import type { PaginatedResult } from "../../../types/pagination.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 
@@ -9,14 +9,19 @@ export const useApartments = () => {
   const [pagination, setPagination] = useState<Omit<PaginatedResult<Apartment>, "items">>({
     totalCount: 0,
     pageNumber: 1,
-    pageSize: 5,
+    pageSize: 10,
     totalPages: 0,
     hasNextPage: false,
     hasPreviousPage: false,
   });
+  const [stats, setStats] = useState<ApartmentStats>({
+    totalOccupied: 0,
+    totalVacant: 0,
+    occupancyRate: 0,
+  });
   const [filters, setFilters] = useState<ApartmentFilters>({
     pageNumber: 1,
-    pageSize: 5,
+    pageSize: 10,
     block: undefined,
     floorNumber: undefined,
     type: undefined,
@@ -35,6 +40,7 @@ export const useApartments = () => {
         const response = await apartmentApi.getApartments(filters);
         if (!cancelled) {
           setApartments(response.items);
+          setStats(response.stats);
           setPagination({
             totalCount: response.totalCount,
             pageNumber: response.pageNumber,
@@ -68,6 +74,7 @@ export const useApartments = () => {
   return {
     apartments,
     pagination,
+    stats,
     filters,
     loading,
     error,

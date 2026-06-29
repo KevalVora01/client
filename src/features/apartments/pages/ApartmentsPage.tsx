@@ -12,7 +12,7 @@ import Pagination from '../../../components/Pagination/Pagination';
 import { showSuccess } from '../../../utils/toast';
 
 const ApartmentsPage = () => {
-  const { apartments, pagination, filters, loading, error, updateFilters, changePage, refetch } = useApartments();
+  const { apartments, pagination, stats, filters, loading, error, updateFilters, changePage, refetch } = useApartments();
   const { createApartment, createLoading, updateApartment, updateLoading } = useApartmentMutations(refetch);
   const navigate = useNavigate();
 
@@ -73,8 +73,10 @@ const ApartmentsPage = () => {
       </div>
 
       {/* ── Stats ── */}
-      <ApartmentStatsCards apartments={apartments} totalCount={pagination.totalCount} />
-
+      <ApartmentStatsCards
+        totalCount={pagination.totalCount}
+        stats={stats}
+      />
       {/* ── Table card ── */}
       <div className="table-card">
         <div className="table-card__filters">

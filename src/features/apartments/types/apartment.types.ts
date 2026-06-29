@@ -41,7 +41,15 @@ export interface ApartmentFilters extends PaginatedRequest {
   type?: string;
 }
 
-export type ApartmentsResponse = PaginatedResult<Apartment>;
+export interface ApartmentStats {
+  totalOccupied: number;
+  totalVacant: number;
+  occupancyRate: number;
+}
+
+export interface ApartmentsResponse extends PaginatedResult<Apartment> {
+  stats: ApartmentStats;
+}
 
 export interface ApartmentSelectOption {
   value: number;

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { residentApi } from "../api/residentApi";
-import type { ResidentDetail, ResidentFilters } from "../types/resident.types";
+import type { ResidentDetail, ResidentFilters, ResidentStats } from "../types/resident.types";
 import type { PaginatedResult } from "../../../types/pagination.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 
@@ -15,6 +15,12 @@ export const useResidents = () => {
     hasPreviousPage: false,
   });
 
+  const [stats, setStats] = useState<ResidentStats>({  
+    totalActive: 0,
+    totalOwners: 0,
+    totalTenants: 0,
+  });
+
   const [filters, setFilters] = useState<ResidentFilters>({
     pageNumber: 1,
     pageSize: 5,
@@ -24,7 +30,7 @@ export const useResidents = () => {
     isOwner: undefined,
   });
 
-  const [loading, setLoading] = useState<boolean>(false); 
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -46,6 +52,7 @@ export const useResidents = () => {
             hasNextPage: response.hasNextPage,
             hasPreviousPage: response.hasPreviousPage,
           });
+          setStats(response.stats);  // ✅ add
         }
       } catch (err: unknown) {
         if (!cancelled) {
@@ -78,6 +85,7 @@ export const useResidents = () => {
   return {
     residents,
     pagination,
+    stats,  
     filters,
     loading,
     error,

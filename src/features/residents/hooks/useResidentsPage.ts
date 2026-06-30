@@ -14,6 +14,7 @@ export const useResidentsPage = () => {
   const {
     residents,
     pagination,
+    stats,
     filters,
     loading,
     error,
@@ -35,7 +36,7 @@ export const useResidentsPage = () => {
 
   // ── Handlers ──────────────────────────────────────────────
   const navigate = useNavigate();
-  
+
   const handleView = (resident: ResidentDetail) => {
     navigate(`/residents/${resident.id}`);
   };
@@ -82,6 +83,7 @@ export const useResidentsPage = () => {
     // data
     residents,
     pagination,
+    stats,
     filters,
     loading,
     error,

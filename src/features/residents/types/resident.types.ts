@@ -92,4 +92,12 @@ export interface ApartmentOption {
   block?: string;
 }
 
-export type ResidentsResponse = PaginatedResult<ResidentDetail>;
+export interface ResidentStats {
+  totalActive: number;
+  totalOwners: number;
+  totalTenants: number;
+}
+
+export interface ResidentsResponse extends PaginatedResult<ResidentDetail> {
+  stats: ResidentStats;
+}

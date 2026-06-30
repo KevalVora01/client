@@ -10,7 +10,7 @@ import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 const ResidentsPage = () => {
   const {
-    residents, pagination, filters, loading,
+    residents, pagination, stats, filters, loading,
     updateFilters, changePage,
     showAddModal, showEditModal, showDeactivateModal,
     setShowAddModal, selectedResident,
@@ -33,10 +33,10 @@ const ResidentsPage = () => {
             Oversee all resident accounts, tenancy status, and unit allocations.
           </p>
         </div>
-        
-        <button 
+
+        <button
           type="button"
-          className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm" 
+          className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
           onClick={() => setShowAddModal(true)}
           style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
         >
@@ -46,7 +46,7 @@ const ResidentsPage = () => {
       </div>
 
       {/* ── Stats Cards Grid ── */}
-      <ResidentStatsCards residents={residents} totalCount={pagination.totalCount} />
+      <ResidentStatsCards stats={stats} totalCount={pagination.totalCount} />
 
       {/* ── Table Container Card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">

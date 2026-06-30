@@ -12,6 +12,7 @@ export interface Apartment {
   id: number;
   block: string;
   floorNumber: number;
+  unitNumber: string;
   flateNumber: string;
   areaSqft: number;
   type: ApartmentType;

@@ -21,8 +21,8 @@ export interface ResidentUser {
 export interface ResidentApartment {
   id: number;
   block: string;
-  flateNumber: string;
   floorNumber: number;
+  unitNumber: string;
 }
 
 export interface ResidentDetail extends Resident {

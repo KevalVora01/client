@@ -43,11 +43,11 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       label: 'Apartment',
       render: (r) => r.apartment ? (
         <div>
-          <p className="fw-normal m-0 text-dark" style={{ fontSize: '0.9rem' }}>
-            {r.apartment.flateNumber}
+          <p className="fw-semibold m-0 text-dark" style={{ fontSize: '0.9rem' }}>
+            {r.apartment.block}-{r.apartment.floorNumber}{r.apartment.unitNumber}
           </p>
           <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
-          Block {r.apartment.block} - Floor {r.apartment.floorNumber}
+            Block {r.apartment.block} - Floor {r.apartment.floorNumber}
           </p>
         </div>
       ) : <span className="text-muted small">—</span>,

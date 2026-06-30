@@ -115,47 +115,26 @@ const ApartmentFormModal = ({
                   )}
                 </div>
 
-                {/* Unit Number — add only */}
-                {!isEdit && (
-                  <div className="col-md-4">
-                    <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>
-                      Unit Number <span className="text-danger">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="unitNumber"
-                      autoComplete="off"
-                      className={`form-control rounded-2 shadow-none small ${'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && formik.errors.unitNumber ? "is-invalid" : "border-light-subtle"}`}
-                      placeholder="e.g. 02"
-                      value={'unitNumber' in formik.values ? (formik.values as CreateApartmentPayload).unitNumber : ""}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      style={{ fontSize: "0.875rem" }}
-                    />
-                    {'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && (
-                      <div className="invalid-feedback">{formik.errors.unitNumber as string}</div>
-                    )}
-                  </div>
-                )}
-
-                {/* Flat Number — edit only */}
-                {isEdit && (
-                  <div className="col-md-4">
-                    <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>
-                      Flat Number
-                    </label>
-                    <input
-                      type="text"
-                      name="flateNumber"
-                      autoComplete="off"
-                      className="form-control rounded-2 shadow-none border-light-subtle small"
-                      value={'flateNumber' in formik.values ? (formik.values as UpdateApartmentPayload).flateNumber ?? "" : ""}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      style={{ fontSize: "0.875rem" }}
-                    />
-                  </div>
-                )}
+                {/* Unit Number — both add and edit */}
+                <div className="col-md-4">
+                  <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>
+                    Unit Number <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="unitNumber"
+                    autoComplete="off"
+                    className={`form-control rounded-2 shadow-none small ${'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && formik.errors.unitNumber ? "is-invalid" : "border-light-subtle"}`}
+                    placeholder="e.g. 02"
+                    value={'unitNumber' in formik.values ? (formik.values as CreateApartmentPayload).unitNumber : ""}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    style={{ fontSize: "0.875rem" }}
+                  />
+                  {'unitNumber' in formik.touched && formik.touched.unitNumber && 'unitNumber' in formik.errors && (
+                    <div className="invalid-feedback">{formik.errors.unitNumber as string}</div>
+                  )}
+                </div>
 
                 {/* Area */}
                 <div className="col-md-6">

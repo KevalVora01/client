@@ -165,28 +165,6 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   />
                 </div>
 
-                {/* Move-in date — add only */}
-                {!isEdit && (
-                  <div className="col-md-6">
-                    <label className="form-label fw-medium text-secondary small mb-1">Move-in date <span className="text-danger">*</span></label>
-                    <input
-                      type="date"
-                      name="moveInDate"
-                      className={`form-control shadow-none rounded-2 text-dark ${formik.touched.moveInDate && formik.errors.moveInDate ? "is-invalid" : ""}`}
-                      value={formik.values.moveInDate ?? ""}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      style={{
-                        fontSize: "0.875rem",
-                        borderColor: formik.touched.moveInDate && formik.errors.moveInDate ? "#dc3545" : "#e5e7eb"
-                      }}
-                    />
-                    {formik.touched.moveInDate && formik.errors.moveInDate && (
-                      <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.moveInDate}</div>
-                    )}
-                  </div>
-                )}
-
                 {/* Move-out date — edit only */}
                 {isEdit && (
                   <div className="col-md-6">

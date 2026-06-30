@@ -30,7 +30,7 @@ export interface CreateApartmentPayload {
 export interface UpdateApartmentPayload {
   block?: string;
   floorNumber?: number;
-  flateNumber?: string;
+  unitNumber?: string;
   areaSqft?: number;
   type?: ApartmentType;
 }

@@ -37,7 +37,6 @@ export interface CreateResidentPayload {
   password: string;
   apartmentId?: number;
   isOwner: boolean;
-  moveInDate: string;
 }
 
 export interface UpdateResidentPayload {

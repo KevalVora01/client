@@ -10,6 +10,12 @@ interface UseApartmentFormProps {
   onClose: () => void;
 }
 
+// ── Helper: extract unit number from flateNumber (e.g. "A-302" -> "02") ──
+const extractUnitNumber = (block: string, floorNumber: number, flateNumber: string): string => {
+  const prefix = `${block}-${floorNumber}`;
+  return flateNumber.startsWith(prefix) ? flateNumber.slice(prefix.length) : "";
+};
+
 // ── Validation schemas ─────────────────────────────────────────────
 
 const addSchema = Yup.object({
@@ -36,9 +42,15 @@ const addSchema = Yup.object({
 
 const editSchema = Yup.object({
   block: Yup.string().trim().optional(),
-  floorNumber: Yup.number().min(0, "Floor number must be at least 0").optional(),
-  flateNumber: Yup.string().trim().optional(),
-  areaSqft: Yup.number().positive("Area must be a positive number").optional(),
+  floorNumber: Yup.number()
+    .transform((value, originalValue) => originalValue === "" ? undefined : value)
+    .min(1, "Floor number must be at least 1")
+    .optional(),
+  unitNumber: Yup.string().trim().optional(),
+  areaSqft: Yup.number()
+    .transform((value, originalValue) => originalValue === "" ? undefined : value)
+    .positive("Area must be a positive number")
+    .optional(),
   type: Yup.string()
     .oneOf(Object.values(ApartmentTypeEnum), "Please select a valid type")
     .optional(),
@@ -59,7 +71,9 @@ export const useApartmentForm = ({
       ? {
         block: apartment?.block ?? "",
         floorNumber: apartment?.floorNumber ?? "",
-        flateNumber: apartment?.flateNumber ?? "",
+        unitNumber: apartment
+          ? extractUnitNumber(apartment.block, apartment.floorNumber, apartment.flateNumber)
+          : "",
         areaSqft: apartment?.areaSqft ?? 0,
         type: apartment?.type ?? ("" as ApartmentType),
       }

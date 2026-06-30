@@ -19,7 +19,6 @@ const addSchema = Yup.object({
   email: Yup.string().trim().email("Invalid email").required("Email is required"),
   phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
   password: Yup.string().min(8, "Minimum 8 characters").required("Password is required"),
-  moveInDate: Yup.string().required("Move-in date is required"),
   apartmentId: Yup.number().min(1, "Please select an apartment").required("Please select an apartment"),
   isOwner: Yup.boolean(),
 });
@@ -54,7 +53,6 @@ export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: Use
         password: "",
         apartmentId: 0,
         isOwner: false,
-        moveInDate: "",
       },
     validationSchema: isEdit ? editSchema : addSchema,
     enableReinitialize: true,

@@ -172,7 +172,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                     <input
                       type="text"
                       className="form-control rfm-input"
-                      value={`${resident.apartment.flateNumber} — Block ${resident.apartment.block}`}
+                      value={`${resident.apartment.block}-${resident.apartment.floorNumber}${resident.apartment.unitNumber}`}
                       readOnly
                       disabled
                     />

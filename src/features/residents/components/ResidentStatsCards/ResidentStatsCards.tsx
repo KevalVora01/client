@@ -16,7 +16,7 @@ const ResidentStatsCards = ({ stats, totalCount }: ResidentStatsCardsProps) => {
       subtext: `${totalActive} active`,
       icon: Users,
       bgClass: "bg-primary-subtle text-primary",
-      subtextClass: "text-primary"
+      subtextColor: "#0d6efd"
     },
     {
       label: "Active",
@@ -24,28 +24,27 @@ const ResidentStatsCards = ({ stats, totalCount }: ResidentStatsCardsProps) => {
       subtext: "Across all residents",
       icon: UserCheck,
       bgClass: "bg-success-subtle text-success",
-      subtextClass: "text-success"
+      subtextColor: "#198754"
     },
     {
       label: "Owners",
       value: totalOwners,
-      subtext: `${totalTenants} tenants`,
+      subtext: `out of ${totalActive} active`,
       icon: ShieldAlert,
       bgClass: "bg-indigo-subtle text-indigo",
-      subtextClass: "text-muted",
       customBg: "#eef2ff",
-      customColor: "#4338ca"
+      customColor: "#4338ca",
+      subtextColor: "#4338ca"
     },
     {
       label: "Tenants",
       value: totalTenants,
-      subtext: `${totalOwners} owners`,
+      subtext: `out of ${totalActive} active`,
       icon: UserPlus,
       bgClass: "bg-warning-subtle text-warning-emphasis",
-      subtextClass: "text-muted"
+      subtextColor: "#b45309"
     }
   ];
-
   return (
     <div className="row g-3">
       {statItems.map((item, index) => {
@@ -78,7 +77,7 @@ const ResidentStatsCards = ({ stats, totalCount }: ResidentStatsCardsProps) => {
                 <h2 className="fw-bold m-0 lh-1 mb-1" style={{ color: "#1a1f36", fontSize: "2rem" }}>
                   {item.value}
                 </h2>
-                <span className={`small ${item.subtextClass}`} style={{ fontSize: "0.8rem" }}>
+                <span className="small" style={{ fontSize: "0.8rem", color: item.subtextColor }}>
                   {item.subtext}
                 </span>
               </div>

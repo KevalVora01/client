@@ -56,7 +56,7 @@ const ResidentDetailPage = () => {
 
   const infoCards = [
     { icon: Phone, label: 'Phone', value: resident.user.phone, accent: 'info-card--blue' },
-    { icon: Building2, label: 'Apartment', value: resident.apartment ? `${resident.apartment.flateNumber}` : '—', accent: 'info-card--green' },
+    { icon: Building2, label: 'Apartment', value: resident.apartment ? `${resident.apartment.block}-${resident.apartment.floorNumber}${resident.apartment.unitNumber}` : '—', accent: 'info-card--green' },
     { icon: Calendar, label: 'Move-in Date', value: formatDate(resident.moveInDate), accent: 'info-card--purple' },
     resident.isActive
       ? { icon: UserCheck, label: 'Resident Type', value: resident.isOwner ? 'Owner' : 'Tenant', accent: 'info-card--amber' }

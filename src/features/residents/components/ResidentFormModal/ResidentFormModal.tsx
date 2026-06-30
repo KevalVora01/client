@@ -149,21 +149,35 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
               </p>
               <div className="row g-3">
 
-                <div className="col-md-6">
-                  <label className="form-label fw-medium text-secondary small mb-1">Apartment</label>
-                  <ApartmentSelect
-                    value={formik.values.apartmentId ?? 0}
-                    onChange={async (id) => {
-                      setApartmentId(id);
-                      await formik.setFieldValue('apartmentId', id, true);
-                      formik.setFieldTouched('apartmentId', true, true);
-                    }}
-                    error={formik.touched.apartmentId && formik.errors.apartmentId
-                      ? String(formik.errors.apartmentId)
-                      : undefined}
-                    currentApartmentId={isEdit ? resident?.apartmentId : undefined}
-                  />
-                </div>
+                {!isEdit && (
+                  <div className="col-md-6">
+                    <label className="form-label fw-medium text-secondary small mb-1">Apartment</label>
+                    <ApartmentSelect
+                      value={formik.values.apartmentId ?? 0}
+                      onChange={async (id) => {
+                        setApartmentId(id);
+                        await formik.setFieldValue('apartmentId', id, true);
+                        formik.setFieldTouched('apartmentId', true, true);
+                      }}
+                      error={formik.touched.apartmentId && formik.errors.apartmentId
+                        ? String(formik.errors.apartmentId)
+                        : undefined}
+                    />
+                  </div>
+                )}
+
+                {isEdit && resident?.apartment && (
+                  <div className="col-md-6">
+                    <label className="form-label fw-medium text-secondary small mb-1">Apartment</label>
+                    <input
+                      type="text"
+                      className="form-control rfm-input"
+                      value={`${resident.apartment.flateNumber} — Block ${resident.apartment.block}`}
+                      readOnly
+                      disabled
+                    />
+                  </div>
+                )}
 
                 {/* Move-out date — edit only */}
                 {isEdit && (

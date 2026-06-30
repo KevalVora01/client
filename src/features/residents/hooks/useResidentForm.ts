@@ -26,7 +26,6 @@ const addSchema = Yup.object({
 const editSchema = Yup.object({
   name: Yup.string().trim().required("Name cannot be empty"),
   phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
-  apartmentId: Yup.number().optional(),
   isOwner: Yup.boolean().optional(),
   moveOutDate: Yup.string().optional(),
 });
@@ -42,7 +41,6 @@ export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: Use
       ? {
         name: resident?.user.name ?? "",
         phone: resident?.user.phone ?? "",
-        apartmentId: resident?.apartmentId ?? 0,
         isOwner: resident?.isOwner ?? false,
         moveOutDate: resident?.moveOutDate ?? "",
       }

@@ -51,21 +51,23 @@ const ApartmentsPage = () => {
   };
 
   return (
-    <div className="apartments-page p-4">
+    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
       {/* ── Header ── */}
-      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <h4 className="fw-bold mb-3" style={{ fontSize: '1.35rem', color: '#111827' }}>
+          <h4 className="fw-bold mb-1" style={{ fontSize: '1.35rem', color: '#1a1f36' }}>
             Apartment Management
           </h4>
-          <p className="text-muted mb-3" style={{ fontSize: '0.875rem' }}>
+          <p className="text-secondary mt-3 mb-0 small">
             Manage all apartment units, occupancy and details.
           </p>
         </div>
         <button
-          className="page-add-btn"
+          type="button"
+          className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
           onClick={() => { setModalMode("add"); setShowModal(true); }}
+          style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
         >
           <Plus size={16} strokeWidth={2} />
           Add Apartment
@@ -73,18 +75,19 @@ const ApartmentsPage = () => {
       </div>
 
       {/* ── Stats ── */}
-      <ApartmentStatsCards
-        stats={stats}
-      />
+      <ApartmentStatsCards stats={stats} />
+
       {/* ── Table card ── */}
-      <div className="table-card">
-        <div className="table-card__filters">
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
+        <div className="card-header bg-white border-bottom border-light-subtle p-3">
           <ApartmentFiltersComponent key={filters.block ?? ""} filters={filters} onFilterChange={updateFilters} />
         </div>
 
-        <ApartmentTable apartments={apartments} loading={loading} onView={handleView} onEdit={handleEdit} />
+        <div className="table-responsive">
+          <ApartmentTable apartments={apartments} loading={loading} onView={handleView} onEdit={handleEdit} />
+        </div>
 
-        <div className="table-card__footer">
+        <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
           <Pagination pagination={pagination} onPageChange={changePage} />
         </div>
       </div>

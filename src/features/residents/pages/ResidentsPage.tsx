@@ -29,7 +29,7 @@ const ResidentsPage = () => {
           <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
             Residents Management
           </h4>
-          <p className="text-secondary mb-0 small">
+          <p className="text-secondary mt-3 mb-0 small">
             Oversee all resident accounts, tenancy status, and unit allocations.
           </p>
         </div>

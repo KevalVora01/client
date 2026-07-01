@@ -25,7 +25,6 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
     if (!search.trim()) return apartments;
     const term = search.toLowerCase();
     return apartments.filter((apt) =>
-      apt.flateNumber.toLowerCase().includes(term) ||
       apt.block.toLowerCase().includes(term)
     );
   }, [apartments, search]);
@@ -82,7 +81,7 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
                 className="fw-medium text-truncate"
                 style={{ fontSize: "0.875rem", color: "#1a1f36", lineHeight: 1.2 }}
               >
-                Unit {selectedApartment.flateNumber}
+                Unit {selectedApartment.block}-{selectedApartment.floorNumber}{selectedApartment.unitNumber}
               </span>
               <span className="text-muted" style={{ fontSize: "0.72rem", lineHeight: 1 }}>
                 Block {selectedApartment.block} • Floor {selectedApartment.floorNumber}
@@ -161,7 +160,7 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
                   >
                     <div>
                       <p className="fw-medium m-0" style={{ fontSize: "0.875rem", color: "#1a1f36", lineHeight: 1.2 }}>
-                        Unit {apt.flateNumber}
+                        Unit {apt.block}-{apt.floorNumber}{apt.unitNumber}
                       </p>
                       <p className="text-muted m-0" style={{ fontSize: "0.75rem" }}>
                         Block {apt.block}, Floor {apt.floorNumber}

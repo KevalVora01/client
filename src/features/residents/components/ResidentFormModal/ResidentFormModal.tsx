@@ -11,7 +11,6 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
   return (
     <div
       className="modal d-block rfm-backdrop"
-      onClick={onClose}
       style={{ backdropFilter: "blur(4px)" }}
     >
       <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>

@@ -34,7 +34,6 @@ const ApartmentFormModal = ({
   return (
     <div
       className="modal d-block bg-dark bg-opacity-50"
-      onClick={onClose}
       style={{ backdropFilter: "blur(4px)" }}
     >
       <div
@@ -47,7 +46,7 @@ const ApartmentFormModal = ({
           <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
             <div>
               <h5 className="modal-title fw-bold fs-6" style={{ color: "#1a1f36" }}>
-                {isEdit ? `Edit Apartment — ${apartment?.flateNumber}` : "Add New Apartment"}
+                {isEdit ? `Edit Apartment — ${apartment?.unitNumber}` : "Add New Apartment"}
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: "0.8rem" }}>
                 {isEdit ? "Update the apartment details below." : "Fill in the details to create a new apartment unit."}

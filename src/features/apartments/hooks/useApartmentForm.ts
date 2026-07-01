@@ -10,12 +10,6 @@ interface UseApartmentFormProps {
   onClose: () => void;
 }
 
-// ── Helper: extract unit number from flateNumber (e.g. "A-302" -> "02") ──
-const extractUnitNumber = (block: string, floorNumber: number, flateNumber: string): string => {
-  const prefix = `${block}-${floorNumber}`;
-  return flateNumber.startsWith(prefix) ? flateNumber.slice(prefix.length) : "";
-};
-
 // ── Validation schemas ─────────────────────────────────────────────
 
 const addSchema = Yup.object({
@@ -71,9 +65,7 @@ export const useApartmentForm = ({
       ? {
         block: apartment?.block ?? "",
         floorNumber: apartment?.floorNumber ?? "",
-        unitNumber: apartment
-          ? extractUnitNumber(apartment.block, apartment.floorNumber, apartment.flateNumber)
-          : "",
+        unitNumber: apartment?.unitNumber,
         areaSqft: apartment?.areaSqft ?? 0,
         type: apartment?.type ?? ("" as ApartmentType),
       }

@@ -2,16 +2,15 @@ import { Building2, CheckCircle, XCircle, LayoutGrid } from 'lucide-react';
 import type { ApartmentStats } from '../types/apartment.types';
 
 interface ApartmentStatsCardsProps {
-  totalCount: number;
   stats: ApartmentStats;
 }
 
-const ApartmentStatsCards = ({ totalCount, stats }: ApartmentStatsCardsProps) => {
+const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
 
   const statItems = [
     {
       label: 'TOTAL UNITS',
-      value: totalCount,
+      value: stats.totalCount,
       icon: Building2,
       sub: 'All apartment units',
       bgClass: 'bg-primary-subtle text-primary',

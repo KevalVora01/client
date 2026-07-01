@@ -13,7 +13,6 @@ export interface Apartment {
   block: string;
   floorNumber: number;
   unitNumber: string;
-  flateNumber: string;
   areaSqft: number;
   type: ApartmentType;
   isOccupied: boolean;
@@ -43,6 +42,7 @@ export interface ApartmentFilters extends PaginatedRequest {
 }
 
 export interface ApartmentStats {
+  totalCount: number;
   totalOccupied: number;
   totalVacant: number;
   occupancyRate: number;

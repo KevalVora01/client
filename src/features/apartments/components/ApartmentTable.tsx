@@ -121,7 +121,7 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
       label: "FLAT NO.",
       render: (a) => (
         <span className="fw-bold d-block py-2 text-dark" style={{ fontSize: "0.95rem" }}>
-          {a.flateNumber}
+          {a.block}-{a.floorNumber}{a.unitNumber}
         </span>
       ),
     },

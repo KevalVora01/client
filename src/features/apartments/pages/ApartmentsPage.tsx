@@ -74,7 +74,6 @@ const ApartmentsPage = () => {
 
       {/* ── Stats ── */}
       <ApartmentStatsCards
-        totalCount={pagination.totalCount}
         stats={stats}
       />
       {/* ── Table card ── */}

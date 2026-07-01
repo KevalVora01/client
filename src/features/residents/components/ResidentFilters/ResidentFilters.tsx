@@ -9,6 +9,9 @@ const ResidentFiltersComponent = ({
 
   // debounce 300ms
   useEffect(() => {
+    // agar search filters.search ke equal hai toh skip karo
+    if (search === (filters.search ?? "")) return;
+
     const timer = setTimeout(() => {
       onFilterChange({ search: search.trim() || undefined });
     }, 300);
@@ -16,6 +19,7 @@ const ResidentFiltersComponent = ({
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
+
 
   const handleReset = () => {
     setSearch("");

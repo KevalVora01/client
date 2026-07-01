@@ -1,11 +1,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Mail, Building2, Calendar, UserCheck } from 'lucide-react';
 import { useResident } from '../hooks/useResident';
-import { useResidentsPage } from '../hooks/useResidentsPage';
 import { getAvatarColor, getInitials, formatDate } from '../components/ResidentTable/residentTableHelpers';
 import ResidentFormModal from '../components/ResidentFormModal/ResidentFormModal';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { UpdateResidentPayload } from '../types/resident.types';
+import { useResidentActions } from '../hooks/useResidentActions';
 
 const ResidentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +18,7 @@ const ResidentDetailPage = () => {
     handleEdit, handleDeactivate,
     handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate,
-  } = useResidentsPage();
+  } = useResidentActions();
 
   if (loading) {
     return (

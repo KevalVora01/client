@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Building2, Layers, Maximize2, Home } from 'lucide-react';
+import { ArrowLeft, Building2, Layers, Maximize2, Home, Mail, Phone } from 'lucide-react';
 import { useApartment } from '../hooks/useApartment';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import { formatArea, formatFloor, apartmentTypeLabels } from '../components/apartmentTableHelpers';
@@ -159,13 +159,10 @@ const ApartmentDetailPage = () => {
                   {resident.user?.name}
                 </p>
                 <div className="d-flex align-items-center gap-3 mt-1">
-                  <p className="mb-0" style={{ fontSize: '0.775rem', color: '#6b7280' }}>
-                    {resident.user?.email}
-                  </p>
-                  <span className="d-flex align-items-center gap-1" style={{ fontSize: '0.775rem', color: '#6b7280' }}>
-                    <i className="bi bi-telephone" style={{ fontSize: '0.7rem' }} />
-                    {resident.user?.phone}
-                  </span>
+                  <div className="detail-header__meta">
+                    <span><Mail size={13} strokeWidth={1.75} /> {resident.user.email}</span>
+                    <span><Phone size={13} strokeWidth={1.75} /> {resident.user.phone}</span>
+                  </div>
                 </div>
               </div>
             </div>

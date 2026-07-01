@@ -14,7 +14,7 @@ const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
       icon: Building2,
       sub: 'All apartment units',
       bgClass: 'bg-primary-subtle text-primary',
-      subtextClass: 'text-muted',
+      subtextColor: '#0d6efd',
     },
     {
       label: 'OCCUPIED',
@@ -22,7 +22,7 @@ const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
       icon: CheckCircle,
       sub: 'Currently occupied',
       bgClass: 'bg-success-subtle text-success',
-      subtextClass: 'text-success',
+      subtextColor: '#198754',
     },
     {
       label: 'VACANT',
@@ -30,7 +30,7 @@ const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
       icon: XCircle,
       sub: 'Available units',
       bgClass: 'bg-warning-subtle text-warning-emphasis',
-      subtextClass: 'text-warning-emphasis',
+      subtextColor: '#b45309',
     },
     {
       label: 'OCCUPANCY RATE',
@@ -38,9 +38,9 @@ const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
       icon: LayoutGrid,
       sub: 'Across all units',
       bgClass: 'bg-purple text-purple',
-      subtextClass: 'text-muted',
-      customBg: '#f5f3ff',
-      customColor: '#7c3aed',
+      customBg: '#eef2ff',
+      customColor: '#4338ca',
+      subtextColor: '#4338ca',
     },
   ];
 
@@ -74,7 +74,7 @@ const ApartmentStatsCards = ({ stats }: ApartmentStatsCardsProps) => {
                 <h2 className="fw-bold m-0 lh-1 mb-1" style={{ color: '#1a1f36', fontSize: '2rem' }}>
                   {stat.value}
                 </h2>
-                <span className={`small ${stat.subtextClass}`} style={{ fontSize: '0.8rem' }}>
+                <span style={{ fontSize: '0.8rem', color: stat.subtextColor }}>
                   {stat.sub}
                 </span>
               </div>

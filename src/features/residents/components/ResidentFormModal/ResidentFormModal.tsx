@@ -10,7 +10,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
   return (
     <div
-      className="modal d-block rfm-backdrop"
+      className="modal d-block bg-dark bg-opacity-50"
       style={{ backdropFilter: "blur(4px)" }}
     >
       <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>

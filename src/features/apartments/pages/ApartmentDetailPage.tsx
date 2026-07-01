@@ -6,7 +6,7 @@ import { formatArea, formatFloor, apartmentTypeLabels } from '../components/apar
 const ApartmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { apartment, loading, error } = useApartment(Number(id));
+  const { apartment, loading } = useApartment(Number(id));
 
   if (loading) {
     return (
@@ -27,13 +27,13 @@ const ApartmentDetailPage = () => {
     );
   }
 
-  if (error || !apartment) {
+  if (!apartment) {
     return (
       <div className="page">
         <div className="error-state">
           <i className="bi bi-exclamation-circle error-state__icon" />
           <p className="error-state__title">Failed to load apartment</p>
-          <p className="error-state__sub">{error ?? "Apartment not found"}</p>
+          <p className="error-state__sub"> Apartment not found</p>
           <button className="back-btn" onClick={() => navigate('/apartments')}>
             <ArrowLeft size={16} /> Back to apartments
           </button>
@@ -66,7 +66,7 @@ const ApartmentDetailPage = () => {
           </div>
           <div>
             <div className="detail-header__name-row">
-              <h4 className="detail-header__name">{apartment.flateNumber}</h4>
+              <h4 className="detail-header__name">{apartment.block}-{apartment.floorNumber}{apartment.unitNumber}</h4>
               <span className={`badge-pill badge-pill--${apartment.isOccupied ? 'occupied' : 'vacant'}`}>
                 {apartment.isOccupied ? 'Occupied' : 'Vacant'}
               </span>

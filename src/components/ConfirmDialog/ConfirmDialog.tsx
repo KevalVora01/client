@@ -62,7 +62,7 @@ const ConfirmDialog = ({
 
   return createPortal(
     <div
-      className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+      className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-1"
       style={{ background: 'rgba(15, 23, 42, 0.45)', backdropFilter: 'blur(4px)', zIndex: 1070 }}
       onClick={onCancel}
     >
@@ -74,7 +74,7 @@ const ConfirmDialog = ({
         {/* Close button */}
         <button
           className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
-          style={{ top: 14, right: 14, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem' }}
+          style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem' }}
           onClick={onCancel}
           aria-label="Close"
         >

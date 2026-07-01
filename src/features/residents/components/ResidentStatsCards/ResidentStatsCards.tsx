@@ -13,7 +13,7 @@ const ResidentStatsCards = ({ stats, totalCount }: ResidentStatsCardsProps) => {
     {
       label: "Total Residents",
       value: totalCount,
-      subtext: `${totalActive} active`,
+      subtext: "Total registered residents",
       icon: Users,
       bgClass: "bg-primary-subtle text-primary",
       subtextColor: "#0d6efd"

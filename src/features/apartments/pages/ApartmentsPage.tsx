@@ -12,7 +12,7 @@ import { showSuccess } from '../../../utils/toast';
 import ApartmentTable from '../components/ApartmentTable';
 
 const ApartmentsPage = () => {
-  const { apartments, pagination, stats, filters, loading, error, updateFilters, changePage, refetch } = useApartments();
+  const { apartments, pagination, stats, filters, loading, updateFilters, changePage, refetch } = useApartments();
   const { createApartment, createLoading, updateApartment, updateLoading } = useApartmentMutations(refetch);
   const navigate = useNavigate();
 
@@ -82,20 +82,6 @@ const ApartmentsPage = () => {
         <div className="table-card__filters">
           <ApartmentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
-
-        {error && (
-          <div className="d-flex align-items-center justify-content-between mx-3 mb-2 px-3 py-2 rounded-2"
-            style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', fontSize: '0.875rem' }}
-          >
-            {error}
-            <button onClick={refetch}
-              className="btn btn-link p-0 fw-semibold"
-              style={{ color: '#b91c1c', fontSize: '0.875rem' }}
-            >
-              Retry
-            </button>
-          </div>
-        )}
 
         <ApartmentTable apartments={apartments} loading={loading} onView={handleView} onEdit={handleEdit} />
 

@@ -3,6 +3,7 @@ import { apartmentApi } from "../api/apartmentApi";
 import type { Apartment, ApartmentFilters, ApartmentStats } from "../types/apartment.types";
 import type { PaginatedResult } from "../../../types/pagination.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
+import { showError } from "../../../utils/toast";
 
 export const useApartments = () => {
   const [apartments, setApartments] = useState<Apartment[]>([]);
@@ -27,7 +28,6 @@ export const useApartments = () => {
     type: undefined,
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -35,7 +35,6 @@ export const useApartments = () => {
 
     const fetch = async () => {
       setLoading(true);
-      setError(null);
       try {
         const response = await apartmentApi.getApartments(filters);
         if (!cancelled) {
@@ -51,7 +50,7 @@ export const useApartments = () => {
           });
         }
       } catch (err: unknown) {
-        if (!cancelled) setError(getErrorMessage(err, "Failed to fetch apartments"));
+        if (!cancelled) showError(getErrorMessage(err, "Failed to fetch apartments"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -77,7 +76,6 @@ export const useApartments = () => {
     stats,
     filters,
     loading,
-    error,
     updateFilters,
     changePage,
     refetch,

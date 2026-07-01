@@ -3,6 +3,7 @@ import { residentApi } from "../api/residentApi";
 import type { ResidentDetail, ResidentFilters, ResidentStats } from "../types/resident.types";
 import type { PaginatedResult } from "../../../types/pagination.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
+import { showError } from "../../../utils/toast";
 
 export const useResidents = () => {
   const [residents, setResidents] = useState<ResidentDetail[]>([]);
@@ -31,7 +32,6 @@ export const useResidents = () => {
   });
 
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -39,7 +39,6 @@ export const useResidents = () => {
 
     const fetch = async () => {
       setLoading(true);
-      setError(null);
       try {
         const response = await residentApi.getResidents(filters);
         if (!cancelled) {
@@ -52,11 +51,11 @@ export const useResidents = () => {
             hasNextPage: response.hasNextPage,
             hasPreviousPage: response.hasPreviousPage,
           });
-          setStats(response.stats);  // ✅ add
+          setStats(response.stats);
         }
       } catch (err: unknown) {
         if (!cancelled) {
-          setError(getErrorMessage(err, "Failed to fetch residents"));
+          showError(getErrorMessage(err, "Failed to fetch residents"));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -88,7 +87,6 @@ export const useResidents = () => {
     stats,  
     filters,
     loading,
-    error,
     updateFilters,
     changePage,
     refetch,

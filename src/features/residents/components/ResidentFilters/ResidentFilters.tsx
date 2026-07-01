@@ -5,11 +5,11 @@ const ResidentFiltersComponent = ({
   filters,
   onFilterChange,
 }: ResidentFiltersProps) => {
+
   const [search, setSearch] = useState(filters.search ?? "");
 
   // debounce 300ms
   useEffect(() => {
-    // agar search filters.search ke equal hai toh skip karo
     if (search === (filters.search ?? "")) return;
 
     const timer = setTimeout(() => {

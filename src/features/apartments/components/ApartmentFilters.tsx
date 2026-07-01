@@ -19,6 +19,8 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
 
   // debounce — 300ms
   useEffect(() => {
+    if (search === (filters.block ?? "")) return;
+
     const timer = setTimeout(() => {
       onFilterChange({ block: search.trim().toUpperCase() || undefined });
     }, 300);

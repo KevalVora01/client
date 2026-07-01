@@ -79,7 +79,7 @@ const ApartmentsPage = () => {
       {/* ── Table card ── */}
       <div className="table-card">
         <div className="table-card__filters">
-          <ApartmentFiltersComponent filters={filters} onFilterChange={updateFilters} />
+          <ApartmentFiltersComponent key={filters.block ?? ""} filters={filters} onFilterChange={updateFilters} />
         </div>
 
         <ApartmentTable apartments={apartments} loading={loading} onView={handleView} onEdit={handleEdit} />

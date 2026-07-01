@@ -37,4 +37,8 @@ export const residentApi = {
     await api.delete(`/residents/${id}`);
   },
 
+  getResidentByApartment: async (apartmentId: number): Promise<ResidentDetail | null> => {
+    const response = await api.get(`/residents/apartment/${apartmentId}`);
+    return response.data.data;
+  },
 };

@@ -58,3 +58,28 @@ export interface ApartmentSelectOption {
   floor: string;
   block: string;
 }
+
+export interface ApartmentResident {
+  id: number;
+  isOwner: boolean;
+  moveInDate: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
+export interface Apartment {
+  id: number;
+  block: string;
+  floorNumber: number;
+  unitNumber: string;
+  flateNumber: string;
+  areaSqft: number;
+  type: ApartmentType;
+  isOccupied: boolean;
+  resident?: ApartmentResident | null;
+  createdAt: string;
+}

@@ -11,6 +11,18 @@
 }
 
 /* ─────────────────────────────────────────
+   INPUT FIELDS
+───────────────────────────────────────── */
+
+.form-control:focus,
+.form-select:focus,
+.search-wrapper:focus-within {
+  border-color: #a5b4fc !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+  outline: none !important;
+}
+
+/* ─────────────────────────────────────────
    BACK BUTTON
 ───────────────────────────────────────── */
 .back-btn {

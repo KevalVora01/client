@@ -16,6 +16,7 @@ export const useApartments = () => {
     hasPreviousPage: false,
   });
   const [stats, setStats] = useState<ApartmentStats>({
+    totalCount: 0,
     totalOccupied: 0,
     totalVacant: 0,
     occupancyRate: 0,

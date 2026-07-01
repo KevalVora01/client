@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ApartmentType, type ApartmentFilters } from "../types/apartment.types";
 
 interface ApartmentFiltersProps {
@@ -16,18 +16,16 @@ const apartmentTypeLabels: Record<ApartmentType, string> = {
 
 const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFiltersProps) => {
   const [search, setSearch] = useState(filters.block ?? "");
-  const [isFocused, setIsFocused] = useState(false); // 💡 State to smoothly toggle active border frames
 
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
+  // debounce — 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
       onFilterChange({ block: search.trim().toUpperCase() || undefined });
-    }
-  };
+    }, 300);
 
-  const handleSearchBlur = () => {
-    setIsFocused(false);
-    onFilterChange({ block: search.trim().toUpperCase() || undefined });
-  };
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onFilterChange({ type: e.target.value || undefined });
@@ -42,41 +40,31 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
     !!filters.block || filters.floorNumber !== undefined || !!filters.type;
 
   return (
-    <div className="row g-2 mb-0 align-items-center">
+    <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
 
       {/* Block search */}
-      <div className="col-12 col-md-4">
-        {/* 💡 Replaced input-group with a custom controlled flex container wrapper */}
+      <div className="flex-grow-1" style={{ maxWidth: "550px" }}>
         <div
-          className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary"
-          style={{
-            height: "46px",
-            transition: "border-color 0.15s, box-shadow 0.15s",
-            // Matches your application custom component focus layout perfectly!
-            borderColor: isFocused ? "#a5b4fc" : "#e5e7eb",
-            boxShadow: isFocused ? "0 0 0 3px rgba(26, 31, 54, 0.15)" : "none"
-          }}
+          className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+          style={{ height: "46px", transition: "border-color 0.15s, box-shadow 0.15s" }}
         >
           <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
           <input
             type="text"
-            className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
+            className="w-100 border-0 p-0 bg-transparent text-dark"
             placeholder="Search by block (e.g. A, B)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-            onFocus={() => setIsFocused(true)}
-            onBlur={handleSearchBlur}
             style={{ fontSize: "0.875rem", outline: "none" }}
           />
         </div>
       </div>
 
       {/* Floor number */}
-      <div className="col-6 col-md-2">
+      <div style={{ minWidth: "140px" }}>
         <input
           type="number"
-          className="form-control border-light-subtle shadow-none"
+          className="form-control border-light-subtle"
           placeholder="Floor no."
           min={0}
           value={filters.floorNumber ?? ""}
@@ -90,9 +78,9 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
       </div>
 
       {/* Type */}
-      <div className="col-6 col-md-2">
+      <div style={{ minWidth: "140px" }}>
         <select
-          className="form-select border-light-subtle shadow-none"
+          className="form-select border-light-subtle"
           value={filters.type ?? ""}
           onChange={handleTypeChange}
           style={{ height: "46px", fontSize: "0.875rem" }}

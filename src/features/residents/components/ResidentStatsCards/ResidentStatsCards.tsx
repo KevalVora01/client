@@ -3,11 +3,10 @@ import type { ResidentStats } from "../../types/resident.types";
 
 interface ResidentStatsCardsProps {
   stats: ResidentStats;
-  totalCount: number;
 }
 
-const ResidentStatsCards = ({ stats, totalCount }: ResidentStatsCardsProps) => {
-  const { totalActive, totalOwners, totalTenants } = stats;
+const ResidentStatsCards = ({ stats }: ResidentStatsCardsProps) => {
+  const { totalCount, totalActive, totalOwners, totalTenants } = stats;
 
   const statItems = [
     {

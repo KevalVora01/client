@@ -46,7 +46,7 @@ const ResidentsPage = () => {
       </div>
 
       {/* ── Stats Cards Grid ── */}
-      <ResidentStatsCards stats={stats} totalCount={pagination.totalCount} />
+      <ResidentStatsCards stats={stats} />
 
       {/* ── Table Container Card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">

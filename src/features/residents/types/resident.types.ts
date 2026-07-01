@@ -93,6 +93,7 @@ export interface ApartmentOption {
 }
 
 export interface ResidentStats {
+  totalCount: number;
   totalActive: number;
   totalOwners: number;
   totalTenants: number;

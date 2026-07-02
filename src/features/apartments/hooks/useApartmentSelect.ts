@@ -15,7 +15,7 @@ export const useApartmentSelect = (currentApartmentId?: number) => {
       try {
         const data = await apartmentApi.getVacantApartments();
         
-        // ✅ current apartment add karo agar list mein nahi hai
+        // current apartment add karo agar list mein nahi hai
         if (currentApartmentId && !data.find(a => a.id === currentApartmentId)) {
           const current = await apartmentApi.getApartment(currentApartmentId);
           if (current) data.unshift(current);

@@ -12,6 +12,7 @@ import {
   UserMinus,
   LogOut,
   X,
+  Home,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -45,7 +46,8 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Logs', icon: History, path: '/logs' },
   ],
   resident: [
-    { label: 'My Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'My Dashboard', icon: LayoutDashboard, path: '/resident' },
+    { label: 'My Apartment', icon: Home, path: '/my-apartment' },
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'My Invoices', icon: ReceiptText, path: '/invoices' },

@@ -10,6 +10,7 @@ import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
+import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -43,6 +44,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute allowedRoles={['resident']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/resident" element={<ResidentDashboard />} />
+            <Route path="/my-apartment" element={<MyApartmentPage />} />
             {/* <Route path="/" element={<ResidentDashboard />} />
             <Route path="/notices" element={<NoticesPage />} /> */}
             {/* rest of resident routes */}

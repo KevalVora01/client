@@ -4,7 +4,7 @@ import {
 import { AuthContext } from './AuthContext';
 import type { AuthContextType } from './AuthContext';
 import { setAccessToken } from '../config/api';
-import { loginApi, logoutApi, refreshTokenApi } from '../features/auth/api/authApi';
+import { getMeApi, loginApi, logoutApi, refreshTokenApi } from '../features/auth/api/authApi';
 import type { User, LoginPayload } from '../features/auth/types/auth.types';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -17,9 +17,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (isRefreshingRef.current) return;
       isRefreshingRef.current = true;
       try {
-        const { accessToken, user } = await refreshTokenApi();
+        const { accessToken } = await refreshTokenApi();
         setAccessToken(accessToken);
-        setUser(user);
+        const user = await getMeApi();
+        setUser(user as unknown as User);
       } catch {
         setAccessToken(null);
         setUser(null);
@@ -31,10 +32,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = useCallback(async (payload: LoginPayload): Promise<void> => {
-    const { accessToken, user } = await loginApi(payload);
-    setAccessToken(accessToken);
-    setUser(user);
+    const loginResponse = await loginApi(payload);
+    setAccessToken(loginResponse.accessToken);
+    const user = await getMeApi();
+    setUser(user as unknown as User);
   }, []);
+
 
   const logout = useCallback(async (): Promise<void> => {
     try {

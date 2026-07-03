@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { FamilyMember, CreateFamilyMemberPayload, UpdateFamilyMemberPayload } from "../types/familyMember.types";
-import FamilyMemberForm from "../components/FamilyMemberForm";
 import FamilyMemberCard from "../components/FamilyMemberCard";
+import FamilyMemberFormModal from "../components/FamilyMemberFormModal";
 
 interface FamilyMembersSectionProps {
   residentId: number;
@@ -13,7 +13,7 @@ interface FamilyMembersSectionProps {
 const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSectionProps) => {
   const { familyMembers, loading, addFamilyMember, editFamilyMember, removeFamilyMember } = useFamilyMembers(residentId);
 
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
   const [deletingMember, setDeletingMember] = useState<FamilyMember | null>(null);
   const [mutationLoading, setMutationLoading] = useState(false);
@@ -22,7 +22,7 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
     setMutationLoading(true);
     const success = await addFamilyMember(payload);
     setMutationLoading(false);
-    if (success) setShowForm(false);
+    if (success) { setModalOpen(false); setEditingMember(null); }
     return success;
   };
 
@@ -31,7 +31,7 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
     setMutationLoading(true);
     const success = await editFamilyMember(editingMember.id, payload);
     setMutationLoading(false);
-    if (success) setEditingMember(null);
+    if (success) { setModalOpen(false); setEditingMember(null); }
     return success;
   };
 
@@ -43,6 +43,21 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
     setDeletingMember(null);
   };
 
+  const openAddModal = () => {
+    setEditingMember(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (member: FamilyMember) => {
+    setEditingMember(member);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingMember(null);
+  };
+
   return (
     <>
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
@@ -50,10 +65,10 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
           <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
             <i className="bi bi-people me-2" />Family Members
           </h6>
-          {!readOnly && !showForm && !editingMember && (
+          {!readOnly && (
             <button
               className="btn btn-dark btn-sm d-flex align-items-center gap-1"
-              onClick={() => setShowForm(true)}
+              onClick={openAddModal}
               style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
             >
               <i className="bi bi-plus-lg" /> Add Member
@@ -62,31 +77,6 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
         </div>
 
         <div className="card-body px-4 py-3">
-
-          {/* ── Add Form ── */}
-          {!readOnly && showForm && (
-            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
-              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Add Family Member</p>
-              <FamilyMemberForm
-                loading={mutationLoading}
-                onSubmit={(payload) => handleAdd(payload as CreateFamilyMemberPayload)}
-                onCancel={() => setShowForm(false)}
-              />
-            </div>
-          )}
-
-          {/* ── Edit Form ── */}
-          {!readOnly && editingMember && (
-            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
-              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Edit Family Member</p>
-              <FamilyMemberForm
-                member={editingMember}
-                loading={mutationLoading}
-                onSubmit={(payload) => handleEdit(payload as UpdateFamilyMemberPayload)}
-                onCancel={() => setEditingMember(null)}
-              />
-            </div>
-          )}
 
           {/* ── List ── */}
           {loading ? (
@@ -106,7 +96,7 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
                 <FamilyMemberCard
                   key={member.id}
                   member={member}
-                  onEdit={(m) => { setEditingMember(m); setShowForm(false); }}
+                  onEdit={openEditModal}
                   onDelete={(m) => setDeletingMember(m)}
                   readOnly={readOnly}
                 />
@@ -116,6 +106,16 @@ const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSec
 
         </div>
       </div>
+
+      {/* ── Add / Edit Modal ── */}
+      <FamilyMemberFormModal
+        show={modalOpen}
+        mode={editingMember ? "edit" : "add"}
+        member={editingMember}
+        loading={mutationLoading}
+        onClose={closeModal}
+        onSubmit={editingMember ? handleEdit : handleAdd}
+      />
 
       {/* ── Delete Confirm ── */}
       <ConfirmDialog

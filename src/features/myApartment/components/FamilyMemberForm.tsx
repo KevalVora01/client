@@ -98,10 +98,19 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
         </div>
 
         {/* Actions */}
-        <div className="col-12 col-md-2 d-flex align-items-end gap-2">
+        <div className="col-12 d-flex justify-content-end gap-2">
+          <button
+            type="button"
+            className="btn btn-outline-secondary"
+            onClick={onCancel}
+            disabled={loading}
+            style={{ fontSize: "0.875rem", height: "40px", borderRadius: "8px" }}
+          >
+            Cancel
+          </button>
           <button
             type="submit"
-            className="btn btn-dark flex-fill d-flex align-items-center justify-content-center gap-1"
+            className="btn btn-dark d-flex align-items-center gap-1"
             disabled={loading}
             style={{ fontSize: "0.875rem", height: "40px", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
           >
@@ -109,15 +118,6 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
               ? <span className="spinner-border spinner-border-sm" />
               : <><i className={`bi ${isEdit ? "bi-check-lg" : "bi-plus-lg"}`} /> {isEdit ? "Save" : "Add"}</>
             }
-          </button>
-          <button
-            type="button"
-            className="btn btn-outline-secondary flex-fill"
-            onClick={onCancel}
-            disabled={loading}
-            style={{ fontSize: "0.875rem", height: "40px", borderRadius: "8px" }}
-          >
-            Cancel
           </button>
         </div>
 

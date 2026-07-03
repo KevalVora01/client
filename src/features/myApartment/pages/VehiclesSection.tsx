@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useVehicles } from "../hooks/useVehicles";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload } from "../types/vehicle.types";
-import VehicleForm from "../components/VehicleForm";
 import VehicleCard from "../components/VehicleCard";
+import VehicleFormModal from "../components/VehicleFormModal";
 
 interface VehiclesSectionProps {
   residentId: number;
@@ -13,7 +13,7 @@ interface VehiclesSectionProps {
 const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps) => {
   const { vehicles, loading, addVehicle, editVehicle, removeVehicle } = useVehicles(residentId);
 
-  const [showForm, setShowForm] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
   const [mutationLoading, setMutationLoading] = useState(false);
@@ -22,7 +22,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
     setMutationLoading(true);
     const success = await addVehicle(payload);
     setMutationLoading(false);
-    if (success) setShowForm(false);
+    if (success) { setModalOpen(false); setEditingVehicle(null); }
     return success;
   };
 
@@ -31,7 +31,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
     setMutationLoading(true);
     const success = await editVehicle(editingVehicle.id, payload);
     setMutationLoading(false);
-    if (success) setEditingVehicle(null);
+    if (success) { setModalOpen(false); setEditingVehicle(null); }
     return success;
   };
 
@@ -43,17 +43,32 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
     setDeletingVehicle(null);
   };
 
+  const openAddModal = () => {
+    setEditingVehicle(null);
+    setModalOpen(true);
+  };
+
+  const openEditModal = (vehicle: Vehicle) => {
+    setEditingVehicle(vehicle);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setEditingVehicle(null);
+  };
+
   return (
     <>
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
         <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between">
           <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
             <i className="bi bi-car-front me-2" />Vehicles
           </h6>
-          {!readOnly && !showForm && !editingVehicle && (
+          {!readOnly && (
             <button
               className="btn btn-dark btn-sm d-flex align-items-center gap-1"
-              onClick={() => setShowForm(true)}
+              onClick={openAddModal}
               style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
             >
               <i className="bi bi-plus-lg" /> Add Vehicle
@@ -62,31 +77,6 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
         </div>
 
         <div className="card-body px-4 py-3">
-
-          {/* ── Add Form ── */}
-          {!readOnly && showForm && (
-            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
-              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Add Vehicle</p>
-              <VehicleForm
-                loading={mutationLoading}
-                onSubmit={(payload) => handleAdd(payload as CreateVehiclePayload)}
-                onCancel={() => setShowForm(false)}
-              />
-            </div>
-          )}
-
-          {/* ── Edit Form ── */}
-          {!readOnly && editingVehicle && (
-            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
-              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Edit Vehicle</p>
-              <VehicleForm
-                vehicle={editingVehicle}
-                loading={mutationLoading}
-                onSubmit={(payload) => handleEdit(payload as UpdateVehiclePayload)}
-                onCancel={() => setEditingVehicle(null)}
-              />
-            </div>
-          )}
 
           {/* ── List ── */}
           {loading ? (
@@ -106,7 +96,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
                 <VehicleCard
                   key={vehicle.id}
                   vehicle={vehicle}
-                  onEdit={(v) => { setEditingVehicle(v); setShowForm(false); }}
+                  onEdit={openEditModal}
                   onDelete={(v) => setDeletingVehicle(v)}
                   readOnly={readOnly}
                 />
@@ -116,6 +106,16 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
 
         </div>
       </div>
+
+      {/* ── Add / Edit Modal ── */}
+      <VehicleFormModal
+        show={modalOpen}
+        mode={editingVehicle ? "edit" : "add"}
+        vehicle={editingVehicle}
+        loading={mutationLoading}
+        onClose={closeModal}
+        onSubmit={editingVehicle ? handleEdit : handleAdd}
+      />
 
       {/* ── Delete Confirm ── */}
       <ConfirmDialog

@@ -5,7 +5,7 @@ import FamilyMemberCard from '../components/FamilyMemberCard';
 import FamilyMemberForm from '../components/FamilyMemberForm';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { FamilyMember, CreateFamilyMemberPayload, UpdateFamilyMemberPayload } from '../types/familyMember.types';
-import VehiclesSection from '../../vehicles/components/VehiclesSection';
+import VehiclesSection from './VehiclesSection';
 
 const MyApartmentPage = () => {
   const { user } = useAuth();

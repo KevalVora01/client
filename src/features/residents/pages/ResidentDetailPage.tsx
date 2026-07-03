@@ -7,7 +7,7 @@ import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { UpdateResidentPayload } from '../types/resident.types';
 import { useResidentActions } from '../hooks/useResidentActions';
 import FamilyMembersSection from '../../myApartment/pages/FamilyMembersSection';
-import VehiclesSection from '../../vehicles/components/VehiclesSection';
+import VehiclesSection from '../../myApartment/pages/VehiclesSection';
 
 const ResidentDetailPage = () => {
   const { id } = useParams<{ id: string }>();

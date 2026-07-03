@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useVehicles } from "../hooks/useVehicles";
 import { useVehicleMutations } from "../hooks/useVehicleMutations";
-import VehicleCard from "./VehicleCard";
-import VehicleForm from "./VehicleForm";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload } from "../types/vehicle.types";
+import VehicleForm from "../components/VehicleForm";
+import VehicleCard from "../components/VehicleCard";
 
 interface VehiclesSectionProps {
   residentId: number;

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Select from "../../../../components/Select/Select";
 import type { ResidentFiltersProps } from "../../types/resident.types";
 
 const ResidentFiltersComponent = ({
@@ -58,29 +59,25 @@ const ResidentFiltersComponent = ({
       </div>
 
       <div style={{ minWidth: "140px" }}>
-        <select
-          className="form-select border-light-subtle fw-medium text-secondary"
+        <Select
+          options={[{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }]}
+          placeholder="All status"
           value={filters.isActive === undefined ? "" : String(filters.isActive)}
           onChange={(e) => onFilterChange({ isActive: e.target.value === "" ? undefined : e.target.value === "true" })}
-          style={{ height: "46px", fontSize: "0.875rem" }}
-        >
-          <option value="">All status</option>
-          <option value="true">Active</option>
-          <option value="false">Inactive</option>
-        </select>
+          className="fw-medium text-secondary"
+          style={{ height: "46px" }}
+        />
       </div>
 
       <div style={{ minWidth: "140px" }}>
-        <select
-          className="form-select border-light-subtle fw-medium text-secondary"
+        <Select
+          options={[{ value: "true", label: "Owner" }, { value: "false", label: "Tenant" }]}
+          placeholder="All types"
           value={filters.isOwner === undefined ? "" : String(filters.isOwner)}
           onChange={(e) => onFilterChange({ isOwner: e.target.value === "" ? undefined : e.target.value === "true" })}
-          style={{ height: "46px", fontSize: "0.875rem" }}
-        >
-          <option value="">All types</option>
-          <option value="true">Owner</option>
-          <option value="false">Tenant</option>
-        </select>
+          className="fw-medium text-secondary"
+          style={{ height: "46px" }}
+        />
       </div>
 
       {hasActiveFilters && (

@@ -1,5 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Select from "../../../components/Select/Select";
 import type { FamilyMember, CreateFamilyMemberPayload, UpdateFamilyMemberPayload, FamilyRelation } from "../types/familyMember.types";
 
 const RELATIONS: FamilyRelation[] = ["Spouse", "Child", "Parent", "Sibling", "Other"];
@@ -64,25 +65,19 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
 
         {/* Relation */}
         <div className="col-12 col-md-4">
-          <label className="form-label fw-medium text-secondary small mb-1">
-            Relation <span className="text-danger">*</span>
-          </label>
-          <select
+          <Select
+            label="Relation"
             name="relation"
-            className={`form-select border-light-subtle shadow-none ${formik.touched.relation && formik.errors.relation ? "is-invalid" : ""}`}
+            required
+            options={RELATIONS}
+            placeholder="Select relation"
             value={formik.values.relation}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            style={{ fontSize: "0.875rem", height: "40px" }}
-          >
-            <option value="">Select relation</option>
-            {RELATIONS.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
-          {formik.touched.relation && formik.errors.relation && (
-            <div className="invalid-feedback">{formik.errors.relation}</div>
-          )}
+            error={formik.errors.relation}
+            touched={formik.touched.relation}
+            className="shadow-none"
+          />
         </div>
 
         {/* Age */}

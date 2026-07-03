@@ -1,5 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Select from "../../../components/Select/Select";
 import type { CreateVehiclePayload, FuelType, UpdateVehiclePayload, Vehicle, VehicleType } from "../types/vehicle.types";
 
 const VEHICLE_TYPES: VehicleType[] = ["Car", "Bike", "Scooter", "Other"];
@@ -66,48 +67,36 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
 
         {/* Type */}
         <div className="col-12 col-md-4">
-          <label className="form-label fw-medium text-secondary small mb-1">
-            Type <span className="text-danger">*</span>
-          </label>
-          <select
+          <Select
+            label="Type"
             name="type"
-            className={`form-select border-light-subtle shadow-none ${formik.touched.type && formik.errors.type ? "is-invalid" : ""}`}
+            required
+            options={VEHICLE_TYPES}
+            placeholder="Select type"
             value={formik.values.type}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            style={{ fontSize: "0.875rem", height: "40px" }}
-          >
-            <option value="">Select type</option>
-            {VEHICLE_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-          {formik.touched.type && formik.errors.type && (
-            <div className="invalid-feedback">{formik.errors.type}</div>
-          )}
+            error={formik.errors.type}
+            touched={formik.touched.type}
+            className="shadow-none"
+          />
         </div>
 
         {/* Fuel Type */}
         <div className="col-12 col-md-4">
-          <label className="form-label fw-medium text-secondary small mb-1">
-            Fuel Type <span className="text-danger">*</span>
-          </label>
-          <select
+          <Select
+            label="Fuel Type"
             name="fuelType"
-            className={`form-select border-light-subtle shadow-none ${formik.touched.fuelType && formik.errors.fuelType ? "is-invalid" : ""}`}
+            required
+            options={FUEL_TYPES}
+            placeholder="Select fuel type"
             value={formik.values.fuelType}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            style={{ fontSize: "0.875rem", height: "40px" }}
-          >
-            <option value="">Select fuel type</option>
-            {FUEL_TYPES.map((f) => (
-              <option key={f} value={f}>{f}</option>
-            ))}
-          </select>
-          {formik.touched.fuelType && formik.errors.fuelType && (
-            <div className="invalid-feedback">{formik.errors.fuelType}</div>
-          )}
+            error={formik.errors.fuelType}
+            touched={formik.touched.fuelType}
+            className="shadow-none"
+          />
         </div>
 
         {/* Brand Name */}

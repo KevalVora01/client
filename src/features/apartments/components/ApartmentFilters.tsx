@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Select from "../../../components/Select/Select";
 import { ApartmentType, type ApartmentFilters } from "../types/apartment.types";
 
 interface ApartmentFiltersProps {
@@ -81,17 +82,13 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
 
       {/* Type */}
       <div style={{ minWidth: "140px" }}>
-        <select
-          className="form-select border-light-subtle"
+        <Select
+          options={Object.entries(apartmentTypeLabels).map(([value, label]) => ({ value, label }))}
+          placeholder="All types"
           value={filters.type ?? ""}
           onChange={handleTypeChange}
-          style={{ height: "46px", fontSize: "0.875rem" }}
-        >
-          <option value="">All types</option>
-          {Object.entries(apartmentTypeLabels).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </select>
+          style={{ height: "46px" }}
+        />
       </div>
 
       {/* Clear filters */}

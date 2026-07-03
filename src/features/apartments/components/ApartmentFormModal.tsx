@@ -1,4 +1,5 @@
 import { useApartmentForm } from "../hooks/useApartmentForm";
+import Select from "../../../components/Select/Select";
 import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from "../types/apartment.types";
 import { ApartmentType } from "../types/apartment.types";
 
@@ -159,25 +160,19 @@ const ApartmentFormModal = ({
 
                 {/* Type */}
                 <div className="col-md-6">
-                  <label className="form-label fw-medium text-secondary small mb-1" style={{ fontSize: "0.8rem" }}>
-                    Type <span className="text-danger">*</span>
-                  </label>
-                  <select
+                  <Select
+                    label="Type"
                     name="type"
-                    className={`form-select rounded-2 shadow-none small ${formik.touched.type && formik.errors.type ? "is-invalid" : "border-light-subtle"}`}
+                    required
+                    options={Object.entries(apartmentTypeLabels).map(([value, label]) => ({ value, label }))}
+                    placeholder="Select type"
                     value={formik.values.type}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    style={{ fontSize: "0.875rem" }}
-                  >
-                    <option value="">Select type</option>
-                    {Object.entries(apartmentTypeLabels).map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                  {formik.touched.type && formik.errors.type && (
-                    <div className="invalid-feedback">{formik.errors.type}</div>
-                  )}
+                    error={formik.errors.type}
+                    touched={formik.touched.type}
+                    className="rounded-2 shadow-none small"
+                  />
                 </div>
 
               </div>

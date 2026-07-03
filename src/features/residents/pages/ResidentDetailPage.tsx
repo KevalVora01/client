@@ -6,11 +6,12 @@ import ResidentFormModal from '../components/ResidentFormModal/ResidentFormModal
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { UpdateResidentPayload } from '../types/resident.types';
 import { useResidentActions } from '../hooks/useResidentActions';
+import FamilyMembersSection from '../components/FamilyMembersSection';
 
 const ResidentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { resident, loading, error, refetch } = useResident(Number(id));
+  const { resident, loading, refetch } = useResident(Number(id));
 
   const {
     showEditModal, showDeactivateModal,
@@ -37,13 +38,13 @@ const ResidentDetailPage = () => {
     );
   }
 
-  if (error || !resident) {
+  if (!resident) {
     return (
       <div className="page">
         <div className="error-state">
           <i className="bi bi-exclamation-circle error-state__icon" />
           <p className="error-state__title">Failed to load resident</p>
-          <p className="error-state__sub">{error ?? "Resident not found"}</p>
+          <p className="error-state__sub">Resident not found</p>
           <button className="back-btn" onClick={() => navigate('/residents')}>
             <ArrowLeft size={16} /> Back to residents
           </button>
@@ -135,15 +136,7 @@ const ResidentDetailPage = () => {
       </div>
 
       {/* ── Family Members ── */}
-      <div className="section-card">
-        <div className="section-card__header">
-          <h6 className="section-card__title">Family Members</h6>
-        </div>
-        <div className="section-card__body--empty">
-          <i className="bi bi-people placeholder-icon" />
-          <p className="placeholder-text">Family members module coming soon</p>
-        </div>
-      </div>
+      <FamilyMembersSection residentId={resident.id!} />
 
       {/* ── Vehicles ── */}
       <div className="section-card">

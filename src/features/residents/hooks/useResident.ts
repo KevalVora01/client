@@ -2,20 +2,19 @@ import { useState, useEffect, useCallback } from "react";
 import { residentApi } from "../api/residentApi";
 import type { ResidentDetail } from "../types/resident.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
+import { showError } from "../../../utils/toast";
 
 export const useResident = (id: number) => {
   const [resident, setResident] = useState<ResidentDetail | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const fetchResident = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const response = await residentApi.getResident(id);
       setResident(response);
     } catch (err: unknown) {
-      setError(getErrorMessage(err, "Failed to fetch resident"));
+      showError(getErrorMessage(err, "Failed to fetch resident"));
     } finally {
       setLoading(false);
     }
@@ -26,12 +25,11 @@ export const useResident = (id: number) => {
 
     const load = async () => {
       setLoading(true);
-      setError(null);
       try {
         const response = await residentApi.getResident(id);
         if (!cancelled) setResident(response);
       } catch (err: unknown) {
-        if (!cancelled) setError(getErrorMessage(err, "Failed to fetch resident"));
+        if (!cancelled) showError(getErrorMessage(err, "Failed to fetch resident"));
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -42,5 +40,5 @@ export const useResident = (id: number) => {
     return () => { cancelled = true; };
   }, [id]);
 
-  return { resident, loading, error, refetch: fetchResident };
+  return { resident, loading, refetch: fetchResident };
 };

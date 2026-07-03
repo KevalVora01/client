@@ -52,7 +52,6 @@ const processQueue = (error: unknown, token: string | null = null): void => {
 const skipRefreshUrls = [
   '/auth/refresh',
   '/auth/login',
-  '/auth/me',
   '/auth/logout',
   '/auth/forgot-password',
   '/auth/reset-password',

@@ -1,6 +1,6 @@
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload, VehicleType, FuelType } from "../types/vehicle.types";
+import type { CreateVehiclePayload, FuelType, UpdateVehiclePayload, Vehicle, VehicleType } from "../types/vehicle.types";
 
 const VEHICLE_TYPES: VehicleType[] = ["Car", "Bike", "Scooter", "Other"];
 const FUEL_TYPES: FuelType[] = ["Petrol", "Diesel", "Electric", "CNG", "Hybrid"];

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useVehicles } from "../hooks/useVehicles";
-import { useVehicleMutations } from "../hooks/useVehicleMutations";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload } from "../types/vehicle.types";
 import VehicleForm from "../components/VehicleForm";
@@ -12,30 +11,35 @@ interface VehiclesSectionProps {
 }
 
 const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps) => {
-  const { vehicles, setVehicles, loading } = useVehicles(residentId);
-  const { createVehicle, createLoading, updateVehicle, updateLoading, deleteVehicle, deleteLoading } =
-    useVehicleMutations(residentId, setVehicles);
+  const { vehicles, loading, addVehicle, editVehicle, removeVehicle } = useVehicles(residentId);
 
   const [showForm, setShowForm] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
+  const [mutationLoading, setMutationLoading] = useState(false);
 
   const handleAdd = async (payload: CreateVehiclePayload): Promise<boolean> => {
-    const success = await createVehicle(payload);
+    setMutationLoading(true);
+    const success = await addVehicle(payload);
+    setMutationLoading(false);
     if (success) setShowForm(false);
     return success;
   };
 
   const handleEdit = async (payload: UpdateVehiclePayload): Promise<boolean> => {
     if (!editingVehicle) return false;
-    const success = await updateVehicle(editingVehicle.id, payload);
+    setMutationLoading(true);
+    const success = await editVehicle(editingVehicle.id, payload);
+    setMutationLoading(false);
     if (success) setEditingVehicle(null);
     return success;
   };
 
   const handleDelete = async (): Promise<void> => {
     if (!deletingVehicle) return;
-    await deleteVehicle(deletingVehicle.id);
+    setMutationLoading(true);
+    await removeVehicle(deletingVehicle.id);
+    setMutationLoading(false);
     setDeletingVehicle(null);
   };
 
@@ -64,7 +68,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
             <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
               <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Add Vehicle</p>
               <VehicleForm
-                loading={createLoading}
+                loading={mutationLoading}
                 onSubmit={(payload) => handleAdd(payload as CreateVehiclePayload)}
                 onCancel={() => setShowForm(false)}
               />
@@ -77,7 +81,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
               <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Edit Vehicle</p>
               <VehicleForm
                 vehicle={editingVehicle}
-                loading={updateLoading}
+                loading={mutationLoading}
                 onSubmit={(payload) => handleEdit(payload as UpdateVehiclePayload)}
                 onCancel={() => setEditingVehicle(null)}
               />
@@ -120,7 +124,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
         message={deletingVehicle ? `Are you sure you want to remove ${deletingVehicle.brandName} ${deletingVehicle.model} (${deletingVehicle.plateNumber})?` : ""}
         confirmLabel="Yes, Remove"
         variant="danger"
-        loading={deleteLoading}
+        loading={mutationLoading}
         onConfirm={handleDelete}
         onCancel={() => setDeletingVehicle(null)}
       />

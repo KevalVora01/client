@@ -4,6 +4,7 @@ interface FamilyMemberCardProps {
   member: FamilyMember;
   onEdit: (member: FamilyMember) => void;
   onDelete: (member: FamilyMember) => void;
+  readOnly?: boolean;
 }
 
 const relationIcons: Record<string, string> = {
@@ -14,7 +15,7 @@ const relationIcons: Record<string, string> = {
   Other: "bi-person",
 };
 
-const FamilyMemberCard = ({ member, onEdit, onDelete }: FamilyMemberCardProps) => {
+const FamilyMemberCard = ({ member, onEdit, onDelete, readOnly = false }: FamilyMemberCardProps) => {
   return (
     <div
       className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle bg-white"
@@ -49,22 +50,24 @@ const FamilyMemberCard = ({ member, onEdit, onDelete }: FamilyMemberCardProps) =
       </div>
 
       {/* ── Right — actions ── */}
-      <div className="d-flex align-items-center gap-2 flex-shrink-0">
-        <button
-          className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
-          style={{ fontSize: "0.8rem", borderRadius: "8px" }}
-          onClick={() => onEdit(member)}
-        >
-          <i className="bi bi-pencil" /> Edit
-        </button>
-        <button
-          className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
-          style={{ fontSize: "0.8rem", borderRadius: "8px" }}
-          onClick={() => onDelete(member)}
-        >
-          <i className="bi bi-trash3" /> Remove
-        </button>
-      </div>
+      {!readOnly && (
+        <div className="d-flex align-items-center gap-2 flex-shrink-0">
+          <button
+            className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+            style={{ fontSize: "0.8rem", borderRadius: "8px" }}
+            onClick={() => onEdit(member)}
+          >
+            <i className="bi bi-pencil" /> Edit
+          </button>
+          <button
+            className="btn btn-sm btn-outline-danger d-flex align-items-center gap-1"
+            style={{ fontSize: "0.8rem", borderRadius: "8px" }}
+            onClick={() => onDelete(member)}
+          >
+            <i className="bi bi-trash3" /> Remove
+          </button>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,108 +1,134 @@
-import { useFamilyMembers } from "../../myApartment/hooks/useFamilyMembers";
-import type { FamilyRelation } from "../../myApartment/types/familyMember.types";
-
+import { useState } from "react";
+import { useFamilyMembers } from "../hooks/useFamilyMembers";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+import type { FamilyMember, CreateFamilyMemberPayload, UpdateFamilyMemberPayload } from "../types/familyMember.types";
+import FamilyMemberForm from "../components/FamilyMemberForm";
+import FamilyMemberCard from "../components/FamilyMemberCard";
 
 interface FamilyMembersSectionProps {
   residentId: number;
+  readOnly?: boolean;
 }
 
-const relationColors: Record<FamilyRelation, { bg: string; color: string }> = {
-  Spouse: { bg: "#fce4ec", color: "#c62828" },
-  Child: { bg: "#e8f5e9", color: "#2e7d32" },
-  Parent: { bg: "#e3f2fd", color: "#1565c0" },
-  Sibling: { bg: "#f3e5f5", color: "#6a1b9a" },
-  Other: { bg: "#f3f4f6", color: "#374151" },
-};
+const FamilyMembersSection = ({ residentId, readOnly = false }: FamilyMembersSectionProps) => {
+  const { familyMembers, loading, addFamilyMember, editFamilyMember, removeFamilyMember } = useFamilyMembers(residentId);
 
-const getInitial = (name: string) => name.charAt(0).toUpperCase();
+  const [showForm, setShowForm] = useState(false);
+  const [editingMember, setEditingMember] = useState<FamilyMember | null>(null);
+  const [deletingMember, setDeletingMember] = useState<FamilyMember | null>(null);
+  const [mutationLoading, setMutationLoading] = useState(false);
 
-const FamilyMembersSection = ({ residentId }: FamilyMembersSectionProps) => {
-  const { familyMembers, loading } = useFamilyMembers(residentId);
+  const handleAdd = async (payload: CreateFamilyMemberPayload): Promise<boolean> => {
+    setMutationLoading(true);
+    const success = await addFamilyMember(payload);
+    setMutationLoading(false);
+    if (success) setShowForm(false);
+    return success;
+  };
+
+  const handleEdit = async (payload: UpdateFamilyMemberPayload): Promise<boolean> => {
+    if (!editingMember) return false;
+    setMutationLoading(true);
+    const success = await editFamilyMember(editingMember.id, payload);
+    setMutationLoading(false);
+    if (success) setEditingMember(null);
+    return success;
+  };
+
+  const handleDelete = async (): Promise<void> => {
+    if (!deletingMember) return;
+    setMutationLoading(true);
+    await removeFamilyMember(deletingMember.id);
+    setMutationLoading(false);
+    setDeletingMember(null);
+  };
 
   return (
-    <div className="section-card">
-      <div className="section-card__header d-flex align-items-center justify-content-between">
-        <h6 className="section-card__title">Family Members</h6>
-        {!loading && (
-          <span className="text-muted" style={{ fontSize: '0.775rem' }}>
-            {familyMembers.length} {familyMembers.length === 1 ? 'member' : 'members'}
-          </span>
-        )}
+    <>
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
+        <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between">
+          <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
+            <i className="bi bi-people me-2" />Family Members
+          </h6>
+          {!readOnly && !showForm && !editingMember && (
+            <button
+              className="btn btn-dark btn-sm d-flex align-items-center gap-1"
+              onClick={() => setShowForm(true)}
+              style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
+            >
+              <i className="bi bi-plus-lg" /> Add Member
+            </button>
+          )}
+        </div>
+
+        <div className="card-body px-4 py-3">
+
+          {/* ── Add Form ── */}
+          {!readOnly && showForm && (
+            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
+              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Add Family Member</p>
+              <FamilyMemberForm
+                loading={mutationLoading}
+                onSubmit={(payload) => handleAdd(payload as CreateFamilyMemberPayload)}
+                onCancel={() => setShowForm(false)}
+              />
+            </div>
+          )}
+
+          {/* ── Edit Form ── */}
+          {!readOnly && editingMember && (
+            <div className="mb-3 p-3 rounded-3 border border-light-subtle" style={{ background: '#f8f9fa' }}>
+              <p className="fw-semibold mb-3 text-dark" style={{ fontSize: '0.875rem' }}>Edit Family Member</p>
+              <FamilyMemberForm
+                member={editingMember}
+                loading={mutationLoading}
+                onSubmit={(payload) => handleEdit(payload as UpdateFamilyMemberPayload)}
+                onCancel={() => setEditingMember(null)}
+              />
+            </div>
+          )}
+
+          {/* ── List ── */}
+          {loading ? (
+            <div className="d-flex flex-column gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="skeleton" style={{ height: 64, borderRadius: 12 }} />
+              ))}
+            </div>
+          ) : familyMembers.length === 0 ? (
+            <div className="text-center py-5">
+              <i className="bi bi-people d-block mb-2" style={{ fontSize: '2rem', color: '#d1d5db' }} />
+              <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>No family members added yet</p>
+            </div>
+          ) : (
+            <div className="d-flex flex-column gap-2">
+              {familyMembers.map((member) => (
+                <FamilyMemberCard
+                  key={member.id}
+                  member={member}
+                  onEdit={(m) => { setEditingMember(m); setShowForm(false); }}
+                  onDelete={(m) => setDeletingMember(m)}
+                  readOnly={readOnly}
+                />
+              ))}
+            </div>
+          )}
+
+        </div>
       </div>
 
-      {/* ── Loading ── */}
-      {loading && (
-        <div className="px-4 py-3 d-flex flex-column gap-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="d-flex align-items-center gap-3">
-              <div className="skeleton rounded-circle" style={{ width: 38, height: 38, flexShrink: 0 }} />
-              <div className="d-flex flex-column gap-1 flex-grow-1">
-                <div className="skeleton" style={{ width: 120, height: 12, borderRadius: 6 }} />
-                <div className="skeleton" style={{ width: 80, height: 12, borderRadius: 6 }} />
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-
-
-      {/* ── Empty ── */}
-      {!loading && familyMembers.length === 0 && (
-        <div className="section-card__body--empty">
-          <i className="bi bi-people placeholder-icon" />
-          <p className="placeholder-text">No family members added yet</p>
-        </div>
-      )}
-
-      {/* ── List ── */}
-      {!loading && familyMembers.length > 0 && (
-        <div>
-          {familyMembers.map((member, index) => {
-            const { bg, color } = relationColors[member.relation] ?? relationColors.Other;
-            return (
-              <div
-                key={member.id}
-                className="d-flex align-items-center justify-content-between px-4 py-3 gap-3"
-                style={{
-                  borderBottom: index < familyMembers.length - 1 ? '1px solid #f3f4f6' : 'none',
-                }}
-              >
-                {/* Left — avatar + name + relation */}
-                <div className="d-flex align-items-center gap-3">
-                  <div
-                    className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
-                    style={{ width: 38, height: 38, fontSize: '0.875rem', background: bg, color }}
-                  >
-                    {getInitial(member.name)}
-                  </div>
-                  <div>
-                    <p className="fw-semibold mb-0" style={{ fontSize: '0.875rem', color: '#111827' }}>
-                      {member.name}
-                    </p>
-                    <p className="mb-0" style={{ fontSize: '0.775rem', color: '#6b7280' }}>
-                      {member.relation}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right — age */}
-                {member.age !== null && member.age !== undefined && (
-                  <div className="text-end flex-shrink-0">
-                    <p className="mb-0" style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#9ca3af' }}>
-                      Age
-                    </p>
-                    <p className="mb-0 fw-semibold" style={{ fontSize: '0.875rem', color: '#111827' }}>
-                      {member.age}
-                    </p>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+      {/* ── Delete Confirm ── */}
+      <ConfirmDialog
+        show={!!deletingMember}
+        title="Remove Family Member"
+        message={deletingMember ? `Are you sure you want to remove ${deletingMember.name}?` : ""}
+        confirmLabel="Yes, Remove"
+        variant="danger"
+        loading={mutationLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setDeletingMember(null)}
+      />
+    </>
   );
 };
 

@@ -137,7 +137,7 @@ const ResidentDetailPage = () => {
       </div>
 
       {/* ── Family Members ── */}
-      <FamilyMembersSection residentId={resident.id!} />
+      <FamilyMembersSection residentId={resident.id!} readOnly={true} />
 
       {/* ── Vehicles ── */}
       <VehiclesSection residentId={resident.id!} readOnly={true} />

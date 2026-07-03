@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { vehicleApi } from "../api/vehicleApi";
-import type { Vehicle } from "../types/vehicle.types";
+import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload } from "../types/vehicle.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
-import { showError } from "../../../utils/toast";
+import { showError, showSuccess } from "../../../utils/toast";
 
 export const useVehicles = (residentId: number) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -27,5 +27,47 @@ export const useVehicles = (residentId: number) => {
     return () => { cancelled = true; };
   }, [residentId]);
 
-  return { vehicles, setVehicles, loading };
+  const addVehicle = async (payload: CreateVehiclePayload): Promise<boolean> => {
+    try {
+      const newVehicle = await vehicleApi.createVehicle(residentId, payload);
+      setVehicles((prev) => [...prev, newVehicle]);
+      showSuccess("Vehicle added successfully");
+      return true;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to add vehicle"));
+      return false;
+    }
+  };
+
+  const editVehicle = async (id: number, payload: UpdateVehiclePayload): Promise<boolean> => {
+    try {
+      const updated = await vehicleApi.updateVehicle(residentId, id, payload);
+      setVehicles((prev) => prev.map((v) => v.id === id ? updated : v));
+      showSuccess("Vehicle updated successfully");
+      return true;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to update vehicle"));
+      return false;
+    }
+  };
+
+  const removeVehicle = async (id: number): Promise<boolean> => {
+    try {
+      await vehicleApi.deleteVehicle(residentId, id);
+      setVehicles((prev) => prev.filter((v) => v.id !== id));
+      showSuccess("Vehicle removed successfully");
+      return true;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to remove vehicle"));
+      return false;
+    }
+  };
+
+  return {
+    vehicles,
+    loading,
+    addVehicle,
+    editVehicle,
+    removeVehicle,
+  };
 };

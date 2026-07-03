@@ -6,7 +6,8 @@ import ResidentFormModal from '../components/ResidentFormModal/ResidentFormModal
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { UpdateResidentPayload } from '../types/resident.types';
 import { useResidentActions } from '../hooks/useResidentActions';
-import FamilyMembersSection from '../components/FamilyMembersSection';
+import FamilyMembersSection from '../../myApartment/pages/FamilyMembersSection';
+import VehiclesSection from '../../vehicles/components/VehiclesSection';
 
 const ResidentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -139,15 +140,7 @@ const ResidentDetailPage = () => {
       <FamilyMembersSection residentId={resident.id!} />
 
       {/* ── Vehicles ── */}
-      <div className="section-card">
-        <div className="section-card__header">
-          <h6 className="section-card__title">Vehicles</h6>
-        </div>
-        <div className="section-card__body--empty">
-          <i className="bi bi-car-front placeholder-icon" />
-          <p className="placeholder-text">Vehicles module coming soon</p>
-        </div>
-      </div>
+      <VehiclesSection residentId={resident.id!} readOnly={true} />
 
       {/* ── Modals ── */}
       <ResidentFormModal

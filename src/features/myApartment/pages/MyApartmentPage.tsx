@@ -5,6 +5,7 @@ import FamilyMemberCard from '../components/FamilyMemberCard';
 import FamilyMemberForm from '../components/FamilyMemberForm';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { FamilyMember, CreateFamilyMemberPayload, UpdateFamilyMemberPayload } from '../types/familyMember.types';
+import VehiclesSection from '../../vehicles/components/VehiclesSection';
 
 const MyApartmentPage = () => {
   const { user } = useAuth();
@@ -142,17 +143,7 @@ const MyApartmentPage = () => {
       </div>
 
       {/* ── Vehicles — Coming Soon ── */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
-        <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3">
-          <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
-            <i className="bi bi-car-front me-2" />Vehicles
-          </h6>
-        </div>
-        <div className="card-body text-center py-5">
-          <i className="bi bi-car-front d-block mb-2" style={{ fontSize: '2rem', color: '#d1d5db' }} />
-          <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>Vehicles module coming soon</p>
-        </div>
-      </div>
+      <VehiclesSection residentId={residentId} />
 
       {/* ── Delete Confirm ── */}
       <ConfirmDialog

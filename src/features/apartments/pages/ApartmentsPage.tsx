@@ -80,7 +80,7 @@ const ApartmentsPage = () => {
       {/* ── Table card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
         <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <ApartmentFiltersComponent key={filters.block ?? ""} filters={filters} onFilterChange={updateFilters} />
+          <ApartmentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
 
         <div className="table-responsive">

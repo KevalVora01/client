@@ -24,7 +24,7 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
 
     const timer = setTimeout(() => {
       onFilterChange({ block: search.trim().toUpperCase() || undefined });
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -34,13 +34,19 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
     onFilterChange({ type: e.target.value || undefined });
   };
 
+  const handleOccupiedChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onFilterChange({
+      isOccupied: e.target.value === '' ? undefined : e.target.value === 'true',
+    });
+  };
+
   const handleReset = () => {
     setSearch("");
-    onFilterChange({ block: undefined, floorNumber: undefined, type: undefined });
+    onFilterChange({ block: undefined, floorNumber: undefined, type: undefined, isOccupied: undefined });
   };
 
   const hasActiveFilters =
-    !!filters.block || filters.floorNumber !== undefined || !!filters.type;
+    !!filters.block || filters.floorNumber !== undefined || !!filters.type || filters.isOccupied !== undefined;
 
   return (
     <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
@@ -88,6 +94,20 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
           value={filters.type ?? ""}
           onChange={handleTypeChange}
           style={{ height: "46px" }}
+        />
+      </div>
+
+      {/* Occupied / Vacant */}
+      <div style={{ minWidth: "140px" }}>
+        <Select
+          options={[
+            { value: 'true', label: 'Occupied' },
+            { value: 'false', label: 'Vacant' },
+          ]}
+          placeholder="All status"
+          value={filters.isOccupied === undefined ? '' : String(filters.isOccupied)}
+          onChange={handleOccupiedChange}
+          style={{ height: '46px' }}
         />
       </div>
 

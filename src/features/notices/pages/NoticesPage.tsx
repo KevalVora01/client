@@ -99,7 +99,6 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
         {/* Filters */}
         <div className="card-header bg-white border-bottom border-light-subtle p-3">
           <NoticeFilters
-            key={filters.search ?? ''}
             filters={filters}
             onFilterChange={updateFilters}
           />

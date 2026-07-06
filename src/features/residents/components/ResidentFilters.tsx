@@ -15,7 +15,7 @@ const ResidentFiltersComponent = ({
 
     const timer = setTimeout(() => {
       onFilterChange({ search: search.trim() || undefined });
-    }, 300);
+    }, 500);
 
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps

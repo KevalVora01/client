@@ -17,6 +17,7 @@ export const apartmentApi = {
     if (filters.block) params.append("block", filters.block);
     if (filters.floorNumber) params.append("floorNumber", String(filters.floorNumber));
     if (filters.type) params.append("type", filters.type);
+    if (filters.isOccupied !== undefined) params.append("isOccupied", String(filters.isOccupied));
 
     const response = await api.get<ApiResponse<{ data: ApartmentsResponse }>>(`/apartments?${params.toString()}`);
     return response.data.data.data;

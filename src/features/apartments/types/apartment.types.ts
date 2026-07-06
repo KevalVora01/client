@@ -39,6 +39,7 @@ export interface ApartmentFilters extends PaginatedRequest {
   block?: string;
   floorNumber?: number;
   type?: string;
+  isOccupied?: boolean;
 }
 
 export interface ApartmentStats {

@@ -14,6 +14,7 @@ const initialFilters: ApartmentFilters = {
   block: undefined,
   floorNumber: undefined,
   type: undefined,
+  isOccupied: undefined,
 };
 
 export const useApartmentStore = create<ApartmentStore>((set) => ({

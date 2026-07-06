@@ -52,7 +52,7 @@ const ResidentsPage = () => {
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
         {/* Filters Wrapper Block */}
         <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <ResidentFiltersComponent key={filters.search ?? ""} filters={filters} onFilterChange={updateFilters} />
+          <ResidentFiltersComponent filters={filters} onFilterChange={updateFilters} />
         </div>
 
         {/* Dynamic List Table Area */}

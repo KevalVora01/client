@@ -1,8 +1,8 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Mail, Building2, Calendar, UserCheck } from 'lucide-react';
 import { useResident } from '../hooks/useResident';
-import { getAvatarColor, getInitials, formatDate } from '../components/ResidentTable/residentTableHelpers';
-import ResidentFormModal from '../components/ResidentFormModal/ResidentFormModal';
+import { getAvatarColor, getInitials, formatDate } from '../components/residentTableHelpers';
+import ResidentFormModal from '../components/ResidentFormModal';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { UpdateResidentPayload } from '../types/resident.types';
 import { useResidentActions } from '../hooks/useResidentActions';

@@ -1,10 +1,10 @@
 import { UserPlus } from "lucide-react";
 import { useResidentsPage } from "../hooks/useResidentsPage";
-import ResidentStatsCards from "../components/ResidentStatsCards/ResidentStatsCards";
-import ResidentFiltersComponent from "../components/ResidentFilters/ResidentFilters";
-import ResidentTable from "../components/ResidentTable/ResidentTable";
+import ResidentStatsCards from "../components/ResidentStatsCards";
+import ResidentFiltersComponent from "../components/ResidentFilters";
+import ResidentTable from "../components/ResidentTable";
 import Pagination from "../../../components/Pagination/Pagination";
-import ResidentFormModal from "../components/ResidentFormModal/ResidentFormModal";
+import ResidentFormModal from "../components/ResidentFormModal";
 import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 

@@ -4,7 +4,7 @@ import { ArrowLeft, Building2, Layers, Maximize2, Home, Mail, Phone } from 'luci
 import { useApartment } from '../hooks/useApartment';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import { formatArea, formatFloor, apartmentTypeLabels } from '../components/apartmentTableHelpers';
-import { getAvatarColor, getInitials, formatDate } from '../../residents/components/ResidentTable/residentTableHelpers';
+import { getAvatarColor, getInitials, formatDate } from '../../residents/components/residentTableHelpers';
 import type { UpdateApartmentPayload } from '../types/apartment.types';
 import { showSuccess } from '../../../utils/toast';
 import ApartmentFormModal from '../components/ApartmentFormModal';

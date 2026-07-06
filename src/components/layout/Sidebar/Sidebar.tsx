@@ -20,7 +20,7 @@ import type { UserRole } from '../../../features/auth/types/auth.types';
 import './Sidebar.css';
 import { useState } from 'react';
 import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
-import { getAvatarColor, getInitials } from '../../../features/residents/components/ResidentTable/residentTableHelpers';
+import { getAvatarColor, getInitials } from '../../../features/residents/components/residentTableHelpers';
 
 // ─── Types ────────────────────────────────────────────────────────
 interface NavItem {

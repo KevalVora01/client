@@ -2,7 +2,7 @@ import useAuth from '../../../hooks/useAuth';
 import { useProfile } from '../hooks/useProfile';
 import PersonalInfoForm from '../components/PersonalInfoForm';
 import ChangePasswordForm from '../components/ChangePasswordForm';
-import { getAvatarColor, getInitials } from '../../residents/components/ResidentTable/residentTableHelpers';
+import { getAvatarColor, getInitials } from '../../residents/components/residentTableHelpers';
 
 const ProfilePage = () => {
   const { user } = useAuth();

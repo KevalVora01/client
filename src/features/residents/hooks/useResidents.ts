@@ -19,6 +19,7 @@ export const useResidents = () => {
     hasPreviousPage: false,
   });
   const [stats, setStats] = useState<ResidentStats>({
+    totalCount: 0,
     totalActive: 0,
     totalOwners: 0,
     totalTenants: 0,

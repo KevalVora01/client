@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Select from "../../../../components/Select/Select";
-import type { ResidentFiltersProps } from "../../types/resident.types";
+import Select from "../../../components/Select/Select";
+import type { ResidentFiltersProps } from "../types/resident.types";
 
 const ResidentFiltersComponent = ({
   filters,

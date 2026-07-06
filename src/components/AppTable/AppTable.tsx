@@ -16,13 +16,10 @@ interface AppTableProps<T> {
 }
 
 const SkeletonRow = ({ columns }: { columns: number }) => (
-  <tr className="placeholder-glow">
+  <tr>
     {Array.from({ length: columns }).map((_, i) => (
       <td key={i} className="py-3 px-3 align-middle">
-        <div
-          className={`placeholder rounded-1 col-${i === 0 ? '6' : '3'}`}
-          style={{ height: '13px' }}
-        />
+        <div className="skeleton" style={{ height: '16px', width: i === 0 ? '60%' : '40%' }} />
       </td>
     ))}
   </tr>

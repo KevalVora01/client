@@ -107,7 +107,7 @@ const Select = ({
           type="button"
           onClick={handleToggle}
           disabled={disabled}
-          onBlur={(e) => {
+          onBlur={() => {
             const synthetic = { target: { name } } as React.FocusEvent<HTMLSelectElement>;
             onBlur?.(synthetic);
           }}

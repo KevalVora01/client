@@ -11,6 +11,7 @@ import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
 import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
+import NoticesPage from '../features/notices/pages/NoticesPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -41,16 +42,16 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
+        {/* ─── Protected routes (resident only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['resident']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/resident" element={<ResidentDashboard />} />
             <Route path="/my-apartment" element={<MyApartmentPage />} />
-            {/* <Route path="/" element={<ResidentDashboard />} />
-            <Route path="/notices" element={<NoticesPage />} /> */}
             {/* rest of resident routes */}
           </Route>
         </Route>
 
+        {/* ─── Protected routes (security only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['security']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/security" element={<SecurityDashboard />} />
@@ -60,6 +61,14 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
+        {/* ─── Shared routes (admin + resident) ───────────────── */}
+        <Route element={<ProtectedRoute allowedRoles={['admin', 'resident']} />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/notices" element={<NoticesPage />} />
+          </Route>
+        </Route>
+
+        {/* ─── Shared routes (all roles) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/profile" element={<ProfilePage />} />

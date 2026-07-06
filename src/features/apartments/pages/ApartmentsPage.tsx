@@ -75,7 +75,7 @@ const ApartmentsPage = () => {
       </div>
 
       {/* ── Stats ── */}
-      <ApartmentStatsCards stats={stats} />
+      <ApartmentStatsCards stats={stats} loading={loading} />
 
       {/* ── Table card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">

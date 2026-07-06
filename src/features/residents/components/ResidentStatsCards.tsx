@@ -3,9 +3,10 @@ import type { ResidentStats } from "../../types/resident.types";
 
 interface ResidentStatsCardsProps {
   stats: ResidentStats;
+  loading?: boolean;
 }
 
-const ResidentStatsCards = ({ stats }: ResidentStatsCardsProps) => {
+const ResidentStatsCards = ({ stats, loading = false }: ResidentStatsCardsProps) => {
   const { totalCount, totalActive, totalOwners, totalTenants } = stats;
 
   const statItems = [
@@ -52,34 +53,47 @@ const ResidentStatsCards = ({ stats }: ResidentStatsCardsProps) => {
           <div key={index} className="col-12 col-sm-6 col-xl-3">
             <div className="card bg-white border border-light-subtle rounded-3 p-3 h-100 shadow-sm">
 
-              <div className="d-flex align-items-center justify-content-between mb-2">
-                <span
-                  className="fw-bold text-muted text-uppercase"
-                  style={{ fontSize: "0.68rem", letterSpacing: "0.07em" }}
-                >
-                  {item.label}
-                </span>
-                <div
-                  className={`rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 ${item.bgClass}`}
-                  style={{
-                    width: "30px",
-                    height: "30px",
-                    backgroundColor: item.customBg,
-                    color: item.customColor
-                  }}
-                >
-                  <Icon size={16} />
-                </div>
-              </div>
+              {loading ? (
+                <>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <div className="skeleton" style={{ width: '80px', height: '12px' }} />
+                    <div className="skeleton" style={{ width: '30px', height: '30px', borderRadius: '6px' }} />
+                  </div>
+                  <div className="skeleton mb-2" style={{ width: '60%', height: '32px' }} />
+                  <div className="skeleton" style={{ width: '45%', height: '12px' }} />
+                </>
+              ) : (
+                <>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <span
+                      className="fw-bold text-muted text-uppercase"
+                      style={{ fontSize: "0.68rem", letterSpacing: "0.07em" }}
+                    >
+                      {item.label}
+                    </span>
+                    <div
+                      className={`rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 ${item.bgClass}`}
+                      style={{
+                        width: "30px",
+                        height: "30px",
+                        backgroundColor: item.customBg,
+                        color: item.customColor
+                      }}
+                    >
+                      <Icon size={16} />
+                    </div>
+                  </div>
 
-              <div>
-                <h2 className="fw-bold m-0 lh-1 mb-1" style={{ color: "#1a1f36", fontSize: "2rem" }}>
-                  {item.value}
-                </h2>
-                <span className="small" style={{ fontSize: "0.8rem", color: item.subtextColor }}>
-                  {item.subtext}
-                </span>
-              </div>
+                  <div>
+                    <h2 className="fw-bold m-0 lh-1 mb-1" style={{ color: "#1a1f36", fontSize: "2rem" }}>
+                      {item.value}
+                    </h2>
+                    <span className="small" style={{ fontSize: "0.8rem", color: item.subtextColor }}>
+                      {item.subtext}
+                    </span>
+                  </div>
+                </>
+              )}
 
             </div>
           </div>

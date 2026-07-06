@@ -1,25 +1,10 @@
-import { useState, useCallback } from 'react';
 import { useNotices } from './useNotices';
-import type { NoticeListParams } from '../types/notice.types';
-
-const DEFAULT_PARAMS: NoticeListParams = {
-  pageNumber: 1,
-  pageSize: 5,
-  isActive: true,
-};
+import { useNoticeStore } from './useNoticeStore';
 
 export const useNoticesPage = () => {
-  const [filters, setFilters] = useState<NoticeListParams>(DEFAULT_PARAMS);
+  const { filters, updateFilters, changePage } = useNoticeStore();
 
   const { notices, loading, refetch } = useNotices(filters);
-
-  const updateFilters = useCallback((updated: Partial<NoticeListParams>) => {
-    setFilters((prev) => ({ ...prev, ...updated, pageNumber: 1 }));
-  }, []);
-
-  const changePage = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, pageNumber: page }));
-  }, []);
 
   return {
     notices,

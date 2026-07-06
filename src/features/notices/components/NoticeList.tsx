@@ -14,7 +14,7 @@ const NoticeList = ({ notices, loading, onEdit, onDelete, onTogglePin, readOnly 
 
   if (loading) {
     return (
-      <div className="d-flex flex-column gap-2">
+    <div className="d-flex flex-column gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
           <div
             key={i}
@@ -44,10 +44,15 @@ const NoticeList = ({ notices, loading, onEdit, onDelete, onTogglePin, readOnly 
   if (notices.length === 0) {
     return (
       <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-        <i className="bi bi-bell-slash mb-2" style={{ fontSize: '2rem', color: '#adb5bd' }} />
-        <p className="text-secondary small mb-0">No notices found</p>
-        <p className="text-secondary small" style={{ fontSize: '0.8rem' }}>
-          Try adjusting your filters or check back later.
+        <div
+          className="rounded-circle d-flex align-items-center justify-content-center mb-3"
+          style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
+        >
+          <i className="bi bi-megaphone" style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
+        </div>
+        <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>No notices found</p>
+        <p className="text-secondary small" style={{ fontSize: '0.8rem', maxWidth: '280px' }}>
+          There are no notices matching your criteria. Try adjusting your filters or check back later.
         </p>
       </div>
     );
@@ -57,13 +62,13 @@ const NoticeList = ({ notices, loading, onEdit, onDelete, onTogglePin, readOnly 
   const rest = notices.filter((n) => !n.isPinned);
 
   return (
-    <div className="d-flex flex-column gap-2">
+    <div className="d-flex flex-column gap-3">
 
       {/* ── Pinned ── */}
       {pinned.length > 0 && (
-        <div className="mb-1">
-          <p className="text-uppercase fw-medium mb-2" style={{ fontSize: '0.7rem', color: '#adb5bd', letterSpacing: '0.08em' }}>
-            Pinned
+        <div className="d-flex flex-column gap-3">
+          <p className="text-uppercase fw-semibold mb-0" style={{ fontSize: '0.8rem', color: '#6b7280', letterSpacing: '0.06em' }}>
+            <i className="bi bi-pin-angle-fill me-1" style={{ fontSize: '0.75rem' }} />Pinned
           </p>
           {pinned.map((notice) => (
             <NoticeCard
@@ -80,10 +85,10 @@ const NoticeList = ({ notices, loading, onEdit, onDelete, onTogglePin, readOnly 
 
       {/* ── Rest ── */}
       {rest.length > 0 && (
-        <div>
+        <div className="d-flex flex-column gap-3">
           {pinned.length > 0 && (
-            <p className="text-uppercase fw-medium mb-2" style={{ fontSize: '0.7rem', color: '#adb5bd', letterSpacing: '0.08em' }}>
-              All notices
+            <p className="text-uppercase fw-semibold mb-0" style={{ fontSize: '0.8rem', color: '#6b7280', letterSpacing: '0.06em' }}>
+              <i className="bi bi-list-ul me-1" style={{ fontSize: '0.75rem' }} />All notices
             </p>
           )}
           {rest.map((notice) => (

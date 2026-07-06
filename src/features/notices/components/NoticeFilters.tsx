@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Select from '../../../components/Select/Select';
 import type { SelectOption } from '../../../components/Select/Select';
 import type { NoticeCategory, NoticeListParams } from '../types/notice.types';
@@ -22,6 +23,24 @@ interface NoticeFiltersProps {
 }
 
 const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
+  const [search, setSearch] = useState(filters.search ?? '');
+
+  useEffect(() => {
+    if (search === (filters.search ?? '')) return;
+    const timer = setTimeout(() => {
+      onFilterChange({ search: search || undefined, pageNumber: 1 });
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
+  const handleReset = () => {
+    setSearch('');
+    onFilterChange({ search: undefined, category: undefined, isPinned: undefined });
+  };
+
+  const hasActiveFilters = !!filters.search || !!filters.category || filters.isPinned !== undefined;
+
   return (
     <div className="d-flex align-items-center gap-2 flex-wrap">
 
@@ -30,8 +49,8 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
         type="text"
         className="form-control form-control-sm shadow-none border-light-subtle"
         placeholder="Search notices..."
-        defaultValue={filters.search ?? ''}
-        onChange={(e) => onFilterChange({ search: e.target.value || undefined, pageNumber: 1 })}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
         style={{ maxWidth: '220px', borderRadius: '8px', fontSize: '0.875rem' }}
       />
 
@@ -66,6 +85,20 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
         style={{ maxWidth: '150px' }}
         className="shadow-none"
       />
+
+      {/* Clear filters */}
+      {hasActiveFilters && (
+        <button
+          className="btn d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
+          onClick={handleReset}
+          style={{ height: '40px', fontSize: '0.85rem', borderRadius: '8px', border: '1px solid #d1d5db', color: '#6b7280', backgroundColor: '#fff' }}
+          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#9ca3af'; }}
+          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+        >
+          <i className="bi bi-x-circle" />
+          Clear
+        </button>
+      )}
 
     </div>
   );

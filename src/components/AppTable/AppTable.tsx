@@ -12,6 +12,7 @@ interface AppTableProps<T> {
   rowKey: (row: T) => string | number;
   emptyTitle?: string;
   emptySubtitle?: string;
+  emptyIcon?: string;
   skeletonRows?: number;
 }
 
@@ -32,6 +33,7 @@ const AppTable = <T,>({
   rowKey,
   emptyTitle = "No data found",
   emptySubtitle = "Try adjusting your filters.",
+  emptyIcon = "bi-inbox",
   skeletonRows = 5,
 }: AppTableProps<T>) => {
 
@@ -71,9 +73,14 @@ const AppTable = <T,>({
   if (data.length === 0) {
     return (
       <div className="text-center py-5">
-        <i className="bi bi-inbox d-block mb-2 text-body-tertiary fs-2" aria-hidden="true" />
-        <p className="fw-semibold text-secondary mb-1 small">{emptyTitle}</p>
-        <p className="text-muted mb-0 extra-small">{emptySubtitle}</p>
+        <div
+          className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+          style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
+        >
+          <i className={`${emptyIcon}`} style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
+        </div>
+        <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>{emptyTitle}</p>
+        <p className="text-secondary small" style={{ fontSize: '0.8rem', maxWidth: '320px', margin: '0 auto' }}>{emptySubtitle}</p>
       </div>
     );
   }

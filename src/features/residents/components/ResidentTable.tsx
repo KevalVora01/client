@@ -116,6 +116,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       rowKey={(r) => r.id}
       emptyTitle="No residents found"
       emptySubtitle="Try adjusting your filters or add a new resident."
+      emptyIcon="bi-people"
     />
   );
 };

@@ -195,6 +195,7 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
       rowKey={(a) => a.id}
       emptyTitle="No apartments found"
       emptySubtitle="Try adjusting your filters or add a new apartment."
+      emptyIcon="bi-building"
     />
   );
 };

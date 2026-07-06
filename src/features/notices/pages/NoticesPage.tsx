@@ -72,21 +72,38 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
   return (
     <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
-      {/* ── Header ── */}
-      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
-        <div>
-          <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
-            Notices
-          </h4>
-          <p className="text-secondary mt-3 mb-0 small">
-            Stay updated with the latest announcements from your society.
-          </p>
+      {/* ── Header Banner ── */}
+      <div
+        className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4 p-4 rounded-3"
+        style={{
+          background: 'linear-gradient(135deg, #1a1f36 0%, #2d2a6e 50%, #1a1f36 100%)',
+        }}
+      >
+        <div className="d-flex align-items-start gap-3">
+          <div
+            className="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+            style={{ width: '48px', height: '48px', backgroundColor: 'rgba(255,255,255,0.12)' }}
+          >
+            <i className="bi bi-megaphone text-white" style={{ fontSize: '1.3rem' }} />
+          </div>
+          <div>
+            <h4 className="fw-bold mb-1 text-white" style={{ fontSize: '1.3rem' }}>
+              Notices
+            </h4>
+            <p className="mb-0 small" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              Stay updated with the latest announcements from your society.
+            </p>
+          </div>
         </div>
         {!readOnly && (
           <button
-            className="btn btn-dark d-flex align-items-center gap-1"
+            className="btn d-flex align-items-center gap-1 fw-medium"
             onClick={openAddModal}
-            style={{ fontSize: '0.875rem', borderRadius: '8px', height: '40px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+            style={{
+              fontSize: '0.875rem', borderRadius: '8px', height: '40px',
+              backgroundColor: 'rgba(255,255,255,0.15)', color: '#fff',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}
           >
             <i className="bi bi-plus-lg" /> Add Notice
           </button>

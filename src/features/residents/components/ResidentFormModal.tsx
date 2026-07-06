@@ -1,6 +1,6 @@
-import type { ResidentFormModalProps } from "../../types/resident.types";
-import { useResidentForm } from "../../hooks/useResidentForm";
-import ApartmentSelect from "../../../apartments/components/ApartmentSelect";
+import ApartmentSelect from "../../apartments/components/ApartmentSelect";
+import { useResidentForm } from "../hooks/useResidentForm";
+import type { ResidentFormModalProps } from "../types/resident.types";
 
 const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }: ResidentFormModalProps) => {
   const { isEdit, formik, handleClose, setApartmentId } =

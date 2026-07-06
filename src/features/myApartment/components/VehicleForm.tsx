@@ -56,7 +56,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
             className={`form-control border-light-subtle shadow-none ${formik.touched.plateNumber && formik.errors.plateNumber ? "is-invalid" : ""}`}
             placeholder="e.g. GJ 01 AB 1234"
             value={formik.values.plateNumber}
-            onChange={formik.handleChange}
+            onChange={(e) => formik.setFieldValue("plateNumber", e.target.value.toUpperCase())}
             onBlur={formik.handleBlur}
             style={{ fontSize: "0.875rem", height: "40px" }}
           />

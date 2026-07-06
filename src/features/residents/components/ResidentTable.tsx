@@ -1,6 +1,6 @@
-import AppTable from '../../../../components/AppTable/AppTable';
-import type { TableColumn } from '../../../../components/AppTable/AppTable';
-import type { ResidentDetail, ResidentTableProps } from '../../types/resident.types';
+import AppTable from '../../../components/AppTable/AppTable';
+import type { TableColumn } from '../../../components/AppTable/AppTable';
+import type { ResidentDetail, ResidentTableProps } from '../types/resident.types';
 import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
 import RowActions from './RowActions';
 

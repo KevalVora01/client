@@ -38,7 +38,7 @@ const ApartmentFormModal = ({
       style={{ backdropFilter: "blur(4px)" }}
     >
       <div
-        className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+        className="modal-dialog modal-lg modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">

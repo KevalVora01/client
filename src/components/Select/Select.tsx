@@ -39,6 +39,7 @@ const Select = ({
   style,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -81,6 +82,11 @@ const Select = ({
 
   const handleToggle = () => {
     if (disabled) return;
+    if (!isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setOpenUp(spaceBelow < 200);
+    }
     setIsOpen((prev) => !prev);
   };
 
@@ -145,7 +151,12 @@ const Select = ({
         {isOpen && (
           <div
             className="position-absolute w-100 bg-white border border-light-subtle rounded-3 shadow-lg overflow-hidden"
-            style={{ top: "calc(100% + 5px)", zIndex: 200 }}
+            style={{
+              zIndex: 200,
+              ...(openUp
+                ? { bottom: "calc(100% + 5px)" }
+                : { top: "calc(100% + 5px)" })
+            }}
           >
             <ul
               ref={listRef}

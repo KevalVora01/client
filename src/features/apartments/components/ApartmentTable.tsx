@@ -21,11 +21,16 @@ const RowActions = ({
   onEdit: () => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [menuStyle, setMenuStyle] = useState<React.CSSProperties>({});
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node) &&
+        !(event.target as HTMLElement).closest(".dropdown-menu")
+      ) {
         setIsOpen(false);
       }
     };
@@ -36,14 +41,26 @@ const RowActions = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen]);
 
+  const handleToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isOpen && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setMenuStyle(
+        spaceBelow < 130
+          ? { bottom: window.innerHeight - rect.top, left: rect.right - 148, zIndex: 9999, minWidth: "148px" }
+          : { top: rect.bottom, left: rect.right - 148, zIndex: 9999, minWidth: "148px" }
+      );
+    }
+    setIsOpen((prev) => !prev);
+  };
+
   return (
-    <div className="position-relative d-inline-block" ref={containerRef}>
+    <div>
       <button
         type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsOpen((prev) => !prev);
-        }}
+        ref={buttonRef}
+        onClick={handleToggle}
         className="btn p-0 border-0 text-secondary bg-transparent d-flex align-items-center justify-content-center"
         style={{ width: "28px", height: "28px" }}
         onMouseEnter={(e) => (e.currentTarget.style.color = "#212529")}
@@ -54,13 +71,8 @@ const RowActions = ({
 
       {isOpen && (
         <ul
-          className="dropdown-menu dropdown-menu-end shadow-sm border border-light-subtle rounded-3 p-1 show position-absolute"
-          style={{
-            minWidth: "148px",
-            zIndex: 1100,
-            top: "100%",
-            right: 0
-          }}
+          className="dropdown-menu shadow-sm border border-light-subtle rounded-3 p-1 show position-fixed"
+          style={menuStyle}
         >
           <li>
             <button

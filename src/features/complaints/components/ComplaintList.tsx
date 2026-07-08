@@ -74,7 +74,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
       render: (c) => (
         <div
           className="d-flex align-items-center justify-content-center"
-          style={{ cursor: 'pointer', minHeight: '24px' }}
+          style={{ cursor: 'pointer', minHeight: '34px' }}
           onClick={() => handleExpand(c)}
         >
           <i
@@ -93,11 +93,6 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
           <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
             {c.title}
           </p>
-          {expandedId !== c.id && (
-            <p className="text-muted mb-0" style={{ fontSize: '0.775rem', lineHeight: '1.4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {c.description.length > 80 ? c.description.slice(0, 80) + '...' : c.description}
-            </p>
-          )}
         </div>
       ),
     },
@@ -129,7 +124,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
       width: '9%',
       render: (c) => (
         <span className="text-muted" style={{ fontSize: '0.8rem' }}>
-          {c.resident ? `Apt ${c.resident.apartmentId}` : '\u2014'}
+          {c.resident ? `Apt` : '\u2014'}
         </span>
       ),
     },
@@ -157,47 +152,47 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
   const renderExpandedRow = (complaint: Complaint) => {
     const detail = expandedDetail?.id === complaint.id ? expandedDetail : complaint;
     return (
-    <div className="p-4">
-      <div className="row g-4">
-        <div className="col-12 col-md-5 col-lg-4">
-          {detail.images && detail.images.length > 0 && (
-            <div className="d-flex gap-2 flex-wrap mb-3">
-              {detail.images.map((img) => (
-                <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
-                  <img
-                    src={img.imageUrl}
-                    alt=""
-                    style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-                  />
-                </a>
-              ))}
-            </div>
-          )}
+      <div className="p-4">
+        <div className="row g-4">
+          <div className="col-12 col-md-5 col-lg-4">
+            {detail.images && detail.images.length > 0 && (
+              <div className="d-flex gap-2 flex-wrap mb-3">
+                {detail.images.map((img) => (
+                  <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={img.imageUrl}
+                      alt=""
+                      style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                    />
+                  </a>
+                ))}
+              </div>
+            )}
 
-          <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-            {complaint.description}
-          </p>
+            <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+              Description : {complaint.description}
+            </p>
+          </div>
+
+          <div className="col-12 col-md-7 col-lg-8">
+            <ComplaintComments
+              complaintId={complaint.id}
+              status={complaint.status}
+              residentName={detail.resident?.user?.name ?? 'Unknown'}
+              isAdmin={isAdmin}
+            />
+          </div>
         </div>
 
-        <div className="col-12 col-md-7 col-lg-8">
-          <ComplaintComments
-            complaintId={complaint.id}
-            status={complaint.status}
-            residentName={detail.resident?.user?.name ?? `Apt ${detail.resident?.apartmentId ?? '—'}`}
-            isAdmin={isAdmin}
-          />
-        </div>
+        <button
+          className="btn btn-link p-0 mt-3 fw-medium text-decoration-none"
+          onClick={() => setExpandedId(null)}
+          style={{ fontSize: '0.78rem', color: '#6b7280' }}
+        >
+          <i className="bi bi-chevron-up me-1" />Show less
+        </button>
       </div>
-
-      <button
-        className="btn btn-link p-0 mt-3 fw-medium text-decoration-none"
-        onClick={() => setExpandedId(null)}
-        style={{ fontSize: '0.78rem', color: '#6b7280' }}
-      >
-        <i className="bi bi-chevron-up me-1" />Show less
-      </button>
-    </div>
-  );
+    );
   };
 
   return (

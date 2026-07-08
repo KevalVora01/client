@@ -14,11 +14,11 @@ export const useComplaintsPage = (isAdmin: boolean) => {
     changePage,
     refetch,
     pagination: {
-      pageNumber:      complaints?.pageNumber      ?? 1,
-      totalPages:      complaints?.totalPages      ?? 1,
-      pageSize:        complaints?.pageSize        ?? 10,
-      totalCount:      complaints?.totalCount      ?? 0,
-      hasNextPage:     complaints?.hasNextPage     ?? false,
+      pageNumber: complaints?.pageNumber ?? 1,
+      totalPages: complaints?.totalPages ?? 1,
+      pageSize: complaints?.pageSize ?? 10,
+      totalCount: complaints?.totalCount ?? 0,
+      hasNextPage: complaints?.hasNextPage ?? false,
       hasPreviousPage: complaints?.hasPreviousPage ?? false,
     },
   };

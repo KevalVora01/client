@@ -16,7 +16,7 @@ export const useNoticesPage = () => {
     pagination: {
       pageNumber:      notices?.pageNumber      ?? 1,
       totalPages:      notices?.totalPages      ?? 1,
-      pageSize:        notices?.pageSize        ?? 5,
+      pageSize:        notices?.pageSize        ?? 9,
       totalCount:      notices?.totalCount      ?? 0,
       hasNextPage:     notices?.hasNextPage     ?? false,
       hasPreviousPage: notices?.hasPreviousPage ?? false,

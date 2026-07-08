@@ -1,28 +1,28 @@
 import { useState, useEffect } from 'react';
 import Select from '../../../components/Select/Select';
 import type { SelectOption } from '../../../components/Select/Select';
-import type { NoticeCategory, NoticeListParams } from '../types/notice.types';
+import type { ComplaintPriority, ComplaintStatus, ComplaintListParams } from '../types/complaint.types';
 
-const CATEGORY_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All categories' },
-  { value: 'General', label: 'General' },
-  { value: 'Maintenance', label: 'Maintenance' },
-  { value: 'Emergency', label: 'Emergency' },
-  { value: 'Event', label: 'Event' },
+const STATUS_OPTIONS: SelectOption[] = [
+  { value: '', label: 'All statuses' },
+  { value: 'Open', label: 'Open' },
+  { value: 'In Progress', label: 'In Progress' },
+  { value: 'Resolved', label: 'Resolved' },
 ];
 
-const PINNED_OPTIONS: SelectOption[] = [
-  { value: '', label: 'All notices' },
-  { value: 'true', label: 'Pinned only' },
-  { value: 'false', label: 'Unpinned only' },
+const PRIORITY_OPTIONS: SelectOption[] = [
+  { value: '', label: 'All priorities' },
+  { value: 'Low', label: 'Low' },
+  { value: 'Medium', label: 'Medium' },
+  { value: 'High', label: 'High' },
 ];
 
-interface NoticeFiltersProps {
-  filters: NoticeListParams;
-  onFilterChange: (updated: Partial<NoticeListParams>) => void;
+interface ComplaintFiltersProps {
+  filters: ComplaintListParams;
+  onFilterChange: (updated: Partial<ComplaintListParams>) => void;
 }
 
-const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
+const ComplaintFilters = ({ filters, onFilterChange }: ComplaintFiltersProps) => {
   const [search, setSearch] = useState(filters.search ?? '');
 
   useEffect(() => {
@@ -36,53 +36,53 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
 
   const handleReset = () => {
     setSearch('');
-    onFilterChange({ search: undefined, category: undefined, isPinned: undefined });
+    onFilterChange({ search: undefined, status: undefined, priority: undefined });
   };
 
-  const hasActiveFilters = !!filters.search || !!filters.category || filters.isPinned !== undefined;
+  const hasActiveFilters = !!filters.search || !!filters.status || !!filters.priority;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-nowrap">
+    <div className="d-flex align-items-center gap-2 flex-wrap">
 
       {/* Search */}
       <input
         type="text"
         className="form-control form-control-sm shadow-none border-light-subtle"
-        placeholder="Search notices..."
+        placeholder="Search complaints..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ minWidth: '160px', maxWidth: '200px', borderRadius: '8px', fontSize: '0.875rem' }}
+        style={{ maxWidth: '220px', borderRadius: '8px', fontSize: '0.875rem' }}
       />
 
-      {/* Category */}
+      {/* Status */}
       <Select
-        name="category"
-        options={CATEGORY_OPTIONS}
-        placeholder="All categories"
-        value={filters.category ?? ''}
+        name="status"
+        options={STATUS_OPTIONS}
+        placeholder="All statuses"
+        value={filters.status ?? ''}
         onChange={(e) =>
           onFilterChange({
-            category: (e.target.value as NoticeCategory) || undefined,
+            status: (e.target.value as ComplaintStatus) || undefined,
             pageNumber: 1,
           })
         }
-        style={{ minWidth: '130px', maxWidth: '150px' }}
+        style={{ maxWidth: '160px' }}
         className="shadow-none"
       />
 
-      {/* Pinned */}
+      {/* Priority */}
       <Select
-        name="isPinned"
-        options={PINNED_OPTIONS}
-        placeholder="All notices"
-        value={filters.isPinned === undefined ? '' : String(filters.isPinned)}
+        name="priority"
+        options={PRIORITY_OPTIONS}
+        placeholder="All priorities"
+        value={filters.priority ?? ''}
         onChange={(e) =>
           onFilterChange({
-            isPinned: e.target.value === '' ? undefined : e.target.value === 'true',
+            priority: (e.target.value as ComplaintPriority) || undefined,
             pageNumber: 1,
           })
         }
-        style={{ minWidth: '120px', maxWidth: '140px' }}
+        style={{ maxWidth: '150px' }}
         className="shadow-none"
       />
 
@@ -104,4 +104,4 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
   );
 };
 
-export default NoticeFilters;
+export default ComplaintFilters;

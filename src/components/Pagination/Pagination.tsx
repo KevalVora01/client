@@ -1,4 +1,3 @@
-import './Pagination.css';
 import type { PaginatedResult } from '../../types/pagination.types';
 
 interface PaginationProps {
@@ -30,15 +29,20 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
     return pages;
   };
 
+  const btnClass =
+    "btn btn-outline-secondary border-light-subtle btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-medium";
+  const btnStyle: React.CSSProperties = { minWidth: "32px", height: "32px", padding: "0 8px" };
+
   return (
-    <div className="pagination-bar">
-      <span className="pagination-bar__info">
+    <div className="d-flex align-items-center justify-content-between flex-wrap" style={{ gap: "12px" }}>
+      <span className="small text-muted">
         Showing {from} to {to} of {totalCount} entries
       </span>
 
-      <div className="pagination-bar__controls">
+      <div className="d-flex align-items-center gap-1">
         <button
-          className="pagination-bar__btn"
+          className={btnClass}
+          style={btnStyle}
           onClick={() => onPageChange(pageNumber - 1)}
           disabled={!hasPreviousPage}
           aria-label="Previous page"
@@ -48,13 +52,14 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
 
         {getPageNumbers().map((page, index) =>
           page === '...' ? (
-            <span key={`ellipsis-${index}`} className="pagination-bar__ellipsis">
+            <span key={`ellipsis-${index}`} className="small text-secondary px-1">
               ...
             </span>
           ) : (
             <button
               key={page}
-              className={`pagination-bar__btn ${page === pageNumber ? 'pagination-bar__btn--active' : ''}`}
+              className={page === pageNumber ? "btn btn-dark btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-semibold" : btnClass}
+              style={btnStyle}
               onClick={() => onPageChange(page as number)}
             >
               {page}
@@ -63,7 +68,8 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
         )}
 
         <button
-          className="pagination-bar__btn"
+          className={btnClass}
+          style={btnStyle}
           onClick={() => onPageChange(pageNumber + 1)}
           disabled={!hasNextPage}
           aria-label="Next page"

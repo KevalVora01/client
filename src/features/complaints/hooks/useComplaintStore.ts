@@ -1,20 +1,19 @@
 import { create } from 'zustand';
-import type { NoticeListParams } from '../types/notice.types';
+import type { ComplaintListParams } from '../types/complaint.types';
 
-interface NoticeStore {
-  filters: NoticeListParams;
-  updateFilters: (newFilters: Partial<NoticeListParams>) => void;
+interface ComplaintStore {
+  filters: ComplaintListParams;
+  updateFilters: (newFilters: Partial<ComplaintListParams>) => void;
   changePage: (pageNumber: number) => void;
   resetFilters: () => void;
 }
 
-const initialFilters: NoticeListParams = {
+const initialFilters: ComplaintListParams = {
   pageNumber: 1,
-  pageSize: 9,
-  isActive: true,
+  pageSize: 10,
 };
 
-export const useNoticeStore = create<NoticeStore>((set) => ({
+export const useComplaintStore = create<ComplaintStore>((set) => ({
   filters: initialFilters,
 
   updateFilters: (newFilters) =>

@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNoticesPage } from '../hooks/useNoticesPage';
 import { useNoticeMutations } from '../hooks/useNoticeMutations';
 import NoticeFilters from '../components/NoticeFilters';
-import NoticeList from '../components/NoticeList';
 import NoticeForm from '../components/NoticeForm';
+import PinnedNoticeCard from '../components/PinnedNoticeCard';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import Pagination from '../../../components/Pagination/Pagination';
 import { useScrollLock } from '../../../hooks/useScrollLock';
@@ -17,14 +17,9 @@ interface NoticesPageProps {
 const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
   const { user } = useAuth();
   const readOnly = readOnlyProp ?? user?.role !== 'admin';
+
   const {
-    notices,
-    loading,
-    filters,
-    updateFilters,
-    changePage,
-    pagination,
-    refetch,
+    notices, loading, filters, updateFilters, changePage, pagination, refetch,
   } = useNoticesPage();
 
   const { createNotice, updateNotice, deleteNotice, togglePin, loading: mutationLoading } = useNoticeMutations(refetch);
@@ -54,103 +49,133 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
     setDeletingNotice(null);
   };
 
-  const openAddModal = () => {
-    setEditingNotice(null);
-    setModalOpen(true);
-  };
+  const openAddModal = () => { setEditingNotice(null); setModalOpen(true); };
+  const openEditModal = (notice: Notice) => { setEditingNotice(notice); setModalOpen(true); };
+  const closeModal = () => { setModalOpen(false); setEditingNotice(null); };
 
-  const openEditModal = (notice: Notice) => {
-    setEditingNotice(notice);
-    setModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setModalOpen(false);
-    setEditingNotice(null);
-  };
+  const totalCount = notices?.totalCount ?? 0;
+  const allItems = notices?.items ?? [];
+  const pinnedItems = allItems.filter(n => n.isPinned);
+  const regularItems = allItems.filter(n => !n.isPinned);
 
   return (
-    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
+    <div className="container-fluid p-3 p-md-4">
 
-      {/* ── Header Banner ── */}
-      <div
-        className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4 p-4 rounded-3"
-        style={{
-          background: 'linear-gradient(135deg, #1a1f36 0%, #2d2a6e 50%, #1a1f36 100%)',
-        }}
-      >
-        <div className="d-flex align-items-start gap-3">
-          <div
-            className="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: '48px', height: '48px', backgroundColor: 'rgba(255,255,255,0.12)' }}
-          >
-            <i className="bi bi-megaphone text-white" style={{ fontSize: '1.3rem' }} />
-          </div>
-          <div>
-            <h4 className="fw-bold mb-1 text-white" style={{ fontSize: '1.3rem' }}>
-              Notices
-            </h4>
-            <p className="mb-0 small" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              Stay updated with the latest announcements from your society.
-            </p>
-          </div>
+      {/* ── Header ── */}
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
+        <div>
+          <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
+            Notices Management
+          </h4>
+          <p className="text-muted mb-0 small">
+            Broadcast official announcements to society residents.
+          </p>
         </div>
         {!readOnly && (
           <button
-            className="btn d-flex align-items-center gap-1 fw-medium"
+            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
             onClick={openAddModal}
-            style={{
-              fontSize: '0.875rem', borderRadius: '8px', height: '40px',
-              backgroundColor: 'rgba(255,255,255,0.15)', color: '#fff',
-              border: '1px solid rgba(255,255,255,0.2)',
-            }}
+            style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
           >
             <i className="bi bi-plus-lg" /> Add Notice
           </button>
         )}
       </div>
 
-      {/* ── Content Card ── */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
-
-        {/* Filters */}
-        <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <NoticeFilters
-            filters={filters}
-            onFilterChange={updateFilters}
-          />
-        </div>
-
-        {/* Notice List */}
-        <div className="card-body p-3">
-          <NoticeList
-            notices={notices?.items ?? []}
-            loading={loading}
-            onEdit={openEditModal}
-            onDelete={(n) => setDeletingNotice(n)}
-            onTogglePin={(n) => togglePin(n.id)}
-            readOnly={readOnly}
-          />
-        </div>
-
-        {/* Pagination */}
-        {!loading && (notices?.items?.length ?? 0) > 0 && (
-          <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
-            <Pagination
-              pagination={pagination}
-              onPageChange={changePage}
-            />
-          </div>
+      {/* ── Filters ── */}
+      <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3">
+        <NoticeFilters filters={filters} onFilterChange={updateFilters} />
+        {!loading && (
+          <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+            Showing {totalCount} notices
+          </span>
         )}
-
       </div>
 
-      {/* ── Add / Edit Modal ── */}
+      {/* ── Pinned Section ── */}
+      {pinnedItems.length > 0 && (
+        <div className="mb-4">
+          <p className="text-uppercase fw-semibold mb-3" style={{ fontSize: '0.72rem', color: '#6b7280', letterSpacing: '0.08em' }}>
+            <i className="bi bi-pin-angle-fill me-1" /> Pinned Announcements
+          </p>
+          <div className="row g-3">
+            {pinnedItems.map((notice) => (
+              <div key={notice.id} className="col-12 col-md-6 col-xl-4">
+                <PinnedNoticeCard
+                  notice={notice}
+                  onEdit={openEditModal}
+                  onTogglePin={(n) => togglePin(n.id)}
+                  readOnly={readOnly}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Recent Notices ── */}
+      {!loading && regularItems.length > 0 && (
+        <div className="mb-4">
+          <p className="text-uppercase fw-semibold mb-3" style={{ fontSize: '0.72rem', color: '#6b7280', letterSpacing: '0.08em' }}>
+            <i className="bi bi-megaphone me-1" /> Recent Notices
+          </p>
+          <div className="row g-3">
+            {regularItems.map((notice) => (
+              <div key={notice.id} className="col-12 col-md-6 col-xl-4">
+                <PinnedNoticeCard
+                  notice={notice}
+                  onEdit={openEditModal}
+                  onDelete={(n) => setDeletingNotice(n)}
+                  onTogglePin={(n) => togglePin(n.id)}
+                  readOnly={readOnly}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Loading State ── */}
+      {loading && (
+        <div className="row g-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="col-12 col-md-6 col-xl-4">
+              <div className="rounded-3 p-3" style={{ border: '1px solid #e5e7eb', background: '#fff' }}>
+                <div className="skeleton mb-2" style={{ width: '30%', height: 20, borderRadius: 20 }} />
+                <div className="skeleton mb-2" style={{ width: '80%', height: 16, borderRadius: 4 }} />
+                <div className="skeleton mb-1" style={{ width: '100%', height: 12, borderRadius: 4 }} />
+                <div className="skeleton" style={{ width: '60%', height: 12, borderRadius: 4 }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Empty State ── */}
+      {!loading && regularItems.length === 0 && pinnedItems.length === 0 && (
+        <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
+          <div className="rounded-circle d-flex align-items-center justify-content-center mb-3" style={{ width: 64, height: 64, backgroundColor: '#f3f4f6' }}>
+            <i className="bi bi-megaphone" style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
+          </div>
+          <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>No notices found</p>
+          <p className="text-secondary small mb-0" style={{ maxWidth: 280 }}>
+            There are no notices matching your criteria.
+          </p>
+        </div>
+      )}
+
+      {/* ── Pagination ── */}
+      {!loading && (notices?.items?.length ?? 0) > 0 && (
+        <div className="d-flex justify-content-end mb-4">
+          <Pagination pagination={pagination} onPageChange={changePage} />
+        </div>
+      )}
+
+      {/* ── Modal ── */}
       {modalOpen && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
           <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
-
               <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
                 <div>
                   <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
@@ -164,13 +189,11 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
                   className="btn btn-outline-light border border-light-subtle text-secondary rounded-2 p-0 d-flex align-items-center justify-content-center position-absolute"
                   onClick={closeModal}
                   disabled={mutationLoading}
-                  aria-label="Close"
                   style={{ width: '30px', height: '30px', top: '1.2rem', right: '1.2rem' }}
                 >
                   <i className="bi bi-x fs-5" />
                 </button>
               </div>
-
               <div className="modal-body p-4">
                 <NoticeForm
                   notice={editingNotice}
@@ -179,13 +202,11 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
                   onCancel={closeModal}
                 />
               </div>
-
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Delete Confirm ── */}
       <ConfirmDialog
         show={!!deletingNotice}
         title="Delete Notice"
@@ -196,7 +217,6 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
         onConfirm={handleDeleteConfirm}
         onCancel={() => setDeletingNotice(null)}
       />
-
     </div>
   );
 };

@@ -17,7 +17,6 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import type { UserRole } from '../../../features/auth/types/auth.types';
-import './Sidebar.css';
 import { useState } from 'react';
 import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
 import { getAvatarColor, getInitials } from '../../../features/residents/components/residentTableHelpers';
@@ -77,15 +76,35 @@ const Sidebar = ({ onClose }: SidebarProps) => {
   const navItems = navConfig[role];
 
   return (
-    <div className="sidebar d-flex flex-column">
+    <>
+    <style>{`
+      .sidebar-nav-link:hover { background-color: #e0e7ff; }
+      .sidebar-nav-link.active { background-color: #e0e7ff !important; }
+      .sidebar-close-btn:hover { background: #f3f4f6; }
+      .sidebar-logout-btn:hover { background-color: #fee2e2; border-color: #fecaca; color: #ef4444; }
+    `}</style>
+    <div className="d-flex flex-column vh-100 sticky-top bg-white border-end border-light-subtle overflow-y-auto flex-shrink-0"
+      style={{ width: "240px" }}
+    >
 
       {/* ── Brand ── */}
-      <div className="sidebar__brand px-3 pt-4 pb-3 d-flex align-items-center justify-content-between">
+      <div className="d-flex align-items-center justify-content-between px-3 pt-4 pb-3"
+        style={{ borderBottom: "1px solid #f3f4f6" }}
+      >
         <div>
-          <h5 className="sidebar__brand-name mb-0">Civic Horizon</h5>
-          <span className="sidebar__brand-role text-uppercase">{roleLabel[role]}</span>
+          <h5 className="mb-0" style={{ fontSize: "1.4rem", fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+            Civic Horizon
+          </h5>
+          <span className="text-secondary fw-semibold text-uppercase" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
+            {roleLabel[role]}
+          </span>
         </div>
-        <button className="sidebar__close-btn" onClick={onClose} aria-label="Close sidebar">
+        <button
+          className="sidebar-close-btn border-0 bg-transparent text-secondary p-1 rounded-2 d-flex d-md-none align-items-center justify-content-center"
+          onClick={onClose}
+          aria-label="Close sidebar"
+          style={{ cursor: "pointer" }}
+        >
           <X size={18} strokeWidth={1.8} />
         </button>
       </div>
@@ -98,12 +117,11 @@ const Sidebar = ({ onClose }: SidebarProps) => {
               <NavLink
                 to={path}
                 end={path === '/'}
-                className={({ isActive }) =>
-                  `sidebar__nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none${isActive ? ' sidebar__nav-link--active' : ''}`
-                }
+                className="sidebar-nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none"
+                style={{ fontSize: "0.92rem", color: "#2c2f33" }}
               >
                 <Icon size={20} strokeWidth={1.8} className="flex-shrink-0" />
-                <span className="sidebar__nav-label fw-medium">{label}</span>
+                <span className="fw-medium">{label}</span>
               </NavLink>
             </li>
           ))}
@@ -111,16 +129,18 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       </nav>
 
       {/* ── Profile card ── */}
-      <div className="sidebar__profile d-flex align-items-center justify-content-between px-3 py-3">
+      <div className="d-flex align-items-center justify-content-between px-3 py-3 border-top border-light">
         <div
           className="d-flex align-items-center gap-2 overflow-hidden"
           style={{ cursor: 'pointer' }}
           onClick={() => navigate('/profile')}
         >
-          {/* avatar image */}
           <div
-            className="sidebar__profile-img flex-shrink-0 d-flex align-items-center justify-content-center fw-semibold"
+            className="flex-shrink-0 d-flex align-items-center justify-content-center fw-semibold"
             style={{
+              width: "34px",
+              height: "34px",
+              border: "2px solid #e5e7eb",
               background: getAvatarColor(user?.name ?? '').bg,
               color: getAvatarColor(user?.name ?? '').color,
               borderRadius: '50%',
@@ -130,18 +150,19 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             {getInitials(user?.name ?? '')}
           </div>
           <div className="overflow-hidden">
-            <p className="sidebar__user-name fw-semibold mb-0 text-truncate">
+            <p className="fw-semibold mb-0 text-truncate" style={{ fontSize: "0.88rem", color: "#111827" }}>
               {user?.name ?? 'User'}
             </p>
-            <p className="sidebar__user-role text-uppercase mb-0 text-truncate">
+            <p className="text-uppercase mb-0 text-truncate text-secondary" style={{ fontSize: "0.65rem", letterSpacing: "0.06em" }}>
               {roleLabel[role]}
             </p>
           </div>
         </div>
         <button
-          className="sidebar__logout-btn flex-shrink-0"
+          className="sidebar-logout-btn d-flex align-items-center justify-content-center border rounded-2 bg-transparent text-secondary flex-shrink-0"
           onClick={() => setShowLogoutConfirm(true)}
           aria-label="Logout"
+          style={{ width: "32px", height: "32px", cursor: "pointer" }}
         >
           <LogOut size={18} strokeWidth={1.8} />
         </button>
@@ -159,6 +180,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       </div>
 
     </div>
+    </>
   );
 };
 

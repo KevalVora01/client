@@ -1,4 +1,5 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
+import { connectSocket } from '../services/socket';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -90,6 +91,7 @@ api.interceptors.response.use(
 
         const newToken: string = data.data.accessToken;
         setAccessToken(newToken);
+        connectSocket(accessToken);
         processQueue(null, newToken);
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;

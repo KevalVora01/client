@@ -1,93 +1,46 @@
-/* ── Shell ── */
-.topbar {
-  height: 64px;
-  background-color: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-}
-/* ── Greeting ── */
-.topbar__greeting {
-  font-size: 0.92rem;
-  color: #6b7280;
+.topbar__notification-wrapper {
+  position: relative;
 }
 
-/* ── Icon button ── */
-.topbar__icon-btn {
-  position: relative;
-  width: 38px;
-  height: 38px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background-color: #ffffff;
-  color: #4b5563;
+.topbar__badge--count {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 999px;
+  min-width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  padding: 0 3px;
 }
 
-.topbar__icon-btn:hover {
-  background-color: #e0e7ff;
-  color: #4b5563;
-  border-color: #e0e7ff;
-}
-
-/* ── Profile button ── */
-.topbar__profile-btn {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 2px solid #e5e7eb;
-  background-color: #ffffff;
-  padding: 0;
-  cursor: pointer;
-  overflow: hidden;
-  transition: border-color 0.15s ease;
-}
-
-.topbar__profile-btn:hover {
-  border-color: #e0e7ff;
-}
-
-.topbar__profile-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.topbar__badge {
+.topbar__notification-dropdown {
   position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 7px;
-  height: 7px;
-  background-color: #ef4444;
-  border-radius: 50%;
-  border: 1.5px solid #ffffff;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  z-index: 1000;
 }
 
-/* show only on mobile */
-.topbar__menu-btn {
-  display: none;
-  border: none;
-  background: transparent;
-  color: #374151;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  align-items: center;
-  justify-content: center;
+.topbar__notification-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f1f1;
 }
 
-.topbar__menu-btn:hover {
-  background: #f3f4f6;
-}
-
-@media (max-width: 760px) {
-  .topbar__menu-btn {
-    display: flex;
-  }
+.topbar__notification-empty {
+  padding: 16px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
 }

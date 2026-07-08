@@ -26,11 +26,10 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
 
   return (
     <div
-      className="rounded-3 p-3"
+      className="p-3"
       style={{
-        border: `1px solid ${badge.border}30`,
-        background: badge.bg + '40',
-        borderTop: `3px solid ${badge.border}`,
+        border: '1px solid #e5e7eb',
+        background: '#fff',
       }}
     >
       <div className="d-flex align-items-start justify-content-between mb-2">
@@ -95,7 +94,7 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
 
       {/* ── Expanded Content ── */}
       {expanded && (
-        <div className="mb-3 pb-3" style={{ borderTop: `1px solid ${badge.border}20` }}>
+        <div className="mb-3 pb-3" style={{ borderTop: '1px solid #e5e7eb' }}>
           <p className="text-secondary mt-3 mb-2" style={{ fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
             {notice.body}
           </p>
@@ -103,10 +102,6 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
             <span className="text-muted" style={{ fontSize: '0.75rem' }}>
               <i className="bi bi-person me-1" />{notice.admin?.name ?? 'Unknown'}
             </span>
-            <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-              <i className="bi bi-calendar3 me-1" />Published: {formatDate(notice.publishedAt)}
-            </span>
-
           </div>
         </div>
       )}

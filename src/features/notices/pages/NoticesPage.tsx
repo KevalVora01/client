@@ -53,7 +53,6 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
   const openEditModal = (notice: Notice) => { setEditingNotice(notice); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setEditingNotice(null); };
 
-  const totalCount = notices?.totalCount ?? 0;
   const allItems = notices?.items ?? [];
   const pinnedItems = allItems.filter(n => n.isPinned);
   const regularItems = allItems.filter(n => !n.isPinned);
@@ -64,7 +63,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
+          <h4 className="fw-bold mb-3" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
             Notices Management
           </h4>
           <p className="text-muted mb-0 small">
@@ -83,13 +82,8 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
       </div>
 
       {/* ── Filters ── */}
-      <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-3">
+      <div className="d-flex align-items-center justify-content-between gap-3 flex-wrap mb-4">
         <NoticeFilters filters={filters} onFilterChange={updateFilters} />
-        {!loading && (
-          <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-            Showing {totalCount} notices
-          </span>
-        )}
       </div>
 
       {/* ── Pinned Section ── */}

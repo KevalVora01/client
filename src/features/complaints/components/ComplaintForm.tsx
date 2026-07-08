@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ComplaintPriority } from '../types/complaint.types';
+import { showError } from '../../../utils/toast';
 
 interface ComplaintFormProps {
   loading: boolean;
@@ -15,17 +16,16 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
   const [priority, setPriority] = useState<ComplaintPriority>('Medium');
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
 
     if (images.length + files.length > MAX_IMAGES) {
-      setError(`You can upload a maximum of ${MAX_IMAGES} images`);
+      showError(`You can upload a maximum of ${MAX_IMAGES} images`);
       return;
     }
 
-    setError(null);
+    showError(null);
     const newImages = [...images, ...files];
     setImages(newImages);
     setPreviews(newImages.map((f) => URL.createObjectURL(f)));
@@ -41,14 +41,14 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    showError(null);
 
     if (title.trim().length < 3) {
-      setError('Title must be at least 3 characters');
+      showError('Title must be at least 3 characters');
       return;
     }
     if (description.trim().length < 10) {
-      setError('Description must be at least 10 characters');
+      showError('Description must be at least 10 characters');
       return;
     }
 
@@ -70,12 +70,6 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
   return (
     <form onSubmit={handleSubmit}>
-
-      {error && (
-        <div className="alert alert-danger py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '8px' }}>
-          {error}
-        </div>
-      )}
 
       {/* Title */}
       <div className="mb-3">

@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface TableColumn<T> {
   key: string;
   label: string;
@@ -10,6 +12,8 @@ interface AppTableProps<T> {
   data: T[];
   loading?: boolean;
   rowKey: (row: T) => string | number;
+  expandedRowKey?: string | number | null;
+  renderExpandedRow?: (row: T) => React.ReactNode;
   emptyTitle?: string;
   emptySubtitle?: string;
   emptyIcon?: string;
@@ -31,6 +35,8 @@ const AppTable = <T,>({
   data,
   loading = false,
   rowKey,
+  expandedRowKey,
+  renderExpandedRow,
   emptyTitle = "No data found",
   emptySubtitle = "Try adjusting your filters.",
   emptyIcon = "bi-inbox",
@@ -90,15 +96,27 @@ const AppTable = <T,>({
       <table className="table align-middle mb-0">
         {thead}
         <tbody>
-          {data.map((row) => (
-            <tr key={rowKey(row)}>
-              {columns.map((col) => (
-                <td key={col.key} className="py-3 px-3">
-                  {col.render(row)}
-                </td>
-              ))}
-            </tr>
-          ))}
+          {data.map((row) => {
+            const key = rowKey(row);
+            return (
+              <React.Fragment key={key}>
+                <tr>
+                  {columns.map((col) => (
+                    <td key={col.key} className="py-3 px-3">
+                      {col.render(row)}
+                    </td>
+                  ))}
+                </tr>
+                {expandedRowKey === key && renderExpandedRow && (
+                  <tr className="expand-row">
+                    <td colSpan={columns.length} className="p-0" style={{ background: '#f8f9fb' }}>
+                      {renderExpandedRow(row)}
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            );
+          })}
         </tbody>
       </table>
     </div>

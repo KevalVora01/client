@@ -42,7 +42,7 @@ const ComplaintFilters = ({ filters, onFilterChange }: ComplaintFiltersProps) =>
   const hasActiveFilters = !!filters.search || !!filters.status || !!filters.priority;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap">
+    <div className="d-flex align-items-center gap-2 flex-nowrap">
 
       {/* Search */}
       <input

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useComplaintsPage } from '../hooks/useComplaintsPage';
 import { useComplaintMutations } from '../hooks/useComplaintMutations';
 import ComplaintFilters from '../components/ComplaintFilters';
@@ -13,7 +12,6 @@ import type { Complaint, ComplaintStatus } from '../types/complaint.types';
 const ComplaintsPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const navigate = useNavigate();
 
   const {
     complaints,
@@ -48,84 +46,57 @@ const ComplaintsPage = () => {
   const openAddModal = () => setAddModalOpen(true);
   const closeAddModal = () => setAddModalOpen(false);
 
-  const goToDetail = (complaint: Complaint) => navigate(`/complaints/${complaint.id}`);
-
   return (
     <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
-      {/* ── Header Banner ── */}
-      <div
-        className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4 p-4 rounded-3"
-        style={{
-          background: 'linear-gradient(135deg, #1a1f36 0%, #2d2a6e 50%, #1a1f36 100%)',
-        }}
-      >
-        <div className="d-flex align-items-start gap-3">
-          <div
-            className="rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: '48px', height: '48px', backgroundColor: 'rgba(255,255,255,0.12)' }}
-          >
-            <i className="bi bi-clipboard-check text-white" style={{ fontSize: '1.3rem' }} />
-          </div>
-          <div>
-            <h4 className="fw-bold mb-1 text-white" style={{ fontSize: '1.3rem' }}>
-              Complaints
-            </h4>
-            <p className="mb-0 small" style={{ color: 'rgba(255,255,255,0.7)' }}>
-              {isAdmin
-                ? 'Review and resolve complaints raised by residents.'
-                : 'Track the status of complaints you have raised.'}
-            </p>
-          </div>
+      {/* ── Header ── */}
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
+        <div>
+          <h4 className="fw-bold mb-3" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
+            Complaints Management
+          </h4>
+          <p className="text-muted mb-0 small">
+            Review and resolve resident issues.
+          </p>
         </div>
         {!isAdmin && (
           <button
-            className="btn d-flex align-items-center gap-1 fw-medium"
+            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
             onClick={openAddModal}
-            style={{
-              fontSize: '0.875rem', borderRadius: '8px', height: '40px',
-              backgroundColor: 'rgba(255,255,255,0.15)', color: '#fff',
-              border: '1px solid rgba(255,255,255,0.2)',
-            }}
+            style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
           >
             <i className="bi bi-plus-lg" /> Raise Complaint
           </button>
         )}
       </div>
 
-      {/* ── Content Card ── */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
-
-        {/* Filters */}
-        <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <ComplaintFilters
-            filters={filters}
-            onFilterChange={updateFilters}
-          />
-        </div>
-
-        {/* Complaint List */}
-        <div className="card-body p-3">
-          <ComplaintList
-            complaints={complaints?.items ?? []}
-            loading={loading}
-            onView={goToDetail}
-            onUpdateStatus={handleUpdateStatus}
-            isAdmin={isAdmin}
-          />
-        </div>
-
-        {/* Pagination */}
-        {!loading && (complaints?.items?.length ?? 0) > 0 && (
-          <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
-            <Pagination
-              pagination={pagination}
-              onPageChange={changePage}
-            />
-          </div>
-        )}
-
+      {/* ── Filters ── */}
+      <div className="d-flex align-items-center gap-3 mb-3">
+        <ComplaintFilters
+          filters={filters}
+          onFilterChange={updateFilters}
+        />
       </div>
+
+      {/* ── Complaint Table ── */}
+      <div className="mb-3">
+        <ComplaintList
+          complaints={complaints?.items ?? []}
+          loading={loading}
+          onUpdateStatus={handleUpdateStatus}
+          isAdmin={isAdmin}
+        />
+      </div>
+
+      {/* ── Pagination ── */}
+      {!loading && (complaints?.items?.length ?? 0) > 0 && (
+        <div className="d-flex justify-content-end mb-4">
+          <Pagination
+            pagination={pagination}
+            onPageChange={changePage}
+          />
+        </div>
+      )}
 
       {/* ── Add Complaint Modal (Resident only) ── */}
       {addModalOpen && (

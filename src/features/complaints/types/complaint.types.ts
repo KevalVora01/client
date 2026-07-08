@@ -7,6 +7,7 @@ export interface ComplaintResident {
   id: number;
   userId: number;
   apartmentId: number;
+  user?: { id: number; name: string } | null;
 }
 
 export interface ComplaintImage {
@@ -36,6 +37,15 @@ export interface ComplaintListParams {
   status?: ComplaintStatus;
   priority?: ComplaintPriority;
   search?: string;
+}
+
+export interface Comment {
+  id: number;
+  complaintId: number;
+  userId: number;
+  content: string;
+  createdAt: string;
+  user?: { id: number; name: string } | null;
 }
 
 export interface UpdateComplaintStatusPayload {

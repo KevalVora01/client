@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Select from '../../../components/Select/Select';
 import type { ComplaintPriority } from '../types/complaint.types';
 import { showError } from '../../../utils/toast';
 
@@ -93,24 +94,26 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
           placeholder="Describe the issue in detail..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          style={{ borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical' }}
+          rows={5}
+          style={{ borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical', minHeight: '120px' }}
         />
       </div>
 
       {/* Priority */}
       <div className="mb-3">
         <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Priority</label>
-        <select
-          className="form-select shadow-none"
+        <Select
+          name="priority"
+          options={[
+            { value: 'Low', label: 'Low Priority' },
+            { value: 'Medium', label: 'Medium Priority' },
+            { value: 'High', label: 'High Priority' },
+          ]}
+          placeholder="Select priority"
           value={priority}
           onChange={(e) => setPriority(e.target.value as ComplaintPriority)}
-          style={{ borderRadius: '8px', fontSize: '0.9rem' }}
-        >
-          <option value="Low">Low</option>
-          <option value="Medium">Medium</option>
-          <option value="High">High</option>
-        </select>
+          className="shadow-none"
+        />
       </div>
 
       {/* Images */}
@@ -118,15 +121,36 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
         <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
           Attach Photos <span className="text-secondary fw-normal">(optional, max {MAX_IMAGES})</span>
         </label>
-        <input
-          type="file"
-          className="form-control shadow-none"
-          accept="image/*"
-          multiple
-          onChange={handleFileChange}
-          disabled={images.length >= MAX_IMAGES}
-          style={{ borderRadius: '8px', fontSize: '0.85rem' }}
-        />
+
+        <div className="d-flex align-items-center gap-3">
+          <input
+            type="file"
+            id="complaint-images"
+            accept="image/*"
+            multiple
+            onChange={handleFileChange}
+            disabled={images.length >= MAX_IMAGES}
+            hidden
+          />
+          <label
+            htmlFor="complaint-images"
+            className="btn d-inline-flex align-items-center gap-2 fw-medium"
+            style={{
+              borderRadius: '8px', fontSize: '0.85rem', border: '1px solid #d1d5db',
+              color: '#374151', backgroundColor: '#fff', padding: '8px 16px', cursor: 'pointer',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#9ca3af'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+          >
+            <i className="bi bi-paperclip" />
+            Choose Photos
+            {images.length > 0 && (
+              <span className="badge rounded-pill" style={{ backgroundColor: '#1a1f36', fontSize: '0.7rem', fontWeight: 600 }}>
+                {images.length}
+              </span>
+            )}
+          </label>
+        </div>
 
         {previews.length > 0 && (
           <div className="d-flex gap-2 flex-wrap mt-3">
@@ -168,7 +192,7 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
         </button>
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-dark"
           disabled={loading}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >

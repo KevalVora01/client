@@ -105,14 +105,6 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
       render: (c) => <ComplaintPriorityBadge priority={c.priority} />,
     },
     {
-      key: 'date', label: 'Date', adminWidth: '12%', residentWidth: '16%',
-      render: (c) => (
-        <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-          {timeAgo(c.createdAt)}
-        </span>
-      ),
-    },
-    {
       key: 'apt', label: 'Apt', adminWidth: '9%', residentWidth: '0%',
       render: (c) => {
         const apt = c.resident?.apartment;
@@ -123,6 +115,14 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
           </span>
         );
       },
+    },
+    {
+      key: 'date', label: 'Date', adminWidth: '12%', residentWidth: '16%',
+      render: (c) => (
+        <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
+          {timeAgo(c.createdAt)}
+        </span>
+      ),
     },
     {
       key: 'actions', label: 'Actions', adminWidth: '16%', residentWidth: '0%',
@@ -159,13 +159,13 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
         <div className="row g-4">
           <div className="col-12 col-md-5 col-lg-4">
             {detail.images && detail.images.length > 0 && (
-              <div className="d-flex gap-2 flex-wrap mb-3">
+              <div className="mb-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {detail.images.map((img) => (
-                  <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                  <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
                     <img
                       src={img.imageUrl}
                       alt=""
-                      style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                      style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                     />
                   </a>
                 ))}

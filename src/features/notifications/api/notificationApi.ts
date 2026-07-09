@@ -1,4 +1,5 @@
 import api from '../../../config/api';
+import type { PaginatedResult } from '../../../types/pagination.types';
 
 export interface NotificationItem {
   id: number;
@@ -11,18 +12,8 @@ export interface NotificationItem {
   createdAt: string;
 }
 
-interface PaginatedResponse<T> {
-  items: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
-
 export const notificationApi = {
-  getNotifications: async (pageNumber = 1, pageSize = 20): Promise<PaginatedResponse<NotificationItem>> => {
+  getNotifications: async (pageNumber = 1, pageSize = 20): Promise<PaginatedResult<NotificationItem>> => {
     const response = await api.get('/notifications', { params: { pageNumber, pageSize } });
     return response.data.data.data;
   },

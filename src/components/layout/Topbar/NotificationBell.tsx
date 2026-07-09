@@ -80,10 +80,7 @@ const NotificationBell = () => {
 
     const handleNewNotification = (n: unknown) => {
       const item = n as NotificationItem;
-      setNotifications((prev) => {
-        const next: NotificationItem[] = [item, ...prev];
-        return next.slice(0, 50);
-      });
+      setNotifications((prev) => [item, ...prev]);
       setUnreadCount((c) => c + 1);
       toast.info(item.title);
     };

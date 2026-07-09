@@ -8,6 +8,7 @@ export interface ComplaintResident {
   userId: number;
   apartmentId: number;
   user?: { id: number; name: string } | null;
+  apartment?: { block: string; floorNumber: number; unitNumber: string } | null;
 }
 
 export interface ComplaintImage {

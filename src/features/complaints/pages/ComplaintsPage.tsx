@@ -4,7 +4,6 @@ import { useComplaintMutations } from '../hooks/useComplaintMutations';
 import ComplaintFilters from '../components/ComplaintFilters';
 import ComplaintList from '../components/ComplaintList';
 import ComplaintForm from '../components/ComplaintForm';
-import Pagination from '../../../components/Pagination/Pagination';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import useAuth from '../../../hooks/useAuth';
 import type { Complaint, ComplaintStatus } from '../types/complaint.types';
@@ -85,18 +84,10 @@ const ComplaintsPage = () => {
           loading={loading}
           onUpdateStatus={handleUpdateStatus}
           isAdmin={isAdmin}
+          pagination={pagination}
+          onPageChange={changePage}
         />
       </div>
-
-      {/* ── Pagination ── */}
-      {!loading && (complaints?.items?.length ?? 0) > 0 && (
-        <div className="d-flex justify-content-end mb-4">
-          <Pagination
-            pagination={pagination}
-            onPageChange={changePage}
-          />
-        </div>
-      )}
 
       {/* ── Add Complaint Modal (Resident only) ── */}
       {addModalOpen && (

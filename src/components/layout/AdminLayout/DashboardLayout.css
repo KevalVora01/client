@@ -34,7 +34,7 @@
 }
 
 /* ── Mobile behavior ── */
-@media (max-width: 760px) {
+@media (max-width: 767px) {
   .dashboard-layout__sidebar {
     position: fixed;
     top: 0;
@@ -47,5 +47,13 @@
 
   .dashboard-layout__sidebar--open {
     transform: translateX(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .dashboard-layout__sidebar {
+    transform: none !important;
+    position: relative;
+    z-index: auto;
   }
 }

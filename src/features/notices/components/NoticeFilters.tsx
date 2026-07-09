@@ -47,51 +47,55 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
       {/* Search */}
       <input
         type="text"
-        className="form-control form-control-sm shadow-none border-light-subtle"
+        className="form-control shadow-none border-light-subtle"
         placeholder="Search notices..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ minWidth: '160px', maxWidth: '200px', borderRadius: '8px', fontSize: '0.875rem' }}
+        style={{ minWidth: '160px', maxWidth: '200px', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
       />
 
       {/* Category */}
-      <Select
-        name="category"
-        options={CATEGORY_OPTIONS}
-        placeholder="All categories"
-        value={filters.category ?? ''}
-        onChange={(e) =>
-          onFilterChange({
-            category: (e.target.value as NoticeCategory) || undefined,
-            pageNumber: 1,
-          })
-        }
-        style={{ minWidth: '130px', maxWidth: '150px' }}
-        className="shadow-none"
-      />
+      <div style={{ width: '130px' }}>
+        <Select
+          name="category"
+          options={CATEGORY_OPTIONS}
+          placeholder="All categories"
+          value={filters.category ?? ''}
+          onChange={(e) =>
+            onFilterChange({
+              category: (e.target.value as NoticeCategory) || undefined,
+              pageNumber: 1,
+            })
+          }
+          className="shadow-none"
+          style={{ height: '38px' }}
+        />
+      </div>
 
       {/* Pinned */}
-      <Select
-        name="isPinned"
-        options={PINNED_OPTIONS}
-        placeholder="All notices"
-        value={filters.isPinned === undefined ? '' : String(filters.isPinned)}
-        onChange={(e) =>
-          onFilterChange({
-            isPinned: e.target.value === '' ? undefined : e.target.value === 'true',
-            pageNumber: 1,
-          })
-        }
-        style={{ minWidth: '120px', maxWidth: '140px' }}
-        className="shadow-none"
-      />
+      <div style={{ width: '130px' }}>
+        <Select
+          name="isPinned"
+          options={PINNED_OPTIONS}
+          placeholder="All notices"
+          value={filters.isPinned === undefined ? '' : String(filters.isPinned)}
+          onChange={(e) =>
+            onFilterChange({
+              isPinned: e.target.value === '' ? undefined : e.target.value === 'true',
+              pageNumber: 1,
+            })
+          }
+          className="shadow-none"
+          style={{ height: '38px' }}
+        />
+      </div>
 
       {/* Clear filters */}
       {hasActiveFilters && (
         <button
           className="btn d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
           onClick={handleReset}
-          style={{ height: '40px', fontSize: '0.85rem', borderRadius: '8px', border: '1px solid #d1d5db', color: '#6b7280', backgroundColor: '#fff' }}
+          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px', border: '1px solid #d1d5db', color: '#6b7280', backgroundColor: '#fff' }}
           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#9ca3af'; }}
           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#d1d5db'; }}
         >

@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { complaintApi } from '../api/complaintApi';
 import AppTable from '../../../components/AppTable/AppTable';
 import Select from '../../../components/Select/Select';
+import Pagination from '../../../components/Pagination/Pagination';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
 import type { SelectOption } from '../../../components/Select/Select';
+import type { PaginatedResult } from '../../../types/pagination.types';
 import ComplaintStatusBadge from './ComplaintStatusBadge';
 import ComplaintPriorityBadge from './ComplaintPriorityBadge';
 import ComplaintComments from './ComplaintComments';
@@ -16,6 +18,8 @@ interface ComplaintListProps {
   loading: boolean;
   onUpdateStatus?: (complaint: Complaint, status: ComplaintStatus) => void;
   isAdmin?: boolean;
+  pagination?: Omit<PaginatedResult<unknown>, 'items'> | null;
+  onPageChange?: (page: number) => void;
 }
 
 const STATUS_OPTIONS: SelectOption[] = [
@@ -38,7 +42,7 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }: ComplaintListProps) => {
+const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, pagination, onPageChange }: ComplaintListProps) => {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
 
@@ -66,11 +70,9 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
     onUpdateStatus?.(complaint, value as ComplaintStatus);
   };
 
-  const columns: TableColumn<Complaint>[] = [
+  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; render: (c: Complaint) => React.ReactNode }[] = [
     {
-      key: 'expand',
-      label: '',
-      width: '40px',
+      key: 'expand', label: '', adminWidth: '40px', residentWidth: '40px',
       render: (c) => (
         <div
           className="d-flex align-items-center justify-content-center"
@@ -85,9 +87,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
       ),
     },
     {
-      key: 'title',
-      label: 'Title',
-      width: '30%',
+      key: 'title', label: 'Title', adminWidth: '30%', residentWidth: '40%',
       render: (c) => (
         <div style={{ cursor: 'pointer' }} onClick={() => handleExpand(c)}>
           <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
@@ -97,21 +97,15 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      width: '14%',
+      key: 'status', label: 'Status', adminWidth: '14%', residentWidth: '19%',
       render: (c) => <ComplaintStatusBadge status={c.status} />,
     },
     {
-      key: 'priority',
-      label: 'Priority',
-      width: '15%',
+      key: 'priority', label: 'Priority', adminWidth: '15%', residentWidth: '20%',
       render: (c) => <ComplaintPriorityBadge priority={c.priority} />,
     },
     {
-      key: 'date',
-      label: 'Date',
-      width: '12%',
+      key: 'date', label: 'Date', adminWidth: '12%', residentWidth: '16%',
       render: (c) => (
         <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
           {timeAgo(c.createdAt)}
@@ -119,21 +113,21 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
       ),
     },
     {
-      key: 'apt',
-      label: 'Apt',
-      width: '9%',
-      render: (c) => (
-        <span className="text-muted" style={{ fontSize: '0.8rem' }}>
-          {c.resident ? `Apt` : '\u2014'}
-        </span>
-      ),
+      key: 'apt', label: 'Apt', adminWidth: '9%', residentWidth: '0%',
+      render: (c) => {
+        const apt = c.resident?.apartment;
+        const label = apt ? `${apt.block}-${apt.floorNumber}${apt.unitNumber}` : '\u2014';
+        return (
+          <span className="text-muted" style={{ fontSize: '0.8rem' }}>
+            {label}
+          </span>
+        );
+      },
     },
     {
-      key: 'actions',
-      label: 'Actions',
-      width: '16%',
+      key: 'actions', label: 'Actions', adminWidth: '16%', residentWidth: '0%',
       render: (c) => (
-        <div onClick={(e) => e.stopPropagation()}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: '130px' }}>
           {isAdmin && c.status !== 'Resolved' && onUpdateStatus ? (
             <Select
               name="status"
@@ -141,13 +135,22 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
               value={c.status}
               onChange={(e) => handleStatusChange(c, e.target.value)}
               className="shadow-none"
-              style={{ height: '32px', fontSize: '0.8rem', minWidth: '120px' }}
+              style={{ height: '38px', fontSize: '0.8rem' }}
             />
           ) : null}
         </div>
       ),
     },
   ];
+
+  const columns: TableColumn<Complaint>[] = allColumnDefs
+    .filter((col) => isAdmin || (col.adminWidth !== '0%' && col.residentWidth !== '0%'))
+    .map((col) => ({
+      key: col.key,
+      label: col.label,
+      width: isAdmin ? col.adminWidth : col.residentWidth,
+      render: col.render,
+    }));
 
   const renderExpandedRow = (complaint: Complaint) => {
     const detail = expandedDetail?.id === complaint.id ? expandedDetail : complaint;
@@ -174,7 +177,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
             </p>
           </div>
 
-          <div className="col-12 col-md-7 col-lg-8">
+          <div className="col-12 col-md-7 col-lg-8 d-flex flex-column" style={{ height: '460px' }}>
             <ComplaintComments
               complaintId={complaint.id}
               status={complaint.status}
@@ -196,7 +199,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
   };
 
   return (
-    <div>
+    <div className="table-card">
       <AppTable
         columns={columns}
         data={complaints}
@@ -209,6 +212,14 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false }:
         emptyIcon="bi-clipboard-check"
         skeletonRows={4}
       />
+      {!loading && (complaints?.length ?? 0) > 0 && pagination && onPageChange && (
+        <div className="table-card__footer">
+          <Pagination
+            pagination={pagination}
+            onPageChange={onPageChange}
+          />
+        </div>
+      )}
     </div>
   );
 };

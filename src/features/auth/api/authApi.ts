@@ -29,7 +29,6 @@ export const refreshTokenApi = async (): Promise<RefreshTokenResponse> => {
 // ─── Get current user ─────────────────────────────────────────────
 export const getMeApi = async (): Promise<MeResponse> => {
   const response = await api.get<ApiResponse<MeResponse>>('/auth/me');
-  console.log('getMeApi response:', response.data);
   return response.data.data;
 };
 

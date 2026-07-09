@@ -92,8 +92,8 @@ const AppTable = <T,>({
   }
 
   return (
-    <div className="table-responsive">
-      <table className="table align-middle mb-0">
+    <div className="table-responsive" style={{ overflowX: 'auto' }}>
+      <table className="table align-middle mb-0" style={{ minWidth: '1100px' }}>
         {thead}
         <tbody>
           {data.map((row) => {

@@ -2,7 +2,7 @@ import type { ComplaintPriority, ComplaintStatus } from '../types/complaint.type
 
 export const PRIORITY_CONFIG: Record<ComplaintPriority, { bg: string; color: string; border: string }> = {
   Low: { bg: '#f3f4f6', color: '#4b5563', border: '#9ca3af' },
-  Medium: { bg: '#fef3c7', color: '#92400e', border: '#f59e0b' },
+  Medium: { bg: '#e0e7ff', color: '#3730a3', border: '#6366f1' },
   High: { bg: '#fee2e2', color: '#991b1b', border: '#ef4444' },
 };
 

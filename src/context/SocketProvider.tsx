@@ -21,7 +21,6 @@ export const SocketProvider = ({ children }: { children: ReactNode }) => {
     });
 
     s.on("connect", () => {
-      console.log("Socket connected:", s.id);
       setSocket(s);
     });
 

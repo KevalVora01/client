@@ -128,9 +128,6 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
           <p className="fw-semibold mb-0" style={{ fontSize: '0.9rem', color: '#1a1f36' }}>
             {otherPerson.name}
           </p>
-          <p className="text-secondary mb-0" style={{ fontSize: '0.75rem' }}>
-            {comments.length} message{comments.length !== 1 ? 's' : ''}
-          </p>
         </div>
       </div>
 
@@ -143,8 +140,6 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
           padding: '16px 16px 8px',
           gap: '14px',
           backgroundColor: '#f0f2f5',
-          minHeight: '240px',
-          maxHeight: '400px',
         }}
       >
         {loading ? (

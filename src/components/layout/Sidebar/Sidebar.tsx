@@ -117,6 +117,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
               <NavLink
                 to={path}
                 end={path === '/'}
+                onClick={onClose}
                 className="sidebar-nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none"
                 style={{ fontSize: "0.92rem", color: "#2c2f33" }}
               >

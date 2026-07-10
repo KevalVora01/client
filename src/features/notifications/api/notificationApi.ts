@@ -13,7 +13,7 @@ export interface NotificationItem {
 }
 
 export const notificationApi = {
-  getNotifications: async (pageNumber = 1, pageSize = 20): Promise<PaginatedResult<NotificationItem>> => {
+  getNotifications: async (pageNumber = 1, pageSize = 10): Promise<PaginatedResult<NotificationItem>> => {
     const response = await api.get('/notifications', { params: { pageNumber, pageSize } });
     return response.data.data.data;
   },
@@ -29,5 +29,13 @@ export const notificationApi = {
 
   markAllAsRead: async (): Promise<void> => {
     await api.patch('/notifications/read-all');
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/notifications/${id}`);
+  },
+
+  deleteAll: async (): Promise<void> => {
+    await api.delete('/notifications');
   },
 };

@@ -12,16 +12,10 @@ const ICON_MAP: Record<string, typeof FileText> = {
   notice_created: Megaphone,
 };
 
-const BG_MAP: Record<string, string> = {
-  complaint_status_changed: '#fef3c7',
-  complaint_created: '#fef3c7',
-  notice_created: '#eef2ff',
-};
-
-const COLOR_MAP: Record<string, string> = {
-  complaint_status_changed: '#92400e',
-  complaint_created: '#92400e',
-  notice_created: '#4338ca',
+const CLASS_MAP: Record<string, string> = {
+  complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
+  complaint_created: 'bg-warning-subtle text-warning-emphasis',
+  notice_created: 'bg-primary-subtle text-primary-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
@@ -103,7 +97,7 @@ const NotificationBell = () => {
     e.stopPropagation();
     setNotifications((prev) => prev.filter((n) => n.id !== id));
     try {
-      await notificationApi.markAsRead([id]);
+      await notificationApi.delete(id);
       setUnreadCount((c) => Math.max(0, c - 1));
     } catch {
       // silent
@@ -127,32 +121,31 @@ const NotificationBell = () => {
   const handleClear = async (e: React.MouseEvent) => {
     e.stopPropagation();
     setNotifications([]);
+    setUnreadCount(0);
     try {
-      await notificationApi.markAllAsRead();
-      setUnreadCount(0);
+      await notificationApi.deleteAll();
     } catch {
       // silent
     }
   };
 
   const iconFor = (type: string) => ICON_MAP[type] ?? FileText;
-  const bgFor = (type: string) => BG_MAP[type] ?? '#f3f4f6';
-  const colorFor = (type: string) => COLOR_MAP[type] ?? '#6b7280';
+  const classesFor = (type: string) => CLASS_MAP[type] ?? 'bg-body-secondary text-body-secondary';
 
   return (
     <div className="dropdown">
       <button
-        className="btn btn-light rounded-circle position-relative d-flex align-items-center justify-content-center"
-        style={{ width: 44, height: 44, transition: 'background 0.2s' }}
+        className="btn btn-light border border-light-subtle rounded-circle position-relative d-flex align-items-center justify-content-center shadow-sm text-secondary"
+        style={{ width: '40px', height: '40px' }}
         type="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
         onClick={handleDropdownOpen}
       >
-        <Bell size={22} strokeWidth={1.8} />
+        <Bell size={20} strokeWidth={2} className={unreadCount > 0 ? 'text-primary' : 'text-secondary'} />
         {unreadCount > 0 && (
-          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-flex align-items-center justify-content-center"
-            style={{ minWidth: 20, height: 20, fontSize: '0.65rem', fontWeight: 600, padding: '0 4px' }}
+          <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-white shadow-sm"
+            style={{ minWidth: '18px', height: '18px', fontSize: '0.62rem', fontWeight: 700, padding: '0 4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
             {unreadCount > 9 ? '9+' : unreadCount}
             <span className="visually-hidden">unread notifications</span>
@@ -161,16 +154,16 @@ const NotificationBell = () => {
       </button>
 
       <div
-        className="dropdown-menu dropdown-menu-end shadow-lg border-0 p-0 mt-2"
-        style={{ width: 380, borderRadius: '14px', overflow: 'hidden' }}
+        className="dropdown-menu dropdown-menu-end shadow-lg border border-light-subtle p-0 mt-2 rounded-4 overflow-hidden"
+        style={{ width: '380px' }}
       >
         {/* ── Header ── */}
-        <div className="d-flex align-items-center justify-content-between px-4 py-3" style={{ background: '#f8f9fb', borderBottom: '1px solid #e5e7eb' }}>
+        <div className="d-flex align-items-center justify-content-between px-4 py-3 bg-light border-bottom border-light-subtle">
           <div className="d-flex align-items-center gap-2">
-            <span className="fw-bold" style={{ fontSize: '0.95rem', color: '#1a1f36' }}>Notifications</span>
+            <span className="fw-bold text-dark" style={{ fontSize: '0.92rem' }}>Notifications</span>
             {unreadCount > 0 && (
-              <span className="fw-semibold d-flex align-items-center justify-content-center text-white rounded-pill"
-                style={{ minWidth: 20, height: 20, fontSize: '0.65rem', backgroundColor: '#6366f1', padding: '0 6px' }}
+              <span className="badge rounded-pill bg-primary"
+                style={{ fontSize: '0.68rem', padding: '3px 6px' }}
               >
                 {unreadCount}
               </span>
@@ -178,86 +171,79 @@ const NotificationBell = () => {
           </div>
           {notifications.length > 0 && (
             <button
-              className="btn btn-sm d-flex align-items-center gap-1 text-decoration-none fw-medium"
+              className="btn btn-sm btn-link text-decoration-none fw-semibold text-primary d-flex align-items-center gap-1 p-1 rounded"
               onClick={handleClear}
-              style={{ fontSize: '0.78rem', color: '#6366f1', background: 'transparent', border: 'none', padding: '4px 8px', borderRadius: '6px' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = '#eef2ff'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+              style={{ fontSize: '0.78rem' }}
             >
-              <CheckCheck size={14} strokeWidth={2} />
-              Mark all read
+              <CheckCheck size={14} strokeWidth={2.2} />
+              Clear all
             </button>
           )}
         </div>
 
         {/* ── Body ── */}
         {notifications.length === 0 ? (
-          <div className="text-center py-5" style={{ background: '#fff' }}>
+          <div className="text-center py-5 bg-white">
             <div
-              className="d-flex align-items-center justify-content-center mx-auto mb-3"
-              style={{ width: 56, height: 56, borderRadius: '50%', background: '#f3f4f6' }}
+              className="d-flex align-items-center justify-content-center mx-auto mb-3 rounded-circle bg-light"
+              style={{ width: '56px', height: '56px' }}
             >
-              <Bell size={24} style={{ color: '#d1d5db' }} />
+              <Bell size={24} className="text-secondary" />
             </div>
-            <p className="fw-semibold mb-1" style={{ fontSize: '0.9rem', color: '#4b5563' }}>No notifications yet</p>
-            <p className="mb-0" style={{ fontSize: '0.8rem', color: '#9ca3af' }}>We'll let you know when something arrives.</p>
+            <p className="fw-semibold mb-1 text-dark" style={{ fontSize: '0.9rem' }}>No notifications yet</p>
+            <p className="mb-0 text-muted" style={{ fontSize: '0.8rem' }}>We'll let you know when something arrives.</p>
           </div>
         ) : (
-          <ul className="list-unstyled mb-0" style={{ maxHeight: 400, overflowY: 'auto' }}>
+          <div className="list-group list-group-flush" style={{ maxHeight: '380px', overflowY: 'auto' }}>
             {notifications.map((n) => {
               const Icon = iconFor(n.type);
               return (
-                <li
+                <div
                   key={n.id}
-                  className="border-bottom"
-                  style={{ borderColor: '#f3f4f6 !important', transition: 'background 0.15s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f9fafb'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                  className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between border-0 border-bottom border-light-subtle px-4 py-3 ${!n.isRead ? 'bg-primary bg-opacity-10' : ''}`}
                 >
                   <div
-                    className="d-flex align-items-start gap-3 px-4 py-3"
+                    className="d-flex align-items-start gap-3 flex-grow-1 min-w-0"
                     style={{ cursor: 'pointer' }}
                     onClick={() => handleNavigate(n)}
                   >
                     <div
-                      className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 position-relative"
-                      style={{ width: 40, height: 40, backgroundColor: bgFor(n.type), color: colorFor(n.type), marginTop: '2px' }}
+                      className={`rounded-3 d-flex align-items-center justify-content-center flex-shrink-0 ${classesFor(n.type)}`}
+                      style={{ width: '40px', height: '40px' }}
                     >
-                      <Icon size={18} strokeWidth={1.8} />
+                      <Icon size={18} strokeWidth={2} />
                     </div>
 
-                    <div className="flex-grow-1 overflow-hidden" style={{ minWidth: 0 }}>
-                      <p className="mb-0 fw-semibold text-truncate" style={{ fontSize: '0.85rem', color: '#1a1f36' }}>
+                    <div className="flex-grow-1 min-w-0">
+                      <p className="mb-0 fw-semibold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
                         {n.title}
                       </p>
-                      <p className="mb-0 text-truncate" style={{ fontSize: '0.78rem', color: '#6b7280', marginTop: '2px' }}>
+                      <p className="mb-0 text-secondary text-truncate" style={{ fontSize: '0.78rem', marginTop: '2px' }}>
                         {n.body}
                       </p>
-                      <p className="mb-0" style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: '4px' }}>
+                      <p className="mb-0 text-muted" style={{ fontSize: '0.7rem', marginTop: '4px' }}>
                         {timeAgo(n.createdAt)}
                       </p>
                     </div>
-
-                    <div className="d-flex align-items-start gap-1 flex-shrink-0" style={{ paddingTop: '2px' }}>
-                      {!n.isRead && (
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#6366f1', display: 'inline-block' }} />
-                      )}
-                      <button
-                        className="btn border-0 p-0 d-flex align-items-center justify-content-center flex-shrink-0"
-                        onClick={(e) => handleDismiss(n.id, e)}
-                        aria-label="Dismiss"
-                        style={{ width: 22, height: 22, minWidth: 22, borderRadius: '50%', opacity: 0.3, transition: 'opacity 0.15s, background 0.15s', color: '#6b7280' }}
-                        onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.background = '#f3f4f6'; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.3'; e.currentTarget.style.background = 'transparent'; }}
-                      >
-                        <X size={13} strokeWidth={2} />
-                      </button>
-                    </div>
                   </div>
-                </li>
+
+                  <div className="d-flex align-items-center gap-2 ps-3 flex-shrink-0">
+                    {!n.isRead && (
+                      <span className="bg-primary rounded-circle" style={{ width: '8px', height: '8px', display: 'inline-block', boxShadow: '0 0 6px rgba(13, 110, 253, 0.5)' }} />
+                    )}
+                    <button
+                      className="btn btn-light btn-sm border-0 rounded-circle d-flex align-items-center justify-content-center p-0"
+                      onClick={(e) => handleDismiss(n.id, e)}
+                      aria-label="Dismiss"
+                      style={{ width: '24px', height: '24px' }}
+                    >
+                      <X size={14} strokeWidth={2.2} className="text-secondary" />
+                    </button>
+                  </div>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
     </div>

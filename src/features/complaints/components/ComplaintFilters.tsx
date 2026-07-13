@@ -40,20 +40,22 @@ const ComplaintFilters = ({ filters, onFilterChange }: ComplaintFiltersProps) =>
   const hasActiveFilters = !!filters.search || !!filters.status || !!filters.priority;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-nowrap">
+    <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
 
       {/* Search */}
-      <input
-        type="text"
-        className="form-control shadow-none border-light-subtle"
-        placeholder="Search complaints..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ maxWidth: '220px', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
-      />
+      <div className="flex-grow-1" style={{ maxWidth: '400px' }}>
+        <input
+          type="text"
+          className="form-control shadow-none border-light-subtle"
+          placeholder="Search complaints..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ width: '100%', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
+        />
+      </div>
 
       {/* Status */}
-      <div style={{ width: '130px' }}>
+      <div style={{ minWidth: '130px' }}>
         <Select
           name="status"
           options={STATUS_OPTIONS}
@@ -71,7 +73,7 @@ const ComplaintFilters = ({ filters, onFilterChange }: ComplaintFiltersProps) =>
       </div>
 
       {/* Priority */}
-      <div style={{ width: '130px' }}>
+      <div style={{ minWidth: '130px' }}>
         <Select
           name="priority"
           options={PRIORITY_OPTIONS}

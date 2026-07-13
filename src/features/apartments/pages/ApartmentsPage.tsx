@@ -88,7 +88,11 @@ const ApartmentsPage = () => {
         </div>
 
         <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
-          <Pagination pagination={pagination} onPageChange={changePage} />
+          <Pagination
+            pagination={pagination}
+            onPageChange={changePage}
+            onPageSizeChange={(size) => updateFilters({ pageSize: size })}
+          />
         </div>
       </div>
 

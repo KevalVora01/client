@@ -9,6 +9,7 @@ import { notificationApi, type NotificationItem } from '../../../features/notifi
 const ICON_MAP: Record<string, typeof FileText> = {
   complaint_status_changed: MessageSquareWarning,
   complaint_created: MessageSquareWarning,
+  complaint_comment_added: MessageSquareWarning,
   notice_created: Megaphone,
   maintenance_due_soon: ReceiptText,
   maintenance_due_today: ReceiptText,
@@ -20,6 +21,7 @@ const ICON_MAP: Record<string, typeof FileText> = {
 const CLASS_MAP: Record<string, string> = {
   complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
   complaint_created: 'bg-warning-subtle text-warning-emphasis',
+  complaint_comment_added: 'bg-warning-subtle text-warning-emphasis',
   notice_created: 'bg-primary-subtle text-primary-emphasis',
   maintenance_due_soon: 'bg-info-subtle text-info-emphasis',
   maintenance_due_today: 'bg-warning-subtle text-warning-emphasis',
@@ -31,6 +33,7 @@ const CLASS_MAP: Record<string, string> = {
 const NAV_MAP: Record<string, string> = {
   complaint_status_changed: '/complaints',
   complaint_created: '/complaints',
+  complaint_comment_added: '/complaints',
   notice_created: '/notices',
   maintenance_due_soon: '/maintenance',
   maintenance_due_today: '/maintenance',
@@ -129,7 +132,13 @@ const NotificationBell = () => {
         // silent
       }
     }
-    const path = NAV_MAP[n.type];
+    let path = NAV_MAP[n.type];
+    if (path && (n.type === 'complaint_comment_added' || n.type === 'complaint_created' || n.type === 'complaint_status_changed')) {
+      const complaintId = n.data?.complaintId;
+      if (complaintId) {
+        path = `${path}?expandedId=${complaintId}`;
+      }
+    }
     if (path) navigate(path);
   };
 

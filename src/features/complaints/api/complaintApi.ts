@@ -44,4 +44,8 @@ export const complaintApi = {
     return response.data.data.data;
   },
 
+  deleteComplaint: async (id: number): Promise<void> => {
+    await api.delete(`/complaints/${id}`);
+  },
+
 };

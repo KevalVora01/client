@@ -49,10 +49,25 @@ export const useComplaintMutations = (onSuccess?: () => void) => {
     }
   };
 
+  const deleteComplaint = async (id: number): Promise<boolean> => {
+    try {
+      setLoading(true);
+      await complaintApi.deleteComplaint(id);
+      onSuccess?.();
+      return true;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, 'Failed to delete complaint'));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     createComplaint,
     updateStatus,
     addComment,
+    deleteComplaint,
     loading,
   };
 };

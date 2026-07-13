@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { complaintApi } from '../api/complaintApi';
 import AppTable from '../../../components/AppTable/AppTable';
 import Select from '../../../components/Select/Select';
@@ -12,14 +13,17 @@ import ComplaintComments from './ComplaintComments';
 import type { Complaint, ComplaintStatus } from '../types/complaint.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
+import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 
 interface ComplaintListProps {
   complaints: Complaint[];
   loading: boolean;
   onUpdateStatus?: (complaint: Complaint, status: ComplaintStatus) => void;
+  onDeleteComplaint?: (complaintId: number) => Promise<void>;
   isAdmin?: boolean;
   pagination?: Omit<PaginatedResult<unknown>, 'items'> | null;
   onPageChange?: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
 }
 
 const STATUS_OPTIONS: SelectOption[] = [
@@ -42,9 +46,21 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
-const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, pagination, onPageChange }: ComplaintListProps) => {
+const ComplaintList = ({
+  complaints,
+  loading,
+  onUpdateStatus,
+  onDeleteComplaint,
+  isAdmin = false,
+  pagination,
+  onPageChange,
+  onPageSizeChange
+}: ComplaintListProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
+  const [deletingComplaint, setDeletingComplaint] = useState<Complaint | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const fetchDetail = async (complaintId: number) => {
     try {
@@ -55,10 +71,48 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
     }
   };
 
+  useEffect(() => {
+    const expId = searchParams.get('expandedId');
+    if (expId) {
+      const id = Number(expId);
+      setExpandedId(id);
+      fetchDetail(id);
+
+      // Clean the query param
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete('expandedId');
+        return next;
+      }, { replace: true });
+    }
+  }, [searchParams]);
+
+  const handleCloseDrawer = () => {
+    setExpandedId(null);
+    setExpandedDetail(null);
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleCloseDrawer();
+      }
+    };
+    if (expandedId) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.classList.add('drawer-open');
+    } else {
+      document.body.classList.remove('drawer-open');
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.classList.remove('drawer-open');
+    };
+  }, [expandedId]);
+
   const handleExpand = (complaint: Complaint) => {
     if (expandedId === complaint.id) {
-      setExpandedId(null);
-      setExpandedDetail(null);
+      handleCloseDrawer();
     } else {
       setExpandedId(complaint.id);
       setExpandedDetail(null);
@@ -72,29 +126,42 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
 
   const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; render: (c: Complaint) => React.ReactNode }[] = [
     {
-      key: 'expand', label: '', adminWidth: '40px', residentWidth: '40px',
-      render: (c) => (
-        <div
-          className="d-flex align-items-center justify-content-center"
-          style={{ cursor: 'pointer', minHeight: '34px' }}
-          onClick={() => handleExpand(c)}
-        >
-          <i
-            className={`bi ${expandedId === c.id ? 'bi-chevron-down' : 'bi-chevron-right'}`}
-            style={{ fontSize: '0.85rem', color: '#9ca3af' }}
-          />
-        </div>
-      ),
+      key: 'chat', label: 'Chat', adminWidth: '60px', residentWidth: '60px',
+      render: (c) => {
+        const isResolved = c.status === 'Resolved';
+        return (
+          <div
+            className="d-flex align-items-center justify-content-center"
+            style={{
+              cursor: isResolved ? 'not-allowed' : 'pointer',
+              minHeight: '34px',
+              opacity: isResolved ? 0.5 : 1
+            }}
+            onClick={() => !isResolved && handleExpand(c)}
+          >
+            <i
+              className={`bi bi-chat-left-text ${isResolved ? 'text-secondary' : 'text-primary'}`}
+              style={{ fontSize: '1rem' }}
+            />
+          </div>
+        );
+      },
     },
     {
       key: 'title', label: 'Title', adminWidth: '30%', residentWidth: '40%',
-      render: (c) => (
-        <div style={{ cursor: 'pointer' }} onClick={() => handleExpand(c)}>
-          <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
-            {c.title}
-          </p>
-        </div>
-      ),
+      render: (c) => {
+        const isResolved = c.status === 'Resolved';
+        return (
+          <div
+            style={{ cursor: isResolved ? 'default' : 'pointer' }}
+            onClick={() => !isResolved && handleExpand(c)}
+          >
+            <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
+              {c.title}
+            </p>
+          </div>
+        );
+      },
     },
     {
       key: 'status', label: 'Status', adminWidth: '14%', residentWidth: '19%',
@@ -125,7 +192,7 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
       ),
     },
     {
-      key: 'actions', label: 'Actions', adminWidth: '16%', residentWidth: '0%',
+      key: 'actions', label: 'Actions', adminWidth: '16%', residentWidth: '12%',
       render: (c) => (
         <div onClick={(e) => e.stopPropagation()} style={{ width: '130px' }}>
           {isAdmin && c.status !== 'Resolved' && onUpdateStatus ? (
@@ -138,6 +205,16 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
               style={{ height: '38px', fontSize: '0.8rem' }}
             />
           ) : null}
+          {!isAdmin && onDeleteComplaint && c.status === 'Open' && (
+            <button
+              className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+              onClick={() => setDeletingComplaint(c)}
+              style={{ borderRadius: '6px', fontSize: '0.78rem' }}
+              title="Delete complaint"
+            >
+              <i className="bi bi-trash" />
+            </button>
+          )}
         </div>
       ),
     },
@@ -152,51 +229,8 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
       render: col.render,
     }));
 
-  const renderExpandedRow = (complaint: Complaint) => {
-    const detail = expandedDetail?.id === complaint.id ? expandedDetail : complaint;
-    return (
-      <div className="p-4">
-        <div className="row g-4">
-          <div className="col-12 col-md-5 col-lg-4">
-            {detail.images && detail.images.length > 0 && (
-              <div className="mb-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                {detail.images.map((img) => (
-                  <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-                    <img
-                      src={img.imageUrl}
-                      alt=""
-                      style={{ width: '100%', height: '160px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-                    />
-                  </a>
-                ))}
-              </div>
-            )}
-
-            <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-              Description : {complaint.description}
-            </p>
-          </div>
-
-          <div className="col-12 col-md-7 col-lg-8 d-flex flex-column" style={{ height: '460px' }}>
-            <ComplaintComments
-              complaintId={complaint.id}
-              status={complaint.status}
-              residentName={detail.resident?.user?.name ?? 'Unknown'}
-              isAdmin={isAdmin}
-            />
-          </div>
-        </div>
-
-        <button
-          className="btn btn-link p-0 mt-3 fw-medium text-decoration-none"
-          onClick={() => setExpandedId(null)}
-          style={{ fontSize: '0.78rem', color: '#6b7280' }}
-        >
-          <i className="bi bi-chevron-up me-1" />Show less
-        </button>
-      </div>
-    );
-  };
+  const complaintFromList = complaints.find((c) => c.id === expandedId);
+  const activeDetail = expandedDetail?.id === expandedId ? expandedDetail : complaintFromList;
 
   return (
     <div className="table-card">
@@ -205,8 +239,6 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
         data={complaints}
         loading={loading}
         rowKey={(c) => c.id}
-        expandedRowKey={expandedId}
-        renderExpandedRow={renderExpandedRow}
         emptyTitle="No complaints found"
         emptySubtitle="There are no complaints matching your criteria. Try adjusting your filters or check back later."
         emptyIcon="bi-clipboard-check"
@@ -217,8 +249,107 @@ const ComplaintList = ({ complaints, loading, onUpdateStatus, isAdmin = false, p
           <Pagination
             pagination={pagination}
             onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
           />
         </div>
+      )}
+
+      {/* ── Slide-Over Panel (Drawer) ── */}
+      {expandedId && (
+        <div className="complaint-drawer-backdrop" onClick={handleCloseDrawer}>
+          <div className="complaint-drawer" onClick={(e) => e.stopPropagation()}>
+            {/* Drawer Header */}
+            <div className="complaint-drawer-header">
+              {activeDetail ? (
+                <div>
+                  <h6 className="mb-0 fw-bold text-dark text-truncate" style={{ maxWidth: '400px', fontSize: '1rem' }}>
+                    {activeDetail.title}
+                  </h6>
+                  <div className="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                    <ComplaintStatusBadge status={activeDetail.status} />
+                    <ComplaintPriorityBadge priority={activeDetail.priority} />
+                    {activeDetail.resident?.apartment && (
+                      <span className="text-secondary" style={{ fontSize: '0.75rem' }}>
+                        Unit: {activeDetail.resident.apartment.block}-{activeDetail.resident.apartment.floorNumber}{activeDetail.resident.apartment.unitNumber}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <h6 className="mb-0 fw-bold text-dark">Complaint Chat</h6>
+              )}
+              <button
+                type="button"
+                className="btn-close shadow-none"
+                onClick={handleCloseDrawer}
+                aria-label="Close"
+              />
+            </div>
+
+            {/* Drawer Body */}
+            <div className="complaint-drawer-body">
+              {!expandedDetail || expandedDetail.id !== expandedId ? (
+                <div className="d-flex flex-column align-items-center justify-content-center h-100 flex-grow-1">
+                  <span className="spinner-border spinner-border-sm text-primary mb-2" />
+                  <span className="text-secondary small">Loading details...</span>
+                </div>
+              ) : (
+                <>
+                  <div className="complaint-drawer-info">
+                    {expandedDetail.images && expandedDetail.images.length > 0 && (
+                      <div className="mb-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        {expandedDetail.images.map((img) => (
+                          <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+                            <img
+                              src={img.imageUrl}
+                              alt=""
+                              style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                      <strong>Description:</strong> {expandedDetail.description}
+                    </p>
+                  </div>
+
+                  {/* Chat Section */}
+                  <div className="complaint-drawer-chat flex-grow-1 mt-3">
+                    <ComplaintComments
+                      complaintId={expandedDetail.id}
+                      status={expandedDetail.status}
+                      residentName={expandedDetail.resident?.user?.name ?? 'Unknown'}
+                      isAdmin={isAdmin}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+      {deletingComplaint && (
+        <ConfirmDialog
+          show={!!deletingComplaint}
+          title="Delete Complaint"
+          message={deletingComplaint ? `Are you sure you want to delete "${deletingComplaint.title}"? This action cannot be undone.` : ''}
+          confirmLabel="Delete"
+          variant="danger"
+          loading={deleteLoading}
+          onConfirm={async () => {
+            if (deletingComplaint) {
+              setDeleteLoading(true);
+              try {
+                await onDeleteComplaint?.(deletingComplaint.id);
+                setDeletingComplaint(null);
+              } finally {
+                setDeleteLoading(false);
+              }
+            }
+          }}
+          onCancel={() => setDeletingComplaint(null)}
+        />
       )}
     </div>
   );

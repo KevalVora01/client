@@ -11,6 +11,7 @@ export interface InvoiceResident {
   id: number;
   userId: number;
   apartmentId: number;
+  name?: string;
 }
 
 export interface InvoiceApartment {

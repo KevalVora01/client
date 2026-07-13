@@ -25,6 +25,7 @@ const ComplaintsPage = () => {
   const {
     createComplaint,
     updateStatus,
+    deleteComplaint,
     loading: mutationLoading,
   } = useComplaintMutations(refetch);
 
@@ -40,6 +41,10 @@ const ComplaintsPage = () => {
 
   const handleUpdateStatus = async (complaint: Complaint, status: ComplaintStatus) => {
     await updateStatus(complaint.id, { status });
+  };
+
+  const handleDeleteComplaint = async (complaintId: number) => {
+    await deleteComplaint(complaintId);
   };
 
   const openAddModal = () => setAddModalOpen(true);
@@ -83,9 +88,11 @@ const ComplaintsPage = () => {
           complaints={complaints?.items ?? []}
           loading={loading}
           onUpdateStatus={handleUpdateStatus}
+          onDeleteComplaint={handleDeleteComplaint}
           isAdmin={isAdmin}
           pagination={pagination}
           onPageChange={changePage}
+          onPageSizeChange={(size) => updateFilters({ pageSize: size })}
         />
       </div>
 

@@ -50,7 +50,6 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
-    { label: 'My Invoices', icon: ReceiptText, path: '/invoices' },
     { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],

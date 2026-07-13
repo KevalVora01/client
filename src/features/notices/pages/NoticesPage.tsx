@@ -161,7 +161,11 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
       {/* ── Pagination ── */}
       {!loading && (notices?.items?.length ?? 0) > 0 && (
         <div className="d-flex justify-content-end mb-4">
-          <Pagination pagination={pagination} onPageChange={changePage} />
+          <Pagination
+            pagination={pagination}
+            onPageChange={changePage}
+            onPageSizeChange={(size) => updateFilters({ pageSize: size })}
+          />
         </div>
       )}
 

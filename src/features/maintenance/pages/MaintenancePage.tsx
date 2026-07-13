@@ -47,6 +47,7 @@ const MaintenancePage = () => {
   const [settlingInvoice, setSettlingInvoice] = useState<Invoice | null>(null);
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'Cheque'>('Cash');
   const [chequeNumber, setChequeNumber] = useState<string>('');
+  const [chequeTouched, setChequeTouched] = useState<boolean>(false);
   const [applyPenaltiesConfirmOpen, setApplyPenaltiesConfirmOpen] = useState(false);
 
   useScrollLock(generateModalOpen);
@@ -91,6 +92,7 @@ const MaintenancePage = () => {
       setSettlingInvoice(null);
       setPaymentMode('Cash');
       setChequeNumber('');
+      setChequeTouched(false);
     }
   };
 
@@ -133,18 +135,25 @@ const MaintenancePage = () => {
     {
       key: 'apartment',
       label: 'Apartment',
-      adminWidth: '10%',
+      adminWidth: '12%',
       residentWidth: '0%',
       align: 'center',
       render: (inv) => (
         inv.apartment ? (
-          <Link
-            to={`/apartments/${inv.apartmentId}`}
-            className="fw-semibold text-primary text-decoration-none"
-            style={{ fontSize: '0.875rem' }}
-          >
-            {inv.apartment.block}-{inv.apartment.floorNumber}{inv.apartment.unitNumber}
-          </Link>
+          <div className="d-flex flex-column align-items-center">
+            <Link
+              to={`/apartments/${inv.apartmentId}`}
+              className="fw-semibold text-primary text-decoration-none"
+              style={{ fontSize: '0.875rem' }}
+            >
+              {inv.apartment.block}-{inv.apartment.floorNumber}{inv.apartment.unitNumber}
+            </Link>
+            {inv.resident?.name && (
+              <span className="text-secondary mt-0.5" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                {inv.resident.name}
+              </span>
+            )}
+          </div>
         ) : (
           <span className="text-muted">—</span>
         )
@@ -349,7 +358,11 @@ const MaintenancePage = () => {
         />
         {!loading && (invoices?.items?.length ?? 0) > 0 && pagination && (
           <div className="table-card__footer">
-            <Pagination pagination={pagination} onPageChange={changePage} />
+            <Pagination
+              pagination={pagination}
+              onPageChange={changePage}
+              onPageSizeChange={(size) => updateFilters({ pageSize: size })}
+            />
           </div>
         )}
       </div>
@@ -452,25 +465,37 @@ const MaintenancePage = () => {
               {paymentMode === 'Cheque' && (
                 <div className="mb-4">
                   <label className="form-label fw-semibold text-secondary small" htmlFor="chequeNumber">
-                    Cheque Number / Transaction ID
+                    Cheque Number
                   </label>
                   <input
                     type="text"
                     id="chequeNumber"
-                    className="form-control form-control-sm shadow-none"
-                    placeholder="Enter cheque or transaction number"
+                    className={`form-control form-control-sm shadow-none ${chequeTouched && !/^\d{6}$/.test(chequeNumber.trim()) ? 'is-invalid' : ''}`}
+                    placeholder="Enter 6-digit cheque number"
                     value={chequeNumber}
-                    onChange={(e) => setChequeNumber(e.target.value)}
+                    onChange={(e) => {
+                      setChequeNumber(e.target.value.replace(/\D/g, '').slice(0, 6));
+                    }}
+                    onBlur={() => setChequeTouched(true)}
                     style={{ borderRadius: '6px' }}
                     required
                   />
+                  {chequeTouched && !/^\d{6}$/.test(chequeNumber.trim()) && (
+                    <div className="invalid-feedback" style={{ fontSize: '0.78rem' }}>
+                      Cheque number must be exactly 6 digits.
+                    </div>
+                  )}
                 </div>
               )}
 
               <div className="d-flex justify-content-end gap-2 border-top border-light-subtle pt-3">
                 <button
                   className="btn btn-sm btn-outline-secondary px-3"
-                  onClick={() => setSettlingInvoice(null)}
+                  onClick={() => {
+                    setSettlingInvoice(null);
+                    setChequeNumber('');
+                    setChequeTouched(false);
+                  }}
                   disabled={mutationLoading}
                   style={{ borderRadius: '6px' }}
                 >
@@ -479,7 +504,7 @@ const MaintenancePage = () => {
                 <button
                   className="btn btn-sm btn-primary px-3"
                   onClick={async () => { await handleMarkSettled(settlingInvoice); }}
-                  disabled={mutationLoading || (paymentMode === 'Cheque' && !chequeNumber.trim())}
+                  disabled={mutationLoading || (paymentMode === 'Cheque' && !/^\d{6}$/.test(chequeNumber.trim()))}
                   style={{ borderRadius: '6px' }}
                 >
                   {mutationLoading ? (

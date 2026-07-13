@@ -13,6 +13,13 @@ export interface InvoiceResident {
   apartmentId: number;
 }
 
+export interface InvoiceApartment {
+  id: number;
+  block: string;
+  floorNumber: number;
+  unitNumber: string;
+}
+
 export interface Invoice {
   id: number;
   apartmentId: number;
@@ -29,7 +36,9 @@ export interface Invoice {
   pdfUrl: string | null;
   createdAt: string;
   resident?: InvoiceResident | null;
+  apartment?: InvoiceApartment | null;
 }
+
 
 export interface MaintenanceSetting {
   id: number;
@@ -49,6 +58,10 @@ export interface GenerateInvoicesPayload {
   month: number;
   year: number;
   dueDate: string;
+  extraCharges?: {
+    label: string;
+    amount: number;
+  }[];
 }
 
 export interface UpdateMaintenanceAmountPayload {

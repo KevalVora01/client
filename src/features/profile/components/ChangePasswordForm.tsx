@@ -144,10 +144,7 @@ const ChangePasswordForm = ({ loading, onSubmit }: ChangePasswordFormProps) => {
           style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
         >
           {loading ? (
-            <>
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-              Updating...
-            </>
+            <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />
           ) : (
             <>
               <i className="bi bi-lock-fill" /> Update password

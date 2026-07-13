@@ -21,10 +21,10 @@ export const useInvoiceMutations = (onSuccess?: () => void) => {
     }
   };
 
-  const markInvoiceSettled = async (id: number): Promise<boolean> => {
+  const markInvoiceSettled = async (id: number, paymentRef?: string): Promise<boolean> => {
     try {
       setLoading(true);
-      await maintenanceApi.markInvoiceSettled(id);
+      await maintenanceApi.markInvoiceSettled(id, paymentRef);
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -35,9 +35,24 @@ export const useInvoiceMutations = (onSuccess?: () => void) => {
     }
   };
 
+  const applyOverduePenalties = async (): Promise<boolean> => {
+    try {
+      setLoading(true);
+      await maintenanceApi.applyPenalties();
+      onSuccess?.();
+      return true;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, 'Failed to apply overdue penalties'));
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     generateInvoices,
     markInvoiceSettled,
+    applyOverduePenalties,
     loading,
   };
 };

@@ -17,6 +17,34 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
   const [priority, setPriority] = useState<ComplaintPriority>('Medium');
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
+  const [touched, setTouched] = useState<{ title?: boolean; description?: boolean }>({});
+
+  const handleTitleBlur = () => {
+    setTouched(prev => ({ ...prev, title: true }));
+    const newErrors: { title?: string } = {};
+    if (title.trim().length === 0) {
+      newErrors.title = 'Title is required';
+    } else if (title.trim().length < 3) {
+      newErrors.title = 'Title must be at least 3 characters';
+    } else {
+      newErrors.title = undefined;
+    }
+    setErrors(prev => ({ ...prev, ...newErrors }));
+  };
+
+  const handleDescBlur = () => {
+    setTouched(prev => ({ ...prev, description: true }));
+    const newErrors: { description?: string } = {};
+    if (description.trim().length === 0) {
+      newErrors.description = 'Description is required';
+    } else if (description.trim().length < 10) {
+      newErrors.description = 'Description must be at least 10 characters';
+    } else {
+      newErrors.description = undefined;
+    }
+    setErrors(prev => ({ ...prev, ...newErrors }));
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -42,14 +70,23 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    showError(null);
+    setTouched({ title: true, description: true });
 
-    if (title.trim().length < 3) {
-      showError('Title must be at least 3 characters');
-      return;
-    }
-    if (description.trim().length < 10) {
-      showError('Description must be at least 10 characters');
+    const titleErr = title.trim().length === 0
+      ? 'Title is required'
+      : title.trim().length < 3
+        ? 'Title must be at least 3 characters'
+        : undefined;
+
+    const descErr = description.trim().length === 0
+      ? 'Description is required'
+      : description.trim().length < 10
+        ? 'Description must be at least 10 characters'
+        : undefined;
+
+    setErrors({ title: titleErr, description: descErr });
+
+    if (titleErr || descErr) {
       return;
     }
 
@@ -66,6 +103,8 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
       setPriority('Medium');
       setImages([]);
       setPreviews([]);
+      setErrors({});
+      setTouched({});
     }
   };
 
@@ -74,29 +113,75 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
       {/* Title */}
       <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Title</label>
+        <label className="form-label fw-medium text-secondary small mb-1">Title <span className="text-danger">*</span></label>
         <input
           type="text"
-          className="form-control shadow-none"
+          className={`form-control shadow-none rounded-2 text-dark ${touched.title && errors.title ? 'is-invalid' : ''}`}
           placeholder="e.g. Leaking pipe in kitchen"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            if (touched.title) {
+              setErrors(prev => ({
+                ...prev,
+                title: e.target.value.trim().length === 0
+                  ? 'Title is required'
+                  : e.target.value.trim().length < 3
+                    ? 'Title must be at least 3 characters'
+                    : undefined
+              }));
+            }
+          }}
+          onBlur={handleTitleBlur}
           maxLength={150}
-          style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+          style={{
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            borderColor: touched.title && errors.title ? '#dc3545' : '#e5e7eb'
+          }}
         />
+        {touched.title && errors.title && (
+          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+            {errors.title}
+          </div>
+        )}
       </div>
 
       {/* Description */}
       <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Description</label>
+        <label className="form-label fw-medium text-secondary small mb-1">Description <span className="text-danger">*</span></label>
         <textarea
-          className="form-control shadow-none"
+          className={`form-control shadow-none rounded-2 text-dark ${touched.description && errors.description ? 'is-invalid' : ''}`}
           placeholder="Describe the issue in detail..."
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={(e) => {
+            setDescription(e.target.value);
+            if (touched.description) {
+              setErrors(prev => ({
+                ...prev,
+                description: e.target.value.trim().length === 0
+                  ? 'Description is required'
+                  : e.target.value.trim().length < 10
+                    ? 'Description must be at least 10 characters'
+                    : undefined
+              }));
+            }
+          }}
+          onBlur={handleDescBlur}
           rows={5}
-          style={{ borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical', minHeight: '120px' }}
+          style={{
+            borderRadius: '8px',
+            fontSize: '0.9rem',
+            resize: 'vertical',
+            minHeight: '120px',
+            borderColor: touched.description && errors.description ? '#dc3545' : '#e5e7eb'
+          }}
         />
+        {touched.description && errors.description && (
+          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+            {errors.description}
+          </div>
+        )}
       </div>
 
       {/* Priority */}
@@ -196,7 +281,11 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
           disabled={loading}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >
-          {loading ? 'Submitting...' : 'Submit Complaint'}
+          {loading ? (
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+          ) : (
+            'Submit Complaint'
+          )}
         </button>
       </div>
 

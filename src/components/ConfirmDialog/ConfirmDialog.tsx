@@ -99,10 +99,11 @@ const ConfirmDialog = ({
             {cancelLabel}
           </button>
           <button className={`btn ${config.btnClass} flex-fill text-white`} onClick={onConfirm} disabled={loading}>
-            {loading
-              ? <><span className="cd-spinner" /> Processing...</>
-              : confirmLabel
-            }
+            {loading ? (
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+            ) : (
+              confirmLabel
+            )}
           </button>
         </div>
       </div>

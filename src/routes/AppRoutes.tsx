@@ -14,7 +14,6 @@ import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
 import NoticesPage from '../features/notices/pages/NoticesPage';
 import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
-import InvoiceDetailPage from '../features/maintenance/pages/InvoiceDetailPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -70,7 +69,6 @@ const AppRoutes = () => {
             <Route path="/notices" element={<NoticesPage />} />
             <Route path="/complaints" element={<ComplaintsPage />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
-            <Route path="/maintenance/invoices/:id" element={<InvoiceDetailPage />} />
           </Route>
         </Route>
 

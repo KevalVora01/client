@@ -245,22 +245,17 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
               </button>
               <button
                 type="submit"
-                className="btn text-white fw-medium px-3 d-inline-flex align-items-center"
+                className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
                 disabled={loading}
                 style={{
                   height: "38px",
                   fontSize: "0.875rem",
                   borderRadius: "8px",
-                  backgroundColor: "#1a1f36",
-                  borderColor: "#1a1f36",
                   opacity: loading ? 0.55 : 1
                 }}
               >
                 {loading ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" />
-                    {isEdit ? "Saving..." : "Creating..."}
-                  </>
+                  <span className="spinner-border spinner-border-sm mx-auto" role="status" />
                 ) : (
                   <>
                     <i className={`bi ${isEdit ? "bi-check-lg" : "bi-person-plus"} me-1`} />

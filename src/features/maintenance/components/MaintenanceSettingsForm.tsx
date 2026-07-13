@@ -50,7 +50,11 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
         disabled={updating}
         style={{ borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
       >
-        {updating ? 'Saving...' : 'Save'}
+        {updating ? (
+          <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+        ) : (
+          'Save'
+        )}
       </button>
 
       {error && <span className="text-danger" style={{ fontSize: '0.8rem' }}>{error}</span>}

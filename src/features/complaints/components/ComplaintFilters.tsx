@@ -91,11 +91,9 @@ const ComplaintFilters = ({ filters, onFilterChange }: ComplaintFiltersProps) =>
       {/* Clear filters */}
       {hasActiveFilters && (
         <button
-          className="btn d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
+          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
           onClick={handleReset}
-          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px', border: '1px solid #d1d5db', color: '#6b7280', backgroundColor: '#fff' }}
-          onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f3f4f6'; e.currentTarget.style.borderColor = '#9ca3af'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.borderColor = '#d1d5db'; }}
+          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
         >
           <i className="bi bi-x-circle" />
           Clear

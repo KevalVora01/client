@@ -191,15 +191,12 @@ const ApartmentFormModal = ({
               </button>
               <button
                 type="submit"
-                className="btn text-white rounded-2 px-3 fw-medium small d-inline-flex align-items-center"
+                className="btn btn-dark rounded-2 px-3 fw-medium small d-inline-flex align-items-center"
                 disabled={loading || formik.isSubmitting}
-                style={{ height: "38px", fontSize: "0.875rem", backgroundColor: "#1a1f36" }}
+                style={{ height: "38px", fontSize: "0.875rem" }}
               >
                 {loading || formik.isSubmitting ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" />
-                    {isEdit ? "Saving..." : "Creating..."}
-                  </>
+                  <span className="spinner-border spinner-border-sm mx-auto" role="status" />
                 ) : (
                   <>
                     <i className={`bi ${isEdit ? "bi-check-lg" : "bi-building"} me-1`} />

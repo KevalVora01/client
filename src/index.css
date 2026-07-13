@@ -39,6 +39,35 @@
   height: 42px;
 }
 
+/* ── Button theme ── */
+.btn-dark {
+  --bs-btn-bg: #1a1f36;
+  --bs-btn-border-color: #1a1f36;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #111827;
+  --bs-btn-hover-border-color: #111827;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #0f142b;
+  --bs-btn-active-border-color: #0f142b;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #1a1f36;
+  --bs-btn-disabled-border-color: #1a1f36;
+}
+
+.btn-primary {
+  --bs-btn-bg: #1a1f36;
+  --bs-btn-border-color: #1a1f36;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #111827;
+  --bs-btn-hover-border-color: #111827;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #0f142b;
+  --bs-btn-active-border-color: #0f142b;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #1a1f36;
+  --bs-btn-disabled-border-color: #1a1f36;
+}
+
 body.modal-open {
   overflow: hidden !important;
 }

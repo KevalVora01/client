@@ -153,10 +153,7 @@ const ForgotPasswordPage = () => {
                   }}
                 >
                   {isLoading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                      Sending...
-                    </>
+                    <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />
                   ) : (
                     'SEND RESET LINK'
                   )}

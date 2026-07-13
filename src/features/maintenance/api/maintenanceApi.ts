@@ -43,8 +43,8 @@ export const maintenanceApi = {
     return response.data.data;
   },
 
-  markInvoiceSettled: async (id: number): Promise<Invoice> => {
-    const response = await api.patch(`/maintenance/invoices/${id}/settle`);
+  markInvoiceSettled: async (id: number, paymentRef?: string): Promise<Invoice> => {
+    const response = await api.patch(`/maintenance/invoices/${id}/settle`, { paymentRef });
     return response.data.data;
   },
 
@@ -67,6 +67,10 @@ export const maintenanceApi = {
   getDashboardMetrics: async (): Promise<AdminDashboardMetrics | ResidentDashboardMetrics> => {
     const response = await api.get('/maintenance/dashboard');
     return response.data.data;
+  },
+
+  applyPenalties: async (): Promise<void> => {
+    await api.post('/maintenance/invoices/apply-penalties');
   },
 
 };

@@ -6,43 +6,42 @@ import {
   useElements,
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
-import { showError, showSuccess } from '../../../utils/toast';
+import { showError } from '../../../utils/toast';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 interface StripeCheckoutModalProps {
   clientSecret: string;
   amount: number;
+  invoiceId: number;
   onClose: () => void;
   onPaymentSuccess: (paymentIntentId: string) => void;
 }
 
-const CheckoutForm = ({ amount, onClose, onPaymentSuccess }: Omit<StripeCheckoutModalProps, 'clientSecret'>) => {
+const CheckoutForm = ({ amount, invoiceId, onClose, onPaymentSuccess }: Omit<StripeCheckoutModalProps, 'clientSecret'>) => {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!stripe || !elements) return;
 
     setSubmitting(true);
-    setError(null);
-
     const { paymentIntent, error: stripeError } = await stripe.confirmPayment({
       elements,
       redirect: 'if_required',
+      confirmParams: {
+        return_url: `${window.location.origin}/maintenance?invoice_id=${invoiceId}`,
+      },
     });
 
     if (stripeError) {
-      setError(stripeError.message ?? 'Payment failed. Please try again.');
       showError(stripeError.message ?? 'Payment failed');
       setSubmitting(false);
       return;
     }
 
-    showSuccess('Payment successful!');
     setSubmitting(false);
     onPaymentSuccess(paymentIntent!.id);
   };
@@ -54,12 +53,6 @@ const CheckoutForm = ({ amount, onClose, onPaymentSuccess }: Omit<StripeCheckout
       </p>
 
       <PaymentElement />
-
-      {error && (
-        <div className="alert alert-danger py-2 px-3 mt-3" style={{ fontSize: '0.85rem', borderRadius: '8px' }}>
-          {error}
-        </div>
-      )}
 
       <div className="d-flex justify-content-end gap-2 mt-4">
         <button
@@ -77,14 +70,18 @@ const CheckoutForm = ({ amount, onClose, onPaymentSuccess }: Omit<StripeCheckout
           disabled={!stripe || submitting}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >
-          {submitting ? 'Processing...' : `Pay ₹${amount.toFixed(2)}`}
+          {submitting ? (
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+          ) : (
+            `Pay ₹${amount.toFixed(2)}`
+          )}
         </button>
       </div>
     </form>
   );
 };
 
-const StripeCheckoutModal = ({ clientSecret, amount, onClose, onPaymentSuccess }: StripeCheckoutModalProps) => {
+const StripeCheckoutModal = ({ clientSecret, amount, invoiceId, onClose, onPaymentSuccess }: StripeCheckoutModalProps) => {
   return (
     <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }} onClick={onClose}>
       <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
@@ -106,7 +103,7 @@ const StripeCheckoutModal = ({ clientSecret, amount, onClose, onPaymentSuccess }
 
           <div className="modal-body p-4">
             <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <CheckoutForm amount={amount} onClose={onClose} onPaymentSuccess={onPaymentSuccess} />
+              <CheckoutForm amount={amount} invoiceId={invoiceId} onClose={onClose} onPaymentSuccess={onPaymentSuccess} />
             </Elements>
           </div>
 

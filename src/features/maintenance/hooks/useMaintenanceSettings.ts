@@ -4,7 +4,7 @@ import type { MaintenanceSetting } from '../types/maintenance.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
-export const useMaintenanceSettings = () => {
+export const useMaintenanceSettings = (enabled: boolean = true) => {
   const [setting, setSetting] = useState<MaintenanceSetting | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [updating, setUpdating] = useState<boolean>(false);
@@ -22,6 +22,8 @@ export const useMaintenanceSettings = () => {
   }, []);
 
   useEffect(() => {
+    if (!enabled) return;
+
     let cancelled = false;
 
     const load = async () => {
@@ -39,7 +41,7 @@ export const useMaintenanceSettings = () => {
     load();
 
     return () => { cancelled = true; };
-  }, []);
+  }, [enabled]);
 
   const updateAmount = async (amount: number): Promise<boolean> => {
     try {

@@ -225,10 +225,7 @@ const LoginPage = () => {
               }}
             >
               {isLoading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                  Signing in...
-                </>
+                <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />
               ) : (
                 'SIGN IN TO PORTAL'
               )}

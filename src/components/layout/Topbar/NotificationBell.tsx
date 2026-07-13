@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, FileText, MessageSquareWarning, Megaphone, X, CheckCheck } from 'lucide-react';
+import { Bell, FileText, MessageSquareWarning, Megaphone, ReceiptText, Clock, X, CheckCheck } from 'lucide-react';
 import { toast } from 'react-toastify';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
@@ -10,18 +10,33 @@ const ICON_MAP: Record<string, typeof FileText> = {
   complaint_status_changed: MessageSquareWarning,
   complaint_created: MessageSquareWarning,
   notice_created: Megaphone,
+  maintenance_due_soon: ReceiptText,
+  maintenance_due_today: ReceiptText,
+  maintenance_overdue: Clock,
+  maintenance_overdue_reminder: Clock,
+  maintenance_payment_succeeded: ReceiptText,
 };
 
 const CLASS_MAP: Record<string, string> = {
   complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
   complaint_created: 'bg-warning-subtle text-warning-emphasis',
   notice_created: 'bg-primary-subtle text-primary-emphasis',
+  maintenance_due_soon: 'bg-info-subtle text-info-emphasis',
+  maintenance_due_today: 'bg-warning-subtle text-warning-emphasis',
+  maintenance_overdue: 'bg-danger-subtle text-danger-emphasis',
+  maintenance_overdue_reminder: 'bg-danger-subtle text-danger-emphasis',
+  maintenance_payment_succeeded: 'bg-success-subtle text-success-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
   complaint_status_changed: '/complaints',
   complaint_created: '/complaints',
   notice_created: '/notices',
+  maintenance_due_soon: '/maintenance',
+  maintenance_due_today: '/maintenance',
+  maintenance_overdue: '/maintenance',
+  maintenance_overdue_reminder: '/maintenance',
+  maintenance_payment_succeeded: '/maintenance',
 };
 
 function timeAgo(dateStr: string): string {
@@ -106,7 +121,7 @@ const NotificationBell = () => {
 
   const handleNavigate = async (n: NotificationItem) => {
     if (!n.isRead) {
-      setNotifications((prev) => prev.filter((item) => item.id !== n.id));
+      setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
       try {
         await notificationApi.markAsRead([n.id]);
         setUnreadCount((c) => Math.max(0, c - 1));
@@ -139,6 +154,7 @@ const NotificationBell = () => {
         style={{ width: '40px', height: '40px' }}
         type="button"
         data-bs-toggle="dropdown"
+        data-bs-display="static"
         aria-expanded="false"
         onClick={handleDropdownOpen}
       >
@@ -155,7 +171,7 @@ const NotificationBell = () => {
 
       <div
         className="dropdown-menu dropdown-menu-end shadow-lg border border-light-subtle p-0 mt-2 rounded-4 overflow-hidden"
-        style={{ width: '380px' }}
+        style={{ width: '380px', maxWidth: 'calc(100vw - 32px)' }}
       >
         {/* ── Header ── */}
         <div className="d-flex align-items-center justify-content-between px-4 py-3 bg-light border-bottom border-light-subtle">
@@ -218,9 +234,11 @@ const NotificationBell = () => {
                       <p className="mb-0 fw-semibold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
                         {n.title}
                       </p>
-                      <p className="mb-0 text-secondary text-truncate" style={{ fontSize: '0.78rem', marginTop: '2px' }}>
-                        {n.body}
-                      </p>
+                      <div style={{ maxHeight: '60px', overflowY: 'auto', marginTop: '2px' }}>
+                        <p className="mb-0 text-secondary" style={{ fontSize: '0.78rem', lineHeight: '1.4' }}>
+                          {n.body}
+                        </p>
+                      </div>
                       <p className="mb-0 text-muted" style={{ fontSize: '0.7rem', marginTop: '4px' }}>
                         {timeAgo(n.createdAt)}
                       </p>

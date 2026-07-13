@@ -106,10 +106,7 @@ const ResetPasswordPage = () => {
             {/* Action Submit Button */}
             <button type="submit" disabled={isLoading} className="btn w-100 fw-bold border d-flex align-items-center justify-content-center mb-3" style={submitStyle} onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#1f2937"; }} onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#111827"; }}>
               {isLoading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
-                  Resetting...
-                </>
+                <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />
               ) : 'RESET PASSWORD'}
             </button>
 

@@ -4,6 +4,7 @@ export interface TableColumn<T> {
   key: string;
   label: string;
   width?: string;
+  align?: 'start' | 'center' | 'end';
   render: (row: T) => React.ReactNode;
 }
 
@@ -46,17 +47,20 @@ const AppTable = <T,>({
   const thead = (
     <thead className="table-light border-bottom border-light-subtle">
       <tr>
-        {columns.map((col) => (
-          <th
-            key={col.key}
-            className="text-uppercase text-secondary fw-semibold text-start py-2.5 px-3 text-nowrap"
-            style={col.width ? { width: col.width } : {}}
-          >
-            <span style={{ fontSize: '0.8rem', letterSpacing: '0.04em' }}>
-              {col.label}
-            </span>
-          </th>
-        ))}
+        {columns.map((col) => {
+          const alignmentClass = col.align === 'center' ? 'text-center' : col.align === 'end' ? 'text-end' : 'text-start';
+          return (
+            <th
+              key={col.key}
+              className={`text-uppercase text-secondary fw-semibold ${alignmentClass} py-2.5 px-3 text-nowrap`}
+              style={col.width ? { width: col.width } : {}}
+            >
+              <span style={{ fontSize: '0.8rem', letterSpacing: '0.04em' }}>
+                {col.label}
+              </span>
+            </th>
+          );
+        })}
       </tr>
     </thead>
   );
@@ -101,11 +105,14 @@ const AppTable = <T,>({
             return (
               <React.Fragment key={key}>
                 <tr>
-                  {columns.map((col) => (
-                    <td key={col.key} className="py-3 px-3">
-                      {col.render(row)}
-                    </td>
-                  ))}
+                  {columns.map((col) => {
+                    const alignmentClass = col.align === 'center' ? 'text-center' : col.align === 'end' ? 'text-end' : 'text-start';
+                    return (
+                      <td key={col.key} className={`py-3 px-3 ${alignmentClass}`}>
+                        {col.render(row)}
+                      </td>
+                    );
+                  })}
                 </tr>
                 {expandedRowKey === key && renderExpandedRow && (
                   <tr className="expand-row">

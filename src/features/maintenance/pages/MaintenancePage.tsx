@@ -112,6 +112,34 @@ const MaintenancePage = () => {
     }
   };
 
+  const highlightMatch = (text: string, search: string) => {
+    if (!search || !search.trim()) return <span>{text}</span>;
+    const cleanSearch = search.trim();
+    const regex = new RegExp(`(${cleanSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark
+              key={index}
+              style={{
+                backgroundColor: '#ffe066',
+                color: '#1a1f36',
+                padding: '0 2px',
+                borderRadius: '3px',
+              }}
+            >
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
+
   const allColumnDefs: {
     key: string;
     label: string;
@@ -146,11 +174,11 @@ const MaintenancePage = () => {
               className="fw-semibold text-primary text-decoration-none"
               style={{ fontSize: '0.875rem' }}
             >
-              {inv.apartment.block}-{inv.apartment.floorNumber}{inv.apartment.unitNumber}
+              {highlightMatch(`${inv.apartment.block}-${inv.apartment.floorNumber}${inv.apartment.unitNumber}`, filters.search ?? '')}
             </Link>
             {inv.resident?.name && (
               <span className="text-secondary mt-0.5" style={{ fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
-                {inv.resident.name}
+                {highlightMatch(inv.resident.name, filters.search ?? '')}
               </span>
             )}
           </div>

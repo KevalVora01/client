@@ -59,7 +59,7 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
         </div>
 
         {/* Category */}
-        <div className="col-12 col-md-4">
+        <div className="col-12">
           <Select
             label="Category"
             name="category"

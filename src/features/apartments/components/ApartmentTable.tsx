@@ -106,8 +106,40 @@ const RowActions = ({
   );
 };
 
+import { useApartmentStore } from '../hooks/useApartmentStore';
+
 // ── Main component ───────────────────────────────────────────
 const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableProps) => {
+  const { filters } = useApartmentStore();
+  const searchVal = filters.block ?? '';
+
+  const highlightMatch = (text: string, search: string) => {
+    if (!search || !search.trim()) return <span>{text}</span>;
+    const cleanSearch = search.trim();
+    const regex = new RegExp(`(${cleanSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark
+              key={index}
+              style={{
+                backgroundColor: '#ffe066',
+                color: '#1a1f36',
+                padding: '0 2px',
+                borderRadius: '3px',
+              }}
+            >
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
 
   const columns: TableColumn<Apartment>[] = [
     {
@@ -115,7 +147,7 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
       label: "BLOCK",
       render: (a) => (
         <span className="fw-bold d-block py-2 text-dark" style={{ fontSize: "0.95rem" }}>
-          Block {a.block}
+          Block {highlightMatch(a.block, searchVal)}
         </span>
       ),
     },
@@ -133,7 +165,7 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
       label: "FLAT NO.",
       render: (a) => (
         <span className="fw-bold d-block py-2 text-dark" style={{ fontSize: "0.95rem" }}>
-          {a.block}-{a.floorNumber}{a.unitNumber}
+          {highlightMatch(`${a.block}-${a.floorNumber}${a.unitNumber}`, searchVal)}
         </span>
       ),
     },

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import Select from '../../../components/Select/Select';
 import type { SelectOption } from '../../../components/Select/Select';
 import type { InvoiceStatus, InvoiceListParams } from '../types/maintenance.types';
@@ -23,14 +24,37 @@ interface InvoiceFiltersProps {
 }
 
 const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
+  const [search, setSearch] = useState(filters.search ?? '');
+
+  useEffect(() => {
+    if (search === (filters.search ?? '')) return;
+    const timer = setTimeout(() => {
+      onFilterChange({ search: search || undefined, pageNumber: 1 });
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
+
   const handleReset = () => {
-    onFilterChange({ status: undefined, month: undefined, year: undefined });
+    setSearch('');
+    onFilterChange({ search: undefined, status: undefined, month: undefined, year: undefined });
   };
 
-  const hasActiveFilters = !!filters.status || !!filters.month || !!filters.year;
+  const hasActiveFilters = !!filters.search || !!filters.status || !!filters.month;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap">
+    <div className="d-flex align-items-center gap-2 flex-wrap w-100">
+
+      <div style={{ minWidth: '220px', maxWidth: '300px' }}>
+        <input
+          type="text"
+          className="form-control form-control-sm shadow-none border-light-subtle"
+          placeholder="Search unit or resident..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ width: '100%', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
+        />
+      </div>
 
       <Select
         name="status"
@@ -43,7 +67,7 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
             pageNumber: 1,
           })
         }
-        style={{ maxWidth: '160px' }}
+        style={{ maxWidth: '160px', height: '38px' }}
         className="shadow-none"
       />
 
@@ -58,29 +82,15 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
             pageNumber: 1,
           })
         }
-        style={{ maxWidth: '160px' }}
+        style={{ maxWidth: '160px', height: '38px' }}
         className="shadow-none"
-      />
-
-      <input
-        type="number"
-        className="form-control form-control-sm shadow-none border-light-subtle"
-        placeholder="Year"
-        value={filters.year ?? ''}
-        onChange={(e) =>
-          onFilterChange({
-            year: e.target.value ? Number(e.target.value) : undefined,
-            pageNumber: 1,
-          })
-        }
-        style={{ maxWidth: '110px', borderRadius: '8px', fontSize: '0.875rem' }}
       />
 
       {hasActiveFilters && (
         <button
           className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
           onClick={handleReset}
-          style={{ height: '40px', fontSize: '0.85rem', borderRadius: '8px' }}
+          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
         >
           <i className="bi bi-x-circle" />
           Clear

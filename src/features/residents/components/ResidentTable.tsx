@@ -3,8 +3,39 @@ import type { TableColumn } from '../../../components/AppTable/AppTable';
 import type { ResidentDetail, ResidentTableProps } from '../types/resident.types';
 import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
 import RowActions from './RowActions';
+import { useResidentStore } from '../hooks/useResidentStore';
 
 const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
+  const { filters } = useResidentStore();
+  const searchVal = filters.search ?? '';
+
+  const highlightMatch = (text: string, search: string) => {
+    if (!search || !search.trim()) return <span>{text}</span>;
+    const cleanSearch = search.trim();
+    const regex = new RegExp(`(${cleanSearch.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark
+              key={index}
+              style={{
+                backgroundColor: '#ffe066',
+                color: '#1a1f36',
+                padding: '0 2px',
+                borderRadius: '3px',
+              }}
+            >
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
 
   const columns: TableColumn<ResidentDetail>[] = [
     {
@@ -28,10 +59,10 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
             </div>
             <div>
               <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
-                {r.user.name}
+                {highlightMatch(r.user.name, searchVal)}
               </p>
               <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
-                {r.user.email}
+                {highlightMatch(r.user.email, searchVal)}
               </p>
             </div>
           </div>
@@ -44,10 +75,10 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       render: (r) => r.apartment ? (
         <div>
           <p className="fw-semibold m-0 text-dark" style={{ fontSize: '0.9rem' }}>
-            {r.apartment.block}-{r.apartment.floorNumber}{r.apartment.unitNumber}
+            {highlightMatch(`${r.apartment.block}-${r.apartment.floorNumber}${r.apartment.unitNumber}`, searchVal)}
           </p>
           <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
-            Block {r.apartment.block} - Floor {r.apartment.floorNumber}
+            Block {highlightMatch(r.apartment.block, searchVal)} - Floor {r.apartment.floorNumber}
           </p>
         </div>
       ) : <span className="text-muted small">—</span>,

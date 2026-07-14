@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { noticeApi } from '../api/noticeApi';
 import type { CreateNoticePayload, UpdateNoticePayload } from '../types/notice.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
-import { showError } from '../../../utils/toast';
+import { showSuccess, showError } from '../../../utils/toast';
 
 export const useNoticeMutations = (onSuccess?: () => void) => {
   const [loading, setLoading] = useState(false);
@@ -11,6 +11,7 @@ export const useNoticeMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await noticeApi.createNotice(payload);
+      showSuccess('Notice created successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -25,6 +26,7 @@ export const useNoticeMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await noticeApi.updateNotice(id, payload);
+      showSuccess('Notice updated successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -39,6 +41,7 @@ export const useNoticeMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await noticeApi.deleteNotice(id);
+      showSuccess('Notice deleted successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -53,6 +56,7 @@ export const useNoticeMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await noticeApi.togglePin(id);
+      showSuccess('Notice pin status updated');
       onSuccess?.();
       return true;
     } catch (err: unknown) {

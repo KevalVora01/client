@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { complaintApi } from '../api/complaintApi';
 import type { UpdateComplaintStatusPayload } from '../types/complaint.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
-import { showError } from '../../../utils/toast';
+import { showSuccess, showError } from '../../../utils/toast';
 
 export const useComplaintMutations = (onSuccess?: () => void) => {
   const [loading, setLoading] = useState(false);
@@ -11,6 +11,7 @@ export const useComplaintMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await complaintApi.createComplaint(formData);
+      showSuccess('Complaint raised successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -25,6 +26,7 @@ export const useComplaintMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await complaintApi.updateStatus(id, payload);
+      showSuccess('Complaint status updated successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -39,6 +41,7 @@ export const useComplaintMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await complaintApi.addComment(id, content);
+      showSuccess('Comment added successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -53,6 +56,7 @@ export const useComplaintMutations = (onSuccess?: () => void) => {
     try {
       setLoading(true);
       await complaintApi.deleteComplaint(id);
+      showSuccess('Complaint deleted successfully');
       onSuccess?.();
       return true;
     } catch (err: unknown) {

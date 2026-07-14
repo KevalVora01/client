@@ -14,6 +14,7 @@ import type { Complaint, ComplaintStatus } from '../types/complaint.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
+import { useComplaintStore } from '../hooks/useComplaintStore';
 
 interface ComplaintListProps {
   complaints: Complaint[];
@@ -61,6 +62,37 @@ const ComplaintList = ({
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
   const [deletingComplaint, setDeletingComplaint] = useState<Complaint | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const { filters } = useComplaintStore();
+  const searchVal = filters.search ?? '';
+
+  const highlightMatch = (text: string, search: string) => {
+    if (!search || !search.trim()) return <span>{text}</span>;
+    const cleanSearch = search.trim();
+    const regex = new RegExp(`(${cleanSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const parts = text.split(regex);
+    return (
+      <span>
+        {parts.map((part, index) =>
+          regex.test(part) ? (
+            <mark
+              key={index}
+              style={{
+                backgroundColor: '#ffe066',
+                color: '#1a1f36',
+                padding: '0 2px',
+                borderRadius: '3px',
+              }}
+            >
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
 
   const fetchDetail = async (complaintId: number) => {
     try {
@@ -157,7 +189,7 @@ const ComplaintList = ({
             onClick={() => !isResolved && handleExpand(c)}
           >
             <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
-              {c.title}
+              {highlightMatch(c.title, searchVal)}
             </p>
           </div>
         );
@@ -310,7 +342,7 @@ const ComplaintList = ({
                       </div>
                     )}
                     <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
-                      <strong>Description:</strong> {expandedDetail.description}
+                      <strong>Description:</strong> {highlightMatch(expandedDetail.description, searchVal)}
                     </p>
                   </div>
 

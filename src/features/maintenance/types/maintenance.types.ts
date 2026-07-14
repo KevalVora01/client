@@ -53,6 +53,7 @@ export interface InvoiceListParams {
   status?: InvoiceStatus;
   month?: number;
   year?: number;
+  search?: string;
 }
 
 export interface GenerateInvoicesPayload {

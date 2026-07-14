@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { complaintApi } from '../api/complaintApi';
 import AppTable from '../../../components/AppTable/AppTable';
 import Select from '../../../components/Select/Select';
@@ -57,8 +56,20 @@ const ComplaintList = ({
   onPageChange,
   onPageSizeChange
 }: ComplaintListProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const expId = params.get('expandedId');
+    if (expId) {
+      params.delete('expandedId');
+      const newSearch = params.toString();
+      const newUrl = newSearch
+        ? `${window.location.pathname}?${newSearch}${window.location.hash}`
+        : `${window.location.pathname}${window.location.hash}`;
+      window.history.replaceState(null, '', newUrl);
+      return Number(expId);
+    }
+    return null;
+  });
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
   const [deletingComplaint, setDeletingComplaint] = useState<Complaint | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -69,7 +80,7 @@ const ComplaintList = ({
   const highlightMatch = (text: string, search: string) => {
     if (!search || !search.trim()) return <span>{text}</span>;
     const cleanSearch = search.trim();
-    const regex = new RegExp(`(${cleanSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${cleanSearch.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>
@@ -94,61 +105,50 @@ const ComplaintList = ({
     );
   };
 
-  const fetchDetail = async (complaintId: number) => {
-    try {
-      const detail = await complaintApi.getComplaint(complaintId);
-      setExpandedDetail(detail);
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to load complaint details'));
-    }
-  };
-
   useEffect(() => {
-    const expId = searchParams.get('expandedId');
-    if (expId) {
-      const id = Number(expId);
-      setExpandedId(id);
-      fetchDetail(id);
-
-      // Clean the query param
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete('expandedId');
-        return next;
-      }, { replace: true });
+    if (!expandedId) {
+      document.body.classList.remove('drawer-open');
+      return;
     }
-  }, [searchParams]);
+    document.body.classList.add('drawer-open');
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setExpandedId(null);
+        setExpandedDetail(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const detail = await complaintApi.getComplaint(expandedId);
+        if (!cancelled) setExpandedDetail(detail);
+      } catch (err: unknown) {
+        if (!cancelled) showError(getErrorMessage(err, 'Failed to load complaint details'));
+      }
+    })();
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.classList.remove('drawer-open');
+      cancelled = true;
+    };
+  }, [expandedId]);
 
   const handleCloseDrawer = () => {
     setExpandedId(null);
     setExpandedDetail(null);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleCloseDrawer();
-      }
-    };
-    if (expandedId) {
-      window.addEventListener('keydown', handleKeyDown);
-      document.body.classList.add('drawer-open');
-    } else {
-      document.body.classList.remove('drawer-open');
-    }
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      document.body.classList.remove('drawer-open');
-    };
-  }, [expandedId]);
-
   const handleExpand = (complaint: Complaint) => {
     if (expandedId === complaint.id) {
-      handleCloseDrawer();
+      setExpandedId(null);
+      setExpandedDetail(null);
     } else {
       setExpandedId(complaint.id);
       setExpandedDetail(null);
-      fetchDetail(complaint.id);
     }
   };
 

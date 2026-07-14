@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import Select from '../../../components/Select/Select';
 import type { ComplaintPriority } from '../types/complaint.types';
 import { showError } from '../../../utils/toast';
@@ -11,40 +13,48 @@ interface ComplaintFormProps {
 
 const MAX_IMAGES = 5;
 
+const validationSchema = Yup.object({
+  title: Yup.string()
+    .trim()
+    .min(3, 'Title must be at least 3 characters')
+    .max(150, 'Title must be at most 150 characters')
+    .required('Title is required'),
+  description: Yup.string()
+    .trim()
+    .min(10, 'Description must be at least 10 characters')
+    .max(1000, 'Description must be at most 1000 characters')
+    .required('Description is required'),
+  priority: Yup.string()
+    .oneOf(['Low', 'Medium', 'High'], 'Invalid priority')
+    .required('Priority is required'),
+});
+
 const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<ComplaintPriority>('Medium');
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [errors, setErrors] = useState<{ title?: string; description?: string }>({});
-  const [touched, setTouched] = useState<{ title?: boolean; description?: boolean }>({});
 
-  const handleTitleBlur = () => {
-    setTouched(prev => ({ ...prev, title: true }));
-    const newErrors: { title?: string } = {};
-    if (title.trim().length === 0) {
-      newErrors.title = 'Title is required';
-    } else if (title.trim().length < 3) {
-      newErrors.title = 'Title must be at least 3 characters';
-    } else {
-      newErrors.title = undefined;
-    }
-    setErrors(prev => ({ ...prev, ...newErrors }));
-  };
+  const formik = useFormik({
+    initialValues: {
+      title: '',
+      description: '',
+      priority: 'Medium' as ComplaintPriority,
+    },
+    validationSchema,
+    onSubmit: async (values, { resetForm }) => {
+      const formData = new FormData();
+      formData.append('title', values.title.trim());
+      formData.append('description', values.description.trim());
+      formData.append('priority', values.priority);
+      images.forEach((img) => formData.append('images', img));
 
-  const handleDescBlur = () => {
-    setTouched(prev => ({ ...prev, description: true }));
-    const newErrors: { description?: string } = {};
-    if (description.trim().length === 0) {
-      newErrors.description = 'Description is required';
-    } else if (description.trim().length < 10) {
-      newErrors.description = 'Description must be at least 10 characters';
-    } else {
-      newErrors.description = undefined;
-    }
-    setErrors(prev => ({ ...prev, ...newErrors }));
-  };
+      const success = await onSubmit(formData);
+      if (success) {
+        resetForm();
+        setImages([]);
+        setPreviews([]);
+      }
+    },
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -54,7 +64,6 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
       return;
     }
 
-    showError(null);
     const newImages = [...images, ...files];
     setImages(newImages);
     setPreviews(newImages.map((f) => URL.createObjectURL(f)));
@@ -68,81 +77,30 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
     setPreviews(newImages.map((f) => URL.createObjectURL(f)));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setTouched({ title: true, description: true });
-
-    const titleErr = title.trim().length === 0
-      ? 'Title is required'
-      : title.trim().length < 3
-        ? 'Title must be at least 3 characters'
-        : undefined;
-
-    const descErr = description.trim().length === 0
-      ? 'Description is required'
-      : description.trim().length < 10
-        ? 'Description must be at least 10 characters'
-        : undefined;
-
-    setErrors({ title: titleErr, description: descErr });
-
-    if (titleErr || descErr) {
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', title.trim());
-    formData.append('description', description.trim());
-    formData.append('priority', priority);
-    images.forEach((img) => formData.append('images', img));
-
-    const success = await onSubmit(formData);
-    if (success) {
-      setTitle('');
-      setDescription('');
-      setPriority('Medium');
-      setImages([]);
-      setPreviews([]);
-      setErrors({});
-      setTouched({});
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
 
       {/* Title */}
       <div className="mb-3">
         <label className="form-label fw-medium text-secondary small mb-1">Title <span className="text-danger">*</span></label>
         <input
           type="text"
-          className={`form-control shadow-none rounded-2 text-dark ${touched.title && errors.title ? 'is-invalid' : ''}`}
+          name="title"
+          className={`form-control shadow-none rounded-2 text-dark ${formik.touched.title && formik.errors.title ? 'is-invalid' : ''}`}
           placeholder="e.g. Leaking pipe in kitchen"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            if (touched.title) {
-              setErrors(prev => ({
-                ...prev,
-                title: e.target.value.trim().length === 0
-                  ? 'Title is required'
-                  : e.target.value.trim().length < 3
-                    ? 'Title must be at least 3 characters'
-                    : undefined
-              }));
-            }
-          }}
-          onBlur={handleTitleBlur}
+          value={formik.values.title}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           maxLength={150}
           style={{
             borderRadius: '8px',
             fontSize: '0.9rem',
-            borderColor: touched.title && errors.title ? '#dc3545' : '#e5e7eb'
+            borderColor: formik.touched.title && formik.errors.title ? '#dc3545' : '#e5e7eb'
           }}
         />
-        {touched.title && errors.title && (
+        {formik.touched.title && formik.errors.title && (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-            {errors.title}
+            {formik.errors.title}
           </div>
         )}
       </div>
@@ -151,35 +109,25 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
       <div className="mb-3">
         <label className="form-label fw-medium text-secondary small mb-1">Description <span className="text-danger">*</span></label>
         <textarea
-          className={`form-control shadow-none rounded-2 text-dark ${touched.description && errors.description ? 'is-invalid' : ''}`}
+          name="description"
+          className={`form-control shadow-none rounded-2 text-dark ${formik.touched.description && formik.errors.description ? 'is-invalid' : ''}`}
           placeholder="Describe the issue in detail..."
-          value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-            if (touched.description) {
-              setErrors(prev => ({
-                ...prev,
-                description: e.target.value.trim().length === 0
-                  ? 'Description is required'
-                  : e.target.value.trim().length < 10
-                    ? 'Description must be at least 10 characters'
-                    : undefined
-              }));
-            }
-          }}
-          onBlur={handleDescBlur}
+          value={formik.values.description}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
+          maxLength={1000}
           rows={5}
           style={{
             borderRadius: '8px',
             fontSize: '0.9rem',
             resize: 'vertical',
             minHeight: '120px',
-            borderColor: touched.description && errors.description ? '#dc3545' : '#e5e7eb'
+            borderColor: formik.touched.description && formik.errors.description ? '#dc3545' : '#e5e7eb'
           }}
         />
-        {touched.description && errors.description && (
+        {formik.touched.description && formik.errors.description && (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-            {errors.description}
+            {formik.errors.description}
           </div>
         )}
       </div>
@@ -195,8 +143,8 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
             { value: 'High', label: 'High Priority' },
           ]}
           placeholder="Select priority"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as ComplaintPriority)}
+          value={formik.values.priority}
+          onChange={(e) => formik.setFieldValue('priority', e.target.value)}
           className="shadow-none"
         />
       </div>

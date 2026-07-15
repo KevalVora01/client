@@ -1,5 +1,5 @@
 import { Users, UserCheck, ShieldAlert, UserPlus } from "lucide-react";
-import type { ResidentStats } from "../../types/resident.types";
+import type { ResidentStats } from "../types/resident.types";
 
 interface ResidentStatsCardsProps {
   stats: ResidentStats;

@@ -2,36 +2,61 @@ import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import Topbar from '../Topbar/Topbar';
 import { useSidebar } from '../../../hooks/useSidebar';
-import './DashboardLayout.css';
 
 const DashboardLayout = () => {
   const { isOpen, toggle, close } = useSidebar();
 
   return (
-    <div className="dashboard-layout">
+    <>
+      <style>{`
+        .sidebar-wrapper {
+          flex-shrink: 0;
+        }
+        @media (max-width: 767px) {
+          .sidebar-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+          }
+          .sidebar-wrapper.open {
+            transform: translateX(0);
+          }
+        }
+        @media (min-width: 768px) {
+          .sidebar-wrapper {
+            transform: none !important;
+            position: relative !important;
+            z-index: auto !important;
+          }
+        }
+      `}</style>
+      <div className="d-flex min-vh-100 position-relative">
 
-      {/* ── Mobile overlay ── */}
-      {isOpen && (
-        <div
-          className="dashboard-layout__overlay"
-          onClick={close}
-        />
-      )}
+        {isOpen && (
+          <div
+            className="position-fixed"
+            style={{ inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 99 }}
+            onClick={close}
+          />
+        )}
 
-      {/* ── Sidebar ── */}
-      <div className={`dashboard-layout__sidebar ${isOpen ? 'dashboard-layout__sidebar--open' : ''}`}>
-        <Sidebar onClose={close} />
+        <div className={`sidebar-wrapper ${isOpen ? 'open' : ''}`}>
+          <Sidebar onClose={close} />
+        </div>
+
+        <div className="d-flex flex-column flex-grow-1 vh-100 overflow-hidden" style={{ background: '#f3f4f6' }}>
+          <Topbar onMenuClick={toggle} />
+          <main className="flex-grow-1 overflow-y-auto overflow-x-hidden" style={{ minHeight: 0 }}>
+            <Outlet />
+          </main>
+        </div>
+
       </div>
-
-      {/* ── Main ── */}
-      <div className="dashboard-layout__main">
-        <Topbar onMenuClick={toggle} />
-        <main className="dashboard-layout__content">
-          <Outlet />
-        </main>
-      </div>
-
-    </div>
+    </>
   );
 };
 

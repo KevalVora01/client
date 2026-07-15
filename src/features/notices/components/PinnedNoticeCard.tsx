@@ -28,7 +28,7 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
   const highlightMatch = (text: string, search: string) => {
     if (!search || !search.trim()) return <span>{text}</span>;
     const cleanSearch = search.trim();
-    const regex = new RegExp(`(${cleanSearch.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const regex = new RegExp(`(${cleanSearch.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>

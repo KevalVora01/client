@@ -21,11 +21,19 @@ interface AppTableProps<T> {
   skeletonRows?: number;
 }
 
+const skeletonStyle: React.CSSProperties = {
+  height: '16px',
+  borderRadius: '6px',
+  background: 'linear-gradient(90deg, #f3f4f6 25%, #e9ecef 50%, #f3f4f6 75%)',
+  backgroundSize: '200% 100%',
+  animation: 'shimmer 1.4s ease infinite',
+};
+
 const SkeletonRow = ({ columns }: { columns: number }) => (
   <tr>
     {Array.from({ length: columns }).map((_, i) => (
       <td key={i} className="py-3 px-3 align-middle">
-        <div className="skeleton" style={{ height: '16px', width: i === 0 ? '60%' : '40%' }} />
+        <div style={{ ...skeletonStyle, width: i === 0 ? '60%' : '40%' }} />
       </td>
     ))}
   </tr>
@@ -52,8 +60,8 @@ const AppTable = <T,>({
           return (
             <th
               key={col.key}
-              className={`text-uppercase text-secondary fw-semibold ${alignmentClass} py-2.5 px-3 text-nowrap`}
-              style={col.width ? { width: col.width } : {}}
+              className={`text-uppercase text-secondary fw-semibold ${alignmentClass} px-3 text-nowrap`}
+              style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', ...(col.width ? { width: col.width } : {}) }}
             >
               <span style={{ fontSize: '0.8rem', letterSpacing: '0.04em' }}>
                 {col.label}
@@ -67,16 +75,19 @@ const AppTable = <T,>({
 
   if (loading) {
     return (
-      <div className="table-responsive">
-        <table className="table align-middle mb-0">
-          {thead}
-          <tbody>
-            {Array.from({ length: skeletonRows }).map((_, i) => (
-              <SkeletonRow key={i} columns={columns.length} />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <>
+        <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
+        <div className="table-responsive">
+          <table className="table align-middle mb-0">
+            {thead}
+            <tbody>
+              {Array.from({ length: skeletonRows }).map((_, i) => (
+                <SkeletonRow key={i} columns={columns.length} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
     );
   }
 

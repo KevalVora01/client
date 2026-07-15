@@ -65,22 +65,20 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
     return { name, initials: getInitials(name), color: getAvatarColor(adminComment?.userId ?? 1) };
   }, [isAdmin, residentName, comments, currentUserId]);
 
-  const fetchComments = async () => {
-    if (loaded) return;
-    setLoading(true);
-    try {
-      const data = await complaintApi.getComments(complaintId);
-      setComments(data);
-      setLoaded(true);
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to load comments'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchComments();
+    if (loaded) return;
+
+    complaintApi.getComments(complaintId)
+      .then((data) => {
+        setComments(data);
+        setLoaded(true);
+      })
+      .catch((err: unknown) => {
+        showError(getErrorMessage(err, 'Failed to load comments'));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId]);
 

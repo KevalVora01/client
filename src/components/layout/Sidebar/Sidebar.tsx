@@ -19,6 +19,7 @@ import useAuth from '../../../hooks/useAuth';
 import type { UserRole } from '../../../features/auth/types/auth.types';
 import { useState } from 'react';
 import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
+import { showSuccess } from '../../../utils/toast';
 import { getAvatarColor, getInitials } from '../../../features/residents/components/residentTableHelpers';
 
 // ─── Types ────────────────────────────────────────────────────────
@@ -175,7 +176,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
           confirmLabel="Log Out"
           cancelLabel="Stay"
           variant="danger"
-          onConfirm={() => { setShowLogoutConfirm(false); logout(); }}
+          onConfirm={async () => { setShowLogoutConfirm(false); await logout(); showSuccess('Logged out successfully'); }}
           onCancel={() => setShowLogoutConfirm(false)}
         />
       </div>

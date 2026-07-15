@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
-import { showError } from '../../../utils/toast';
+import { showError, showSuccess } from '../../../utils/toast';
 import type { UserRole } from '../types/auth.types';
 
 const useLogin = () => {
@@ -19,6 +19,7 @@ const useLogin = () => {
     setIsLoading(true);
     try {
       await login({ email, password, role });
+      showSuccess('Logged in successfully');
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { error?: string } } };

@@ -6,7 +6,7 @@ interface PaginationProps {
   onPageSizeChange?: (pageSize: number) => void;
 }
 
-const Pagination = ({ pagination, onPageChange, onPageSizeChange }: PaginationProps) => {
+const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
   const { pageNumber, totalPages, totalCount, pageSize, hasNextPage, hasPreviousPage } = pagination;
 
   if (totalPages == 0) return null;
@@ -40,30 +40,7 @@ const Pagination = ({ pagination, onPageChange, onPageSizeChange }: PaginationPr
         <span className="small text-muted">
           Showing {from} to {to} of {totalCount} entries
         </span>
-        {onPageSizeChange && (
-          <div className="d-flex align-items-center gap-2">
-            <span className="small text-muted" style={{ whiteSpace: "nowrap" }}>Show</span>
-            <select
-              className="form-select form-select-sm shadow-none"
-              style={{
-                width: "65px",
-                height: "30px",
-                borderRadius: "6px",
-                fontSize: "0.8rem",
-                padding: "2px 8px",
-                borderColor: "#e5e7eb",
-                cursor: "pointer"
-              }}
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-            </select>
-          </div>
-        )}
+
       </div>
 
       <div className="d-flex align-items-center gap-1">

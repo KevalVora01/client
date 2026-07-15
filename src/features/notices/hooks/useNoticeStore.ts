@@ -10,7 +10,7 @@ interface NoticeStore {
 
 const initialFilters: NoticeListParams = {
   pageNumber: 1,
-  pageSize: 9,
+  pageSize: 10,
   isActive: true,
 };
 

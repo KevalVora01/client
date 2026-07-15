@@ -25,7 +25,7 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
     initialValues: {
       title: notice?.title ?? '',
       body: notice?.body ?? '',
-      category: notice?.category ?? '' as NoticeCategory,
+      category: notice?.category ?? 'General',
     },
     validationSchema: schema,
     onSubmit: async (values, { resetForm }) => {

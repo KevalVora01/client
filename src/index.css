@@ -76,3 +76,17 @@ body.modal-open {
   cursor: not-allowed;
   pointer-events: auto !important;
 }
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+  background-color: #eef2ff !important;
+  color: #1a1f36 !important;
+}
+
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus,
+.dropdown-item.text-danger:active {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+}

@@ -156,9 +156,9 @@ const ComplaintList = ({
     onUpdateStatus?.(complaint, value as ComplaintStatus);
   };
 
-  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; render: (c: Complaint) => React.ReactNode }[] = [
+  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; align?: 'start' | 'center' | 'end'; render: (c: Complaint) => React.ReactNode }[] = [
     {
-      key: 'chat', label: 'Chat', adminWidth: '60px', residentWidth: '60px',
+      key: 'chat', label: 'Chat', align: 'center', adminWidth: '5%', residentWidth: '7%',
       render: (c) => {
         const isResolved = c.status === 'Resolved';
         return (
@@ -180,7 +180,7 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'title', label: 'Title', adminWidth: '30%', residentWidth: '40%',
+      key: 'title', label: 'Title', align: 'center', adminWidth: '30%', residentWidth: '38%',
       render: (c) => {
         const isResolved = c.status === 'Resolved';
         return (
@@ -196,15 +196,15 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'status', label: 'Status', adminWidth: '14%', residentWidth: '19%',
+      key: 'status', label: 'Status', align: 'center', adminWidth: '14%', residentWidth: '17%',
       render: (c) => <ComplaintStatusBadge status={c.status} />,
     },
     {
-      key: 'priority', label: 'Priority', adminWidth: '15%', residentWidth: '20%',
+      key: 'priority', label: 'Priority', align: 'center', adminWidth: '15%', residentWidth: '17%',
       render: (c) => <ComplaintPriorityBadge priority={c.priority} />,
     },
     {
-      key: 'apt', label: 'Apt', adminWidth: '9%', residentWidth: '0%',
+      key: 'apt', label: 'Apt', align: 'center', adminWidth: '8%', residentWidth: '0%',
       render: (c) => {
         const apt = c.resident?.apartment;
         const label = apt ? `${apt.block}-${apt.floorNumber}${apt.unitNumber}` : '\u2014';
@@ -216,7 +216,7 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'date', label: 'Date', adminWidth: '12%', residentWidth: '16%',
+      key: 'date', label: 'Submitted', align: 'center', adminWidth: '10%', residentWidth: '11%',
       render: (c) => (
         <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
           {timeAgo(c.createdAt)}
@@ -224,20 +224,23 @@ const ComplaintList = ({
       ),
     },
     {
-      key: 'actions', label: 'Actions', adminWidth: '16%', residentWidth: '12%',
-      render: (c) => (
-        <div onClick={(e) => e.stopPropagation()} style={{ width: '130px' }}>
-          {isAdmin && c.status !== 'Resolved' && onUpdateStatus ? (
+      key: 'actions', label: 'Actions', align: 'center', adminWidth: '14%', residentWidth: '10%',
+      render: (c) => {
+        let actionContent: React.ReactNode = null;
+
+        if (isAdmin && c.status !== 'Resolved' && onUpdateStatus) {
+          actionContent = (
             <Select
               name="status"
               options={STATUS_OPTIONS}
               value={c.status}
               onChange={(e) => handleStatusChange(c, e.target.value)}
               className="shadow-none"
-              style={{ height: '38px', fontSize: '0.8rem' }}
+              style={{ height: '38px', fontSize: '0.8rem', width: '130px' }}
             />
-          ) : null}
-          {!isAdmin && onDeleteComplaint && c.status === 'Open' && (
+          );
+        } else if (!isAdmin && onDeleteComplaint && c.status === 'Open') {
+          actionContent = (
             <button
               className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
               onClick={() => setDeletingComplaint(c)}
@@ -246,9 +249,15 @@ const ComplaintList = ({
             >
               <i className="bi bi-trash" />
             </button>
-          )}
-        </div>
-      ),
+          );
+        }
+
+        return (
+          <div onClick={(e) => e.stopPropagation()} className="d-flex justify-content-center">
+            {actionContent ?? <span className="text-secondary" style={{ fontSize: '0.85rem' }}>&mdash;</span>}
+          </div>
+        );
+      },
     },
   ];
 
@@ -257,6 +266,7 @@ const ComplaintList = ({
     .map((col) => ({
       key: col.key,
       label: col.label,
+      align: col.align,
       width: isAdmin ? col.adminWidth : col.residentWidth,
       render: col.render,
     }));

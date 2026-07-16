@@ -2,10 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import { showError, showSuccess } from '../../../utils/toast';
-import type { UserRole } from '../types/auth.types';
 
 const useLogin = () => {
-  const [role, setRole] = useState<UserRole>('admin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +16,7 @@ const useLogin = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login({ email, password, role });
+      await login({ email, password });
       showSuccess('Logged in successfully');
       navigate('/', { replace: true });
     } catch (err: unknown) {
@@ -32,7 +30,6 @@ const useLogin = () => {
   };
 
   return {
-    role, setRole,
     email, setEmail,
     password, setPassword,
     showPassword, setShowPassword,

@@ -1,11 +1,9 @@
 import { Mail, Lock, Eye, EyeOff, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useLogin from '../hooks/useLogin';
-import type { UserRole } from '../types/auth.types';
 
 const LoginPage = () => {
   const {
-    role, setRole,
     email, setEmail,
     password, setPassword,
     showPassword, setShowPassword,
@@ -20,8 +18,8 @@ const LoginPage = () => {
         {/* ── Brand ── */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center gap-2 mb-2">
-            <div 
-              className="d-flex align-items-center justify-content-center rounded-2" 
+            <div
+              className="d-flex align-items-center justify-content-center rounded-2"
               style={{ width: "38px", height: "38px", backgroundColor: "#111827" }}
             >
               <Home size={20} strokeWidth={2} color="#ffffff" />
@@ -41,54 +39,20 @@ const LoginPage = () => {
 
           <form onSubmit={handleSubmit}>
 
-            {/* Access Role */}
-            <div className="mb-3">
-              <label 
-                className="d-block fw-bold text-uppercase mb-2" 
-                style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
-              >
-                Access Role
-              </label>
-              <div className="d-flex p-1 gap-1 border rounded-3" style={{ backgroundColor: "#f3f4f6", borderColor: "#e5e7eb" }}>
-                {(['admin', 'resident', 'security'] as UserRole[]).map((r) => {
-                  const isActive = role === r;
-                  return (
-                    <button
-                      type="button"
-                      key={r}
-                      onClick={() => setRole(r)}
-                      className="flex-grow-1 border-0 py-2 rounded-2 transition-all"
-                      style={{
-                        fontSize: "0.9rem",
-                        cursor: "pointer",
-                        transition: "all 0.15s ease",
-                        fontWeight: isActive ? 700 : 500,
-                        backgroundColor: isActive ? "#ffffff" : "transparent",
-                        color: isActive ? "#111827" : "#6b7280",
-                        boxShadow: isActive ? "0 1px 3px rgba(0, 0, 0, 0.1)" : "none",
-                      }}
-                    >
-                      {r.charAt(0).toUpperCase() + r.slice(1)}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Email */}
             <div className="mb-3">
-              <label 
-                className="d-block fw-bold text-uppercase mb-2" 
+              <label
+                className="d-block fw-bold text-uppercase mb-2"
                 htmlFor="email"
                 style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
               >
                 Email Address
               </label>
               <div className="position-relative d-flex align-items-center">
-                <Mail 
-                  size={18} 
-                  className="position-absolute pe-none" 
-                  style={{ left: "14px", color: "#9ca3af" }} 
+                <Mail
+                  size={18}
+                  className="position-absolute pe-none"
+                  style={{ left: "14px", color: "#9ca3af" }}
                 />
                 <input
                   type="email"
@@ -124,15 +88,15 @@ const LoginPage = () => {
             {/* Password */}
             <div className="mb-4">
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <label 
-                  className="fw-bold text-uppercase m-0" 
+                <label
+                  className="fw-bold text-uppercase m-0"
                   htmlFor="password"
                   style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
                 >
                   Password
                 </label>
-                <Link 
-                  to="/forgot-password" 
+                <Link
+                  to="/forgot-password"
                   className="fw-semibold text-decoration-none"
                   style={{ fontSize: "0.85rem", color: "#1f2937" }}
                   onMouseEnter={(e) => {
@@ -148,10 +112,10 @@ const LoginPage = () => {
                 </Link>
               </div>
               <div className="position-relative d-flex align-items-center">
-                <Lock 
-                  size={18} 
-                  className="position-absolute pe-none" 
-                  style={{ left: "14px", color: "#9ca3af" }} 
+                <Lock
+                  size={18}
+                  className="position-absolute pe-none"
+                  style={{ left: "14px", color: "#9ca3af" }}
                 />
                 <input
                   type={showPassword ? 'text' : 'password'}

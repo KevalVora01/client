@@ -4,7 +4,7 @@ import useLogin from '../hooks/useLogin';
 
 const LoginPage = () => {
   const {
-    email, setEmail,
+    identifier, setIdentifier,
     password, setPassword,
     showPassword, setShowPassword,
     isLoading,
@@ -39,14 +39,14 @@ const LoginPage = () => {
 
           <form onSubmit={handleSubmit}>
 
-            {/* Email */}
+            {/* Identifier: Email or Mobile */}
             <div className="mb-3">
               <label
                 className="d-block fw-bold text-uppercase mb-2"
-                htmlFor="email"
+                htmlFor="identifier"
                 style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
               >
-                Email Address
+                Email or Mobile Number
               </label>
               <div className="position-relative d-flex align-items-center">
                 <Mail
@@ -55,11 +55,11 @@ const LoginPage = () => {
                   style={{ left: "14px", color: "#9ca3af" }}
                 />
                 <input
-                  type="email"
-                  id="email"
-                  placeholder="name@society.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  type="text"
+                  id="identifier"
+                  placeholder="Email or Phone number"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   required
                   disabled={isLoading}
                   className="form-control shadow-none border"

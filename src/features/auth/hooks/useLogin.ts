@@ -4,7 +4,7 @@ import useAuth from '../../../hooks/useAuth';
 import { showError, showSuccess } from '../../../utils/toast';
 
 const useLogin = () => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,13 +16,13 @@ const useLogin = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login({ email, password });
+      await login({ identifier, password });
       showSuccess('Logged in successfully');
       navigate('/', { replace: true });
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { error?: string } } };
       showError(
-        axiosError?.response?.data?.error || 'Invalid email or password.'
+        axiosError?.response?.data?.error || 'Invalid credentials.'
       );
     } finally {
       setIsLoading(false);
@@ -30,7 +30,7 @@ const useLogin = () => {
   };
 
   return {
-    email, setEmail,
+    identifier, setIdentifier,
     password, setPassword,
     showPassword, setShowPassword,
     isLoading,

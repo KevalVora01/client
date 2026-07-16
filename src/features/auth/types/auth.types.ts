@@ -13,7 +13,7 @@ export interface User {
 }
 
 export interface LoginPayload {
-  email: string;
+  identifier: string;
   password: string;
 }
 

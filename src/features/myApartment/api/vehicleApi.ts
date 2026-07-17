@@ -5,17 +5,17 @@ export const vehicleApi = {
 
   getVehicles: async (residentId: number): Promise<Vehicle[]> => {
     const response = await api.get(`/residents/${residentId}/vehicles`);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   createVehicle: async (residentId: number, payload: CreateVehiclePayload): Promise<Vehicle> => {
     const response = await api.post(`/residents/${residentId}/vehicles`, payload);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   updateVehicle: async (residentId: number, id: number, payload: UpdateVehiclePayload): Promise<Vehicle> => {
     const response = await api.put(`/residents/${residentId}/vehicles/${id}`, payload);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   deleteVehicle: async (residentId: number, id: number): Promise<void> => {

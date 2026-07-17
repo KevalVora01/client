@@ -4,13 +4,17 @@ import type { PaginatedComplaints, ComplaintListParams } from '../types/complain
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
-export const useComplaints = (params?: ComplaintListParams, isAdmin: boolean = true) => {
+export const useComplaints = (params?: ComplaintListParams, isAdmin: boolean = true, ownOnly: boolean = false) => {
   const [complaints, setComplaints] = useState<PaginatedComplaints | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const serializedParams = JSON.stringify(params);
 
-  const fetchFn = isAdmin ? complaintApi.getComplaints : complaintApi.getMyComplaints;
+  const fetchFn = isAdmin
+    ? complaintApi.getComplaints
+    : ownOnly
+      ? complaintApi.getMyComplaints
+      : complaintApi.getApartmentComplaints;
 
   const fetchComplaints = useCallback(async () => {
     setLoading(true);
@@ -24,7 +28,7 @@ export const useComplaints = (params?: ComplaintListParams, isAdmin: boolean = t
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serializedParams, isAdmin]);
+  }, [serializedParams, isAdmin, ownOnly]);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +50,7 @@ export const useComplaints = (params?: ComplaintListParams, isAdmin: boolean = t
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serializedParams, isAdmin]);
+  }, [serializedParams, isAdmin, ownOnly]);
 
   return { complaints, loading, refetch: fetchComplaints };
 };

@@ -7,10 +7,13 @@ import ResidentsPage from '../features/residents/pages/ResidentsPage';
 import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
+import PasswordResetRequiredPage from '../features/auth/pages/PasswordResetRequiredPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
 import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
+import TenantRequestsPage from '../features/tenantRequests/pages/TenantRequestsPage';
+import TenantRequestDetailPage from '../features/tenantRequests/pages/TenantRequestDetailPage';
 import NoticesPage from '../features/notices/pages/NoticesPage';
 import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
@@ -32,6 +35,9 @@ const AppRoutes = () => {
           <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
+        {/* ─── Must-reset gate (authenticated, but password not yet set) ─── */}
+        <Route path="/set-password-required" element={<PasswordResetRequiredPage />} />
+
         {/* ─── Protected routes (admin only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
           <Route element={<DashboardLayout />}>
@@ -40,6 +46,8 @@ const AppRoutes = () => {
             <Route path="/residents/:id" element={<ResidentDetailPage />} />
             <Route path="/apartments" element={<ApartmentsPage />} />
             <Route path="/apartments/:id" element={<ApartmentDetailPage />} />
+            <Route path="/tenant-requests" element={<TenantRequestsPage />} />
+            <Route path="/tenant-requests/:id" element={<TenantRequestDetailPage />} />
             {/* rest of admin routes */}
           </Route>
         </Route>

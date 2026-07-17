@@ -25,6 +25,11 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
+  // Logged in but must reset password → force to the email-link notice screen
+  if (user?.mustResetPassword) {
+    return <Navigate to="/set-password-required" replace />;
+  }
+
   // Logged in but wrong role → redirect to unauthorized
   if (allowedRoles && user && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />;

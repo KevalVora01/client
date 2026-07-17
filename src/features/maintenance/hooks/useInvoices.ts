@@ -4,13 +4,17 @@ import type { PaginatedInvoices, InvoiceListParams } from '../types/maintenance.
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
-export const useInvoices = (params?: InvoiceListParams, isAdmin: boolean = true) => {
+export const useInvoices = (params?: InvoiceListParams, isAdmin: boolean = true, apartmentView: boolean = false) => {
   const [invoices, setInvoices] = useState<PaginatedInvoices | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   const serializedParams = JSON.stringify(params);
 
-  const fetchFn = isAdmin ? maintenanceApi.getInvoices : maintenanceApi.getMyInvoices;
+  const fetchFn = isAdmin
+    ? maintenanceApi.getInvoices
+    : apartmentView
+      ? maintenanceApi.getApartmentInvoices
+      : maintenanceApi.getMyInvoices;
 
   const fetchInvoices = useCallback(async () => {
     setLoading(true);
@@ -24,7 +28,7 @@ export const useInvoices = (params?: InvoiceListParams, isAdmin: boolean = true)
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serializedParams, isAdmin]);
+  }, [serializedParams, isAdmin, apartmentView]);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,7 +50,7 @@ export const useInvoices = (params?: InvoiceListParams, isAdmin: boolean = true)
 
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serializedParams, isAdmin]);
+  }, [serializedParams, isAdmin, apartmentView]);
 
   return { invoices, loading, refetch: fetchInvoices };
 };

@@ -16,6 +16,7 @@ import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import { maintenanceApi } from '../api/maintenanceApi';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import useAuth from '../../../hooks/useAuth';
+import useMyResident from '../../residents/hooks/useMyResident';
 import { showError, showSuccess } from '../../../utils/toast';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
 import type { Invoice, AdminDashboardMetrics } from '../types/maintenance.types';
@@ -27,6 +28,12 @@ function formatMonth(month: number, year: number): string {
 const MaintenancePage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { isOwner, isCurrentOccupant } = useMyResident();
+
+  // The current occupant (owner or tenant staying) pays their own invoices.
+  // A non-occupant owner views the apartment's invoices (tenant receipts) in
+  // read-only mode — they cannot pay.
+  const apartmentView = !isAdmin && isOwner && !isCurrentOccupant;
 
   const {
     invoices,
@@ -36,7 +43,7 @@ const MaintenancePage = () => {
     changePage,
     pagination,
     refetch,
-  } = useInvoicesPage(isAdmin);
+  } = useInvoicesPage(isAdmin, apartmentView);
 
   const { generateInvoices, markInvoiceSettled, applyOverduePenalties, loading: mutationLoading } = useInvoiceMutations(refetch);
   const { setting, loading: settingLoading, updating, updateAmount } = useMaintenanceSettings(isAdmin);
@@ -294,8 +301,12 @@ const MaintenancePage = () => {
           >
             <i className="bi bi-download" />
           </button>
-        ) : (
+        ) : isCurrentOccupant ? (
           <PayInvoiceButton invoiceId={inv.id} onPaymentSuccess={refetch} />
+        ) : (
+          <span className="text-muted" style={{ fontSize: '0.78rem' }}>
+            View only
+          </span>
         );
       },
     },

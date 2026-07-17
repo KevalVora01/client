@@ -1,12 +1,14 @@
 import type { PaginatedRequest, PaginatedResult } from "../../../types/pagination.types";
 
-export enum ApartmentType {
-  STUDIO = "studio",
-  ONE_BHK = "1bhk",
-  TWO_BHK = "2bhk",
-  THREE_BHK = "3bhk",
-  FOUR_BHK = "4bhk",
-}
+export const ApartmentType = {
+  STUDIO: "studio",
+  ONE_BHK: "1bhk",
+  TWO_BHK: "2bhk",
+  THREE_BHK: "3bhk",
+  FOUR_BHK: "4bhk",
+} as const;
+
+export type ApartmentType = typeof ApartmentType[keyof typeof ApartmentType];
 
 export interface Apartment {
   id: number;

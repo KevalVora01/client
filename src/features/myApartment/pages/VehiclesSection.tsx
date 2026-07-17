@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useVehicles } from "../hooks/useVehicles";
+import useMyResident from "../../residents/hooks/useMyResident";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import type { Vehicle, CreateVehiclePayload, UpdateVehiclePayload } from "../types/vehicle.types";
 import VehicleCard from "../components/VehicleCard";
@@ -8,28 +9,35 @@ import VehicleFormModal from "../components/VehicleFormModal";
 interface VehiclesSectionProps {
   residentId: number;
   readOnly?: boolean;
+  tenantResidentId?: number | null;
+  onTenantChange?: (tenantId: number | null) => void;
 }
 
-const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps) => {
-  const { vehicles, loading, addVehicle, editVehicle, removeVehicle } = useVehicles(residentId);
+const VehiclesSection = ({ residentId, readOnly = false, tenantResidentId = null, onTenantChange }: VehiclesSectionProps) => {
+  const { isOwner, isCurrentOccupant } = useMyResident();
+  const [viewingTenantId, setViewingTenantId] = useState<number | null>(tenantResidentId);
+  const targetResidentId = viewingTenantId ?? residentId;
+  const isViewingOwn = viewingTenantId === null;
+
+  const { vehicles, loading, addVehicle, editVehicle, removeVehicle } = useVehicles(targetResidentId);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
   const [deletingVehicle, setDeletingVehicle] = useState<Vehicle | null>(null);
   const [mutationLoading, setMutationLoading] = useState(false);
 
-  const handleAdd = async (payload: CreateVehiclePayload): Promise<boolean> => {
+  const handleAdd = async (payload: CreateVehiclePayload | UpdateVehiclePayload): Promise<boolean> => {
     setMutationLoading(true);
-    const success = await addVehicle(payload);
+    const success = await addVehicle(payload as CreateVehiclePayload);
     setMutationLoading(false);
     if (success) { setModalOpen(false); setEditingVehicle(null); }
     return success;
   };
 
-  const handleEdit = async (payload: UpdateVehiclePayload): Promise<boolean> => {
+  const handleEdit = async (payload: CreateVehiclePayload | UpdateVehiclePayload): Promise<boolean> => {
     if (!editingVehicle) return false;
     setMutationLoading(true);
-    const success = await editVehicle(editingVehicle.id, payload);
+    const success = await editVehicle(editingVehicle.id, payload as UpdateVehiclePayload);
     setMutationLoading(false);
     if (success) { setModalOpen(false); setEditingVehicle(null); }
     return success;
@@ -58,14 +66,36 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
     setEditingVehicle(null);
   };
 
+  const handleTenantChange = (tenantId: number | null) => {
+    setViewingTenantId(tenantId);
+    onTenantChange?.(tenantId);
+  };
+
+  const showTenantSelector = isOwner && !readOnly && tenantResidentId;
+
   return (
     <>
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
-        <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between">
-          <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
-            <i className="bi bi-car-front me-2" />Vehicles
-          </h6>
-          {!readOnly && (
+        <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div className="d-flex align-items-center gap-3">
+            <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
+              <i className="bi bi-car-front me-2" />Vehicles
+            </h6>
+            {showTenantSelector && (
+              <select
+                className="form-select form-select-sm"
+                style={{ width: 'auto', minWidth: '220px', fontSize: '0.85rem' }}
+                value={viewingTenantId ?? ''}
+                onChange={(e) => handleTenantChange(e.target.value ? Number(e.target.value) : null)}
+              >
+                <option value="">Your Vehicles</option>
+                {tenantResidentId && (
+                  <option value={tenantResidentId}>Tenant's Vehicles</option>
+                )}
+              </select>
+            )}
+          </div>
+          {!readOnly && isViewingOwn && isCurrentOccupant && (
             <button
               className="btn btn-dark btn-sm d-flex align-items-center gap-1"
               onClick={openAddModal}
@@ -88,7 +118,9 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
           ) : vehicles.length === 0 ? (
             <div className="text-center py-5">
               <i className="bi bi-car-front d-block mb-2" style={{ fontSize: '2rem', color: '#d1d5db' }} />
-              <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>No vehicles added yet</p>
+              <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
+                {isViewingOwn ? 'No vehicles added yet' : "Tenant has no vehicles added"}
+              </p>
             </div>
           ) : (
             <div className="d-flex flex-column gap-2">
@@ -98,7 +130,7 @@ const VehiclesSection = ({ residentId, readOnly = false }: VehiclesSectionProps)
                   vehicle={vehicle}
                   onEdit={openEditModal}
                   onDelete={(v) => setDeletingVehicle(v)}
-                  readOnly={readOnly}
+                  readOnly={readOnly || !isViewingOwn}
                 />
               ))}
             </div>

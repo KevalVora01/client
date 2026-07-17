@@ -6,11 +6,18 @@ import ComplaintList from '../components/ComplaintList';
 import ComplaintForm from '../components/ComplaintForm';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import useAuth from '../../../hooks/useAuth';
+import useMyResident from '../../residents/hooks/useMyResident';
 import type { Complaint, ComplaintStatus } from '../types/complaint.types';
 
 const ComplaintsPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { isCurrentOccupant } = useMyResident();
+
+  // Occupants (owner or tenant currently staying) see and raise their own
+  // complaints. Non-occupants (e.g. an owner whose tenant is staying) see the
+  // apartment's tenant complaints only, in read-only mode.
+  const ownOnly = !isAdmin && isCurrentOccupant;
 
   const {
     complaints,
@@ -20,7 +27,7 @@ const ComplaintsPage = () => {
     changePage,
     pagination,
     refetch,
-  } = useComplaintsPage(isAdmin);
+  } = useComplaintsPage(isAdmin, ownOnly);
 
   const {
     createComplaint,
@@ -63,7 +70,7 @@ const ComplaintsPage = () => {
             Review and resolve resident issues.
           </p>
         </div>
-        {!isAdmin && (
+        {!isAdmin && isCurrentOccupant && (
           <button
             className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
             onClick={openAddModal}
@@ -90,6 +97,7 @@ const ComplaintsPage = () => {
           onUpdateStatus={handleUpdateStatus}
           onDeleteComplaint={handleDeleteComplaint}
           isAdmin={isAdmin}
+          currentUserId={user?.id}
           pagination={pagination}
           onPageChange={changePage}
           onPageSizeChange={(size) => updateFilters({ pageSize: size })}

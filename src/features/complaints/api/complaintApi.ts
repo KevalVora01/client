@@ -10,29 +10,34 @@ export const complaintApi = {
 
   getComplaints: async (params?: ComplaintListParams): Promise<PaginatedComplaints> => {
     const response = await api.get('/complaints', { params });
-    return response.data.data.data;
+    return response.data.data;
   },
 
   getMyComplaints: async (params?: ComplaintListParams): Promise<PaginatedComplaints> => {
     const response = await api.get('/complaints/my', { params });
-    return response.data.data.data;
+    return response.data.data;
+  },
+
+  getApartmentComplaints: async (params?: ComplaintListParams): Promise<PaginatedComplaints> => {
+    const response = await api.get('/complaints/apartment', { params });
+    return response.data.data;
   },
 
   getComplaint: async (id: number): Promise<Complaint> => {
     const response = await api.get(`/complaints/${id}`);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   updateStatus: async (id: number, payload: UpdateComplaintStatusPayload): Promise<Complaint> => {
     const response = await api.patch(`/complaints/${id}/status`, payload);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   createComplaint: async (formData: FormData): Promise<Complaint> => {
     const response = await api.post('/complaints', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data.data.data;
+    return response.data.data;
   },
 
   addComment: async (id: number, content: string): Promise<void> => {
@@ -41,7 +46,7 @@ export const complaintApi = {
 
   getComments: async (id: number) => {
     const response = await api.get(`/complaints/${id}/comments`);
-    return response.data.data.data;
+    return response.data.data;
   },
 
   deleteComplaint: async (id: number): Promise<void> => {

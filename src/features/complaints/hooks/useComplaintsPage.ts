@@ -1,10 +1,10 @@
 import { useComplaints } from './useComplaints';
 import { useComplaintStore } from './useComplaintStore';
 
-export const useComplaintsPage = (isAdmin: boolean) => {
+export const useComplaintsPage = (isAdmin: boolean, ownOnly: boolean = false) => {
   const { filters, updateFilters, changePage } = useComplaintStore();
 
-  const { complaints, loading, refetch } = useComplaints(filters, isAdmin);
+  const { complaints, loading, refetch } = useComplaints(filters, isAdmin, ownOnly);
 
   return {
     complaints,

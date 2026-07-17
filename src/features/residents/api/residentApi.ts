@@ -1,5 +1,5 @@
 import api from '../../../config/api';
-import type { ResidentFilters, ResidentsResponse, ResidentDetail, CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
+import type { ResidentFilters, ResidentsResponse, ResidentDetail, Resident, CreateResidentPayload, UpdateResidentPayload, TenantHistoryItem } from "../types/resident.types";
 
 export const residentApi = {
 
@@ -18,9 +18,19 @@ export const residentApi = {
     return response.data.data.data;
   },
 
+  getMyApartmentTenants: async (): Promise<TenantHistoryItem[]> => {
+    const response = await api.get('/residents/my/tenants');
+    return response.data.data;
+  },
+
   getResident: async (id: number): Promise<ResidentDetail> => {
     const response = await api.get(`/residents/${id}`);
     return response.data.data.data;
+  },
+
+  getMyResident: async (): Promise<Resident> => {
+    const response = await api.get('/residents/me');
+    return response.data.data;
   },
 
   createResident: async (payload: CreateResidentPayload): Promise<ResidentDetail> => {

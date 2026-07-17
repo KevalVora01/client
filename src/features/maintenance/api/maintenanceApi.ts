@@ -38,6 +38,11 @@ export const maintenanceApi = {
     return response.data.data;
   },
 
+  getApartmentInvoices: async (params?: InvoiceListParams): Promise<PaginatedInvoices> => {
+    const response = await api.get('/maintenance/invoices/apartment', { params });
+    return response.data.data;
+  },
+
   getInvoice: async (id: number): Promise<Invoice> => {
     const response = await api.get(`/maintenance/invoices/${id}`);
     return response.data.data;

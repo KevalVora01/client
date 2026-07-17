@@ -5,6 +5,7 @@ export interface Resident {
   userId: number;
   apartmentId: number;
   isOwner: boolean;
+  isOccupant: boolean;
   moveInDate: string;
   moveOutDate: string | null;
   isActive: boolean;
@@ -28,6 +29,17 @@ export interface ResidentApartment {
 export interface ResidentDetail extends Resident {
   user: ResidentUser;
   apartment: ResidentApartment;
+}
+
+export interface TenantHistoryItem {
+  id: number;
+  userId: number;
+  isOwner: boolean;
+  isOccupant: boolean;
+  isActive: boolean;
+  moveInDate: string;
+  moveOutDate: string | null;
+  user: ResidentUser;
 }
 
 export interface CreateResidentPayload {

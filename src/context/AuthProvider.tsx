@@ -17,10 +17,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (isRefreshingRef.current) return;
       isRefreshingRef.current = true;
       try {
-        const { accessToken } = await refreshTokenApi();
+        const { accessToken, user: refreshedUser } = await refreshTokenApi();
         setAccessToken(accessToken);
-        const user = await getMeApi();
-        setUser(user as unknown as User);
+        if (refreshedUser?.mustResetPassword) {
+          setUser(refreshedUser as unknown as User);
+        } else {
+          const user = await getMeApi();
+          setUser(user as unknown as User);
+        }
       } catch {
         setAccessToken(null);
         setUser(null);
@@ -31,11 +35,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     silentRefresh();
   }, []);
 
-  const login = useCallback(async (payload: LoginPayload): Promise<void> => {
+  const login = useCallback(async (payload: LoginPayload): Promise<User | null> => {
     const loginResponse = await loginApi(payload);
     setAccessToken(loginResponse.accessToken);
+    if (loginResponse.user?.mustResetPassword) {
+      const user = loginResponse.user as unknown as User;
+      setUser(user);
+      return user;
+    }
     const user = await getMeApi();
     setUser(user as unknown as User);
+    return user as unknown as User;
   }, []);
 
 

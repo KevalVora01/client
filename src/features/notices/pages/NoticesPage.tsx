@@ -30,15 +30,15 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
 
   useScrollLock(modalOpen);
 
-  const handleAdd = async (payload: CreateNoticePayload): Promise<boolean> => {
-    const success = await createNotice(payload);
+  const handleAdd = async (payload: CreateNoticePayload | UpdateNoticePayload): Promise<boolean> => {
+    const success = await createNotice(payload as CreateNoticePayload);
     if (success) { setModalOpen(false); setEditingNotice(null); }
     return success;
   };
 
-  const handleEdit = async (payload: UpdateNoticePayload): Promise<boolean> => {
+  const handleEdit = async (payload: CreateNoticePayload | UpdateNoticePayload): Promise<boolean> => {
     if (!editingNotice) return false;
-    const success = await updateNotice(editingNotice.id, payload);
+    const success = await updateNotice(editingNotice.id, payload as UpdateNoticePayload);
     if (success) { setModalOpen(false); setEditingNotice(null); }
     return success;
   };

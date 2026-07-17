@@ -91,7 +91,7 @@ api.interceptors.response.use(
 
         const newToken: string = data.data.accessToken;
         setAccessToken(newToken);
-        connectSocket(accessToken);
+        connectSocket(accessToken ?? '');
         processQueue(null, newToken);
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;

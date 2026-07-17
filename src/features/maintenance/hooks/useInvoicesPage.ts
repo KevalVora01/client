@@ -1,10 +1,10 @@
 import { useInvoices } from './useInvoices';
 import { useInvoiceStore } from './useInvoiceStore';
 
-export const useInvoicesPage = (isAdmin: boolean) => {
+export const useInvoicesPage = (isAdmin: boolean, apartmentView: boolean = false) => {
   const { filters, updateFilters, changePage } = useInvoiceStore();
 
-  const { invoices, loading, refetch } = useInvoices(filters, isAdmin);
+  const { invoices, loading, refetch } = useInvoices(filters, isAdmin, apartmentView);
 
   return {
     invoices,

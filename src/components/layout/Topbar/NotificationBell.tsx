@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, FileText, MessageSquareWarning, Megaphone, ReceiptText, Clock, X, CheckCheck } from 'lucide-react';
+import { Bell, FileText, MessageSquareWarning, Megaphone, ReceiptText, Clock, X, CheckCheck, UserPlus, XCircle, UserMinus } from 'lucide-react';
 import { toast } from 'react-toastify';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
@@ -16,6 +16,10 @@ const ICON_MAP: Record<string, typeof FileText> = {
   maintenance_overdue: Clock,
   maintenance_overdue_reminder: Clock,
   maintenance_payment_succeeded: ReceiptText,
+  tenant_request_submitted: UserPlus,
+  tenant_request_approved: CheckCheck,
+  tenant_request_rejected: XCircle,
+  tenancy_revoked: UserMinus,
 };
 
 const CLASS_MAP: Record<string, string> = {
@@ -28,6 +32,10 @@ const CLASS_MAP: Record<string, string> = {
   maintenance_overdue: 'bg-danger-subtle text-danger-emphasis',
   maintenance_overdue_reminder: 'bg-danger-subtle text-danger-emphasis',
   maintenance_payment_succeeded: 'bg-success-subtle text-success-emphasis',
+  tenant_request_submitted: 'bg-primary-subtle text-primary-emphasis',
+  tenant_request_approved: 'bg-success-subtle text-success-emphasis',
+  tenant_request_rejected: 'bg-danger-subtle text-danger-emphasis',
+  tenancy_revoked: 'bg-warning-subtle text-warning-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
@@ -40,6 +48,10 @@ const NAV_MAP: Record<string, string> = {
   maintenance_overdue: '/maintenance',
   maintenance_overdue_reminder: '/maintenance',
   maintenance_payment_succeeded: '/maintenance',
+  tenant_request_submitted: '/tenant-requests',
+  tenant_request_approved: '/my-apartment',
+  tenant_request_rejected: '/my-apartment',
+  tenancy_revoked: '/my-apartment',
 };
 
 function timeAgo(dateStr: string): string {

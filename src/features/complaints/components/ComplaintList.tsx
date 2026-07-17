@@ -21,6 +21,7 @@ interface ComplaintListProps {
   onUpdateStatus?: (complaint: Complaint, status: ComplaintStatus) => void;
   onDeleteComplaint?: (complaintId: number) => Promise<void>;
   isAdmin?: boolean;
+  currentUserId?: number;
   pagination?: Omit<PaginatedResult<unknown>, 'items'> | null;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -52,6 +53,7 @@ const ComplaintList = ({
   onUpdateStatus,
   onDeleteComplaint,
   isAdmin = false,
+  currentUserId,
   pagination,
   onPageChange,
   onPageSizeChange
@@ -239,7 +241,7 @@ const ComplaintList = ({
               style={{ height: '38px', fontSize: '0.8rem', width: '130px' }}
             />
           );
-        } else if (!isAdmin && onDeleteComplaint && c.status === 'Open') {
+        } else if (!isAdmin && onDeleteComplaint && c.status === 'Open' && c.resident?.userId === currentUserId) {
           actionContent = (
             <button
               className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"

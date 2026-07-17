@@ -7,6 +7,7 @@ export interface User {
   phone: string;
   role: UserRole;
   isActive: boolean;
+  mustResetPassword?: boolean;
   createdAt: string;
   updatedAt: string;
   residentId?: number | null;

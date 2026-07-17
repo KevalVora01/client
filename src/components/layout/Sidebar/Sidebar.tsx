@@ -13,6 +13,7 @@ import {
   LogOut,
   X,
   Home,
+  ClipboardList,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -39,6 +40,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Residents', icon: Users, path: '/residents' },
     { label: 'Apartments', icon: Building2, path: '/apartments' },
+    { label: 'Tenant Requests', icon: ClipboardList, path: '/tenant-requests' },
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },

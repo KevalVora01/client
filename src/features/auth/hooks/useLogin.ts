@@ -16,9 +16,13 @@ const useLogin = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login({ identifier, password });
+      const user = await login({ identifier, password });
       showSuccess('Logged in successfully');
-      navigate('/', { replace: true });
+      if (user?.mustResetPassword) {
+        navigate('/set-password-required', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { error?: string } } };
       showError(

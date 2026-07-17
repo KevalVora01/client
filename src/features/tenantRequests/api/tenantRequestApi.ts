@@ -49,12 +49,13 @@ export const tenantRequestApi = {
 
   recordVote: async (
     id: number,
-    committeeMemberId: number,
-    vote: VoteChoice
+    committeeMemberId?: number,
+    vote?: VoteChoice,
+    recordedByAdminId?: number
   ): Promise<TenantRequestVote> => {
     const response = await api.post<ApiResponse<TenantRequestVote>>(
       `/tenant-requests/${id}/vote`,
-      { committeeMemberId, vote }
+      { committeeMemberId, vote, recordedByAdminId }
     );
     return response.data.data;
   },

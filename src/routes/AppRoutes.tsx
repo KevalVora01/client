@@ -14,6 +14,7 @@ import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPag
 import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
 import TenantRequestsPage from '../features/tenantRequests/pages/TenantRequestsPage';
 import TenantRequestDetailPage from '../features/tenantRequests/pages/TenantRequestDetailPage';
+import TenantWelcomePage from '../features/tenantRequests/pages/TenantWelcomePage';
 import NoticesPage from '../features/notices/pages/NoticesPage';
 import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
@@ -59,6 +60,11 @@ const AppRoutes = () => {
             <Route path="/my-apartment" element={<MyApartmentPage />} />
             {/* rest of resident routes */}
           </Route>
+        </Route>
+
+        {/* ─── Tenant pre-occupancy gate (standalone, no dashboard chrome) ─── */}
+        <Route element={<ProtectedRoute allowedRoles={['resident']} />}>
+          <Route path="/tenant-welcome" element={<TenantWelcomePage />} />
         </Route>
 
         {/* ─── Protected routes (security only) ───────────────── */}

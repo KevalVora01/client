@@ -1,7 +1,10 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, UserPlus } from 'lucide-react';
 import useTenantRequestDetail from '../hooks/useTenantRequestDetail';
-import type { VoteChoice } from '../types/tenantRequest.types';
+import useAuth from '../../../hooks/useAuth';
+import ConfirmModal from '../components/ConfirmModal';
+import type { TenantRequestVote, CommitteeMember, VoteChoice } from '../types/tenantRequest.types';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, { label: string; bg: string; color: string }> = {
@@ -28,7 +31,9 @@ const InfoRow = ({ icon: Icon, label, value }: { icon: typeof Mail; label: strin
 const TenantRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const requestId = Number(id);
-  const { data, loading, actionLoading, recordVote, finalize } = useTenantRequestDetail(requestId);
+  const { data, loading, actionLoading, recordVote, recordAdminVote, finalize, isAdmin } = useTenantRequestDetail(requestId);
+  const { user } = useAuth();
+  const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
 
   if (loading || !data) {
     return (
@@ -42,10 +47,15 @@ const TenantRequestDetailPage = () => {
   const { votes, committeeMembers } = data;
   const isPending = request.status === 'Pending';
 
-  const voteForMember = (memberId: number) => votes.find((v) => v.committeeMemberId === memberId);
+  const voteForMember = (memberId: number) => votes.find((v: TenantRequestVote) => v.committeeMemberId === memberId);
+  const adminVote = votes.find((v: TenantRequestVote) => !v.committeeMemberId);
 
   const handleFinalize = async () => {
-    if (!window.confirm('Finalize this tenant request based on the recorded committee votes?')) return;
+    setShowFinalizeConfirm(true);
+  };
+
+  const confirmFinalize = async () => {
+    setShowFinalizeConfirm(false);
     try {
       await finalize();
     } catch {
@@ -119,7 +129,7 @@ const TenantRequestDetailPage = () => {
                 <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>No committee members available to vote.</p>
               ) : (
                 <div className="d-flex flex-column gap-2">
-                  {committeeMembers.map((m) => {
+                  {committeeMembers.map((m: CommitteeMember) => {
                     const existing = voteForMember(m.id);
                     return (
                       <div key={m.id} className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
@@ -162,6 +172,48 @@ const TenantRequestDetailPage = () => {
                 </div>
               )}
 
+              {/* ── Admin vote (same card style as committee members) ── */}
+              {isAdmin && isPending && (
+                <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
+                  <div>
+                    <div className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>
+                      {user?.name ?? 'Admin'} <span className="text-muted" style={{ fontWeight: 400, fontSize: '0.78rem' }}>(Admin)</span>
+                    </div>
+                    <div className="text-muted" style={{ fontSize: '0.78rem' }}>{user?.email ?? '—'}</div>
+                    {adminVote && (
+                      <span
+                        className="badge mt-1"
+                        style={{
+                          backgroundColor: adminVote.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
+                          color: adminVote.vote === 'Approve' ? '#166534' : '#991b1b',
+                          fontSize: '0.72rem',
+                        }}
+                      >
+                        Voted: {adminVote.vote}
+                      </span>
+                    )}
+                  </div>
+                  <div className="d-flex gap-2 flex-shrink-0">
+                    <button
+                      disabled={actionLoading}
+                      onClick={() => recordAdminVote('Approve' as VoteChoice).catch(() => {})}
+                      className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
+                      style={{ backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #a7f3d0' }}
+                    >
+                      <Check size={15} /> Approve
+                    </button>
+                    <button
+                      disabled={actionLoading}
+                      onClick={() => recordAdminVote('Reject' as VoteChoice).catch(() => {})}
+                      className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
+                      style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}
+                    >
+                      <X size={15} /> Reject
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {isPending && (
                 <button
                   disabled={actionLoading}
@@ -179,19 +231,28 @@ const TenantRequestDetailPage = () => {
                 <div className="mt-3">
                   <p className="fw-semibold text-dark mb-2" style={{ fontSize: '0.85rem' }}>Recorded Votes</p>
                   <div className="d-flex flex-column gap-1">
-                    {votes.map((v) => (
+                    {votes.map((v: TenantRequestVote) => (
                       <div key={v.id} className="d-flex align-items-center justify-content-between" style={{ fontSize: '0.85rem' }}>
-                        <span className="text-muted">{v.committeeMember?.user?.name ?? `Member #${v.committeeMemberId}`}</span>
+                        <span className="text-muted">{v.committeeMember?.user?.name ?? (v.committeeMemberId ? `Member #${v.committeeMemberId}` : 'Admin')}</span>
                         <span style={{ color: v.vote === 'Approve' ? '#166534' : '#991b1b', fontWeight: 600 }}>{v.vote}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </div>
+             </div>
+           </div>
+         </div>
+       </div>
+    <ConfirmModal
+      show={showFinalizeConfirm}
+      title="Finalize Request"
+      message="Finalize this tenant request based on the recorded committee votes? This action cannot be undone."
+      confirmLabel="Finalize"
+      loading={actionLoading}
+      onConfirm={confirmFinalize}
+      onCancel={() => setShowFinalizeConfirm(false)}
+    />
     </div>
   );
 };

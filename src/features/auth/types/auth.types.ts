@@ -1,5 +1,13 @@
 export type UserRole = 'admin' | 'resident' | 'security';
 
+export interface ResidentSummary {
+  id: number;
+  isOwner: boolean;
+  isOccupant: boolean;
+  moveInDate: string | null;
+  apartmentId: number;
+}
+
 export interface User {
   id: number;
   name: string;
@@ -11,6 +19,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   residentId?: number | null;
+  resident?: ResidentSummary | null;
 }
 
 export interface LoginPayload {

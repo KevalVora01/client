@@ -12,6 +12,7 @@ const formatDate = (value: string | null): string => {
   return date.toLocaleDateString(undefined, {
     month: 'long',
     day: 'numeric',
+    year: 'numeric',
   });
 };
 

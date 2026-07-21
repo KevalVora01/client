@@ -99,6 +99,43 @@ const VoterRow = ({
   </div>
 );
 
+const formatDetailedDate = (dateString: string | Date, includeTime = true): string => {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '—';
+
+  const day = date.getDate();
+  const year = date.getFullYear();
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const month = monthNames[date.getMonth()];
+
+  let suffix = 'th';
+  if (day === 1 || day === 21 || day === 31) {
+    suffix = 'st';
+  } else if (day === 2 || day === 22) {
+    suffix = 'nd';
+  } else if (day === 3 || day === 23) {
+    suffix = 'rd';
+  }
+
+  const datePart = `${day}${suffix} ${month}, ${year}`;
+  if (!includeTime) {
+    return datePart;
+  }
+
+  let hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+
+  return `${datePart}, ${hours}:${minutesStr} ${ampm}`;
+};
+
 const TenantRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -148,8 +185,8 @@ const TenantRequestDetailPage = () => {
   const infoCards = [
     { icon: UserPlus, label: 'Tenant', value: request.tenantName, accent: 'info-card--blue' },
     { icon: Building2, label: 'Apartment', value: request.apartment ? `${request.apartment.block}-${request.apartment.floorNumber}${request.apartment.unitNumber}` : `Apt #${request.apartmentId}`, accent: 'info-card--green' },
-    { icon: Calendar, label: 'Move-in', value: new Date(request.moveInDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), accent: 'info-card--purple' },
-    { icon: Calendar, label: 'Submitted', value: new Date(request.createdAt).toLocaleString('en-IN'), accent: 'info-card--amber' },
+    { icon: Calendar, label: 'Move-in', value: formatDetailedDate(request.moveInDate, false), accent: 'info-card--purple' },
+    { icon: Calendar, label: 'Submitted', value: formatDetailedDate(request.createdAt), accent: 'info-card--amber' },
   ];
 
   return (
@@ -172,7 +209,7 @@ const TenantRequestDetailPage = () => {
           }}
         >
           {request.status === 'Approved' ? <UserCheck size={18} /> : <Ban size={18} />}
-          This request was {request.status.toLowerCase()} on {request.decidedAt ? new Date(request.decidedAt).toLocaleString() : '—'}.
+          This request was {request.status.toLowerCase()} on {request.decidedAt ? formatDetailedDate(request.decidedAt) : '—'}.
         </div>
       )}
 

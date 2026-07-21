@@ -1,5 +1,6 @@
-import { UserPlus, RefreshCw } from "lucide-react";
-import { useState } from "react";
+import { UserPlus, RefreshCw, Download, Upload } from "lucide-react";
+import { useState, useRef } from "react";
+import * as XLSX from "xlsx";
 import { useResidentsPage } from "../hooks/useResidentsPage";
 import ResidentStatsCards from "../components/ResidentStatsCards";
 import ResidentFiltersComponent from "../components/ResidentFilters";
@@ -11,6 +12,7 @@ import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import { residentApi } from "../api/residentApi";
 import { showSuccess, showError } from "../../../utils/toast";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
+import ImportResultsModal, { type FailedImportItem } from "../../../components/ImportResultsModal/ImportResultsModal";
 
 const ResidentsPage = () => {
   const {
@@ -18,13 +20,60 @@ const ResidentsPage = () => {
     updateFilters, changePage,
     showAddModal, showEditModal, showDeactivateModal,
     setShowAddModal, selectedResident,
-    deactivateLoading,
+    deactivateLoading, importLoading,
     handleView, handleEdit, handleDeactivate,
     handleCreate, handleUpdate, handleDeactivateConfirm,
-    handleCloseEdit, handleCloseDeactivate,
+    handleCloseEdit, handleCloseDeactivate, importResidents,
   } = useResidentsPage();
 
   const [promoting, setPromoting] = useState(false);
+
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [importResults, setImportResults] = useState<{
+    successCount: number;
+    failedCount: number;
+    failedItems: FailedImportItem[];
+  } | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input value so same file can be selected again
+    e.target.value = '';
+
+    const result = await importResidents(file);
+    if (result) {
+      setImportResults(result);
+      setShowResultsModal(true);
+      showSuccess(`Import finished. Successfully imported ${result.successCount} residents.`);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      {
+        "Name": "John Doe",
+        "Email": "john.doe@example.com",
+        "Password": "Password123!",
+        "Phone": "9876543210",
+        "Block": "A",
+        "Floor Number": 1,
+        "Unit Number": "01"
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Residents Template");
+    XLSX.writeFile(workbook, "residents_import_template.xlsx");
+  };
 
   const handlePromoteOccupants = async () => {
     setPromoting(true);
@@ -57,6 +106,39 @@ const ResidentsPage = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={handleDownloadTemplate}
+            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
+          >
+            <Download size={16} strokeWidth={2} />
+            Download Template
+          </button>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept=".xlsx, .xls"
+            style={{ display: "none" }}
+          />
+
+          <button
+            type="button"
+            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={handleImportClick}
+            disabled={importLoading}
+            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
+          >
+            {importLoading ? (
+              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+            ) : (
+              <Upload size={16} strokeWidth={2} />
+            )}
+            {importLoading ? "Importing..." : "Import Excel"}
+          </button>
+
           <button
             type="button"
             className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
@@ -149,6 +231,18 @@ const ResidentsPage = () => {
           if (success) handleCloseDeactivate();
         }}
         onCancel={handleCloseDeactivate}
+      />
+
+      <ImportResultsModal
+        show={showResultsModal}
+        onClose={() => {
+          setShowResultsModal(false);
+          setImportResults(null);
+        }}
+        successCount={importResults?.successCount ?? 0}
+        failedCount={importResults?.failedCount ?? 0}
+        failedItems={importResults?.failedItems ?? []}
+        title="Resident Import Results"
       />
 
     </div>

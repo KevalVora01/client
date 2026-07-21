@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { residentApi } from "../api/residentApi";
+import { residentApi, type ResidentImportResponse } from "../api/residentApi";
 import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { showError } from "../../../utils/toast";
@@ -8,6 +8,7 @@ export const useResidentMutations = (onSuccess?: () => void) => {
   const [createLoading, setCreateLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [deactivateLoading, setDeactivateLoading] = useState(false);
+  const [importLoading, setImportLoading] = useState(false);
 
   const createResident = async (payload: CreateResidentPayload): Promise<boolean> => {
     try {
@@ -51,6 +52,20 @@ export const useResidentMutations = (onSuccess?: () => void) => {
     }
   };
 
+  const importResidents = async (file: File): Promise<ResidentImportResponse | null> => {
+    try {
+      setImportLoading(true);
+      const res = await residentApi.importResidents(file);
+      onSuccess?.();
+      return res;
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to import residents"));
+      return null;
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   return {
     createResident,
     createLoading,
@@ -58,5 +73,7 @@ export const useResidentMutations = (onSuccess?: () => void) => {
     updateLoading,
     deactivateResident,
     deactivateLoading,
+    importResidents,
+    importLoading,
   };
 };

@@ -8,8 +8,19 @@ import type {
   UpdateApartmentPayload,
 } from '../types/apartment.types';
 
-export const apartmentApi = {
+export interface FailedImportItem {
+  row: number;
+  identifier: string;
+  reason: string;
+}
 
+export interface ImportResponse {
+  successCount: number;
+  failedCount: number;
+  failedItems: FailedImportItem[];
+}
+
+export const apartmentApi = {
   getApartments: async (filters: ApartmentFilters): Promise<ApartmentsResponse> => {
     const params = new URLSearchParams();
     params.append("pageNumber", String(filters.pageNumber));
@@ -42,6 +53,17 @@ export const apartmentApi = {
 
   updateApartment: async (id: number, payload: UpdateApartmentPayload): Promise<Apartment> => {
     const response = await api.put<ApiResponse<{ data: Apartment }>>(`/apartments/${id}`, payload);
+    return response.data.data.data;
+  },
+
+  importApartments: async (file: File): Promise<ImportResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post<ApiResponse<{ data: ImportResponse }>>('/apartments/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data.data.data;
   },
   

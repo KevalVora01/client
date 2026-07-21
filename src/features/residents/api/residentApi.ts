@@ -1,6 +1,18 @@
 import api from '../../../config/api';
 import type { ResidentFilters, ResidentsResponse, ResidentDetail, Resident, CreateResidentPayload, UpdateResidentPayload, TenantHistoryItem } from "../types/resident.types";
 
+export interface ResidentFailedImportItem {
+  row: number;
+  identifier: string;
+  reason: string;
+}
+
+export interface ResidentImportResponse {
+  successCount: number;
+  failedCount: number;
+  failedItems: ResidentFailedImportItem[];
+}
+
 export const residentApi = {
 
   getResidents: async (filters: ResidentFilters): Promise<ResidentsResponse> => {
@@ -54,6 +66,17 @@ export const residentApi = {
 
   promoteOccupants: async (): Promise<{ promoted: number }> => {
     const response = await api.post('/residents/promote-occupants');
+    return response.data.data;
+  },
+
+  importResidents: async (file: File): Promise<ResidentImportResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/residents/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     return response.data.data;
   },
 };

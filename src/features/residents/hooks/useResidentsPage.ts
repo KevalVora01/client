@@ -24,7 +24,7 @@ export const useResidentsPage = () => {
 
   const {
     createResident, createLoading, updateResident, updateLoading,
-    deactivateResident, deactivateLoading,
+    deactivateResident, deactivateLoading, importResidents, importLoading
   } = useResidentMutations(refetch);
 
   // ── Modal state ───────────────────────────────────────────
@@ -102,6 +102,7 @@ export const useResidentsPage = () => {
     createLoading,
     updateLoading,
     deactivateLoading,
+    importLoading,
 
     // handlers
     handleView,
@@ -112,5 +113,6 @@ export const useResidentsPage = () => {
     handleDeactivateConfirm,
     handleCloseEdit,
     handleCloseDeactivate,
+    importResidents,
   };
 };

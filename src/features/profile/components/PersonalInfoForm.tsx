@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Mail, Phone, User } from 'lucide-react';
 import type { ProfileUser, UpdateProfilePayload } from "../types/profile.types";
 
 interface PersonalInfoFormProps {
@@ -24,7 +25,8 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
         {/* .pf-card__title */}
         <h5 className="fs-6 fw-bold text-dark m-0 d-flex align-items-center gap-2">
-          <i className="bi bi-person text-secondary" /> Personal info
+          <i className="bi bi-person text-secondary" />
+          <span className="ms-1">Personal info</span>
         </h5>
       </div>
 
@@ -33,58 +35,129 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
 
         {/* Full Name Field */}
         <div className="col-12 col-md-6">
-          <div className="d-flex flex-column gap-1">
-            {/* .pf-field label styling */}
-            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
-              Full name
-            </label>
+          <label
+            className="d-block fw-bold text-uppercase mb-2"
+            htmlFor="fullName"
+            style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
+          >
+            Full name
+          </label>
+          <div className="position-relative d-flex align-items-center">
+            <User
+              size={18}
+              className="position-absolute"
+              style={{ left: "14px", color: "#9ca3af" }}
+            />
             <input
               type="text"
-              className="form-control text-dark bg-white"
-              style={{ height: '36px', fontSize: '0.875rem' }}
+              id="fullName"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
               required
+              className="form-control shadow-none border"
+              style={{
+                paddingLeft: "42px",
+                height: "46px",
+                backgroundColor: "#f9fafb",
+                borderColor: "#e5e7eb",
+                fontSize: "0.95rem",
+                borderRadius: "8px"
+              }}
+              onFocus={(e) => {
+                e.target.style.backgroundColor = "#ffffff";
+                e.target.style.borderColor = "#111827";
+                e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.backgroundColor = "#f9fafb";
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
         </div>
 
         {/* Phone Field */}
         <div className="col-12 col-md-6">
-          <div className="d-flex flex-column gap-1">
-            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
-              Phone
-            </label>
+          <label
+            className="d-block fw-bold text-uppercase mb-2"
+            htmlFor="phone"
+            style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
+          >
+            Phone
+          </label>
+          <div className="position-relative d-flex align-items-center">
+            <Phone
+              size={18}
+              className="position-absolute"
+              style={{ left: "14px", color: "#9ca3af" }}
+            />
             <input
               type="text"
-              className="form-control text-dark bg-white"
-              style={{ height: '36px', fontSize: '0.875rem' }}
+              id="phone"
+              placeholder="10 digit number"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="10 digit number"
               required
+              className="form-control shadow-none border"
+              style={{
+                paddingLeft: "42px",
+                height: "46px",
+                backgroundColor: "#f9fafb",
+                borderColor: "#e5e7eb",
+                fontSize: "0.95rem",
+                borderRadius: "8px"
+              }}
+              onFocus={(e) => {
+                e.target.style.backgroundColor = "#ffffff";
+                e.target.style.borderColor = "#111827";
+                e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+              }}
+              onBlur={(e) => {
+                e.target.style.backgroundColor = "#f9fafb";
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
             />
           </div>
         </div>
 
         {/* Email Address Field (.pf-field--full -> col-12) */}
         <div className="col-12">
-          <div className="d-flex flex-column gap-1">
-            <label className="text-uppercase text-muted fw-semibold tracking-wider small" style={{ fontSize: '0.68rem' }}>
-              Email address
-            </label>
+          <label
+            className="d-block fw-bold text-uppercase mb-2"
+            htmlFor="email"
+            style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
+          >
+            Email address
+          </label>
+          <div className="position-relative d-flex align-items-center">
+            <Mail
+              size={18}
+              className="position-absolute"
+              style={{ left: "14px", color: "#9ca3af" }}
+            />
             <input
               type="text"
-              className="form-control bg-light text-muted"
-              style={{ height: '36px', fontSize: '0.875rem', cursor: 'not-allowed' }}
+              id="email"
+              placeholder="Email address"
               value={user.email}
               readOnly
+              className="form-control shadow-none border bg-light text-muted"
+              style={{
+                paddingLeft: "42px",
+                height: "46px",
+                backgroundColor: "#f9fafb",
+                borderColor: "#e5e7eb",
+                fontSize: "0.95rem",
+                borderRadius: "8px",
+                cursor: "not-allowed"
+              }}
             />
-            {/* .pf-field__hint */}
-            <span className="text-muted small mt-1" style={{ fontSize: '0.75rem' }}>
-              Email cannot be changed. Contact support if needed.
-            </span>
+          </div>
+          <div className="text-muted small mt-1" style={{ fontSize: '0.75rem' }}>
+            Email cannot be changed. Contact support if needed.
           </div>
         </div>
 

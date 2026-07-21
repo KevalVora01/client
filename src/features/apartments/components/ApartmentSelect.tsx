@@ -64,7 +64,9 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
         style={{
           height: "42px",
           boxShadow: isOpen ? "0 0 0 3px rgba(26, 31, 54, 0.15)" : "none",
-          borderColor: isOpen ? "#a5b4fc" : ""
+          borderColor: isOpen ? "#a5b4fc" : "",
+          cursor: isEmpty ? "not-allowed" : "pointer",
+          pointerEvents: isEmpty ? "auto" : undefined
         }}
       >
         <div className="d-flex flex-column min-w-0" style={{ gap: "1px" }}>
@@ -182,6 +184,13 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
       {error && (
         <p className="text-danger m-0 mt-1" style={{ fontSize: "0.75rem" }}>
           {error}
+        </p>
+      )}
+
+      {isEmpty && (
+        <p className="m-0 mt-1 d-flex align-items-center gap-1 px-2 py-1" style={{ fontSize: "0.75rem", color: '#92400e', backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '6px' }}>
+          <i className="bi bi-exclamation-triangle" style={{ fontSize: '0.9rem' }} />
+          All apartments are currently occupied. Please try again after some days.
         </p>
       )}
     </div>

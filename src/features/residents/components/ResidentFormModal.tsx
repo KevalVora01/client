@@ -206,29 +206,6 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   </div>
                 )}
 
-                {/* Owner checkbox */}
-                <div className="col-12 mt-4">
-                  <div className="form-check d-flex align-items-center gap-2 m-0 p-0">
-                    <input
-                      type="checkbox"
-                      name="isOwner"
-                      id={isEdit ? "isOwnerEdit" : "isOwner"}
-                      className="form-check-input rounded border-light-subtle m-0 shadow-none position-static"
-                      checked={formik.values.isOwner ?? false}
-                      onChange={formik.handleChange}
-                      style={{
-                        width: "1.25em",
-                        height: "1.25em",
-                        backgroundColor: formik.values.isOwner ? "#1a1f36" : "",
-                        borderColor: formik.values.isOwner ? "#1a1f36" : ""
-                      }}
-                    />
-                    <label className="form-check-label small text-secondary" htmlFor={isEdit ? "isOwnerEdit" : "isOwner"} style={{ cursor: "pointer" }}>
-                      This resident is an owner
-                    </label>
-                  </div>
-                </div>
-
               </div>
             </div>
 

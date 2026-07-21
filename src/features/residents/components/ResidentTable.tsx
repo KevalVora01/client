@@ -5,6 +5,8 @@ import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers'
 import RowActions from './RowActions';
 import { useResidentStore } from '../hooks/useResidentStore';
 
+const COL_WIDTH = '145px';
+
 const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
   const { filters } = useResidentStore();
   const searchVal = filters.search ?? '';
@@ -41,6 +43,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'name',
       label: 'Resident Name',
+      width: '220px',
       render: (r) => {
         const { bg, color } = getAvatarColor(r.user.name);
         return (
@@ -72,6 +75,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'apartment',
       label: 'Apartment',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => r.apartment ? (
         <div>
           <p className="fw-semibold m-0 text-dark" style={{ fontSize: '0.9rem' }}>
@@ -86,6 +91,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'type',
       label: 'Type',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => (
         <span
           className="badge rounded-pill fw-medium px-3 py-2"
@@ -102,6 +109,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'moveInDate',
       label: 'Move-in Date',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => (
         <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
           {formatDate(r.moveInDate)}
@@ -111,6 +120,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'status',
       label: 'Status',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => (
         <span
           className="badge rounded-pill fw-semibold px-3 py-2"
@@ -127,6 +138,8 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'occupant',
       label: 'Occupant',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => (
         <span
           className="badge rounded-pill fw-semibold px-3 py-2"
@@ -143,14 +156,17 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'actions',
       label: 'Actions',
-      width: '80px',
+      width: COL_WIDTH,
+      align: 'center',
       render: (r) => (
-        <RowActions
-          resident={r}
-          onView={() => onView(r)}
-          onEdit={() => onEdit(r)}
-          onDeactivate={() => onDeactivate(r)}
-        />
+        <div className="d-flex justify-content-center">
+          <RowActions
+            resident={r}
+            onView={() => onView(r)}
+            onEdit={() => onEdit(r)}
+            onDeactivate={() => onDeactivate(r)}
+          />
+        </div>
       ),
     },
   ];

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, UserPlus } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, UserPlus, Building2 } from 'lucide-react';
 import useTenantRequestDetail from '../hooks/useTenantRequestDetail';
 import useAuth from '../../../hooks/useAuth';
 import ConfirmModal from '../components/ConfirmModal';
@@ -14,22 +14,94 @@ const StatusBadge = ({ status }: { status: string }) => {
   };
   const s = map[status] ?? map.Pending;
   return (
-    <span className="fw-semibold px-2 py-1 rounded-2" style={{ backgroundColor: s.bg, color: s.color, fontSize: '0.8rem' }}>
+    <span className="badge-pill" style={{ backgroundColor: s.bg, color: s.color }}>
       {s.label}
     </span>
   );
 };
 
-const InfoRow = ({ icon: Icon, label, value }: { icon: typeof Mail; label: string; value: string }) => (
-  <div className="d-flex align-items-center gap-2 mb-2">
-    <Icon size={16} className="text-muted flex-shrink-0" />
-    <span className="text-muted" style={{ fontSize: '0.82rem', minWidth: '70px' }}>{label}</span>
-    <span className="fw-medium text-dark" style={{ fontSize: '0.88rem' }}>{value}</span>
+const VoterRow = ({
+  name,
+  email,
+  tag,
+  draft,
+  pending,
+  actionLoading,
+  onVote,
+}: {
+  name: string;
+  email: string;
+  tag: string | null;
+  draft: string | null | undefined;
+  pending: boolean;
+  actionLoading: boolean;
+  onVote: (choice: VoteChoice) => void;
+}) => (
+  <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
+    <div className="min-w-0" style={{ flex: '1 1 auto' }}>
+      <div className="d-flex align-items-center gap-2">
+        <span className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{name}</span>
+        {tag && (
+          <span className="badge" style={{ backgroundColor: '#e8eaf6', color: '#3949ab', fontSize: '0.68rem', fontWeight: 600 }}>
+            {tag}
+          </span>
+        )}
+      </div>
+      <div className="text-muted mt-0" style={{ fontSize: '0.78rem' }}>{email}</div>
+    </div>
+    {pending ? (
+      <div className="d-flex rounded-3 overflow-hidden flex-shrink-0" style={{ border: '1px solid #e5e7eb' }}>
+        <button
+          disabled={actionLoading}
+          onClick={() => onVote('Approve' as VoteChoice)}
+          className="d-flex align-items-center gap-1 px-3 fw-semibold border-0"
+          style={{
+            fontSize: '0.82rem',
+            paddingTop: '6px',
+            paddingBottom: '6px',
+            backgroundColor: draft === 'Approve' ? '#166534' : '#fff',
+            color: draft === 'Approve' ? '#fff' : '#6b7280',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <Check size={14} /> Approve
+        </button>
+        <div style={{ width: '1px', background: '#e5e7eb' }} />
+        <button
+          disabled={actionLoading}
+          onClick={() => onVote('Reject' as VoteChoice)}
+          className="d-flex align-items-center gap-1 px-3 fw-semibold border-0"
+          style={{
+            fontSize: '0.82rem',
+            paddingTop: '6px',
+            paddingBottom: '6px',
+            backgroundColor: draft === 'Reject' ? '#991b1b' : '#fff',
+            color: draft === 'Reject' ? '#fff' : '#6b7280',
+            transition: 'all 0.15s ease',
+          }}
+        >
+          <X size={14} /> Reject
+        </button>
+      </div>
+    ) : draft ? (
+      <span
+        className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold flex-shrink-0"
+        style={{
+          fontSize: '0.78rem',
+          backgroundColor: draft === 'Approve' ? '#dcfce7' : '#fee2e2',
+          color: draft === 'Approve' ? '#166534' : '#991b1b',
+        }}
+      >
+        {draft === 'Approve' ? <Check size={13} /> : <X size={13} />}
+        {draft}
+      </span>
+    ) : null}
   </div>
 );
 
 const TenantRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const requestId = Number(id);
   const { data, loading, actionLoading, draftVotes, draftAdminVote, setMemberVote, setAdminVote, finalize, isAdmin } = useTenantRequestDetail(requestId);
   const { user } = useAuth();
@@ -37,8 +109,17 @@ const TenantRequestDetailPage = () => {
 
   if (loading || !data) {
     return (
-      <div className="container-fluid p-3 p-md-4">
-        <div className="skeleton mx-auto" style={{ height: '60vh', borderRadius: 12, maxWidth: 900 }} />
+      <div className="page">
+        <div className="skeleton skeleton--title" />
+        <div className="skeleton skeleton--subtitle" />
+        <div className="info-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="info-card">
+              <div className="skeleton skeleton--label" />
+              <div className="skeleton skeleton--value" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -64,18 +145,25 @@ const TenantRequestDetailPage = () => {
     }
   };
 
-  return (
-    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto" style={{ maxWidth: 960 }}>
+  const infoCards = [
+    { icon: UserPlus, label: 'Tenant', value: request.tenantName, accent: 'info-card--blue' },
+    { icon: Building2, label: 'Apartment', value: request.apartment ? `${request.apartment.block}-${request.apartment.floorNumber}${request.apartment.unitNumber}` : `Apt #${request.apartmentId}`, accent: 'info-card--green' },
+    { icon: Calendar, label: 'Move-in', value: new Date(request.moveInDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), accent: 'info-card--purple' },
+    { icon: Calendar, label: 'Submitted', value: new Date(request.createdAt).toLocaleString('en-IN'), accent: 'info-card--amber' },
+  ];
 
-      {/* ── Back ── */}
-      <Link to="/tenant-requests" className="btn btn-light border border-light-subtle btn-sm d-inline-flex align-items-center gap-1 mb-3" style={{ fontSize: '0.82rem' }}>
-        <ArrowLeft size={16} /> Back to requests
-      </Link>
+  return (
+    <div className="page">
+
+      <button className="back-btn" onClick={() => navigate('/tenant-requests')}>
+        <ArrowLeft size={16} strokeWidth={2} />
+        Back to requests
+      </button>
 
       {/* ── Result banner (after decision) ── */}
       {!isPending && (
         <div
-          className="alert d-flex align-items-center gap-2 mb-3"
+          className="d-flex align-items-center gap-2 px-4 py-3 rounded-3"
           style={{
             backgroundColor: request.status === 'Approved' ? '#ecfdf5' : '#fef2f2',
             border: `1px solid ${request.status === 'Approved' ? '#a7f3d0' : '#fecaca'}`,
@@ -88,189 +176,170 @@ const TenantRequestDetailPage = () => {
         </div>
       )}
 
-      <div className="row g-3">
-        {/* ── Request details ── */}
-        <div className="col-lg-5">
-          <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
-            <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between">
-              <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Request Details</h6>
+      {/* ── Header ── */}
+      <div className="detail-header">
+        <div className="detail-header__left">
+          <div
+            className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
+            style={{ width: 56, height: 56, fontSize: '1rem', background: '#eef2ff', color: '#4338ca' }}
+          >
+            {request.tenantName.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div className="detail-header__name-row">
+              <h4 className="detail-header__name">{request.tenantName}</h4>
               <StatusBadge status={request.status} />
             </div>
-            <div className="card-body px-4 py-3">
-              <InfoRow icon={UserPlus} label="Tenant" value={request.tenantName} />
-              <InfoRow icon={Mail} label="Email" value={request.tenantEmail} />
-              <InfoRow icon={Phone} label="Phone" value={request.tenantPhone} />
-              <InfoRow icon={Calendar} label="Move-in" value={new Date(request.moveInDate).toLocaleDateString()} />
-              <div className="d-flex align-items-center gap-2 mb-2">
-                <span className="text-muted" style={{ fontSize: '0.82rem', minWidth: '70px' }}>Apartment</span>
-                <span className="fw-medium text-dark" style={{ fontSize: '0.88rem' }}>
-                  {request.apartment
-                    ? `${request.apartment.block}-${request.apartment.floorNumber}${request.apartment.unitNumber}`
-                    : `Apt #${request.apartmentId}`}
-                </span>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <span className="text-muted" style={{ fontSize: '0.82rem', minWidth: '70px' }}>Submitted</span>
-                <span className="fw-medium text-dark" style={{ fontSize: '0.88rem' }}>{new Date(request.createdAt).toLocaleString()}</span>
-              </div>
+            <div className="detail-header__meta">
+              <span><Mail size={13} strokeWidth={1.75} /> {request.tenantEmail}</span>
+              <span><Phone size={13} strokeWidth={1.75} /> {request.tenantPhone}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* ── Committee voting ── */}
-        <div className="col-lg-7">
-          <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
-            <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3">
-              <h6 className="fw-bold mb-0 d-flex align-items-center gap-2" style={{ color: '#1a1f36' }}>
-                <Gavel size={18} /> Committee Votes
-              </h6>
+      {/* ── Info cards ── */}
+      <div className="info-grid">
+        {infoCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div key={card.label} className={`info-card ${card.accent}`}>
+              <div className="info-card__icon-box">
+                <Icon size={18} strokeWidth={1.75} />
+              </div>
+              <div>
+                <p className="info-card__label">{card.label}</p>
+                <p className="info-card__value">{card.value}</p>
+              </div>
             </div>
-            <div className="card-body px-4 py-3">
-              {committeeMembers.length === 0 ? (
-                <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>No committee members available to vote.</p>
-              ) : (
-                <div className="d-flex flex-column gap-2">
-                  {committeeMembers.map((m: CommitteeMember) => {
-                    const existing = voteForMember(m.id);
-                    const draft = draftVotes[m.id] ?? existing?.vote;
-                    return (
-                      <div key={m.id} className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
-                        <div>
-                          <div className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{m.user?.name ?? 'Committee Member'}</div>
-                          <div className="text-muted" style={{ fontSize: '0.78rem' }}>{m.user?.email ?? '—'}</div>
-                          {draft && (
-                            <span className="badge mt-1" style={{
-                              backgroundColor: draft === 'Approve' ? '#dcfce7' : '#fee2e2',
-                              color: draft === 'Approve' ? '#166534' : '#991b1b',
-                              fontSize: '0.72rem',
-                            }}>
-                              Voted: {draft}
-                            </span>
-                          )}
-                        </div>
-                        {isPending ? (
-                          <div className="d-flex gap-2 flex-shrink-0">
-                            <button
-                              disabled={actionLoading}
-                              onClick={() => setMemberVote(m.id, 'Approve' as VoteChoice)}
-                              className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                              style={{
-                                backgroundColor: draft === 'Approve' ? '#166534' : '#dcfce7',
-                                color: draft === 'Approve' ? '#fff' : '#166534',
-                                border: '1px solid #a7f3d0',
-                              }}
-                            >
-                              <Check size={15} /> Approve
-                            </button>
-                            <button
-                              disabled={actionLoading}
-                              onClick={() => setMemberVote(m.id, 'Reject' as VoteChoice)}
-                              className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                              style={{
-                                backgroundColor: draft === 'Reject' ? '#991b1b' : '#fee2e2',
-                                color: draft === 'Reject' ? '#fff' : '#991b1b',
-                                border: '1px solid #fecaca',
-                              }}
-                            >
-                              <X size={15} /> Reject
-                            </button>
-                          </div>
-                        ) : null}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+          );
+        })}
+      </div>
 
-              {/* ── Admin vote (same card style as committee members) ── */}
-              {isAdmin && isPending && (
-                <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
-                  <div>
-                    <div className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>
-                      {user?.name ?? 'Admin'} <span className="text-muted" style={{ fontWeight: 400, fontSize: '0.78rem' }}>(Admin)</span>
-                    </div>
-                    <div className="text-muted" style={{ fontSize: '0.78rem' }}>{user?.email ?? '—'}</div>
-                    {(draftAdminVote ?? adminVote?.vote) && (
-                      <span
-                        className="badge mt-1"
-                        style={{
-                          backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#dcfce7' : '#fee2e2',
-                          color: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#166534' : '#991b1b',
-                          fontSize: '0.72rem',
-                        }}
-                      >
-                        Voted: {draftAdminVote ?? adminVote?.vote}
-                      </span>
-                    )}
-                  </div>
-                  <div className="d-flex gap-2 flex-shrink-0">
-                    <button
-                      disabled={actionLoading}
-                      onClick={() => setAdminVote('Approve' as VoteChoice)}
-                      className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                      style={{
-                        backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#166534' : '#dcfce7',
-                        color: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#fff' : '#166534',
-                        border: '1px solid #a7f3d0',
-                      }}
-                    >
-                      <Check size={15} /> Approve
-                    </button>
-                    <button
-                      disabled={actionLoading}
-                      onClick={() => setAdminVote('Reject' as VoteChoice)}
-                      className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                      style={{
-                        backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Reject' ? '#991b1b' : '#fee2e2',
-                        color: (draftAdminVote ?? adminVote?.vote) === 'Reject' ? '#fff' : '#991b1b',
-                        border: '1px solid #fecaca',
-                      }}
-                    >
-                      <X size={15} /> Reject
-                    </button>
-                  </div>
-                </div>
-              )}
-
+      {/* ── Committee Voting ── */}
+      <div className="section-card">
+        <div className="section-card__header d-flex align-items-center gap-2">
+          <Gavel size={18} />
+          <h6 className="section-card__title mb-0">Committee Votes</h6>
+        </div>
+        <div className="p-4">
+          {committeeMembers.length === 0 ? (
+            <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>No committee members available to vote.</p>
+          ) : (
+            <>
+              {/* ── Vote progress ── */}
               {isPending && (
-                <button
-                  disabled={actionLoading}
-                  onClick={handleFinalize}
-                  className="btn w-100 fw-bold mt-3 d-flex align-items-center justify-content-center gap-2"
-                  style={{ backgroundColor: '#111827', color: '#fff', height: '48px', borderRadius: '8px' }}
-                >
-                  {actionLoading ? <span className="spinner-border spinner-border-sm" /> : <Gavel size={18} />}
-                  {actionLoading ? 'Saving votes…' : 'Save Votes & Finalize'}
-                </button>
-              )}
-
-              {/* ── Recorded votes summary (after decision) ── */}
-              {!isPending && votes.length > 0 && (
-                <div className="mt-3">
-                  <p className="fw-semibold text-dark mb-2" style={{ fontSize: '0.85rem' }}>Recorded Votes</p>
-                  <div className="d-flex flex-column gap-1">
-                    {votes.map((v: TenantRequestVote) => (
-                      <div key={v.id} className="d-flex align-items-center justify-content-between" style={{ fontSize: '0.85rem' }}>
-                        <span className="text-muted">{v.committeeMember?.user?.name ?? (v.committeeMemberId ? `Member #${v.committeeMemberId}` : 'Admin')}</span>
-                        <span style={{ color: v.vote === 'Approve' ? '#166534' : '#991b1b', fontWeight: 600 }}>{v.vote}</span>
-                      </div>
-                    ))}
+                <div className="d-flex align-items-center justify-content-between mb-3 pb-3 border-bottom border-light-subtle">
+                  <div className="d-flex align-items-center gap-3">
+                    <span className="d-flex align-items-center gap-1" style={{ fontSize: '0.82rem', color: '#166534' }}>
+                      <Check size={14} /> <span className="fw-semibold">{Object.values(draftVotes).filter(v => v === 'Approve').length + (draftAdminVote === 'Approve' ? 1 : 0)}</span> Approved
+                    </span>
+                    <span className="d-flex align-items-center gap-1" style={{ fontSize: '0.82rem', color: '#991b1b' }}>
+                      <X size={14} /> <span className="fw-semibold">{Object.values(draftVotes).filter(v => v === 'Reject').length + (draftAdminVote === 'Reject' ? 1 : 0)}</span> Rejected
+                    </span>
+                    <span className="text-muted d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
+                      <span className="fw-semibold">{committeeMembers.length + (isAdmin ? 1 : 0) - Object.values(draftVotes).filter(Boolean).length - (draftAdminVote ? 1 : 0)}</span> Not yet voted
+                    </span>
+                  </div>
+                  <div style={{ width: '120px', height: '6px', background: '#f3f4f6', borderRadius: '99px', overflow: 'hidden' }}>
+                    {(() => {
+                      const approved = Object.values(draftVotes).filter(v => v === 'Approve').length + (draftAdminVote === 'Approve' ? 1 : 0);
+                      const rejected = Object.values(draftVotes).filter(v => v === 'Reject').length + (draftAdminVote === 'Reject' ? 1 : 0);
+                      const total = committeeMembers.length + (isAdmin ? 1 : 0);
+                      const approvedW = total ? (approved / total * 100) : 0;
+                      const rejectedW = total ? (rejected / total * 100) : 0;
+                      return (
+                        <>
+                          <div style={{ width: `${approvedW}%`, height: '100%', background: '#22c55e', float: 'left' }} />
+                          <div style={{ width: `${rejectedW}%`, height: '100%', background: '#ef4444', float: 'left' }} />
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}
-             </div>
-           </div>
-         </div>
-       </div>
-    <ConfirmModal
-      show={showFinalizeConfirm}
-      title="Finalize Request"
-      message="All recorded votes will be saved and this tenant request will be finalized. This action cannot be undone."
-      confirmLabel="Finalize"
-      loading={actionLoading}
-      onConfirm={confirmFinalize}
-      onCancel={() => setShowFinalizeConfirm(false)}
-    />
+
+              {/* ── Committee member rows ── */}
+              <div className="d-flex flex-column gap-2">
+                {committeeMembers.map((m: CommitteeMember) => {
+                  const existing = voteForMember(m.id);
+                  const draft = draftVotes[m.id] ?? existing?.vote;
+                  return (
+                    <VoterRow
+                      key={m.id}
+                      name={m.user?.name ?? 'Committee Member'}
+                      email={m.user?.email ?? '—'}
+                      tag={null}
+                      draft={draft}
+                      pending={isPending}
+                      actionLoading={actionLoading}
+                      onVote={(choice) => setMemberVote(m.id, choice)}
+                    />
+                  );
+                })}
+
+                {/* ── Admin vote ── */}
+                {isAdmin && isPending && (
+                  <VoterRow
+                    name={user?.name ?? 'Admin'}
+                    email={user?.email ?? '—'}
+                    tag="Admin"
+                    draft={draftAdminVote ?? adminVote?.vote}
+                    pending={isPending}
+                    actionLoading={actionLoading}
+                    onVote={(choice) => setAdminVote(choice)}
+                  />
+                )}
+              </div>
+
+              {/* ── Finalize button ── */}
+              {isPending && (
+                <div className="d-flex justify-content-end mt-3">
+                  <button
+                    disabled={actionLoading}
+                    onClick={handleFinalize}
+                    className="btn fw-bold d-flex align-items-center justify-content-center gap-2"
+                    style={{ backgroundColor: '#111827', color: '#fff', height: '38px', borderRadius: '8px', paddingInline: '20px', fontSize: '0.85rem' }}
+                  >
+                    {actionLoading ? <span className="spinner-border spinner-border-sm" /> : <Gavel size={16} />}
+                    {actionLoading ? 'Saving…' : 'Save Votes'}
+                  </button>
+                </div>
+              )}
+
+              {/* ── Recorded votes summary ── */}
+              {!isPending && votes.length > 0 && (
+                <div className="d-flex flex-wrap gap-2 mt-3 pt-3 border-top border-light-subtle">
+                  {votes.map((v: TenantRequestVote) => (
+                    <span
+                      key={v.id}
+                      className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold"
+                      style={{
+                        fontSize: '0.78rem',
+                        backgroundColor: v.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
+                        color: v.vote === 'Approve' ? '#166534' : '#991b1b',
+                      }}
+                    >
+                      {v.vote === 'Approve' ? <Check size={12} /> : <X size={12} />}
+                      {v.committeeMember?.user?.name ?? (v.committeeMemberId ? `Member #${v.committeeMemberId}` : 'Admin')}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      <ConfirmModal
+        show={showFinalizeConfirm}
+        title="Finalize Request"
+        message="All recorded votes will be saved and this tenant request will be finalized. This action cannot be undone."
+        confirmLabel="Finalize"
+        loading={actionLoading}
+        onConfirm={confirmFinalize}
+        onCancel={() => setShowFinalizeConfirm(false)}
+      />
     </div>
   );
 };

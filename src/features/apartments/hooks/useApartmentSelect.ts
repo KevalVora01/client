@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import type { Apartment } from '../types/apartment.types';
 import { apartmentApi } from '../api/apartmentApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
-import { showInfo } from '../../../utils/toast';
 
 export const useApartmentSelect = (currentApartmentId?: number) => {
   const [apartments, setApartments] = useState<Apartment[]>([]);
@@ -23,9 +22,6 @@ export const useApartmentSelect = (currentApartmentId?: number) => {
 
         if (!cancelled) {
           setApartments(data);
-          if (data.length === 0) {
-            showInfo('All apartments are currently occupied. Please try again after some time.');
-          }
         }
       } catch (err: unknown) {
         console.error(getErrorMessage(err, 'Failed to fetch apartments'));

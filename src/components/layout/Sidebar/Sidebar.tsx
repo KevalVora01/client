@@ -13,7 +13,6 @@ import {
   LogOut,
   X,
   Home,
-  ClipboardList,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -27,7 +26,8 @@ import { getAvatarColor, getInitials } from '../../../features/residents/compone
 // ─── Types ────────────────────────────────────────────────────────
 interface NavItem {
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  bootstrapIcon?: string;
   path: string;
 }
 
@@ -41,7 +41,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Residents', icon: Users, path: '/residents' },
     { label: 'Apartments', icon: Building2, path: '/apartments' },
-    { label: 'Tenant Requests', icon: ClipboardList, path: '/tenant-requests' },
+    { label: 'Tenant Requests', bootstrapIcon: 'bi-clipboard-data', path: '/tenant-requests' },
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
@@ -124,7 +124,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       {/* ── Nav ── */}
       <nav className="flex-grow-1 px-2 py-2">
         <ul className="list-unstyled mb-0 d-flex flex-column gap-1">
-          {navItems.map(({ label, icon: Icon, path }) => (
+          {navItems.map(({ label, icon: Icon, bootstrapIcon, path }) => (
             <li key={path}>
               <NavLink
                 to={path}
@@ -133,7 +133,14 @@ const Sidebar = ({ onClose }: SidebarProps) => {
                 className="sidebar-nav-link d-flex align-items-center gap-3 px-3 py-2 rounded text-decoration-none"
                 style={{ fontSize: "0.92rem", color: "#2c2f33" }}
               >
-                <Icon size={20} strokeWidth={1.8} className="flex-shrink-0" />
+                {bootstrapIcon ? (
+                  <span className="flex-shrink-0 d-inline-flex align-items-center justify-content-center"
+                    style={{ width: 20, height: 20 }}>
+                    <i className={`bi ${bootstrapIcon}`} style={{ fontSize: '1.25rem' }} />
+                  </span>
+                ) : (
+                  Icon && <Icon size={20} strokeWidth={1.8} className="flex-shrink-0" />
+                )}
                 <span className="fw-medium">{label}</span>
               </NavLink>
             </li>

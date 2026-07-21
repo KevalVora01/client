@@ -20,6 +20,7 @@ interface SelectProps {
   disabled?: boolean;
   className?: string;
   style?: React.CSSProperties;
+  dropdownWidth?: string | number;
 }
 
 const Select = ({
@@ -37,6 +38,7 @@ const Select = ({
   disabled = false,
   className,
   style,
+  dropdownWidth,
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [openUp, setOpenUp] = useState(false);
@@ -117,7 +119,7 @@ const Select = ({
             const synthetic = { target: { name } } as React.FocusEvent<HTMLSelectElement>;
             onBlur?.(synthetic);
           }}
-          className={`form-select w-100 bg-white d-flex align-items-center justify-content-between text-start${showError ? " border-danger" : " border-light-subtle"
+          className={`form-select bg-white d-flex align-items-center justify-content-between text-start${showError ? " border-danger" : " border-light-subtle"
             }${className ? ` ${className}` : ""}`}
           style={{
             height: "40px",
@@ -127,6 +129,7 @@ const Select = ({
             paddingRight: "0.75rem",
             cursor: disabled ? "not-allowed" : "pointer",
             opacity: disabled ? 0.65 : 1,
+            width: "100%",
             ...style,
           }}
         >
@@ -150,9 +153,11 @@ const Select = ({
         {/* ── Dropdown ── */}
         {isOpen && (
           <div
-            className="position-absolute w-100 bg-white border border-light-subtle rounded-3 shadow-lg overflow-hidden"
+            className="position-absolute bg-white border border-light-subtle rounded-3 shadow-lg overflow-hidden"
             style={{
-              zIndex: 200,
+              zIndex: 2000,
+              width: dropdownWidth ? `${dropdownWidth}px` : 'auto',
+              minWidth: dropdownWidth ? `${dropdownWidth}px` : '100%',
               ...(openUp
                 ? { bottom: "calc(100% + 5px)" }
                 : { top: "calc(100% + 5px)" })
@@ -193,11 +198,12 @@ const Select = ({
                       }}
                     >
                       <span
-                        className="fw-medium text-truncate"
+                        className="fw-medium"
                         style={{
                           fontSize: "0.875rem",
                           color: "#1a1f36",
                           lineHeight: 1.3,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {opt.label}

@@ -108,6 +108,8 @@ const RowActions = ({
 
 import { useApartmentStore } from '../hooks/useApartmentStore';
 
+const COL_WIDTH = '157px';
+
 // ── Main component ───────────────────────────────────────────
 const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableProps) => {
   const { filters } = useApartmentStore();
@@ -145,6 +147,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "block",
       label: "BLOCK",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
         <span className="fw-bold d-block py-2 text-dark" style={{ fontSize: "0.95rem" }}>
           Block {highlightMatch(a.block, searchVal)}
@@ -154,6 +158,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "floor",
       label: "FLOOR",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
         <span className="text-dark d-block py-2" style={{ fontSize: "0.95rem" }}>
           {formatFloor(a.floorNumber)}
@@ -163,6 +169,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "flateNumber",
       label: "FLAT NO.",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
         <span className="fw-bold d-block py-2 text-dark" style={{ fontSize: "0.95rem" }}>
           {highlightMatch(`${a.block}-${a.floorNumber}${a.unitNumber}`, searchVal)}
@@ -172,6 +180,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "type",
       label: "UNIT TYPE",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
         <span className="text-dark d-block py-2" style={{ fontSize: "0.95rem" }}>
           {apartmentTypeLabels[a.type] ?? a.type}
@@ -181,6 +191,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "area",
       label: "AREA (SQFT)",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
         <span className="text-dark d-block py-2" style={{ fontSize: "0.95rem" }}>
           {formatArea(a.areaSqft)}
@@ -190,6 +202,8 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "status",
       label: "STATUS",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => {
         let badgeStyle = { backgroundColor: "#e0e7ff", color: "#4338ca", borderColor: "#c7d2fe" }; // OCCUPIED
         let labelText = "OCCUPIED";
@@ -218,9 +232,10 @@ const ApartmentTable = ({ apartments, loading, onEdit, onView }: ApartmentTableP
     {
       key: "actions",
       label: "ACTIONS",
-      width: "100px",
+      width: COL_WIDTH,
+      align: 'center',
       render: (a) => (
-        <div className="d-flex justify-content-end me-5">
+        <div className="d-flex justify-content-center">
           <RowActions
             apartment={a}
             onView={() => onView(a)}

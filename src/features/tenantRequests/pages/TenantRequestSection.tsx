@@ -215,18 +215,47 @@ const TenantRequestSection = ({
   // ── Pending request ──────────────────────────────────────────────
   if (status.pendingRequest) {
     const r = status.pendingRequest;
+    const infoCards = [
+      { icon: UserCheck, label: 'Tenant', value: r.tenantName, accent: 'info-card--blue' },
+      { icon: Mail, label: 'Email', value: r.tenantEmail, accent: 'info-card--green' },
+      { icon: Phone, label: 'Phone', value: r.tenantPhone, accent: 'info-card--purple' },
+      { icon: Calendar, label: 'Move-in', value: new Date(r.moveInDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }), accent: 'info-card--amber' },
+    ];
     return (
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
-          <div className="alert d-flex align-items-center gap-2 mb-3" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.9rem' }}>
-            <Clock size={18} /> Your tenant request is awaiting committee review.
+          <div
+            className="d-flex align-items-center gap-2 px-4 py-3 rounded-3 mb-4"
+            style={{
+              backgroundColor: '#fffbeb',
+              border: '1px solid #fde68a',
+              color: '#92400e',
+              fontSize: '0.9rem',
+            }}
+          >
+            <Clock size={18} className="flex-shrink-0" />
+            <span className="fw-medium">Your tenant request is awaiting committee review.</span>
           </div>
-          <div className="mb-2"><StatusBadge status={r.status} /></div>
-          <div className="mt-3">
-            <div className="mb-2"><UserCheck size={16} className="me-2 text-muted" />{r.tenantName}</div>
-            <div className="mb-2"><Mail size={16} className="me-2 text-muted" />{r.tenantEmail}</div>
-            <div className="mb-2"><Phone size={16} className="me-2 text-muted" />{r.tenantPhone}</div>
-            <div className="mb-2"><Calendar size={16} className="me-2 text-muted" />Move-in: {new Date(r.moveInDate).toLocaleDateString()}</div>
+
+          <div className="d-flex align-items-center gap-2 mb-3">
+            <StatusBadge status={r.status} />
+          </div>
+
+          <div className="info-grid">
+            {infoCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div key={card.label} className={`info-card ${card.accent}`}>
+                  <div className="info-card__icon-box">
+                    <Icon size={18} strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <p className="info-card__label">{card.label}</p>
+                    <p className="info-card__value">{card.value}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

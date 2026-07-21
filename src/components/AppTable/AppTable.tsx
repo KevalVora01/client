@@ -5,6 +5,8 @@ export interface TableColumn<T> {
   label: string;
   width?: string;
   align?: 'start' | 'center' | 'end';
+  headerAlign?: 'start' | 'center' | 'end';
+  headerPaddingLeft?: string;
   render: (row: T) => React.ReactNode;
 }
 
@@ -57,11 +59,12 @@ const AppTable = <T,>({
       <tr>
         {columns.map((col) => {
           const alignmentClass = col.align === 'center' ? 'text-center' : col.align === 'end' ? 'text-end' : 'text-start';
+          const headerAlignmentClass = col.headerAlign === 'center' ? 'text-center' : col.headerAlign === 'end' ? 'text-end' : col.headerAlign === 'start' ? 'text-start' : alignmentClass;
           return (
             <th
               key={col.key}
-              className={`text-uppercase text-secondary fw-semibold ${alignmentClass} px-3 text-nowrap`}
-              style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', ...(col.width ? { width: col.width } : {}) }}
+              className={`text-uppercase text-secondary fw-semibold ${headerAlignmentClass} text-nowrap`}
+              style={{ paddingTop: '0.75rem', paddingBottom: '0.75rem', paddingLeft: col.headerPaddingLeft ?? '1rem', paddingRight: '1rem', ...(col.width ? { width: col.width } : {}) }}
             >
               <span style={{ fontSize: '0.8rem', letterSpacing: '0.04em' }}>
                 {col.label}
@@ -98,7 +101,7 @@ const AppTable = <T,>({
           className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
           style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
         >
-          <i className={`${emptyIcon}`} style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
+          <i className={`bi ${emptyIcon}`} style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
         </div>
         <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>{emptyTitle}</p>
         <p className="text-secondary small" style={{ fontSize: '0.8rem', maxWidth: '320px', margin: '0 auto' }}>{emptySubtitle}</p>

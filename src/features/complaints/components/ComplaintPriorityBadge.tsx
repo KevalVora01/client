@@ -15,7 +15,7 @@ const ComplaintPriorityBadge = ({ priority }: { priority: ComplaintPriority }) =
         borderRadius: '6px',
       }}
     >
-      {priority} priority
+      {priority}
     </span>
   );
 };

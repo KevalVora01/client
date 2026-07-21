@@ -12,7 +12,7 @@ const Topbar = ({ onMenuClick }: TopbarProps) => {
   return (
     <div
       className="d-flex align-items-center justify-content-between px-4 bg-white border-bottom"
-      style={{ height: '64px' }}
+      style={{ height: '64px', flexShrink: 0 }}
     >
       <div className="d-flex align-items-center gap-3">
         <button

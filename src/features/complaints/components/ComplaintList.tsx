@@ -192,7 +192,7 @@ const ComplaintList = ({
     {
       key: 'title', label: 'Title', align: 'center', adminWidth: '30%', residentWidth: showResidentName ? '28%' : hideChatColumn ? '40%' : '33%',
       render: (c) => {
-        const isDisabled = disableChat || showResidentName || hideChatColumn || c.status === 'Resolved';
+        const isDisabled = hideChatColumn;
         return (
           <div
             style={{ cursor: isDisabled ? 'default' : 'pointer' }}
@@ -254,7 +254,8 @@ const ComplaintList = ({
               value={c.status}
               onChange={(e) => handleStatusChange(c, e.target.value)}
               className="shadow-none"
-              style={{ height: '38px', fontSize: '0.8rem', width: '130px' }}
+              style={{ height: '38px', fontSize: '0.8rem', width: '130px', textAlign: 'center', justifyContent: 'center', gap: '4px' }}
+              dropdownWidth={140}
             />
           );
         } else if (!isAdmin && onDeleteComplaint && c.status === 'Open' && c.resident?.userId === currentUserId) {
@@ -356,18 +357,59 @@ const ComplaintList = ({
                 </div>
               ) : (
                 <>
-                  <div className="complaint-drawer-info">
+                  <div
+                    className="complaint-drawer-info"
+                    style={expandedDetail.status !== 'Resolved' && !disableChat ? { maxHeight: '50%' } : undefined}
+                  >
                     {expandedDetail.images && expandedDetail.images.length > 0 && (
-                      <div className="mb-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                        {expandedDetail.images.map((img) => (
-                          <a key={img.id} href={img.imageUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-                            <img
-                              src={img.imageUrl}
-                              alt=""
-                              style={{ width: '100%', height: '140px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e5e7eb' }}
-                            />
-                          </a>
-                        ))}
+                      <div className="mb-3">
+                        {(() => {
+                          const images = expandedDetail.images;
+                          const carouselId = `complaint-carousel-${expandedDetail.id}`;
+                          return (
+                            <div id={carouselId} className="carousel slide" data-bs-ride="carousel">
+                              {images.length > 1 && (
+                                <>
+                                  <div className="carousel-indicators">
+                                    {images.map((_, idx) => (
+                                      <button
+                                        key={idx}
+                                        type="button"
+                                        data-bs-target={`#${carouselId}`}
+                                        data-bs-slide-to={idx}
+                                        className={idx === 0 ? 'active' : ''}
+                                        aria-current={idx === 0 ? 'true' : undefined}
+                                        aria-label={`Slide ${idx + 1}`}
+                                      />
+                                    ))}
+                                  </div>
+                                  <button className="carousel-control-prev" type="button" data-bs-target={`#${carouselId}`} data-bs-slide="prev">
+                                    <span className="carousel-control-prev-icon" aria-hidden="true" />
+                                    <span className="visually-hidden">Previous</span>
+                                  </button>
+                                  <button className="carousel-control-next" type="button" data-bs-target={`#${carouselId}`} data-bs-slide="next">
+                                    <span className="carousel-control-next-icon" aria-hidden="true" />
+                                    <span className="visually-hidden">Next</span>
+                                  </button>
+                                </>
+                              )}
+                              <div className="carousel-inner" style={{ borderRadius: '8px', overflow: 'hidden' }}>
+                                {images.map((img, idx) => (
+                                  <div key={img.id} className={`carousel-item ${idx === 0 ? 'active' : ''}`}>
+                                    <a href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                                      <img
+                                        src={img.imageUrl}
+                                        alt=""
+                                        className="d-block w-100"
+                                        style={{ height: '300px', objectFit: 'contain', backgroundColor: '#f0f2f5' }}
+                                      />
+                                    </a>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                     <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
@@ -376,14 +418,16 @@ const ComplaintList = ({
                   </div>
 
                   {/* Chat Section */}
-                  <div className="complaint-drawer-chat flex-grow-1 mt-3">
-                    <ComplaintComments
-                      complaintId={expandedDetail.id}
-                      status={expandedDetail.status}
-                      residentName={expandedDetail.resident?.user?.name ?? 'Unknown'}
-                      isAdmin={isAdmin}
-                    />
-                  </div>
+                  {expandedDetail.status !== 'Resolved' && !disableChat && (
+                    <div className="complaint-drawer-chat flex-grow-1 mt-3">
+                      <ComplaintComments
+                        complaintId={expandedDetail.id}
+                        status={expandedDetail.status}
+                        residentName={expandedDetail.resident?.user?.name ?? 'Unknown'}
+                        isAdmin={isAdmin}
+                      />
+                    </div>
+                  )}
                 </>
               )}
             </div>

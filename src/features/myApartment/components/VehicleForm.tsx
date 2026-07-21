@@ -53,7 +53,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
           <input
             type="text"
             name="plateNumber"
-            className={`form-control border-light-subtle shadow-none ${formik.touched.plateNumber && formik.errors.plateNumber ? "is-invalid" : ""}`}
+            className={`form-control shadow-none ${formik.touched.plateNumber && formik.errors.plateNumber ? "is-invalid" : "border-light-subtle"}`}
             placeholder="e.g. GJ 01 AB 1234"
             value={formik.values.plateNumber}
             onChange={(e) => formik.setFieldValue("plateNumber", e.target.value.toUpperCase())}
@@ -107,7 +107,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
           <input
             type="text"
             name="brandName"
-            className={`form-control border-light-subtle shadow-none ${formik.touched.brandName && formik.errors.brandName ? "is-invalid" : ""}`}
+            className={`form-control shadow-none ${formik.touched.brandName && formik.errors.brandName ? "is-invalid" : "border-light-subtle"}`}
             placeholder="e.g. Maruti, Honda"
             value={formik.values.brandName}
             onChange={formik.handleChange}
@@ -127,7 +127,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
           <input
             type="text"
             name="model"
-            className={`form-control border-light-subtle shadow-none ${formik.touched.model && formik.errors.model ? "is-invalid" : ""}`}
+            className={`form-control shadow-none ${formik.touched.model && formik.errors.model ? "is-invalid" : "border-light-subtle"}`}
             placeholder="e.g. Swift, Activa"
             value={formik.values.model}
             onChange={formik.handleChange}
@@ -147,7 +147,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
           <input
             type="text"
             name="color"
-            className={`form-control border-light-subtle shadow-none ${formik.touched.color && formik.errors.color ? "is-invalid" : ""}`}
+            className={`form-control shadow-none ${formik.touched.color && formik.errors.color ? "is-invalid" : "border-light-subtle"}`}
             placeholder="e.g. White, Black"
             value={formik.values.color}
             onChange={formik.handleChange}

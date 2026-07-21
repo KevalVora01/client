@@ -9,15 +9,22 @@ import useAuth from '../../../hooks/useAuth';
 import useMyResident from '../../residents/hooks/useMyResident';
 import type { Complaint, ComplaintStatus } from '../types/complaint.types';
 
+type ComplaintScope = 'self' | 'tenant';
+
 const ComplaintsPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const { isCurrentOccupant } = useMyResident();
+  const { isCurrentOccupant, isOwner } = useMyResident(!isAdmin);
 
-  // Occupants (owner or tenant currently staying) see and raise their own
-  // complaints. Non-occupants (e.g. an owner whose tenant is staying) see the
-  // apartment's tenant complaints only, in read-only mode.
-  const ownOnly = !isAdmin && isCurrentOccupant;
+  // Owners can toggle between their own complaints and the complaints their
+  // tenants have raised — regardless of whether they currently occupy the unit.
+  const showScopeToggle = !isAdmin && isOwner;
+  const [scope, setScope] = useState<ComplaintScope>('self');
+
+  // Owners: Self tab always shows their own complaints, Tenant tab shows the
+  // apartment's tenant complaints. Non-owner tenants see their own list only
+  // when currently occupying.
+  const ownOnly = !isAdmin && (showScopeToggle ? scope === 'self' : isCurrentOccupant);
 
   const {
     complaints,
@@ -28,6 +35,11 @@ const ComplaintsPage = () => {
     pagination,
     refetch,
   } = useComplaintsPage(isAdmin, ownOnly);
+
+  // On the tenant tab, exclude the owner's own complaints.
+  const complaintItems = (complaints?.items ?? []).filter((c) =>
+    showScopeToggle && scope === 'tenant' ? c.resident?.userId !== user?.id : true
+  );
 
   const {
     createComplaint,
@@ -70,7 +82,7 @@ const ComplaintsPage = () => {
             Review and resolve resident issues.
           </p>
         </div>
-        {!isAdmin && isCurrentOccupant && (
+        {!isAdmin && isCurrentOccupant && !(showScopeToggle && scope === 'tenant') && (
           <button
             className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
             onClick={openAddModal}
@@ -80,6 +92,35 @@ const ComplaintsPage = () => {
           </button>
         )}
       </div>
+
+      {/* ── Self / Tenant toggle (owners only) ── */}
+      {showScopeToggle && (
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          {([
+            { key: 'self', label: 'Self' },
+            { key: 'tenant', label: 'Tenant' },
+          ] as { key: ComplaintScope; label: string }[]).map(({ key, label }) => {
+            const active = scope === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setScope(key)}
+                className="btn btn-sm fw-semibold px-3 py-2"
+                style={{
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  backgroundColor: active ? '#1a1f36' : '#fff',
+                  color: active ? '#fff' : '#4b5563',
+                  border: `1px solid ${active ? '#1a1f36' : '#e5e7eb'}`,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── Filters ── */}
       <div className="d-flex align-items-center gap-3 mb-3">
@@ -92,12 +133,14 @@ const ComplaintsPage = () => {
       {/* ── Complaint Table ── */}
       <div className="mb-3">
         <ComplaintList
-          complaints={complaints?.items ?? []}
+          complaints={complaintItems}
           loading={loading}
           onUpdateStatus={handleUpdateStatus}
           onDeleteComplaint={handleDeleteComplaint}
           isAdmin={isAdmin}
           currentUserId={user?.id}
+          disableChat={showScopeToggle && scope === 'tenant'}
+          showResidentName={showScopeToggle && scope === 'tenant'}
           pagination={pagination}
           onPageChange={changePage}
           onPageSizeChange={(size) => updateFilters({ pageSize: size })}

@@ -51,4 +51,9 @@ export const residentApi = {
     const response = await api.get(`/residents/apartment/${apartmentId}`);
     return response.data.data;
   },
+
+  promoteOccupants: async (): Promise<{ promoted: number }> => {
+    const response = await api.post('/residents/promote-occupants');
+    return response.data.data;
+  },
 };

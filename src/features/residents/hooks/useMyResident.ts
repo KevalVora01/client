@@ -2,9 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { residentApi } from "../api/residentApi";
 import type { Resident } from "../types/resident.types";
 
-const useMyResident = () => {
+const useMyResident = (enabled: boolean = true) => {
   const [resident, setResident] = useState<Resident | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   const fetchResident = useCallback(async () => {
@@ -22,8 +22,8 @@ const useMyResident = () => {
   }, []);
 
   useEffect(() => {
-    fetchResident();
-  }, [fetchResident]);
+    if (enabled) fetchResident();
+  }, [enabled, fetchResident]);
 
   const isOwner = resident?.isOwner ?? false;
   const isOccupant = resident?.isOccupant ?? false;

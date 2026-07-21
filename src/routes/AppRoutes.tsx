@@ -12,6 +12,8 @@ import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
 import MyApartmentPage from '../features/myApartment/pages/MyApartmentPage';
+import TenantManagementPage from '../features/myApartment/pages/TenantManagementPage';
+import TenantDetailPage from '../features/myApartment/pages/TenantDetailPage';
 import TenantRequestsPage from '../features/tenantRequests/pages/TenantRequestsPage';
 import TenantRequestDetailPage from '../features/tenantRequests/pages/TenantRequestDetailPage';
 import TenantWelcomePage from '../features/tenantRequests/pages/TenantWelcomePage';
@@ -56,8 +58,10 @@ const AppRoutes = () => {
         {/* ─── Protected routes (resident only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['resident']} />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/resident" element={<ResidentDashboard />} />
-            <Route path="/my-apartment" element={<MyApartmentPage />} />
+          <Route path="/resident" element={<ResidentDashboard />} />
+          <Route path="/my-apartment" element={<MyApartmentPage />} />
+          <Route path="/tenant" element={<TenantManagementPage />} />
+          <Route path="/tenant/:id" element={<TenantDetailPage />} />
             {/* rest of resident routes */}
           </Route>
         </Route>

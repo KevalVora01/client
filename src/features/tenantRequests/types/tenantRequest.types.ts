@@ -47,9 +47,9 @@ export type VoteChoice = 'Approve' | 'Reject';
 export interface TenantRequestVote {
   id: number;
   tenantRequestId: number;
-  committeeMemberId: number;
+  committeeMemberId: number | null;
   vote: VoteChoice;
-  recordedByAdminId: number;
+  recordedByAdminId: number | null;
   createdAt: string;
   committeeMember?: {
     id: number;
@@ -57,6 +57,16 @@ export interface TenantRequestVote {
     apartmentId: number;
     user?: { id: number; name: string; email: string } | null;
   } | null;
+}
+
+export interface BulkVoteEntry {
+  committeeMemberId: number;
+  vote: VoteChoice;
+}
+
+export interface BulkRecordVotesPayload {
+  adminVote?: VoteChoice;
+  votes: BulkVoteEntry[];
 }
 
 export interface CommitteeMember {

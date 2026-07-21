@@ -25,15 +25,21 @@ function formatMonth(month: number, year: number): string {
   return new Date(year, month - 1).toLocaleString('en-IN', { month: 'long', year: 'numeric' });
 }
 
+type InvoiceScope = 'self' | 'tenant';
+
 const MaintenancePage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
-  const { isOwner, isCurrentOccupant } = useMyResident();
+  const { resident, isOwner, isCurrentOccupant } = useMyResident(!isAdmin);
 
-  // The current occupant (owner or tenant staying) pays their own invoices.
-  // A non-occupant owner views the apartment's invoices (tenant receipts) in
-  // read-only mode — they cannot pay.
-  const apartmentView = !isAdmin && isOwner && !isCurrentOccupant;
+  // Owners can toggle between their own invoices and their tenant's invoices,
+  // regardless of whether they currently occupy the unit.
+  const showScopeToggle = !isAdmin && isOwner;
+  const [scope, setScope] = useState<InvoiceScope>('self');
+
+  // Owners: Self tab shows their own invoices, Tenant tab shows the apartment's
+  // tenant invoices (read-only). Non-owner tenants always see their own list.
+  const apartmentView = showScopeToggle && scope === 'tenant';
 
   const {
     invoices,
@@ -44,6 +50,13 @@ const MaintenancePage = () => {
     pagination,
     refetch,
   } = useInvoicesPage(isAdmin, apartmentView);
+
+  const showResidentName = showScopeToggle && scope === 'tenant';
+
+  // On the tenant tab, exclude the owner's own invoices.
+  const invoiceItems = (invoices?.items ?? []).filter((inv) =>
+    showResidentName ? inv.resident?.userId !== user?.id : true
+  );
 
   const { generateInvoices, markInvoiceSettled, applyOverduePenalties, loading: mutationLoading } = useInvoiceMutations(refetch);
   const { setting, loading: settingLoading, updating, updateAmount } = useMaintenanceSettings(isAdmin);
@@ -153,6 +166,7 @@ const MaintenancePage = () => {
     adminWidth: string;
     residentWidth: string;
     align?: 'start' | 'center' | 'end';
+    show?: boolean;
     render: (inv: Invoice) => React.ReactNode;
   }[] = [
     {
@@ -164,6 +178,19 @@ const MaintenancePage = () => {
       render: (inv) => (
         <span className="fw-medium" style={{ fontSize: '0.875rem', color: '#1a1f36' }}>
           {formatMonth(inv.month, inv.year)}
+        </span>
+      ),
+    },
+    {
+      key: 'raisedBy',
+      label: 'Tenant',
+      adminWidth: '0%',
+      residentWidth: '14%',
+      align: 'center',
+      show: showResidentName,
+      render: (inv) => (
+        <span className="fw-medium" style={{ fontSize: '0.85rem', color: '#1a1f36' }}>
+          {inv.resident?.name ?? '\u2014'}
         </span>
       ),
     },
@@ -198,7 +225,7 @@ const MaintenancePage = () => {
       key: 'baseAmount',
       label: 'Base Amount',
       adminWidth: '11%',
-      residentWidth: '15%',
+      residentWidth: showResidentName ? '12%' : '15%',
       align: 'center',
       render: (inv) => (
         <span className="fw-medium text-dark" style={{ fontSize: '0.875rem' }}>
@@ -210,7 +237,7 @@ const MaintenancePage = () => {
       key: 'extraCharges',
       label: 'Extra Charges',
       adminWidth: '16%',
-      residentWidth: '17%',
+      residentWidth: showResidentName ? '18%' : '17%',
       align: 'center',
       render: (inv) => {
         const hasExtra = inv.extraCharges && inv.extraCharges.length > 0;
@@ -236,7 +263,7 @@ const MaintenancePage = () => {
       key: 'totalAmount',
       label: 'Total Amount',
       adminWidth: '14%',
-      residentWidth: '17%',
+      residentWidth: showResidentName ? '12%' : '17%',
       align: 'center',
       render: (inv) => (
         <span className="fw-semibold text-dark" style={{ fontSize: '0.875rem' }}>
@@ -248,7 +275,7 @@ const MaintenancePage = () => {
       key: 'dueDate',
       label: 'Due Date',
       adminWidth: '14%',
-      residentWidth: '17%',
+      residentWidth: showResidentName ? '13%' : '17%',
       align: 'center',
       render: (inv) => (
         <span style={{ fontSize: '0.875rem', color: '#4b5563' }}>
@@ -260,7 +287,7 @@ const MaintenancePage = () => {
       key: 'status',
       label: 'Status',
       adminWidth: '12%',
-      residentWidth: '11%',
+      residentWidth: showResidentName ? '11%' : '11%',
       align: 'center',
       render: (inv) => <InvoiceStatusBadge status={inv.status} />,
     },
@@ -268,7 +295,7 @@ const MaintenancePage = () => {
       key: 'actions',
       label: 'Actions',
       adminWidth: '13%',
-      residentWidth: '13%',
+      residentWidth: showResidentName ? '10%' : '13%',
       align: 'center',
       render: (inv) => {
         const isPaid = inv.status === 'Paid';
@@ -301,19 +328,18 @@ const MaintenancePage = () => {
           >
             <i className="bi bi-download" />
           </button>
-        ) : isCurrentOccupant ? (
+        ) : (isCurrentOccupant || inv.residentId === resident?.id) ? (
           <PayInvoiceButton invoiceId={inv.id} onPaymentSuccess={refetch} />
         ) : (
-          <span className="text-muted" style={{ fontSize: '0.78rem' }}>
-            View only
-          </span>
+          <span className="text-muted" style={{ fontSize: '0.78rem' }}>—</span>
         );
       },
     },
   ];
 
   const columns: TableColumn<Invoice>[] = allColumnDefs
-    .filter((col) => isAdmin || (col.adminWidth !== '0%' && col.residentWidth !== '0%'))
+    .filter((col) => col.show !== false)
+    .filter((col) => (isAdmin ? col.adminWidth !== '0%' : col.residentWidth !== '0%'))
     .map((col) => ({
       key: col.key,
       label: col.label,
@@ -378,6 +404,35 @@ const MaintenancePage = () => {
         </div>
       )}
 
+      {/* ── Self / Tenant toggle (owners only) ── */}
+      {showScopeToggle && (
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          {([
+            { key: 'self', label: 'Self' },
+            { key: 'tenant', label: 'Tenant' },
+          ] as { key: InvoiceScope; label: string }[]).map(({ key, label }) => {
+            const active = scope === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setScope(key)}
+                className="btn btn-sm fw-semibold px-3 py-2"
+                style={{
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  backgroundColor: active ? '#1a1f36' : '#fff',
+                  color: active ? '#fff' : '#4b5563',
+                  border: `1px solid ${active ? '#1a1f36' : '#e5e7eb'}`,
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* ── Filters ── */}
       <div className="d-flex align-items-center gap-3 mb-3">
         <InvoiceFilters filters={filters} onFilterChange={updateFilters} />
@@ -387,7 +442,7 @@ const MaintenancePage = () => {
       <div className="table-card mb-4">
         <AppTable
           columns={columns}
-          data={invoices?.items ?? []}
+          data={invoiceItems}
           loading={loading}
           rowKey={(inv) => inv.id}
           emptyTitle="No invoices found"
@@ -395,7 +450,7 @@ const MaintenancePage = () => {
           emptyIcon="bi-receipt"
           skeletonRows={4}
         />
-        {!loading && (invoices?.items?.length ?? 0) > 0 && pagination && (
+        {!loading && invoiceItems.length > 0 && pagination && (
           <div className="table-card__footer">
             <Pagination
               pagination={pagination}

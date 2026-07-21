@@ -51,7 +51,7 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
           <input
             type="text"
             name="name"
-            className={`form-control border-light-subtle shadow-none ${formik.touched.name && formik.errors.name ? "is-invalid" : ""}`}
+            className={`form-control shadow-none ${formik.touched.name && formik.errors.name ? "is-invalid" : "border-light-subtle"}`}
             placeholder="Enter full name"
             value={formik.values.name}
             onChange={formik.handleChange}

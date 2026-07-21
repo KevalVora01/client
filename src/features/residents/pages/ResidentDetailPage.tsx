@@ -63,6 +63,7 @@ const ResidentDetailPage = () => {
     resident.isActive
       ? { icon: UserCheck, label: 'Resident Type', value: resident.isOwner ? 'Owner' : 'Tenant', accent: 'info-card--amber' }
       : { icon: Calendar, label: 'Move-out Date', value: resident.moveOutDate ? formatDate(resident.moveOutDate) : '—', accent: 'info-card--amber' },
+    { icon: UserCheck, label: 'Occupancy', value: resident.isOccupant ? 'Occupant' : 'Non-occupant', accent: 'info-card--green' },
   ];
   return (
     <div className="page">
@@ -89,6 +90,9 @@ const ResidentDetailPage = () => {
               </span>
               <span className={`badge-pill badge-pill--${resident.isOwner ? 'owner' : 'tenant'}`}>
                 {resident.isOwner ? 'Owner' : 'Tenant'}
+              </span>
+              <span className={`badge-pill ${resident.isOccupant ? 'badge-pill--active' : 'badge-pill--inactive'}`}>
+                {resident.isOccupant ? 'Occupant' : 'Non-occupant'}
               </span>
             </div>
             <div className="detail-header__meta">

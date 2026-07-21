@@ -1,4 +1,5 @@
-import { UserPlus } from "lucide-react";
+import { UserPlus, RefreshCw } from "lucide-react";
+import { useState } from "react";
 import { useResidentsPage } from "../hooks/useResidentsPage";
 import ResidentStatsCards from "../components/ResidentStatsCards";
 import ResidentFiltersComponent from "../components/ResidentFilters";
@@ -7,6 +8,9 @@ import Pagination from "../../../components/Pagination/Pagination";
 import ResidentFormModal from "../components/ResidentFormModal";
 import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
+import { residentApi } from "../api/residentApi";
+import { showSuccess, showError } from "../../../utils/toast";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 
 const ResidentsPage = () => {
   const {
@@ -19,6 +23,24 @@ const ResidentsPage = () => {
     handleCreate, handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate,
   } = useResidentsPage();
+
+  const [promoting, setPromoting] = useState(false);
+
+  const handlePromoteOccupants = async () => {
+    setPromoting(true);
+    try {
+      const result = await residentApi.promoteOccupants();
+      showSuccess(
+        result.promoted > 0
+          ? `Occupant promotion ran — ${result.promoted} resident(s) promoted.`
+          : "Occupant promotion ran — no pending promotions."
+      );
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, "Failed to run occupant promotion"));
+    } finally {
+      setPromoting(false);
+    }
+  };
 
   return (
     <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
@@ -34,15 +56,33 @@ const ResidentsPage = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-          onClick={() => setShowAddModal(true)}
-          style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
-        >
-          <UserPlus size={16} strokeWidth={2} />
-          Add Resident
-        </button>
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={() => setShowAddModal(true)}
+            style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
+          >
+            <UserPlus size={16} strokeWidth={2} />
+            Add Resident
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={handlePromoteOccupants}
+            disabled={promoting}
+            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
+            title="Manually run the occupant promotion job (normally run by the hourly cron)"
+          >
+            {promoting ? (
+              <span className="spinner-border spinner-border-sm" />
+            ) : (
+              <RefreshCw size={16} strokeWidth={2} />
+            )}
+            Run Occupant Promotion
+          </button>
+        </div>
       </div>
 
       {/* ── Stats Cards Grid ── */}

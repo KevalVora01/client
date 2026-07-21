@@ -31,7 +31,7 @@ const InfoRow = ({ icon: Icon, label, value }: { icon: typeof Mail; label: strin
 const TenantRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const requestId = Number(id);
-  const { data, loading, actionLoading, recordVote, recordAdminVote, finalize, isAdmin } = useTenantRequestDetail(requestId);
+  const { data, loading, actionLoading, draftVotes, draftAdminVote, setMemberVote, setAdminVote, finalize, isAdmin } = useTenantRequestDetail(requestId);
   const { user } = useAuth();
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
 
@@ -47,7 +47,8 @@ const TenantRequestDetailPage = () => {
   const { votes, committeeMembers } = data;
   const isPending = request.status === 'Pending';
 
-  const voteForMember = (memberId: number) => votes.find((v: TenantRequestVote) => v.committeeMemberId === memberId);
+  const voteForMember = (memberId: number) =>
+    votes.find((v: TenantRequestVote) => v.committeeMemberId === memberId);
   const adminVote = votes.find((v: TenantRequestVote) => !v.committeeMemberId);
 
   const handleFinalize = async () => {
@@ -131,18 +132,19 @@ const TenantRequestDetailPage = () => {
                 <div className="d-flex flex-column gap-2">
                   {committeeMembers.map((m: CommitteeMember) => {
                     const existing = voteForMember(m.id);
+                    const draft = draftVotes[m.id] ?? existing?.vote;
                     return (
                       <div key={m.id} className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
                         <div>
                           <div className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{m.user?.name ?? 'Committee Member'}</div>
                           <div className="text-muted" style={{ fontSize: '0.78rem' }}>{m.user?.email ?? '—'}</div>
-                          {existing && (
+                          {draft && (
                             <span className="badge mt-1" style={{
-                              backgroundColor: existing.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
-                              color: existing.vote === 'Approve' ? '#166534' : '#991b1b',
+                              backgroundColor: draft === 'Approve' ? '#dcfce7' : '#fee2e2',
+                              color: draft === 'Approve' ? '#166534' : '#991b1b',
                               fontSize: '0.72rem',
                             }}>
-                              Voted: {existing.vote}
+                              Voted: {draft}
                             </span>
                           )}
                         </div>
@@ -150,17 +152,25 @@ const TenantRequestDetailPage = () => {
                           <div className="d-flex gap-2 flex-shrink-0">
                             <button
                               disabled={actionLoading}
-                              onClick={() => recordVote(m.id, 'Approve' as VoteChoice).catch(() => {})}
+                              onClick={() => setMemberVote(m.id, 'Approve' as VoteChoice)}
                               className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                              style={{ backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #a7f3d0' }}
+                              style={{
+                                backgroundColor: draft === 'Approve' ? '#166534' : '#dcfce7',
+                                color: draft === 'Approve' ? '#fff' : '#166534',
+                                border: '1px solid #a7f3d0',
+                              }}
                             >
                               <Check size={15} /> Approve
                             </button>
                             <button
                               disabled={actionLoading}
-                              onClick={() => recordVote(m.id, 'Reject' as VoteChoice).catch(() => {})}
+                              onClick={() => setMemberVote(m.id, 'Reject' as VoteChoice)}
                               className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                              style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}
+                              style={{
+                                backgroundColor: draft === 'Reject' ? '#991b1b' : '#fee2e2',
+                                color: draft === 'Reject' ? '#fff' : '#991b1b',
+                                border: '1px solid #fecaca',
+                              }}
                             >
                               <X size={15} /> Reject
                             </button>
@@ -180,33 +190,41 @@ const TenantRequestDetailPage = () => {
                       {user?.name ?? 'Admin'} <span className="text-muted" style={{ fontWeight: 400, fontSize: '0.78rem' }}>(Admin)</span>
                     </div>
                     <div className="text-muted" style={{ fontSize: '0.78rem' }}>{user?.email ?? '—'}</div>
-                    {adminVote && (
+                    {(draftAdminVote ?? adminVote?.vote) && (
                       <span
                         className="badge mt-1"
                         style={{
-                          backgroundColor: adminVote.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
-                          color: adminVote.vote === 'Approve' ? '#166534' : '#991b1b',
+                          backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#dcfce7' : '#fee2e2',
+                          color: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#166534' : '#991b1b',
                           fontSize: '0.72rem',
                         }}
                       >
-                        Voted: {adminVote.vote}
+                        Voted: {draftAdminVote ?? adminVote?.vote}
                       </span>
                     )}
                   </div>
                   <div className="d-flex gap-2 flex-shrink-0">
                     <button
                       disabled={actionLoading}
-                      onClick={() => recordAdminVote('Approve' as VoteChoice).catch(() => {})}
+                      onClick={() => setAdminVote('Approve' as VoteChoice)}
                       className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                      style={{ backgroundColor: '#dcfce7', color: '#166534', border: '1px solid #a7f3d0' }}
+                      style={{
+                        backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#166534' : '#dcfce7',
+                        color: (draftAdminVote ?? adminVote?.vote) === 'Approve' ? '#fff' : '#166534',
+                        border: '1px solid #a7f3d0',
+                      }}
                     >
                       <Check size={15} /> Approve
                     </button>
                     <button
                       disabled={actionLoading}
-                      onClick={() => recordAdminVote('Reject' as VoteChoice).catch(() => {})}
+                      onClick={() => setAdminVote('Reject' as VoteChoice)}
                       className="btn btn-sm d-flex align-items-center gap-1 fw-semibold"
-                      style={{ backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca' }}
+                      style={{
+                        backgroundColor: (draftAdminVote ?? adminVote?.vote) === 'Reject' ? '#991b1b' : '#fee2e2',
+                        color: (draftAdminVote ?? adminVote?.vote) === 'Reject' ? '#fff' : '#991b1b',
+                        border: '1px solid #fecaca',
+                      }}
                     >
                       <X size={15} /> Reject
                     </button>
@@ -222,7 +240,7 @@ const TenantRequestDetailPage = () => {
                   style={{ backgroundColor: '#111827', color: '#fff', height: '48px', borderRadius: '8px' }}
                 >
                   {actionLoading ? <span className="spinner-border spinner-border-sm" /> : <Gavel size={18} />}
-                  Finalize Request
+                  {actionLoading ? 'Saving votes…' : 'Save Votes & Finalize'}
                 </button>
               )}
 
@@ -247,7 +265,7 @@ const TenantRequestDetailPage = () => {
     <ConfirmModal
       show={showFinalizeConfirm}
       title="Finalize Request"
-      message="Finalize this tenant request based on the recorded committee votes? This action cannot be undone."
+      message="All recorded votes will be saved and this tenant request will be finalized. This action cannot be undone."
       confirmLabel="Finalize"
       loading={actionLoading}
       onConfirm={confirmFinalize}

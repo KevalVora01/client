@@ -8,8 +8,8 @@ import type {
   TenantRequestDetail,
   TenantRequestFilters,
   TenantRequestVote,
-  VoteChoice,
   FinalizeResult,
+  BulkRecordVotesPayload,
 } from '../types/tenantRequest.types';
 
 export const tenantRequestApi = {
@@ -47,15 +47,13 @@ export const tenantRequestApi = {
     return response.data.data;
   },
 
-  recordVote: async (
+  saveVotes: async (
     id: number,
-    committeeMemberId?: number,
-    vote?: VoteChoice,
-    recordedByAdminId?: number
-  ): Promise<TenantRequestVote> => {
-    const response = await api.post<ApiResponse<TenantRequestVote>>(
-      `/tenant-requests/${id}/vote`,
-      { committeeMemberId, vote, recordedByAdminId }
+    payload: BulkRecordVotesPayload
+  ): Promise<TenantRequestVote[]> => {
+    const response = await api.post<ApiResponse<TenantRequestVote[]>>(
+      `/tenant-requests/${id}/votes`,
+      payload
     );
     return response.data.data;
   },

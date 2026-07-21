@@ -3,6 +3,7 @@ import { tenantRequestApi } from '../api/tenantRequestApi';
 import type {
   TenantRequestDetail as TenantRequestDetailData,
   VoteChoice,
+  BulkVoteEntry,
 } from '../types/tenantRequest.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError, showSuccess } from '../../../utils/toast';
@@ -15,11 +16,30 @@ const useTenantRequestDetail = (id: number) => {
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Local draft of votes collected on the frontend before finalize.
+  // Keyed by committee member id; admin vote stored separately.
+  const [draftVotes, setDraftVotes] = useState<Record<number, VoteChoice>>({});
+  const [draftAdminVote, setDraftAdminVote] = useState<VoteChoice | null>(null);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
       const result = await tenantRequestApi.getTenantRequest(id);
       setData(result);
+
+      // Pre-fill the draft from any votes already persisted on the server
+      // (e.g. when viewing a pending request that was previously saved).
+      const draft: Record<number, VoteChoice> = {};
+      let adminVote: VoteChoice | null = null;
+      for (const v of result.votes) {
+        if (v.committeeMemberId != null) {
+          draft[v.committeeMemberId] = v.vote;
+        } else {
+          adminVote = v.vote;
+        }
+      }
+      setDraftVotes(draft);
+      setDraftAdminVote(adminVote);
     } catch (err: unknown) {
       showError(getErrorMessage(err, 'Failed to fetch tenant request'));
     } finally {
@@ -31,55 +51,32 @@ const useTenantRequestDetail = (id: number) => {
     load();
   }, [load]);
 
-  const recordVote = useCallback(
-    async (committeeMemberId: number, vote: VoteChoice) => {
-      setActionLoading(true);
-      try {
-        await tenantRequestApi.recordVote(id, committeeMemberId, vote);
-        showSuccess(`Vote recorded: ${vote}`);
-        await load();
-      } catch (err: unknown) {
-        const msg = getErrorMessage(err, 'Failed to record vote');
-        if (/already voted/i.test(msg)) {
-          await load();
-          showError('This committee member has already voted on this request.');
-        } else {
-          showError(msg);
-        }
-        throw err;
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [id, load]
-  );
+  const setMemberVote = useCallback((committeeMemberId: number, vote: VoteChoice) => {
+    setDraftVotes((prev) => ({ ...prev, [committeeMemberId]: vote }));
+  }, []);
 
-  const recordAdminVote = useCallback(
-    async (vote: VoteChoice) => {
-      setActionLoading(true);
-      try {
-        await tenantRequestApi.recordVote(id, undefined, vote);
-        showSuccess(`Admin vote recorded: ${vote}`);
-        await load();
-      } catch (err: unknown) {
-        const msg = getErrorMessage(err, 'Failed to record admin vote');
-        if (/already voted/i.test(msg)) {
-          await load();
-          showError('The admin has already voted on this request.');
-        } else {
-          showError(msg);
-        }
-        throw err;
-      } finally {
-        setActionLoading(false);
-      }
-    },
-    [id, load]
-  );
+  const setAdminVote = useCallback((vote: VoteChoice) => {
+    setDraftAdminVote(vote);
+  }, []);
+
+  const saveVotes = useCallback(async (): Promise<void> => {
+    if (!data) return;
+
+    const votes: BulkVoteEntry[] = data.committeeMembers
+      .filter((m) => draftVotes[m.id] != null)
+      .map((m) => ({ committeeMemberId: m.id, vote: draftVotes[m.id] }));
+
+    await tenantRequestApi.saveVotes(id, {
+      votes,
+      adminVote: draftAdminVote ?? undefined,
+    });
+  }, [id, data, draftVotes, draftAdminVote]);
 
   const finalize = useCallback(async () => {
     setActionLoading(true);
     try {
+      // Persist all collected votes first, then finalize (lock) the request.
+      await saveVotes();
       const result = await tenantRequestApi.finalizeRequest(id);
       showSuccess(result.approved ? 'Tenant request approved' : 'Tenant request rejected');
       await load();
@@ -90,9 +87,20 @@ const useTenantRequestDetail = (id: number) => {
     } finally {
       setActionLoading(false);
     }
-  }, [id, load]);
+  }, [id, saveVotes, load]);
 
-  return { data, loading, actionLoading, recordVote, recordAdminVote, finalize, refetch: load, isAdmin };
+  return {
+    data,
+    loading,
+    actionLoading,
+    draftVotes,
+    draftAdminVote,
+    setMemberVote,
+    setAdminVote,
+    finalize,
+    refetch: load,
+    isAdmin,
+  };
 };
 
 export default useTenantRequestDetail;

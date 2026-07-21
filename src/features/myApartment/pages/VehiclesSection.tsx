@@ -14,7 +14,7 @@ interface VehiclesSectionProps {
 }
 
 const VehiclesSection = ({ residentId, readOnly = false, tenantResidentId = null, onTenantChange }: VehiclesSectionProps) => {
-  const { isOwner, isCurrentOccupant } = useMyResident();
+  const { isOwner, isCurrentOccupant } = useMyResident(!readOnly);
   const [viewingTenantId, setViewingTenantId] = useState<number | null>(tenantResidentId);
   const targetResidentId = viewingTenantId ?? residentId;
   const isViewingOwn = viewingTenantId === null;
@@ -101,7 +101,7 @@ const VehiclesSection = ({ residentId, readOnly = false, tenantResidentId = null
               onClick={openAddModal}
               style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
             >
-              <i className="bi bi-plus-lg" /> Add Vehicle
+              <i className="bi bi-car-front" /> Add Vehicle
             </button>
           )}
         </div>

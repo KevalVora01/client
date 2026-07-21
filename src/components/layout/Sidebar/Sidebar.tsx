@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
+import useMyResident from '../../../features/residents/hooks/useMyResident';
 import type { UserRole } from '../../../features/auth/types/auth.types';
 import { useState } from 'react';
 import ConfirmDialog from '../../ConfirmDialog/ConfirmDialog';
@@ -76,7 +77,15 @@ const Sidebar = ({ onClose }: SidebarProps) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const role: UserRole = user?.role ?? 'resident';
-  const navItems = navConfig[role];
+  const { isOwner } = useMyResident(role === 'resident');
+
+  const navItems = role === 'resident' && isOwner
+    ? [
+        ...navConfig.resident.slice(0, 2),
+        { label: 'Tenant', icon: Users, path: '/tenant' },
+        ...navConfig.resident.slice(2),
+      ]
+    : navConfig[role];
 
   return (
     <>

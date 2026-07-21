@@ -1,9 +1,23 @@
-import { useState } from 'react';
-import { Home, UserPlus, UserCheck, Mail, Phone, Calendar, Clock } from 'lucide-react';
-import useOwnerTenantRequest from '../hooks/useOwnerTenantRequest';
-import type { SubmitTenantRequestPayload } from '../types/tenantRequest.types';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { UserPlus, UserCheck, Mail, Phone, Calendar, Clock } from 'lucide-react';
+import { useScrollLock } from '../../../hooks/useScrollLock';
+import type { OwnerTenantStatus, SubmitTenantRequestPayload } from '../types/tenantRequest.types';
 
 const TODAY = new Date().toISOString().split('T')[0];
+
+const tenantRequestSchema = Yup.object({
+  tenantName: Yup.string().trim().required('Tenant name is required'),
+  tenantEmail: Yup.string().trim().email('Invalid email').required('Tenant email is required'),
+  tenantPhone: Yup.string()
+    .matches(/^\d{10}$/, 'Phone must be 10 digits')
+    .required('Tenant phone is required'),
+  moveInDate: Yup.string()
+    .required('Expected move-in date is required')
+    .test('not-past', 'Move-in date cannot be in the past', (value) =>
+      value ? value >= TODAY : false
+    ),
+});
 
 const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, { label: string; bg: string; color: string }> = {
@@ -25,80 +39,167 @@ const StatusBadge = ({ status }: { status: string }) => {
 const RequestForm = ({
   loading,
   onSubmit,
+  onCancel,
 }: {
   loading: boolean;
   onSubmit: (payload: SubmitTenantRequestPayload) => Promise<void>;
+  onCancel: () => void;
 }) => {
-  const [tenantName, setTenantName] = useState('');
-  const [tenantEmail, setTenantEmail] = useState('');
-  const [tenantPhone, setTenantPhone] = useState('');
-  const [moveInDate, setMoveInDate] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const formik = useFormik({
+    initialValues: {
+      tenantName: '',
+      tenantEmail: '',
+      tenantPhone: '',
+      moveInDate: '',
+    },
+    validationSchema: tenantRequestSchema,
+    onSubmit: async (values) => {
+      try {
+        await onSubmit({
+          tenantName: values.tenantName.trim(),
+          tenantEmail: values.tenantEmail.trim(),
+          tenantPhone: values.tenantPhone.trim(),
+          moveInDate: values.moveInDate,
+        });
+      } catch {
+        /* error surfaced via toast */
+      }
+    },
+  });
 
-  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const fieldClass = (field: keyof typeof formik.values) =>
+    `form-control shadow-none rounded-2 text-dark ${formik.touched[field] && formik.errors[field] ? 'is-invalid' : ''}`;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
+  const fieldBorder = (field: keyof typeof formik.values) =>
+    formik.touched[field] && formik.errors[field] ? '#dc3545' : '#e5e7eb';
 
-    if (!tenantName.trim()) return setError('Tenant name is required');
-    if (!EMAIL_RE.test(tenantEmail)) return setError('A valid tenant email is required');
-    if (!tenantPhone.trim()) return setError('Tenant phone number is required');
-    if (!moveInDate) return setError('Expected move-in date is required');
-
-    try {
-      await onSubmit({ tenantName: tenantName.trim(), tenantEmail: tenantEmail.trim(), tenantPhone: tenantPhone.trim(), moveInDate });
-    } catch {
-      /* error surfaced via toast */
-    }
-  };
-
-  const fieldStyle = {
-    height: '46px',
-    backgroundColor: '#f9fafb',
-    borderColor: '#e5e7eb',
-    fontSize: '0.95rem',
-    borderRadius: '8px',
-  } as const;
+  const errorFor = (field: keyof typeof formik.values) =>
+    formik.touched[field] && formik.errors[field] ? (
+      <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+        {formik.errors[field]}
+      </div>
+    ) : null;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
+      <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: '0.68rem', letterSpacing: '0.08em' }}>
+        Tenant Details
+      </p>
+
       <div className="row g-3">
         <div className="col-md-6">
-          <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Tenant Full Name</label>
-          <input className="form-control shadow-none" style={fieldStyle} value={tenantName} onChange={(e) => setTenantName(e.target.value)} placeholder="Jane Doe" />
+          <label className="form-label fw-medium text-secondary small mb-1">Tenant Full Name <span className="text-danger">*</span></label>
+          <input
+            type="text"
+            name="tenantName"
+            autoComplete="name"
+            className={fieldClass('tenantName')}
+            placeholder="Enter full name"
+            value={formik.values.tenantName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ fontSize: '0.875rem', borderColor: fieldBorder('tenantName') }}
+          />
+          {errorFor('tenantName')}
         </div>
+
         <div className="col-md-6">
-          <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Tenant Email</label>
-          <input type="email" className="form-control shadow-none" style={fieldStyle} value={tenantEmail} onChange={(e) => setTenantEmail(e.target.value)} placeholder="jane@example.com" />
+          <label className="form-label fw-medium text-secondary small mb-1">Tenant Email <span className="text-danger">*</span></label>
+          <input
+            type="email"
+            name="tenantEmail"
+            autoComplete="email"
+            className={fieldClass('tenantEmail')}
+            placeholder="Enter email address"
+            value={formik.values.tenantEmail}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ fontSize: '0.875rem', borderColor: fieldBorder('tenantEmail') }}
+          />
+          {errorFor('tenantEmail')}
         </div>
+
         <div className="col-md-6">
-          <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Tenant Phone</label>
-          <input className="form-control shadow-none" style={fieldStyle} value={tenantPhone} onChange={(e) => setTenantPhone(e.target.value)} placeholder="+91..." />
+          <label className="form-label fw-medium text-secondary small mb-1">Tenant Phone <span className="text-danger">*</span></label>
+          <input
+            type="text"
+            name="tenantPhone"
+            autoComplete="tel"
+            className={fieldClass('tenantPhone')}
+            placeholder="Enter 10-digit phone number"
+            value={formik.values.tenantPhone}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ fontSize: '0.875rem', borderColor: fieldBorder('tenantPhone') }}
+          />
+          {errorFor('tenantPhone')}
         </div>
+
         <div className="col-md-6">
-          <label className="form-label fw-semibold" style={{ fontSize: '0.85rem' }}>Expected Move-in Date</label>
-          <input type="date" min={TODAY} className="form-control shadow-none" style={fieldStyle} value={moveInDate} onChange={(e) => setMoveInDate(e.target.value)} />
+          <label className="form-label fw-medium text-secondary small mb-1">Expected Move-in Date <span className="text-danger">*</span></label>
+          <input
+            type="date"
+            name="moveInDate"
+            min={TODAY}
+            className={fieldClass('moveInDate')}
+            value={formik.values.moveInDate}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            style={{ fontSize: '0.875rem', borderColor: fieldBorder('moveInDate') }}
+          />
+          {errorFor('moveInDate')}
         </div>
       </div>
 
-      {error && <div className="text-danger mt-2" style={{ fontSize: '0.85rem' }}>{error}</div>}
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="btn w-100 fw-bold mt-3 d-flex align-items-center justify-content-center gap-2"
-        style={{ backgroundColor: '#111827', color: '#fff', height: '48px', borderRadius: '8px' }}
-      >
-        {loading ? <span className="spinner-border spinner-border-sm" /> : <UserPlus size={18} />}
-        Submit Tenant Request
-      </button>
+      <div className="d-flex justify-content-end gap-2 mt-4">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          className="btn btn-outline-secondary rounded-2 px-3 d-inline-flex align-items-center"
+          style={{ height: '38px', fontSize: '0.875rem' }}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center justify-content-center gap-2"
+          style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36', opacity: loading ? 0.55 : 1 }}
+        >
+          {loading ? <span className="spinner-border spinner-border-sm" /> : <UserPlus size={16} />}
+          Submit Request
+        </button>
+      </div>
     </form>
   );
 };
 
-const TenantRequestSection = () => {
-  const { status, loading, actionLoading, notOwner, submitRequest } = useOwnerTenantRequest();
+interface TenantRequestSectionProps {
+  status: OwnerTenantStatus | null;
+  loading: boolean;
+  actionLoading: boolean;
+  notOwner: boolean;
+  showForm: boolean;
+  setShowForm: (show: boolean) => void;
+  submitRequest: (payload: SubmitTenantRequestPayload) => Promise<void>;
+}
+
+const TenantRequestSection = ({
+  status,
+  loading,
+  actionLoading,
+  notOwner,
+  showForm,
+  setShowForm,
+  submitRequest,
+}: TenantRequestSectionProps) => {
+  useScrollLock(showForm);
+
+  const handleSubmit = async (payload: SubmitTenantRequestPayload) => {
+    await submitRequest(payload);
+    setShowForm(false);
+  };
 
   if (notOwner) return null;
   if (loading || !status) {
@@ -111,25 +212,12 @@ const TenantRequestSection = () => {
     );
   }
 
-  const cardHeader = (
-    <div className="d-flex align-items-center gap-2 mb-3">
-      <div className="d-flex align-items-center justify-content-center rounded-2" style={{ width: '36px', height: '36px', backgroundColor: '#eef2ff' }}>
-        <Home size={18} color="#4f46e5" />
-      </div>
-      <div>
-        <h5 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Tenant Management</h5>
-        <small className="text-muted">Request a tenant or manage the current occupant</small>
-      </div>
-    </div>
-  );
-
   // ── Pending request ──────────────────────────────────────────────
   if (status.pendingRequest) {
     const r = status.pendingRequest;
     return (
       <div className="card border-0 shadow-sm mb-4">
         <div className="card-body">
-          {cardHeader}
           <div className="alert d-flex align-items-center gap-2 mb-3" style={{ backgroundColor: '#fffbeb', border: '1px solid #fde68a', color: '#92400e', fontSize: '0.9rem' }}>
             <Clock size={18} /> Your tenant request is awaiting committee review.
           </div>
@@ -151,17 +239,41 @@ const TenantRequestSection = () => {
   // card here. Returning null also keeps the request form hidden.
   if (status.activeTenant) return null;
 
-  // ── No tenant → request form ─────────────────────────────────────
+  // ── No tenant → request modal form (button lives in page header) ──
   return (
-    <div className="card border-0 shadow-sm mb-4">
-      <div className="card-body">
-        {cardHeader}
-        <p className="text-muted mb-3" style={{ fontSize: '0.9rem' }}>
-          This apartment has no active tenant. Submit a request for committee approval.
-        </p>
-        <RequestForm loading={actionLoading} onSubmit={submitRequest} />
-      </div>
-    </div>
+    <>
+      {/* ── Request Tenant Modal ── */}
+      {showForm && (
+        <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
+          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+              <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
+                <div>
+                  <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
+                    Request a Tenant
+                  </h5>
+                  <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>
+                    Enter the tenant's details to submit for committee approval.
+                  </p>
+                </div>
+                <button
+                  className="btn btn-outline-light border border-light-subtle text-secondary rounded-2 p-0 d-flex align-items-center justify-content-center position-absolute"
+                  onClick={() => setShowForm(false)}
+                  disabled={actionLoading}
+                  aria-label="Close"
+                  style={{ width: '30px', height: '30px', top: '1.2rem', right: '1.2rem' }}
+                >
+                  <i className="bi bi-x fs-5" />
+                </button>
+              </div>
+              <div className="modal-body p-4">
+                <RequestForm loading={actionLoading} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

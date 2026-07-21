@@ -1,20 +1,11 @@
 import useAuth from '../../../hooks/useAuth';
-import useTenantHistory from '../hooks/useTenantHistory';
 import FamilyMembersSection from './FamilyMembersSection';
 import VehiclesSection from './VehiclesSection';
-import TenantRequestSection from '../../tenantRequests/pages/TenantRequestSection';
-import TenantHistorySection from './TenantHistorySection';
-import type { TenantHistoryItem } from '../../residents/types/resident.types';
 
 const MyApartmentPage = () => {
   const { user } = useAuth();
-  const { tenants } = useTenantHistory();
 
   const residentId = user?.residentId ?? 0;
-
-  // Find current occupant (tenant with isActive=true and no moveOutDate)
-  const currentTenant = tenants.find((t: TenantHistoryItem) => t.isActive && !t.moveOutDate);
-  const currentTenantResidentId = currentTenant?.id ?? null;
 
   if (!user || !user.residentId) {
     return (
@@ -43,17 +34,11 @@ const MyApartmentPage = () => {
         </div>
       </div>
 
-      {/* ── Tenant Management (owner only; self-gates) ── */}
-      <TenantRequestSection />
-
-      {/* ── Tenant History (owner only; self-gates) ── */}
-      <TenantHistorySection />
-
       {/* ── Family Members ── */}
-      <FamilyMembersSection residentId={residentId} tenantResidentId={currentTenantResidentId} />
+      <FamilyMembersSection residentId={residentId} />
 
       {/* ── Vehicles ── */}
-      <VehiclesSection residentId={residentId} tenantResidentId={currentTenantResidentId} />
+      <VehiclesSection residentId={residentId} />
 
     </div>
   );

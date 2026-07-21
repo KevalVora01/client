@@ -22,6 +22,10 @@ interface ComplaintListProps {
   onDeleteComplaint?: (complaintId: number) => Promise<void>;
   isAdmin?: boolean;
   currentUserId?: number;
+  disableChat?: boolean;
+  hideChatColumn?: boolean;
+  showResidentName?: boolean;
+  bare?: boolean;
   pagination?: Omit<PaginatedResult<unknown>, 'items'> | null;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
@@ -54,6 +58,10 @@ const ComplaintList = ({
   onDeleteComplaint,
   isAdmin = false,
   currentUserId,
+  disableChat = false,
+  hideChatColumn = false,
+  showResidentName = false,
+  bare = false,
   pagination,
   onPageChange,
   onPageSizeChange
@@ -158,23 +166,23 @@ const ComplaintList = ({
     onUpdateStatus?.(complaint, value as ComplaintStatus);
   };
 
-  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; align?: 'start' | 'center' | 'end'; render: (c: Complaint) => React.ReactNode }[] = [
+  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; align?: 'start' | 'center' | 'end'; show?: boolean; render: (c: Complaint) => React.ReactNode }[] = [
     {
-      key: 'chat', label: 'Chat', align: 'center', adminWidth: '5%', residentWidth: '7%',
+      key: 'chat', label: 'Chat', align: 'center', adminWidth: '5%', residentWidth: '7%', show: !showResidentName && !hideChatColumn,
       render: (c) => {
-        const isResolved = c.status === 'Resolved';
+        const isDisabled = disableChat || c.status === 'Resolved';
         return (
           <div
             className="d-flex align-items-center justify-content-center"
             style={{
-              cursor: isResolved ? 'not-allowed' : 'pointer',
+              cursor: isDisabled ? 'not-allowed' : 'pointer',
               minHeight: '34px',
-              opacity: isResolved ? 0.5 : 1
+              opacity: isDisabled ? 0.5 : 1
             }}
-            onClick={() => !isResolved && handleExpand(c)}
+            onClick={() => !isDisabled && handleExpand(c)}
           >
             <i
-              className={`bi bi-chat-left-text ${isResolved ? 'text-secondary' : 'text-primary'}`}
+              className={`bi bi-chat-left-text ${isDisabled ? 'text-secondary' : 'text-primary'}`}
               style={{ fontSize: '1rem' }}
             />
           </div>
@@ -182,13 +190,13 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'title', label: 'Title', align: 'center', adminWidth: '30%', residentWidth: '38%',
+      key: 'title', label: 'Title', align: 'center', adminWidth: '30%', residentWidth: showResidentName ? '28%' : hideChatColumn ? '40%' : '33%',
       render: (c) => {
-        const isResolved = c.status === 'Resolved';
+        const isDisabled = disableChat || showResidentName || hideChatColumn || c.status === 'Resolved';
         return (
           <div
-            style={{ cursor: isResolved ? 'default' : 'pointer' }}
-            onClick={() => !isResolved && handleExpand(c)}
+            style={{ cursor: isDisabled ? 'default' : 'pointer' }}
+            onClick={() => !isDisabled && handleExpand(c)}
           >
             <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
               {highlightMatch(c.title, searchVal)}
@@ -198,11 +206,19 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'status', label: 'Status', align: 'center', adminWidth: '14%', residentWidth: '17%',
+      key: 'raisedBy', label: 'Raised By', align: 'center', adminWidth: '0%', residentWidth: '14.4%', show: showResidentName,
+      render: (c) => (
+        <span className="fw-medium" style={{ fontSize: '0.85rem', color: '#1a1f36' }}>
+          {c.resident?.user?.name ?? '\u2014'}
+        </span>
+      ),
+    },
+    {
+      key: 'status', label: 'Status', align: 'center', adminWidth: '14%', residentWidth: showResidentName ? '14.4%' : '15%',
       render: (c) => <ComplaintStatusBadge status={c.status} />,
     },
     {
-      key: 'priority', label: 'Priority', align: 'center', adminWidth: '15%', residentWidth: '17%',
+      key: 'priority', label: 'Priority', align: 'center', adminWidth: '15%', residentWidth: showResidentName ? '14.4%' : '15%',
       render: (c) => <ComplaintPriorityBadge priority={c.priority} />,
     },
     {
@@ -218,7 +234,7 @@ const ComplaintList = ({
       },
     },
     {
-      key: 'date', label: 'Submitted', align: 'center', adminWidth: '10%', residentWidth: '11%',
+      key: 'date', label: 'Submitted', align: 'center', adminWidth: '10%', residentWidth: showResidentName ? '14.4%' : '15%',
       render: (c) => (
         <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
           {timeAgo(c.createdAt)}
@@ -226,7 +242,7 @@ const ComplaintList = ({
       ),
     },
     {
-      key: 'actions', label: 'Actions', align: 'center', adminWidth: '14%', residentWidth: '10%',
+      key: 'actions', label: 'Actions', align: 'center', adminWidth: '14%', residentWidth: showResidentName ? '14.4%' : '15%',
       render: (c) => {
         let actionContent: React.ReactNode = null;
 
@@ -264,7 +280,8 @@ const ComplaintList = ({
   ];
 
   const columns: TableColumn<Complaint>[] = allColumnDefs
-    .filter((col) => isAdmin || (col.adminWidth !== '0%' && col.residentWidth !== '0%'))
+    .filter((col) => col.show !== false)
+    .filter((col) => (isAdmin ? col.adminWidth !== '0%' : col.residentWidth !== '0%'))
     .map((col) => ({
       key: col.key,
       label: col.label,
@@ -277,7 +294,7 @@ const ComplaintList = ({
   const activeDetail = expandedDetail?.id === expandedId ? expandedDetail : complaintFromList;
 
   return (
-    <div className="table-card">
+    <div className={bare ? '' : 'table-card'}>
       <AppTable
         columns={columns}
         data={complaints}

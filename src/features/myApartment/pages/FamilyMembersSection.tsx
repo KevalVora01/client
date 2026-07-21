@@ -14,7 +14,7 @@ interface FamilyMembersSectionProps {
 }
 
 const FamilyMembersSection = ({ residentId, readOnly = false, tenantResidentId = null, onTenantChange }: FamilyMembersSectionProps) => {
-  const { isOwner, isCurrentOccupant } = useMyResident();
+  const { isOwner, isCurrentOccupant } = useMyResident(!readOnly);
   const [viewingTenantId, setViewingTenantId] = useState<number | null>(tenantResidentId);
   const targetResidentId = viewingTenantId ?? residentId;
   const isViewingOwn = viewingTenantId === null;

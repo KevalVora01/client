@@ -125,6 +125,22 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       ),
     },
     {
+      key: 'occupant',
+      label: 'Occupant',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
+            color: r.isOccupant ? '#166534' : '#6b7280'
+          }}
+        >
+          {r.isOccupant ? 'Occupant' : 'Non-occupant'}
+        </span>
+      ),
+    },
+    {
       key: 'actions',
       label: 'Actions',
       width: '80px',

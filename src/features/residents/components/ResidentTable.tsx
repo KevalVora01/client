@@ -4,40 +4,13 @@ import type { ResidentDetail, ResidentTableProps } from '../types/resident.types
 import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
 import RowActions from './RowActions';
 import { useResidentStore } from '../hooks/useResidentStore';
+import { highlightMatch } from '../../../utils/highlight';
 
 const COL_WIDTH = '145px';
 
 const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
   const { filters } = useResidentStore();
   const searchVal = filters.search ?? '';
-
-  const highlightMatch = (text: string, search: string) => {
-    if (!search || !search.trim()) return <span>{text}</span>;
-    const cleanSearch = search.trim();
-    const regex = new RegExp(`(${cleanSearch.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
-    const parts = text.split(regex);
-    return (
-      <span>
-        {parts.map((part, index) =>
-          regex.test(part) ? (
-            <mark
-              key={index}
-              style={{
-                backgroundColor: '#ffe066',
-                color: '#1a1f36',
-                padding: '0 2px',
-                borderRadius: '3px',
-              }}
-            >
-              {part}
-            </mark>
-          ) : (
-            part
-          )
-        )}
-      </span>
-    );
-  };
 
   const columns: TableColumn<ResidentDetail>[] = [
     {

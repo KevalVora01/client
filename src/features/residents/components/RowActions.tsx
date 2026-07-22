@@ -77,7 +77,8 @@ const RowActions = ({ resident, onView, onEdit, onDeactivate }: RowActionsProps)
               type="button"
               className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
               onClick={() => { onEdit(); setIsOpen(false); }}
-              disabled={!resident.isActive}
+              disabled={!resident.isActive || !resident.isOwner}
+              title={!resident.isOwner ? "Tenants cannot be edited directly from here." : undefined}
               style={{ fontSize: "0.85rem" }}
             >
               <i className="bi bi-pencil text-muted" /> Edit
@@ -88,7 +89,8 @@ const RowActions = ({ resident, onView, onEdit, onDeactivate }: RowActionsProps)
               type="button"
               className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small text-danger"
               onClick={() => { onDeactivate(); setIsOpen(false); }}
-              disabled={!resident.isActive}
+              disabled={!resident.isActive || !resident.isOwner}
+              title={!resident.isOwner ? "Tenants cannot be deactivated directly from here." : undefined}
               style={{ fontSize: "0.85rem" }}
             >
               <i className="bi bi-person-x" /> Deactivate

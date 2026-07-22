@@ -168,7 +168,7 @@ const ResidentsPage = () => {
       </div>
 
       {/* ── Stats Cards Grid ── */}
-      <ResidentStatsCards stats={stats} loading={loading} />
+      <ResidentStatsCards stats={stats} loading={loading && stats.totalCount === 0} />
 
       {/* ── Table Container Card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">

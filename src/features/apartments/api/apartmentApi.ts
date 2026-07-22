@@ -25,8 +25,7 @@ export const apartmentApi = {
     const params = new URLSearchParams();
     params.append("pageNumber", String(filters.pageNumber));
     params.append("pageSize", String(filters.pageSize));
-    if (filters.block) params.append("block", filters.block);
-    if (filters.floorNumber) params.append("floorNumber", String(filters.floorNumber));
+    if (filters.search) params.append("search", filters.search);
     if (filters.type) params.append("type", filters.type);
     if (filters.isOccupied !== undefined) params.append("isOccupied", String(filters.isOccupied));
 

@@ -16,14 +16,14 @@ const apartmentTypeLabels: Record<ApartmentType, string> = {
 };
 
 const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFiltersProps) => {
-  const [search, setSearch] = useState(filters.block ?? "");
+  const [search, setSearch] = useState(filters.search ?? "");
 
   // debounce — 300ms
   useEffect(() => {
-    if (search === (filters.block ?? "")) return;
+    if (search === (filters.search ?? "")) return;
 
     const timer = setTimeout(() => {
-      onFilterChange({ block: search.trim().toUpperCase() || undefined });
+      onFilterChange({ search: search.trim() || undefined });
     }, 500);
 
     return () => clearTimeout(timer);
@@ -42,16 +42,16 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
 
   const handleReset = () => {
     setSearch("");
-    onFilterChange({ block: undefined, floorNumber: undefined, type: undefined, isOccupied: undefined });
+    onFilterChange({ search: undefined, type: undefined, isOccupied: undefined });
   };
 
   const hasActiveFilters =
-    !!filters.block || filters.floorNumber !== undefined || !!filters.type || filters.isOccupied !== undefined;
+    !!filters.search || !!filters.type || filters.isOccupied !== undefined;
 
   return (
     <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
 
-      {/* Block search */}
+      {/* Flat No. search */}
       <div className="flex-grow-1" style={{ maxWidth: "550px" }}>
         <div
           className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
@@ -61,29 +61,12 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
           <input
             type="text"
             className="w-100 border-0 p-0 bg-transparent text-dark"
-            placeholder="Search by block (e.g. A, B)..."
+            placeholder="Search by Flat No. (e.g. A-101)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ fontSize: "0.875rem", outline: "none" }}
           />
         </div>
-      </div>
-
-      {/* Floor number */}
-      <div style={{ minWidth: "140px" }}>
-        <input
-          type="number"
-          className="form-control border-light-subtle"
-          placeholder="Floor no."
-          min={0}
-          value={filters.floorNumber ?? ""}
-          onChange={(e) =>
-            onFilterChange({
-              floorNumber: e.target.value ? Number(e.target.value) : undefined,
-            })
-          }
-          style={{ height: "46px", fontSize: "0.875rem" }}
-        />
       </div>
 
       {/* Type */}

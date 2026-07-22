@@ -11,8 +11,7 @@ interface ApartmentStore {
 const initialFilters: ApartmentFilters = {
   pageNumber: 1,
   pageSize: 5,
-  block: undefined,
-  floorNumber: undefined,
+  search: undefined,
   type: undefined,
   isOccupied: undefined,
 };

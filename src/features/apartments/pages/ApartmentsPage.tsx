@@ -147,7 +147,7 @@ const ApartmentsPage = () => {
       </div>
 
       {/* ── Stats ── */}
-      <ApartmentStatsCards stats={stats} loading={loading} />
+      <ApartmentStatsCards stats={stats} loading={loading && stats.totalCount === 0} />
 
       {/* ── Table card ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
@@ -156,7 +156,7 @@ const ApartmentsPage = () => {
         </div>
 
         <div className="table-responsive">
-          <ApartmentTable apartments={apartments} loading={loading} onView={handleView} onEdit={handleEdit} />
+          <ApartmentTable apartments={apartments} loading={loading} onView={handleView} />
         </div>
 
         <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">

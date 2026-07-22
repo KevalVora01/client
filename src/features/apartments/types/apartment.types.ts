@@ -38,8 +38,7 @@ export interface UpdateApartmentPayload {
 }
 
 export interface ApartmentFilters extends PaginatedRequest {
-  block?: string;
-  floorNumber?: number;
+  search?: string;
   type?: string;
   isOccupied?: boolean;
 }

@@ -32,7 +32,7 @@ const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }>
   Rejected: { label: 'Rejected', bg: '#fee2e2', color: '#991b1b' },
 };
 
-const WIDTH = '20%';
+const WIDTH = '16.66%';
 
 const TenantRequestTable = ({ requests, loading }: TenantRequestTableProps) => {
   const navigate = useNavigate();
@@ -70,6 +70,24 @@ const TenantRequestTable = ({ requests, loading }: TenantRequestTableProps) => {
           </div>
         );
       },
+    },
+    {
+      key: 'requester',
+      label: 'Requested By',
+      width: WIDTH,
+      align: 'center',
+      render: (r) => (
+        <div className="text-center">
+          <span className="fw-semibold text-dark d-block" style={{ fontSize: '0.9rem' }}>
+            {r.owner?.user?.name ?? `Owner #${r.requestedBy}`}
+          </span>
+          {r.owner?.user?.email && (
+            <span className="text-muted d-block" style={{ fontSize: '0.78rem' }}>
+              {r.owner.user.email}
+            </span>
+          )}
+        </div>
+      ),
     },
     {
       key: 'apartment',

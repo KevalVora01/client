@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Plus } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { useApartments } from '../hooks/useApartments';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from '../types/apartment.types';
@@ -19,7 +19,7 @@ const ApartmentsPage = () => {
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<"add" | "edit">("add");
+  const [modalMode] = useState<"add" | "edit">("add");
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
 
   const [showImportModal, setShowImportModal] = useState(false);
@@ -32,12 +32,6 @@ const ApartmentsPage = () => {
 
   const handleView = (apartment: Apartment) => {
     navigate(`/apartments/${apartment.id}`);
-  };
-
-  const handleEdit = (apartment: Apartment) => {
-    setSelectedApartment(apartment);
-    setModalMode("edit");
-    setShowModal(true);
   };
 
   const handleCloseModal = () => {

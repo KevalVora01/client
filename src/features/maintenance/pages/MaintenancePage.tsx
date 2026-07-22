@@ -476,13 +476,14 @@ const MaintenancePage = () => {
                   />
                 </h5>
                 <button
-                  className="btn btn-outline-light border border-light-subtle text-secondary rounded-2 p-0 d-flex align-items-center justify-content-center position-absolute"
+                  type="button"
+                  className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+                  style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
                   onClick={() => setGenerateModalOpen(false)}
                   disabled={mutationLoading}
                   aria-label="Close"
-                  style={{ width: '30px', height: '30px', top: '1.2rem', right: '1.2rem' }}
                 >
-                  <i className="bi bi-x fs-5" />
+                  <i className="bi bi-x" />
                 </button>
               </div>
               <div className="modal-body p-4">
@@ -501,15 +502,18 @@ const MaintenancePage = () => {
       {settlingInvoice && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1070 }} onClick={() => setSettlingInvoice(null)}>
           <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white p-4">
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white p-4 position-relative">
               <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-light-subtle pb-2">
                 <h5 className="modal-title fw-bold fs-6 text-dark mb-0">Mark Invoice Settled</h5>
                 <button
                   type="button"
-                  className="btn-close"
+                  className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+                  style={{ top: 20, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
                   onClick={() => setSettlingInvoice(null)}
                   aria-label="Close"
-                />
+                >
+                  <i className="bi bi-x" />
+                </button>
               </div>
 
               <div className="mb-3">

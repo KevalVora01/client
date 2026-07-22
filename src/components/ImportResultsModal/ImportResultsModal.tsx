@@ -36,7 +36,15 @@ const ImportResultsModal: React.FC<ImportResultsModalProps> = ({
               <i className="bi bi-file-earmark-spreadsheet-fill text-secondary" style={{ fontSize: '1.25rem' }} />
               {title}
             </h5>
-            <button type="button" className="btn-close shadow-none" onClick={onClose} aria-label="Close" />
+            <button
+              type="button"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 18, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <i className="bi bi-x" />
+            </button>
           </div>
 
           {/* Modal Body */}

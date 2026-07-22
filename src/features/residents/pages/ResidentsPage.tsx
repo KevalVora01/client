@@ -70,6 +70,22 @@ const ResidentsPage = () => {
           <button
             type="button"
             className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={handlePromoteOccupants}
+            disabled={promoting}
+            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
+            title="Manually run the occupant promotion job (normally run by the hourly cron)"
+          >
+            {promoting ? (
+              <span className="spinner-border spinner-border-sm" />
+            ) : (
+              <RefreshCw size={16} strokeWidth={2} />
+            )}
+            Run Occupant Promotion
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
             onClick={() => setShowImportModal(true)}
             disabled={importLoading}
             style={{ fontSize: "0.875rem", borderRadius: "8px" }}
@@ -90,22 +106,6 @@ const ResidentsPage = () => {
           >
             <UserPlus size={16} strokeWidth={2} />
             Add Resident
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-            onClick={handlePromoteOccupants}
-            disabled={promoting}
-            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
-            title="Manually run the occupant promotion job (normally run by the hourly cron)"
-          >
-            {promoting ? (
-              <span className="spinner-border spinner-border-sm" />
-            ) : (
-              <RefreshCw size={16} strokeWidth={2} />
-            )}
-            Run Occupant Promotion
           </button>
         </div>
       </div>

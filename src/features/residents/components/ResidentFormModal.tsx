@@ -29,11 +29,11 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
             <button
               type="button"
-              className="btn btn-white border border-light-subtle rounded-2 d-flex align-items-center justify-content-center p-0 text-muted"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={handleClose}
               disabled={loading}
               aria-label="Close"
-              style={{ width: "30px", height: "30px", fontSize: "1.1rem" }}
             >
               <i className="bi bi-x" />
             </button>

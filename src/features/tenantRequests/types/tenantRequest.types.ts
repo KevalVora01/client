@@ -11,7 +11,7 @@ export interface TenantRequest {
   status: TenantRequestStatus;
   createdAt: string;
   decidedAt: string | null;
-  owner?: { id: number; userId: number; apartmentId: number } | null;
+  owner?: { id: number; userId: number; apartmentId: number; user?: { id: number; name: string; email: string } | null } | null;
   apartment?: { id: number; block: string; floorNumber: number; unitNumber: string } | null;
 }
 

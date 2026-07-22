@@ -1,5 +1,5 @@
-import React, { useRef, useState } from "react";
-import { X, Download, UploadCloud, FileSpreadsheet, AlertCircle } from "lucide-react";
+import { useRef, useState } from "react";
+import { Download, UploadCloud, FileSpreadsheet, AlertCircle } from "lucide-react";
 import { useScrollLock } from "../../hooks/useScrollLock";
 
 interface ImportModalProps {
@@ -106,13 +106,12 @@ export const ImportModal = ({
             </h5>
             <button
               type="button"
-              className="btn btn-link p-1 text-secondary border-0 d-flex align-items-center justify-content-center rounded-circle"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 18, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={onClose}
-              style={{ transition: "background-color 0.15s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f1f5f9")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              aria-label="Close"
             >
-              <X size={20} />
+              <i className="bi bi-x" />
             </button>
           </div>
 

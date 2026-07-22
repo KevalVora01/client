@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, UserPlus, Building2 } from 'lucide-react';
-import useTenantRequestDetail from '../hooks/useTenantRequestDetail';
+import { ArrowLeft, Check, X, Gavel, FileText, User, Building, Calendar, Clock } from 'lucide-react';
+import useDocumentRequestDetail from '../hooks/useDocumentRequestDetail';
 import useAuth from '../../../hooks/useAuth';
-import ConfirmModal from '../components/ConfirmModal';
-import type { TenantRequestVote, CommitteeMember, VoteChoice } from '../types/tenantRequest.types';
+import ConfirmModal from '../../tenantRequests/components/ConfirmModal';
+import type { DocumentRequestVote, CommitteeMember } from '../types/documentRequest.types';
+
+type VoteChoice = 'Approve' | 'Reject';
 
 const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, { label: string; bg: string; color: string }> = {
-    Pending: { label: 'Pending', bg: '#fef3c7', color: '#92400e' },
-    Approved: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
-    Rejected: { label: 'Rejected', bg: '#fee2e2', color: '#991b1b' },
+    PENDING: { label: 'Pending', bg: '#fef3c7', color: '#92400e' },
+    APPROVED: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
+    REJECTED: { label: 'Rejected', bg: '#fee2e2', color: '#991b1b' },
+    UPLOADED: { label: 'Uploaded', bg: '#dbeafe', color: '#1e40af' },
   };
-  const s = map[status] ?? map.Pending;
+  const s = map[status] ?? map.PENDING;
   return (
     <span className="badge-pill" style={{ backgroundColor: s.bg, color: s.color }}>
       {s.label}
@@ -23,7 +26,6 @@ const StatusBadge = ({ status }: { status: string }) => {
 const VoterRow = ({
   name,
   email,
-  tag,
   draft,
   pending,
   actionLoading,
@@ -31,7 +33,6 @@ const VoterRow = ({
 }: {
   name: string;
   email: string;
-  tag: string | null;
   draft: string | null | undefined;
   pending: boolean;
   actionLoading: boolean;
@@ -41,11 +42,6 @@ const VoterRow = ({
     <div className="min-w-0" style={{ flex: '1 1 auto' }}>
       <div className="d-flex align-items-center gap-2">
         <span className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{name}</span>
-        {tag && (
-          <span className="badge" style={{ backgroundColor: '#e8eaf6', color: '#3949ab', fontSize: '0.68rem', fontWeight: 600 }}>
-            {tag}
-          </span>
-        )}
       </div>
       <div className="text-muted mt-0" style={{ fontSize: '0.78rem' }}>{email}</div>
     </div>
@@ -113,18 +109,12 @@ const formatDetailedDate = (dateString: string | Date, includeTime = true): stri
   const month = monthNames[date.getMonth()];
 
   let suffix = 'th';
-  if (day === 1 || day === 21 || day === 31) {
-    suffix = 'st';
-  } else if (day === 2 || day === 22) {
-    suffix = 'nd';
-  } else if (day === 3 || day === 23) {
-    suffix = 'rd';
-  }
+  if (day === 1 || day === 21 || day === 31) suffix = 'st';
+  else if (day === 2 || day === 22) suffix = 'nd';
+  else if (day === 3 || day === 23) suffix = 'rd';
 
   const datePart = `${day}${suffix} ${month}, ${year}`;
-  if (!includeTime) {
-    return datePart;
-  }
+  if (!includeTime) return datePart;
 
   let hours = date.getHours();
   const minutes = date.getMinutes();
@@ -136,11 +126,11 @@ const formatDetailedDate = (dateString: string | Date, includeTime = true): stri
   return `${datePart}, ${hours}:${minutesStr} ${ampm}`;
 };
 
-const TenantRequestDetailPage = () => {
+const DocumentRequestDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const requestId = Number(id);
-  const { data, loading, actionLoading, draftVotes, draftAdminVote, setMemberVote, setAdminVote, finalize, isAdmin } = useTenantRequestDetail(requestId);
+  const { data, loading, actionLoading, draftVotes, draftAdminVote, setMemberVote, setAdminVote, finalize, isAdmin } = useDocumentRequestDetail(requestId);
   const { user } = useAuth();
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
 
@@ -163,11 +153,11 @@ const TenantRequestDetailPage = () => {
 
   const request = data;
   const { votes, committeeMembers } = data;
-  const isPending = request.status === 'Pending';
+  const isPending = request.status === 'PENDING';
 
   const voteForMember = (memberId: number) =>
-    votes.find((v: TenantRequestVote) => v.committeeMemberId === memberId);
-  const adminVote = votes.find((v: TenantRequestVote) => !v.committeeMemberId);
+    votes.find((v: DocumentRequestVote) => v.committeeMemberId === memberId);
+  const adminVoteFromDb = votes.find((v: DocumentRequestVote) => !v.committeeMemberId);
 
   const handleFinalize = async () => {
     setShowFinalizeConfirm(true);
@@ -183,33 +173,47 @@ const TenantRequestDetailPage = () => {
   };
 
   const infoCards = [
-    { icon: UserPlus, label: 'Requester', value: request.owner?.user?.name ?? `Owner #${request.requestedBy}`, accent: 'info-card--blue' },
-    { icon: Building2, label: 'Apartment', value: request.apartment ? `${request.apartment.block}-${request.apartment.floorNumber}${request.apartment.unitNumber}` : `Apt #${request.apartmentId}`, accent: 'info-card--green' },
-    { icon: Calendar, label: 'Move-in', value: formatDetailedDate(request.moveInDate, false), accent: 'info-card--purple' },
+    { icon: User, label: 'Requester', value: request.requester?.user?.name ?? `Resident #${request.requesterId}`, accent: 'info-card--green' },
+    { icon: Building, label: 'Apartment', value: request.apartment ? `${request.apartment.block}-${request.apartment.floorNumber}${request.apartment.unitNumber}` : `Apt #${request.apartmentId}`, accent: 'info-card--purple' },
     { icon: Calendar, label: 'Submitted', value: formatDetailedDate(request.createdAt), accent: 'info-card--amber' },
   ];
 
   return (
     <div className="page">
 
-      <button className="back-btn" onClick={() => navigate('/tenant-requests')}>
+      <button className="back-btn" onClick={() => navigate('/documents')}>
         <ArrowLeft size={16} strokeWidth={2} />
-        Back to requests
+        Back to documents
       </button>
 
       {/* ── Result banner (after decision) ── */}
-      {!isPending && (
+      {!isPending && request.status !== 'UPLOADED' && (
         <div
           className="d-flex align-items-center gap-2 px-4 py-3 rounded-3"
           style={{
-            backgroundColor: request.status === 'Approved' ? '#ecfdf5' : '#fef2f2',
-            border: `1px solid ${request.status === 'Approved' ? '#a7f3d0' : '#fecaca'}`,
-            color: request.status === 'Approved' ? '#065f46' : '#991b1b',
+            backgroundColor: request.status === 'APPROVED' ? '#ecfdf5' : '#fef2f2',
+            border: `1px solid ${request.status === 'APPROVED' ? '#a7f3d0' : '#fecaca'}`,
+            color: request.status === 'APPROVED' ? '#065f46' : '#991b1b',
             fontSize: '0.9rem',
           }}
         >
-          {request.status === 'Approved' ? <UserCheck size={18} /> : <Ban size={18} />}
-          This request was {request.status.toLowerCase()} on {request.decidedAt ? formatDetailedDate(request.decidedAt) : '—'}.
+          {request.status === 'APPROVED' ? <Check size={18} /> : <X size={18} />}
+          This request was {request.status.toLowerCase()}.
+        </div>
+      )}
+
+      {request.status === 'UPLOADED' && (
+        <div
+          className="d-flex align-items-center gap-2 px-4 py-3 rounded-3"
+          style={{
+            backgroundColor: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            color: '#065f46',
+            fontSize: '0.9rem',
+          }}
+        >
+          <Check size={18} />
+          Document has been uploaded and fulfilled.
         </div>
       )}
 
@@ -220,23 +224,23 @@ const TenantRequestDetailPage = () => {
             className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
             style={{ width: 56, height: 56, fontSize: '1rem', background: '#eef2ff', color: '#4338ca' }}
           >
-            {request.tenantName.charAt(0).toUpperCase()}
+            {request.documentType.charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="detail-header__name-row">
-              <h4 className="detail-header__name">{request.tenantName}</h4>
+              <h4 className="detail-header__name">{request.documentType}</h4>
               <StatusBadge status={request.status} />
             </div>
             <div className="detail-header__meta">
-              <span><Mail size={13} strokeWidth={1.75} /> {request.tenantEmail}</span>
-              <span><Phone size={13} strokeWidth={1.75} /> {request.tenantPhone}</span>
+              {request.customDocumentName && <span><FileText size={13} strokeWidth={1.75} /> {request.customDocumentName}</span>}
+              {request.note && <span><Clock size={13} strokeWidth={1.75} /> {request.note}</span>}
             </div>
           </div>
         </div>
       </div>
 
       {/* ── Info cards ── */}
-      <div className="info-grid">
+      <div className="info-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
         {infoCards.map((card) => {
           const Icon = card.icon;
           return (
@@ -260,7 +264,7 @@ const TenantRequestDetailPage = () => {
           <h6 className="section-card__title mb-0">Committee Votes</h6>
         </div>
         <div className="p-4">
-          {committeeMembers.length === 0 ? (
+          {committeeMembers.length === 0 && !(isAdmin && isPending) ? (
             <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>No committee members available to vote.</p>
           ) : (
             <>
@@ -275,7 +279,7 @@ const TenantRequestDetailPage = () => {
                       <X size={14} /> <span className="fw-semibold">{Object.values(draftVotes).filter(v => v === 'Reject').length + (draftAdminVote === 'Reject' ? 1 : 0)}</span> Rejected
                     </span>
                     <span className="text-muted d-flex align-items-center gap-1" style={{ fontSize: '0.82rem' }}>
-                      <span className="fw-semibold">{committeeMembers.length + (isAdmin ? 1 : 0) - Object.values(draftVotes).filter(Boolean).length - (draftAdminVote ? 1 : 0)}</span> Not yet voted
+                      <span className="fw-semibold">{committeeMembers.length + (isAdmin ? 1 : 0) - Object.keys(draftVotes).length - (draftAdminVote ? 1 : 0)}</span> Not yet voted
                     </span>
                   </div>
                   <div style={{ width: '120px', height: '6px', background: '#f3f4f6', borderRadius: '99px', overflow: 'hidden' }}>
@@ -304,9 +308,8 @@ const TenantRequestDetailPage = () => {
                   return (
                     <VoterRow
                       key={m.id}
-                      name={m.user?.name ?? 'Committee Member'}
-                      email={m.user?.email ?? '—'}
-                      tag={null}
+                      name={m.fullName ?? `Member #${m.id}`}
+                      email={m.email}
                       draft={draft}
                       pending={isPending}
                       actionLoading={actionLoading}
@@ -319,27 +322,27 @@ const TenantRequestDetailPage = () => {
                 {isAdmin && isPending && (
                   <VoterRow
                     name={user?.name ?? 'Admin'}
-                    email={user?.email ?? '—'}
-                    tag="Admin"
-                    draft={draftAdminVote ?? adminVote?.vote}
+                    email={user?.email ?? ''}
+                    draft={draftAdminVote ?? adminVoteFromDb?.vote}
                     pending={isPending}
                     actionLoading={actionLoading}
                     onVote={(choice) => setAdminVote(choice)}
                   />
                 )}
+
               </div>
 
               {/* ── Finalize button ── */}
               {isPending && (
                 <div className="d-flex justify-content-end mt-3">
                   <button
-                    disabled={actionLoading}
+                    disabled={actionLoading || Object.keys(draftVotes).length === 0}
                     onClick={handleFinalize}
                     className="btn fw-bold d-flex align-items-center justify-content-center gap-2"
                     style={{ backgroundColor: '#111827', color: '#fff', height: '38px', borderRadius: '8px', paddingInline: '20px', fontSize: '0.85rem' }}
                   >
                     {actionLoading ? <span className="spinner-border spinner-border-sm" /> : <Gavel size={16} />}
-                    {actionLoading ? 'Saving…' : 'Save Votes'}
+                    {actionLoading ? 'Saving\u2026' : 'Save Votes'}
                   </button>
                 </div>
               )}
@@ -347,20 +350,23 @@ const TenantRequestDetailPage = () => {
               {/* ── Recorded votes summary ── */}
               {!isPending && votes.length > 0 && (
                 <div className="d-flex flex-wrap gap-2 mt-3 pt-3 border-top border-light-subtle">
-                  {votes.map((v: TenantRequestVote) => (
-                    <span
-                      key={v.id}
-                      className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold"
-                      style={{
-                        fontSize: '0.78rem',
-                        backgroundColor: v.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
-                        color: v.vote === 'Approve' ? '#166534' : '#991b1b',
-                      }}
-                    >
-                      {v.vote === 'Approve' ? <Check size={12} /> : <X size={12} />}
-                      {v.committeeMember?.user?.name ?? (v.committeeMemberId ? `Member #${v.committeeMemberId}` : 'Admin')}
-                    </span>
-                  ))}
+                  {votes.map((v: DocumentRequestVote) => {
+                    const member = committeeMembers.find((m) => m.id === v.committeeMemberId);
+                    return (
+                      <span
+                        key={v.id}
+                        className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold"
+                        style={{
+                          fontSize: '0.78rem',
+                          backgroundColor: v.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
+                          color: v.vote === 'Approve' ? '#166534' : '#991b1b',
+                        }}
+                      >
+                        {v.vote === 'Approve' ? <Check size={12} /> : <X size={12} />}
+                        {(() => { if (v.committeeMemberId) return member?.fullName ?? `Member #${v.committeeMemberId}`; return 'Admin'; })()}
+                      </span>
+                    );
+                  })}
                 </div>
               )}
             </>
@@ -371,7 +377,7 @@ const TenantRequestDetailPage = () => {
       <ConfirmModal
         show={showFinalizeConfirm}
         title="Finalize Request"
-        message="All recorded votes will be saved and this tenant request will be finalized. This action cannot be undone."
+        message="All recorded votes will be saved and this document request will be finalized. This action cannot be undone."
         confirmLabel="Finalize"
         loading={actionLoading}
         onConfirm={confirmFinalize}
@@ -381,4 +387,4 @@ const TenantRequestDetailPage = () => {
   );
 };
 
-export default TenantRequestDetailPage;
+export default DocumentRequestDetailPage;

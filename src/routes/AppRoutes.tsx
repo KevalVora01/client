@@ -20,6 +20,8 @@ import TenantWelcomePage from '../features/tenantRequests/pages/TenantWelcomePag
 import NoticesPage from '../features/notices/pages/NoticesPage';
 import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
+import DocumentsPage from '../features/documents/pages/DocumentsPage';
+import DocumentRequestDetailPage from '../features/documents/pages/DocumentRequestDetailPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
@@ -51,18 +53,16 @@ const AppRoutes = () => {
             <Route path="/apartments/:id" element={<ApartmentDetailPage />} />
             <Route path="/tenant-requests" element={<TenantRequestsPage />} />
             <Route path="/tenant-requests/:id" element={<TenantRequestDetailPage />} />
-            {/* rest of admin routes */}
           </Route>
         </Route>
 
         {/* ─── Protected routes (resident only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['resident']} />}>
           <Route element={<DashboardLayout />}>
-          <Route path="/resident" element={<ResidentDashboard />} />
-          <Route path="/my-apartment" element={<MyApartmentPage />} />
-          <Route path="/tenant" element={<TenantManagementPage />} />
-          <Route path="/tenant/:id" element={<TenantDetailPage />} />
-            {/* rest of resident routes */}
+            <Route path="/resident" element={<ResidentDashboard />} />
+            <Route path="/my-apartment" element={<MyApartmentPage />} />
+            <Route path="/tenant" element={<TenantManagementPage />} />
+            <Route path="/tenant/:id" element={<TenantDetailPage />} />
           </Route>
         </Route>
 
@@ -75,9 +75,6 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute allowedRoles={['security']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/security" element={<SecurityDashboard />} />
-            {/* <Route path="/checkin" element={<CheckInPage />} />
-            <Route path="/checkout" element={<CheckOutPage />} />
-            <Route path="/logs" element={<VisitorLogsPage />} /> */}
           </Route>
         </Route>
 
@@ -87,6 +84,8 @@ const AppRoutes = () => {
             <Route path="/notices" element={<NoticesPage />} />
             <Route path="/complaints" element={<ComplaintsPage />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
+            <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/documents/:id" element={<DocumentRequestDetailPage />} />
           </Route>
         </Route>
 
@@ -98,7 +97,6 @@ const AppRoutes = () => {
         </Route>
 
         {/* ─── Utility routes ───────────────────────────────── */}
-        {/* <Route path="/unauthorized" element={<Unauthorized />} /> */}
         <Route path="*" element={<Navigate to="/login" replace />} />
 
       </Routes>

@@ -13,6 +13,7 @@ import {
   LogOut,
   X,
   Home,
+  FileText,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -45,6 +46,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
+    { label: 'Documents', icon: FileText, path: '/documents' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
     { label: 'Logs', icon: History, path: '/logs' },
   ],
@@ -54,6 +56,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
+    { label: 'Documents', icon: FileText, path: '/documents' },
     { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],

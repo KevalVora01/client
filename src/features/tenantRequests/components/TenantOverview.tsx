@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Receipt, ClipboardList, Calendar, ArrowRight, Mail, Phone, Users, CarFront } from "lucide-react";
+import { ArrowLeft, Receipt, ClipboardList, Calendar, Mail, Phone, Users, CarFront, UserCheck } from "lucide-react";
 import { useComplaints } from "../../complaints/hooks/useComplaints";
 import { useInvoicesPage } from "../../maintenance/hooks/useInvoicesPage";
 import { maintenanceApi } from "../../maintenance/api/maintenanceApi";
@@ -47,11 +47,9 @@ const TABS: { key: TabKey; label: string; icon: typeof Users }[] = [
 const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
   const [activeTab, setActiveTab] = useState<TabKey>('family');
 
-  // Complaints — apartment-wide, filtered to this tenant, read-only.
   const { complaints: complaintData, loading: cLoading } = useComplaints({}, false, false);
   const complaintItems = (complaintData?.items ?? []).filter((c) => c.residentId === tenant.id);
 
-  // Maintenance — apartment invoices, filtered to this tenant, read-only.
   const { invoices, loading: invLoading } = useInvoicesPage(false, true);
   const invoiceItems = (invoices?.items ?? []).filter((inv) => inv.residentId === tenant.id);
 
@@ -74,7 +72,13 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
   const isCurrent = tenant.isActive && !tenant.moveOutDate;
   const { bg, color } = getAvatarColor(tenant.user.name);
 
-  // Same columns as the resident-side maintenance table.
+  const infoCards = [
+    { icon: Phone, label: 'PHONE', value: tenant.user.phone, accent: 'info-card--blue' },
+    { icon: Mail, label: 'EMAIL', value: tenant.user.email, accent: 'info-card--green' },
+    { icon: Calendar, label: 'MOVE-IN DATE', value: formatDate(tenant.moveInDate), accent: 'info-card--purple' },
+    { icon: UserCheck, label: 'OCCUPANCY', value: tenant.isOccupant ? 'Occupant' : 'Non-occupant', accent: 'info-card--amber' },
+  ];
+
   const invoiceColumns: TableColumn<Invoice>[] = [
     {
       key: 'monthYear', label: 'Month / Year', width: '10%', align: 'center',
@@ -150,106 +154,136 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
   ];
 
   return (
-    <div>
+    <div className="d-flex flex-column gap-4">
       <button
         type="button"
         onClick={onBack}
-        className="btn btn-sm btn-link text-decoration-none d-inline-flex align-items-center gap-1 px-0 mb-3 fw-semibold"
-        style={{ color: '#4b5563' }}
+        className="back-btn"
       >
-        <ArrowLeft size={16} color="#000" /> Back to tenants
+        <ArrowLeft size={16} strokeWidth={2} /> Back to tenants
       </button>
 
-      {/* Tenant header */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mb-3">
-        <div className="card-body px-4 py-3 d-flex align-items-center gap-3">
-          <div className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: 52, height: 52, fontSize: '1rem', background: bg, color }}>
-            {getInitials(tenant.user.name)}
-          </div>
-          <div className="min-w-0">
-            <div className="d-flex align-items-center gap-2 flex-wrap">
-              <span className="fw-bold text-dark" style={{ fontSize: '1.05rem' }}>{tenant.user.name}</span>
-              {isCurrent ? (
-                <span className="badge rounded-pill fw-medium" style={{ backgroundColor: '#dcfce7', color: '#166534', fontSize: '0.7rem' }}>Current</span>
-              ) : (
-                <span className="badge rounded-pill fw-medium" style={{ backgroundColor: '#f3f4f6', color: '#6b7280', fontSize: '0.7rem' }}>Past</span>
-              )}
+      {/* ── Current Active Tenant Card (same card layout as tenant history) ── */}
+      <div className="section-card">
+        <div className="section-card__header d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
+          <h6 className="section-card__title d-flex align-items-center gap-2 mb-0" style={{ fontSize: '0.95rem', color: '#111827' }}>
+            <UserCheck size={18} className="text-success" />
+            {isCurrent ? "Current Active Tenant" : "Past Tenant Details"}
+          </h6>
+          <span className={`badge-pill badge-pill--${isCurrent ? 'active' : 'inactive'}`}>
+            {isCurrent ? 'Active Occupant' : 'Past Tenant'}
+          </span>
+        </div>
+
+        <div className="p-4">
+          <div className="d-flex flex-column gap-4">
+            {/* Header Card copied directly from Resident Detail */}
+            <div className="detail-header">
+              <div className="detail-header__left">
+                <div
+                  className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
+                  style={{ width: 56, height: 56, fontSize: '1rem', background: bg, color }}
+                >
+                  {getInitials(tenant.user.name)}
+                </div>
+                <div>
+                  <div className="detail-header__name-row">
+                    <h4 className="detail-header__name">{tenant.user.name}</h4>
+                    <span className={`badge-pill badge-pill--${isCurrent ? 'active' : 'inactive'}`}>
+                      {isCurrent ? 'Active' : 'Inactive'}
+                    </span>
+                    <span className="badge-pill badge-pill--tenant">Tenant</span>
+                  </div>
+                  <div className="detail-header__meta">
+                    <span><Calendar size={13} strokeWidth={1.75} /> Moved in {formatDate(tenant.moveInDate)}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="d-flex align-items-center gap-3 mt-1 text-muted flex-wrap" style={{ fontSize: '0.8rem' }}>
-              <span className="d-inline-flex align-items-center gap-1"><Mail size={13} /> {tenant.user.email}</span>
-              <span className="d-inline-flex align-items-center gap-1"><Phone size={13} /> {tenant.user.phone}</span>
-            </div>
-            <div className="d-flex align-items-center gap-1 mt-1 text-muted" style={{ fontSize: '0.8rem' }}>
-              <Calendar size={13} className="me-1" />
-              <span>{formatDate(tenant.moveInDate)}</span>
-              <ArrowRight size={13} className="mx-1" />
-              <span>{tenant.moveOutDate ? formatDate(tenant.moveOutDate) : 'Present'}</span>
+
+            {/* Info Cards Grid copied directly from Resident Detail */}
+            <div className="info-grid">
+              {infoCards.map((card) => {
+                const Icon = card.icon;
+                return (
+                  <div key={card.label} className={`info-card ${card.accent}`}>
+                    <div className="info-card__icon-box">
+                      <Icon size={18} strokeWidth={1.75} />
+                    </div>
+                    <div>
+                      <p className="info-card__label">{card.label}</p>
+                      <p className="info-card__value">{card.value}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Section tabs */}
-      <div className="d-flex flex-wrap gap-2 mb-3">
-        {TABS.map(({ key, label, icon: Icon }) => {
-          const active = activeTab === key;
-          return (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setActiveTab(key)}
-              className="btn btn-sm fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2"
-              style={{
-                borderRadius: '8px',
-                fontSize: '0.85rem',
-                backgroundColor: active ? '#1a1f36' : '#fff',
-                color: active ? '#fff' : '#4b5563',
-                border: `1px solid ${active ? '#1a1f36' : '#e5e7eb'}`,
-              }}
-            >
-              <Icon size={16} /> {label}
-            </button>
-          );
-        })}
+      {/* ── 4 Tabs below the Current Active Tenant Card ── */}
+      <div>
+        <div className="d-flex flex-wrap gap-2 mb-3">
+          {TABS.map(({ key, label, icon: Icon }) => {
+            const active = activeTab === key;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setActiveTab(key)}
+                className="btn btn-sm fw-semibold d-inline-flex align-items-center gap-2 px-3 py-2"
+                style={{
+                  borderRadius: '8px',
+                  fontSize: '0.85rem',
+                  backgroundColor: active ? '#1a1f36' : '#fff',
+                  color: active ? '#fff' : '#4b5563',
+                  border: `1px solid ${active ? '#1a1f36' : '#e5e7eb'}`,
+                }}
+              >
+                <Icon size={16} /> {label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Active section */}
+        {activeTab === 'family' && (
+          <FamilyMembersSection residentId={tenant.id} readOnly />
+        )}
+
+        {activeTab === 'vehicles' && (
+          <VehiclesSection residentId={tenant.id} readOnly />
+        )}
+
+        {activeTab === 'complaints' && (
+          <SectionCard icon={ClipboardList} title="Complaints Raised">
+            <ComplaintList
+              complaints={complaintItems}
+              loading={cLoading}
+              isAdmin={false}
+              disableChat
+              hideChatColumn
+              bare
+            />
+          </SectionCard>
+        )}
+
+        {activeTab === 'maintenance' && (
+          <SectionCard icon={Receipt} title="Maintenance">
+            <AppTable
+              columns={invoiceColumns}
+              data={invoiceItems}
+              loading={invLoading}
+              rowKey={(inv) => inv.id}
+              emptyTitle="No invoices found"
+              emptySubtitle="No maintenance records for this tenant."
+              emptyIcon="bi-receipt"
+              skeletonRows={4}
+            />
+          </SectionCard>
+        )}
       </div>
-
-      {/* Active section */}
-      {activeTab === 'family' && (
-        <FamilyMembersSection residentId={tenant.id} readOnly />
-      )}
-
-      {activeTab === 'vehicles' && (
-        <VehiclesSection residentId={tenant.id} readOnly />
-      )}
-
-      {activeTab === 'complaints' && (
-        <SectionCard icon={ClipboardList} title="Complaints Raised">
-          <ComplaintList
-            complaints={complaintItems}
-            loading={cLoading}
-            isAdmin={false}
-            disableChat
-            hideChatColumn
-            bare
-          />
-        </SectionCard>
-      )}
-
-      {activeTab === 'maintenance' && (
-        <SectionCard icon={Receipt} title="Maintenance">
-          <AppTable
-            columns={invoiceColumns}
-            data={invoiceItems}
-            loading={invLoading}
-            rowKey={(inv) => inv.id}
-            emptyTitle="No invoices found"
-            emptySubtitle="No maintenance records for this tenant."
-            emptyIcon="bi-receipt"
-            skeletonRows={4}
-          />
-        </SectionCard>
-      )}
     </div>
   );
 };

@@ -1,7 +1,6 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Download, Upload, Plus } from 'lucide-react';
-import * as XLSX from 'xlsx';
+import { Upload, Plus } from 'lucide-react';
 import { useApartments } from '../hooks/useApartments';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from '../types/apartment.types';
@@ -12,6 +11,7 @@ import Pagination from '../../../components/Pagination/Pagination';
 import { showSuccess } from '../../../utils/toast';
 import ApartmentTable from '../components/ApartmentTable';
 import ImportResultsModal, { type FailedImportItem } from '../../../components/ImportResultsModal/ImportResultsModal';
+import { ImportModal } from '../../../components/ImportModal/ImportModal';
 
 const ApartmentsPage = () => {
   const { apartments, pagination, stats, filters, loading, updateFilters, changePage, refetch } = useApartments();
@@ -22,50 +22,13 @@ const ApartmentsPage = () => {
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
 
+  const [showImportModal, setShowImportModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
   const [importResults, setImportResults] = useState<{
     successCount: number;
     failedCount: number;
     failedItems: FailedImportItem[];
   } | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Reset input value so same file can be selected again
-    e.target.value = '';
-
-    const result = await importApartments(file);
-    if (result) {
-      setImportResults(result);
-      setShowResultsModal(true);
-      showSuccess(`Import finished. Successfully imported ${result.successCount} apartments.`);
-    }
-  };
-
-  const handleDownloadTemplate = () => {
-    const templateData = [
-      {
-        "Block": "A",
-        "Floor Number": 1,
-        "Unit Number": "01",
-        "Area (Sqft)": 1200,
-        "Type": "2bhk" // studio, 1bhk, 2bhk, 3bhk, 4bhk
-      }
-    ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Apartments Template");
-    XLSX.writeFile(workbook, "apartment_import_template.xlsx");
-  };
 
   const handleView = (apartment: Apartment) => {
     navigate(`/apartments/${apartment.id}`);
@@ -113,26 +76,8 @@ const ApartmentsPage = () => {
         <div className="d-flex align-items-center gap-2 flex-wrap">
           <button
             type="button"
-            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-            onClick={handleDownloadTemplate}
-            style={{ fontSize: "0.875rem", borderRadius: "8px" }}
-          >
-            <Download size={16} strokeWidth={2} />
-            Download Template
-          </button>
-          
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept=".xlsx, .xls"
-            style={{ display: "none" }}
-          />
-
-          <button
-            type="button"
             className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-            onClick={handleImportClick}
+            onClick={() => setShowImportModal(true)}
             disabled={importLoading}
             style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
           >
@@ -188,6 +133,23 @@ const ApartmentsPage = () => {
         failedCount={importResults?.failedCount ?? 0}
         failedItems={importResults?.failedItems ?? []}
         title="Apartment Import Results"
+      />
+
+      <ImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        title="Import Apartments"
+        templateUrl="/templates/apartments_template.xlsx"
+        templateName="apartments_template.xlsx"
+        loading={importLoading}
+        onUpload={async (file) => {
+          const result = await importApartments(file);
+          if (result) {
+            setImportResults(result);
+            setShowResultsModal(true);
+            showSuccess(`Import finished. Successfully imported ${result.successCount} apartments.`);
+          }
+        }}
       />
 
     </div>

@@ -31,13 +31,26 @@ const skeletonStyle: React.CSSProperties = {
   animation: 'shimmer 1.4s ease infinite',
 };
 
-const SkeletonRow = ({ columns }: { columns: number }) => (
+const SkeletonRow = <T,>({ columns }: { columns: TableColumn<T>[] }) => (
   <tr>
-    {Array.from({ length: columns }).map((_, i) => (
-      <td key={i} className="py-3 px-3 align-middle">
-        <div style={{ ...skeletonStyle, width: i === 0 ? '60%' : '40%' }} />
-      </td>
-    ))}
+    {columns.map((col, i) => {
+      const alignmentClass = col.align === 'center' ? 'text-center' : col.align === 'end' ? 'text-end' : 'text-start';
+      return (
+        <td
+          key={col.key}
+          className={`py-3 px-3 align-middle ${alignmentClass}`}
+          style={col.width ? { width: col.width } : {}}
+        >
+          <div
+            style={{
+              ...skeletonStyle,
+              width: col.align === 'center' ? '50%' : i === 0 ? '70%' : '40%',
+              display: col.align === 'center' ? 'inline-block' : 'block',
+            }}
+          />
+        </td>
+      );
+    })}
   </tr>
 );
 
@@ -80,12 +93,12 @@ const AppTable = <T,>({
     return (
       <>
         <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
-        <div className="table-responsive">
-          <table className="table align-middle mb-0">
+        <div className="table-responsive" style={{ overflowX: 'auto' }}>
+          <table className="table align-middle mb-0" style={{ minWidth: '1100px' }}>
             {thead}
             <tbody>
               {Array.from({ length: skeletonRows }).map((_, i) => (
-                <SkeletonRow key={i} columns={columns.length} />
+                <SkeletonRow key={i} columns={columns} />
               ))}
             </tbody>
           </table>

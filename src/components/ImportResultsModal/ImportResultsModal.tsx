@@ -28,12 +28,12 @@ const ImportResultsModal: React.FC<ImportResultsModalProps> = ({
   return (
     <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1055 }}>
       <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '12px' }}>
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
           
           {/* Modal Header */}
           <div className="modal-header border-bottom border-light p-3">
             <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-              <i className="bi bi-file-earmark-spreadsheet-fill text-primary" style={{ fontSize: '1.25rem' }} />
+              <i className="bi bi-file-earmark-spreadsheet-fill text-secondary" style={{ fontSize: '1.25rem' }} />
               {title}
             </h5>
             <button type="button" className="btn-close shadow-none" onClick={onClose} aria-label="Close" />

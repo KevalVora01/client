@@ -198,7 +198,14 @@ const DocumentRequestDetailPage = () => {
           }}
         >
           {request.status === 'APPROVED' ? <Check size={18} /> : <X size={18} />}
-          This request was {request.status.toLowerCase()}.
+          <div>
+            <span>This request was {request.status.toLowerCase()}.</span>
+            {request.status === 'REJECTED' && request.rejectionReason && (
+              <div className="fw-medium mt-1" style={{ fontSize: '0.85rem' }}>
+                Decline Reason: {request.rejectionReason}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -220,12 +227,6 @@ const DocumentRequestDetailPage = () => {
       {/* ── Header ── */}
       <div className="detail-header">
         <div className="detail-header__left">
-          <div
-            className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: 56, height: 56, fontSize: '1rem', background: '#eef2ff', color: '#4338ca' }}
-          >
-            {request.documentType.charAt(0).toUpperCase()}
-          </div>
           <div>
             <div className="detail-header__name-row">
               <h4 className="detail-header__name">{request.documentType}</h4>
@@ -234,6 +235,9 @@ const DocumentRequestDetailPage = () => {
             <div className="detail-header__meta">
               {request.customDocumentName && <span><FileText size={13} strokeWidth={1.75} /> {request.customDocumentName}</span>}
               {request.note && <span><Clock size={13} strokeWidth={1.75} /> {request.note}</span>}
+              {request.status === 'REJECTED' && request.rejectionReason && (
+                <span className="text-danger"><X size={13} strokeWidth={1.75} /> Reason: {request.rejectionReason}</span>
+              )}
             </div>
           </div>
         </div>

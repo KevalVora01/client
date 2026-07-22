@@ -1,11 +1,12 @@
 import AppTable from '../../../components/AppTable/AppTable';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
 import type { DocumentRequestItem } from '../types/documentRequest.types';
+import DocumentRowActions from './DocumentRowActions';
 
 const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }> = {
   PENDING: { label: 'Pending Review', bg: '#fef3c7', color: '#92400e' },
   APPROVED: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
-  UPLOADED: { label: 'Uploaded & Ready', bg: '#dbeafe', color: '#1e40af' },
+  UPLOADED: { label: 'Uploaded', bg: '#dbeafe', color: '#1e40af' },
   REJECTED: { label: 'Declined', bg: '#fee2e2', color: '#991b1b' },
 };
 
@@ -30,70 +31,86 @@ const DocumentRequestTable = ({
   onCancel,
   onViewDetail,
 }: DocumentRequestTableProps) => {
+  const colCount = isAdmin ? 6 : isSent ? 4 : 5;
+  const equalWidth = `${(100 / colCount).toFixed(2)}%`;
+
   const columns: TableColumn<DocumentRequestItem>[] = [
     {
       key: 'document',
       label: 'Document Type',
-      width: '24%',
+      width: equalWidth,
       headerPaddingLeft: '1.5rem',
       render: (r) => (
         <div className="py-1 min-w-0">
-          <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+          <p className="fw-semibold m-0 text-dark text-truncate" style={{ fontSize: '0.875rem', letterSpacing: '-0.01em' }}>
             {r.documentType}
           </p>
-          {r.customDocumentName ? (
-            <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.8rem' }}>
+          {r.customDocumentName && (
+            <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
               {r.customDocumentName}
             </p>
+          )}
+          {r.status === 'REJECTED' && r.rejectionReason ? (
+            <p className="m-0 text-danger text-truncate" style={{ fontSize: '0.78rem' }} title={`Decline Reason: ${r.rejectionReason}`}>
+              Reason: {r.rejectionReason}
+            </p>
           ) : r.note ? (
-            <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.8rem', maxWidth: '240px' }}>
+            <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem', maxWidth: '220px' }}>
               {r.note}
             </p>
           ) : null}
         </div>
       ),
     },
-    {
-      key: 'party',
-      label: isSent ? 'Requested To' : 'Requested By',
-      width: '18%',
-      align: 'center',
-      render: (r) => {
-        const party = isSent ? r.target : r.requester;
-        const partyName = party?.user?.name ?? (isSent ? (r.targetRole || 'Admin/Owner') : (r.requesterRole || `User #${r.requesterId}`));
-        const partyEmail = party?.user?.email;
+    ...(!isSent
+      ? [
+          {
+            key: 'party',
+            label: 'Requested By',
+            width: equalWidth,
+            align: 'center' as const,
+            render: (r: DocumentRequestItem) => {
+              const party = r.requester;
+              const partyName = party?.user?.name ?? (r.requesterRole || `User #${r.requesterId}`);
+              const partyEmail = party?.user?.email;
 
-        return (
-          <div className="text-center">
-            <span className="fw-semibold text-dark d-block" style={{ fontSize: '0.9rem' }}>
-              {partyName}
-            </span>
-            {partyEmail && (
-              <span className="text-muted d-block" style={{ fontSize: '0.78rem' }}>
-                {partyEmail}
+              return (
+                <div className="text-center">
+                  <span className="fw-semibold text-dark d-block" style={{ fontSize: '0.875rem' }}>
+                    {partyName}
+                  </span>
+                  {partyEmail && (
+                    <span className="text-muted d-block" style={{ fontSize: '0.78rem' }}>
+                      {partyEmail}
+                    </span>
+                  )}
+                </div>
+              );
+            },
+          },
+        ]
+      : []),
+    ...(isAdmin
+      ? [
+          {
+            key: 'apartment',
+            label: 'Apartment',
+            width: equalWidth,
+            align: 'center' as const,
+            render: (r: DocumentRequestItem) => (
+              <span className="fw-semibold text-dark" style={{ fontSize: '0.875rem' }}>
+                {r.apartment
+                  ? `${r.apartment.block}-${r.apartment.floorNumber}${r.apartment.unitNumber}`
+                  : `Apt #${r.apartmentId}`}
               </span>
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      key: 'apartment',
-      label: 'Apartment',
-      width: '15%',
-      align: 'center',
-      render: (r) => (
-        <span className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>
-          {r.apartment
-            ? `${r.apartment.block}-${r.apartment.floorNumber}${r.apartment.unitNumber}`
-            : `Apt #${r.apartmentId}`}
-        </span>
-      ),
-    },
+            ),
+          },
+        ]
+      : []),
     {
       key: 'createdAt',
       label: 'Requested On',
-      width: '15%',
+      width: equalWidth,
       align: 'center',
       render: (r) => (
         <span className="text-dark" style={{ fontSize: '0.875rem' }}>
@@ -104,7 +121,7 @@ const DocumentRequestTable = ({
     {
       key: 'status',
       label: 'Status',
-      width: '14%',
+      width: equalWidth,
       align: 'center',
       render: (r) => {
         const s = STATUS_BADGE[r.status] ?? STATUS_BADGE.PENDING;
@@ -121,109 +138,19 @@ const DocumentRequestTable = ({
     {
       key: 'actions',
       label: 'Actions',
-      width: '14%',
+      width: equalWidth,
       align: 'center',
       render: (r) => (
-        <div className="d-flex align-items-center justify-content-center gap-1.5">
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              onViewDetail(r);
-            }}
-            style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-            title="View Details"
-          >
-            <i className="bi bi-eye" />
-          </button>
-
-          {r.status === 'UPLOADED' && r.documentUrl && (
-            <a
-              href={r.documentUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-sm btn-success d-inline-flex align-items-center gap-1"
-              onClick={(e) => e.stopPropagation()}
-              style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-              title="Download Document"
-            >
-              <i className="bi bi-download" />
-            </a>
-          )}
-
-          {isAdmin && r.status === 'APPROVED' && (
-            <>
-              <button
-                type="button"
-                className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpload(r);
-                }}
-                style={{ borderRadius: '6px', fontSize: '0.78rem', backgroundColor: '#1a1f36' }}
-                title="Upload Document"
-              >
-                <i className="bi bi-upload" />
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReject(r);
-                }}
-                style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-                title="Decline Request"
-              >
-                <i className="bi bi-x-circle" />
-              </button>
-            </>
-          )}
-
-          {!isAdmin && !isSent && r.status === 'PENDING' && (
-            <>
-              <button
-                type="button"
-                className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpload(r);
-                }}
-                style={{ borderRadius: '6px', fontSize: '0.78rem', backgroundColor: '#1a1f36' }}
-                title="Upload Document"
-              >
-                <i className="bi bi-upload" />
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onReject(r);
-                }}
-                style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-                title="Decline Request"
-              >
-                <i className="bi bi-x-circle" />
-              </button>
-            </>
-          )}
-
-          {isSent && r.status === 'PENDING' && (
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCancel(r.id);
-              }}
-              style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-              title="Cancel Request"
-            >
-              <i className="bi bi-trash" />
-            </button>
-          )}
+        <div className="d-flex justify-content-center">
+          <DocumentRowActions
+            item={r}
+            isSent={isSent}
+            isAdmin={isAdmin}
+            onUpload={onUpload}
+            onReject={onReject}
+            onCancel={onCancel}
+            onViewDetail={onViewDetail}
+          />
         </div>
       ),
     },

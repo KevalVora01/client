@@ -22,7 +22,7 @@ const formatDate = (dateStr: string) => {
 };
 
 const statusMeta = (status: string) => {
-  if (status === "UPLOADED") return { label: "Uploaded & Ready", bg: "bg-success-subtle", text: "text-success", border: "border-success-subtle", icon: CheckCircle };
+  if (status === "UPLOADED") return { label: "Uploaded", bg: "bg-success-subtle", text: "text-success", border: "border-success-subtle", icon: CheckCircle };
   if (status === "REJECTED") return { label: "Declined", bg: "bg-danger-subtle", text: "text-danger", border: "border-danger-subtle", icon: Ban };
   return { label: "Pending Review", bg: "bg-warning-subtle", text: "text-warning-emphasis", border: "border-warning-subtle", icon: Clock };
 };

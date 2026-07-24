@@ -96,7 +96,7 @@ const RequestDocumentModal = ({ open, onClose, isOwner, onSubmit }: Props) => {
     <>
       <DocModal open={open} onClose={handleCancel} title={`Request Document (${isOwner ? "Admin" : "Owner"})`} maxWidth="520px">
         <form onSubmit={handleSubmit}>
-          <div className="modal-body p-4 d-flex flex-column gap-3">
+          <div className="modal-body p-3 p-sm-4 d-flex flex-column gap-3">
             <Select
               label="Document Type"
               required
@@ -121,7 +121,7 @@ const RequestDocumentModal = ({ open, onClose, isOwner, onSubmit }: Props) => {
                 style={{ fontSize: "0.875rem", height: "80px", resize: "none" }} />
             </div>
           </div>
-          <div className="modal-footer border-top border-light-subtle px-4 py-3 gap-2">
+          <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-grid d-sm-flex">
             <button type="button" className="btn btn-outline-secondary rounded-2 px-3 small" onClick={handleCancel} disabled={submitting}>Cancel</button>
             <button type="submit" className="btn btn-dark rounded-2 px-3 fw-semibold small d-inline-flex align-items-center justify-content-center gap-1.5"
               disabled={submitting} style={{ minWidth: "130px" }}>

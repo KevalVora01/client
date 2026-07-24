@@ -364,9 +364,9 @@ const MaintenancePage = () => {
           </p>
         </div>
         {isAdmin && (
-          <div className="d-flex gap-2">
+          <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
             <button
-              className="btn btn-outline-primary fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
+              className="btn btn-outline-primary fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2"
               onClick={() => setApplyPenaltiesConfirmOpen(true)}
               style={{ fontSize: '0.875rem', borderRadius: '8px' }}
               disabled={mutationLoading}
@@ -374,7 +374,7 @@ const MaintenancePage = () => {
               <i className="bi bi-arrow-repeat" /> Apply Penalties
             </button>
             <button
-              className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
+              className="btn btn-dark fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2"
               onClick={() => setGenerateModalOpen(true)}
               style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
               disabled={mutationLoading}
@@ -434,7 +434,7 @@ const MaintenancePage = () => {
       )}
 
       {/* ── Filters ── */}
-      <div className="d-flex align-items-center gap-3 mb-3">
+      <div className="mb-3">
         <InvoiceFilters filters={filters} onFilterChange={updateFilters} />
       </div>
 
@@ -464,9 +464,9 @@ const MaintenancePage = () => {
       {/* ── Generate Invoices Modal ── */}
       {generateModalOpen && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
-              <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 position-relative">
+              <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 position-relative">
                 <h5 className="modal-title fw-bold fs-6 d-inline-flex align-items-center gap-2" style={{ color: '#1a1f36' }}>
                   Generate Invoices
                   <i
@@ -486,7 +486,7 @@ const MaintenancePage = () => {
                   <i className="bi bi-x" />
                 </button>
               </div>
-              <div className="modal-body p-4">
+              <div className="modal-body p-3 p-sm-4">
                 <GenerateInvoicesForm
                   loading={mutationLoading}
                   onSubmit={handleGenerate}
@@ -501,8 +501,8 @@ const MaintenancePage = () => {
       {/* ── Mark Settled Confirm ── */}
       {settlingInvoice && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1070 }} onClick={() => setSettlingInvoice(null)}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white p-4 position-relative">
+          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white p-3 p-sm-4 position-relative">
               <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-light-subtle pb-2">
                 <h5 className="modal-title fw-bold fs-6 text-dark mb-0">Mark Invoice Settled</h5>
                 <button
@@ -586,7 +586,7 @@ const MaintenancePage = () => {
                 </div>
               )}
 
-              <div className="d-flex justify-content-end gap-2 border-top border-light-subtle pt-3">
+              <div className="d-flex gap-2 justify-content-end border-top border-light-subtle pt-3">
                 <button
                   className="btn btn-sm btn-outline-secondary px-3"
                   onClick={() => {
@@ -600,7 +600,7 @@ const MaintenancePage = () => {
                   Cancel
                 </button>
                 <button
-                  className="btn btn-sm btn-primary px-3"
+                  className="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1"
                   onClick={async () => { await handleMarkSettled(settlingInvoice); }}
                   disabled={mutationLoading || (paymentMode === 'Cheque' && !/^\d{6}$/.test(chequeNumber.trim()))}
                   style={{ borderRadius: '6px' }}

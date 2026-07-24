@@ -54,7 +54,7 @@ const CheckoutForm = ({ amount, invoiceId, onClose, onPaymentSuccess }: Omit<Str
 
       <PaymentElement />
 
-      <div className="d-flex justify-content-end gap-2 mt-4">
+      <div className="d-flex gap-2 justify-content-end mt-4">
         <button
           type="button"
           className="btn btn-outline-secondary"
@@ -66,7 +66,7 @@ const CheckoutForm = ({ amount, invoiceId, onClose, onPaymentSuccess }: Omit<Str
         </button>
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary d-flex align-items-center gap-1"
           disabled={!stripe || submitting}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >
@@ -84,10 +84,10 @@ const CheckoutForm = ({ amount, invoiceId, onClose, onPaymentSuccess }: Omit<Str
 const StripeCheckoutModal = ({ clientSecret, amount, invoiceId, onClose, onPaymentSuccess }: StripeCheckoutModalProps) => {
   return (
     <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }} onClick={onClose}>
-      <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
-          <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 position-relative">
+          <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 position-relative">
             <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
               Pay Maintenance
             </h5>
@@ -102,7 +102,7 @@ const StripeCheckoutModal = ({ clientSecret, amount, invoiceId, onClose, onPayme
             </button>
           </div>
 
-          <div className="modal-body p-4">
+          <div className="modal-body p-3 p-sm-4">
             <Elements stripe={stripePromise} options={{ clientSecret }}>
               <CheckoutForm amount={amount} invoiceId={invoiceId} onClose={onClose} onPaymentSuccess={onPaymentSuccess} />
             </Elements>

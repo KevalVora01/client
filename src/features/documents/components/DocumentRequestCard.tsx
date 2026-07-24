@@ -82,7 +82,7 @@ const DocumentRequestCard = ({ item, isSent, isAdmin, onUpload, onReject, onCanc
             </div>
           </div>
 
-          <div className="d-flex align-items-center gap-2 flex-shrink-0">
+          <div className="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap">
             <button className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center justify-content-center px-2 py-1.5 rounded-2"
               style={{ fontSize: "0.8rem", width: 34, height: 34 }} onClick={() => onViewDetail(item)}
               title="View details">

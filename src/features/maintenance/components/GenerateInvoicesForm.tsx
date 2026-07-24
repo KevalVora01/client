@@ -292,7 +292,7 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
         )}
       </div>
 
-      <div className="d-flex justify-content-end gap-2 border-top border-light-subtle pt-3">
+      <div className="d-flex gap-2 justify-content-end border-top border-light-subtle pt-3">
         <button
           type="button"
           className="btn btn-outline-secondary"
@@ -304,7 +304,7 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
         </button>
         <button
           type="submit"
-          className="btn btn-primary"
+          className="btn btn-primary d-flex align-items-center gap-1"
           disabled={loading}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >

@@ -30,8 +30,8 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
   };
 
   return (
-    <form onSubmit={handleSubmit} className="d-flex align-items-end gap-2">
-      <div className="flex-grow-1" style={{ maxWidth: '200px' }}>
+    <form onSubmit={handleSubmit} className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end gap-2">
+      <div className="flex-grow-1" style={{ minWidth: '160px', maxWidth: '200px' }}>
         <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
           Monthly Maintenance Amount (₹)
         </label>
@@ -48,7 +48,7 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
         type="submit"
         className="btn btn-primary"
         disabled={updating}
-        style={{ borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
+        style={{ borderRadius: '8px', fontSize: '0.875rem', height: '38px', whiteSpace: 'nowrap' }}
       >
         {updating ? (
           <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
@@ -57,8 +57,10 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
         )}
       </button>
 
-      {error && <span className="text-danger" style={{ fontSize: '0.8rem' }}>{error}</span>}
-      {success && <span className="text-success" style={{ fontSize: '0.8rem' }}><i className="bi bi-check-circle me-1" />Saved</span>}
+      <div className="d-flex align-items-center gap-2">
+        {error && <span className="text-danger" style={{ fontSize: '0.8rem' }}>{error}</span>}
+        {success && <span className="text-success" style={{ fontSize: '0.8rem' }}><i className="bi bi-check-circle me-1" />Saved</span>}
+      </div>
     </form>
   );
 };

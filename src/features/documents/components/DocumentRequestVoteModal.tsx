@@ -214,7 +214,7 @@ const DocumentRequestVoteModal = ({
           </div>
 
           {/* Footer */}
-          <div className="d-flex align-items-center justify-content-between p-3 pt-2 border-top">
+          <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center justify-content-between gap-2 p-3 pt-2 border-top">
             {requestStatus === "APPROVED" ? (
               <span className="small text-success fw-semibold d-inline-flex align-items-center gap-1">
                 <CheckCircle size={14} /> Approved — ready for document upload
@@ -229,7 +229,7 @@ const DocumentRequestVoteModal = ({
               </span>
             )}
 
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 w-100 w-sm-auto justify-content-end">
               {requestStatus === "PENDING" && (
                 <button
                   className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1 fw-semibold px-3 rounded-2"

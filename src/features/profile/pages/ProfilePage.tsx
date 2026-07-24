@@ -18,7 +18,7 @@ const ProfilePage = () => {
 
       {/* ── Hero (.pf-hero) ── */}
       {/* Uses border, white bg, rounded-3 (12px), p-4 (24px), flex-wrap, and stack updates for mobile */}
-      <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center bg-white border border-light-subtle rounded-3 p-4 gap-4">
+      <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center bg-white border border-light-subtle rounded-3 p-3 p-sm-4 gap-4">
 
         {/* Avatar (.pf-avatar) */}
         {/* Bootstrap 5 doesn't dynamically style random hex colors from props via classes, so we pass only your unique user avatar colors here */}

@@ -43,9 +43,9 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
   const hasActiveFilters = !!filters.search || !!filters.status || !!filters.month;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap w-100">
+    <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100">
 
-      <div style={{ minWidth: '220px', maxWidth: '300px' }}>
+      <div style={{ minWidth: '200px' }}>
         <input
           type="text"
           className="form-control form-control-sm shadow-none border-light-subtle"
@@ -56,39 +56,43 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
         />
       </div>
 
-      <Select
-        name="status"
-        options={STATUS_OPTIONS}
-        placeholder="All statuses"
-        value={filters.status ?? ''}
-        onChange={(e) =>
-          onFilterChange({
-            status: (e.target.value as InvoiceStatus) || undefined,
-            pageNumber: 1,
-          })
-        }
-        style={{ maxWidth: '160px', height: '38px' }}
-        className="shadow-none"
-      />
+      <div className="w-100 w-sm-auto" style={{ minWidth: '140px' }}>
+        <Select
+          name="status"
+          options={STATUS_OPTIONS}
+          placeholder="All statuses"
+          value={filters.status ?? ''}
+          onChange={(e) =>
+            onFilterChange({
+              status: (e.target.value as InvoiceStatus) || undefined,
+              pageNumber: 1,
+            })
+          }
+          style={{ height: '38px' }}
+          className="shadow-none"
+        />
+      </div>
 
-      <Select
-        name="month"
-        options={MONTH_OPTIONS}
-        placeholder="All months"
-        value={filters.month ? String(filters.month) : ''}
-        onChange={(e) =>
-          onFilterChange({
-            month: e.target.value ? Number(e.target.value) : undefined,
-            pageNumber: 1,
-          })
-        }
-        style={{ maxWidth: '160px', height: '38px' }}
-        className="shadow-none"
-      />
+      <div className="w-100 w-sm-auto" style={{ minWidth: '140px' }}>
+        <Select
+          name="month"
+          options={MONTH_OPTIONS}
+          placeholder="All months"
+          value={filters.month ? String(filters.month) : ''}
+          onChange={(e) =>
+            onFilterChange({
+              month: e.target.value ? Number(e.target.value) : undefined,
+              pageNumber: 1,
+            })
+          }
+          style={{ height: '38px' }}
+          className="shadow-none"
+        />
+      </div>
 
       {hasActiveFilters && (
         <button
-          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
+          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium flex-shrink-0"
           onClick={handleReset}
           style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
         >

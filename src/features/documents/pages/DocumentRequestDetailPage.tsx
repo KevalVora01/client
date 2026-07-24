@@ -38,7 +38,7 @@ const VoterRow = ({
   actionLoading: boolean;
   onVote: (choice: VoteChoice) => void;
 }) => (
-  <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle">
+  <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle flex-wrap gap-2">
     <div className="min-w-0" style={{ flex: '1 1 auto' }}>
       <div className="d-flex align-items-center gap-2">
         <span className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{name}</span>
@@ -189,7 +189,7 @@ const DocumentRequestDetailPage = () => {
       {/* ── Result banner (after decision) ── */}
       {!isPending && request.status !== 'UPLOADED' && (
         <div
-          className="d-flex align-items-center gap-2 px-4 py-3 rounded-3"
+          className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3"
           style={{
             backgroundColor: request.status === 'APPROVED' ? '#ecfdf5' : '#fef2f2',
             border: `1px solid ${request.status === 'APPROVED' ? '#a7f3d0' : '#fecaca'}`,
@@ -211,7 +211,7 @@ const DocumentRequestDetailPage = () => {
 
       {request.status === 'UPLOADED' && (
         <div
-          className="d-flex align-items-center gap-2 px-4 py-3 rounded-3"
+          className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3"
           style={{
             backgroundColor: '#ecfdf5',
             border: '1px solid #a7f3d0',
@@ -267,7 +267,7 @@ const DocumentRequestDetailPage = () => {
           <Gavel size={18} />
           <h6 className="section-card__title mb-0">Committee Votes</h6>
         </div>
-        <div className="p-4">
+        <div className="p-3 p-sm-4">
           {committeeMembers.length === 0 && !(isAdmin && isPending) ? (
             <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>No committee members available to vote.</p>
           ) : (

@@ -19,7 +19,7 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
 
   return (
     // .pf-card -> card, border, white bg, rounded-3 (12px), custom padding match
-    <form className="card bg-white border border-light-subtle rounded-3 p-4 h-100 shadow-sm" onSubmit={handleSubmit}>
+    <form className="card bg-white border border-light-subtle rounded-3 p-3 p-sm-4 h-100 shadow-sm" onSubmit={handleSubmit}>
 
       {/* ── Card Header (.pf-card__head) ── */}
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
@@ -168,7 +168,7 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
         {/* .pf-btn .pf-btn--primary */}
         <button
           type="submit"
-          className="btn btn-dark d-inline-flex align-items-center gap-2"
+          className="btn btn-dark d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           disabled={loading}
           style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
         >

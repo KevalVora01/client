@@ -42,7 +42,7 @@ const UploadDocumentModal = ({ target, onClose, onSubmit }: Props) => {
   return (
     <DocModal open={!!target} onClose={handleClose} title="Upload Document" maxWidth="500px">
       <form onSubmit={handleSubmit}>
-        <div className="modal-body p-4 d-flex flex-column gap-3">
+        <div className="modal-body p-3 p-sm-4 d-flex flex-column gap-3">
           <div className="bg-light rounded-3 p-3 border">
             <p className="small text-muted mb-1">Fulfilling request for:</p>
             <p className="fw-bold text-dark mb-0">{target?.documentType}</p>
@@ -76,7 +76,7 @@ const UploadDocumentModal = ({ target, onClose, onSubmit }: Props) => {
             </div>
           </div>
         </div>
-        <div className="modal-footer border-top border-light-subtle px-4 py-3 gap-2">
+        <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-grid d-sm-flex">
           <button type="button" className="btn btn-outline-secondary rounded-2 px-3 small" onClick={handleClose} disabled={uploading}>Cancel</button>
           <button type="submit" className="btn btn-success rounded-2 px-3 fw-semibold small d-inline-flex align-items-center gap-1.5"
             disabled={uploading || !selectedFile}>

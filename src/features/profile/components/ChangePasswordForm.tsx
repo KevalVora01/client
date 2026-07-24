@@ -33,7 +33,7 @@ const ChangePasswordForm = ({ loading, onSubmit }: ChangePasswordFormProps) => {
   };
 
   return (
-    <form className="card bg-white border border-light-subtle rounded-3 p-4 h-100 shadow-sm" onSubmit={handleSubmit}>
+    <form className="card bg-white border border-light-subtle rounded-3 p-3 p-sm-4 h-100 shadow-sm" onSubmit={handleSubmit}>
 
       {/* ── Card Header ── */}
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
@@ -222,7 +222,7 @@ const ChangePasswordForm = ({ loading, onSubmit }: ChangePasswordFormProps) => {
       <div className="d-flex align-items-center justify-content-end mt-4 pt-2">
         <button
           type="submit"
-          className="btn btn-dark d-inline-flex align-items-center gap-2"
+          className="btn btn-dark d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           disabled={loading}
           style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
         >

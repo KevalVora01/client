@@ -26,12 +26,9 @@ const VehicleCard = ({ vehicle, onEdit, onDelete, readOnly = false }: VehicleCar
   const fuelStyle = fuelColors[vehicle.fuelType] ?? { bg: "#f3f4f6", color: "#374151" };
 
   return (
-    <div
-      className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle bg-white"
-      style={{ gap: "12px" }}
-    >
+    <div className="d-flex align-items-center justify-content-between p-3 rounded-3 border border-light-subtle bg-white gap-3 flex-wrap">
       {/* ── Left — icon + info ── */}
-      <div className="d-flex align-items-center gap-3">
+      <div className="d-flex align-items-center gap-3 min-w-0">
         <div
           className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
           style={{ width: 42, height: 42, background: "#eef2ff", color: "#4338ca" }}

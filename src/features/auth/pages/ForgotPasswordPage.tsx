@@ -12,10 +12,10 @@ const ForgotPasswordPage = () => {
   } = useForgotPassword();
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 px-3" style={{ backgroundColor: "#f3f4f6" }}>
+    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
       <div className="w-100" style={{ maxWidth: "480px" }}>
 
-        {/* ── Brand ── */}
+        {/* Brand */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center gap-2 mb-2">
             <div
@@ -24,14 +24,14 @@ const ForgotPasswordPage = () => {
             >
               <Home size={20} strokeWidth={2} color="#ffffff" />
             </div>
-            <span className="fw-bold" style={{ fontSize: "1.3rem", color: "#111827" }}>
+            <span className="fw-bold fs-5" style={{ color: "#111827" }}>
               Civic Horizon
             </span>
           </div>
         </div>
 
-        {/* ── Card ── */}
-        <div className="bg-white p-4 p-sm-5 rounded-3 border-0" style={{ boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)" }}>
+        {/* Card */}
+        <div className="bg-white p-4 p-sm-5 rounded-4 shadow-sm border-0">
           {isSubmitted ? (
 
             /* ── Success state ── */
@@ -42,13 +42,13 @@ const ForgotPasswordPage = () => {
               >
                 <Mail size={28} strokeWidth={1.75} />
               </div>
-              <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Check your email</h2>
-              <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>
+              <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Check your email</h2>
+              <p className="text-body-secondary mb-4">
                 If an account exists for <strong>{email}</strong>, we've sent
                 a password reset link. Check your inbox and spam folder.
               </p>
               <p
-                className="m-0 border rounded-2 px-3 py-2 text-secondary"
+                className="m-0 border rounded-2 px-3 py-2 text-body-secondary"
                 style={{ fontSize: "0.85rem", backgroundColor: "#f9fafb", borderColor: "#e5e7eb" }}
               >
                 The link expires in <strong>10 minutes</strong>.
@@ -69,8 +69,8 @@ const ForgotPasswordPage = () => {
 
             /* ── Form state ── */
             <>
-              <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Forgot password?</h2>
-              <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>
+              <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Forgot password?</h2>
+              <p className="text-body-secondary mb-4">
                 Enter your email and we'll send you a link to reset your password.
               </p>
 
@@ -79,17 +79,17 @@ const ForgotPasswordPage = () => {
                 {/* Email */}
                 <div className="mb-4">
                   <label
-                    className="d-block fw-bold text-uppercase mb-2"
                     htmlFor="email"
+                    className="form-label fw-bold text-uppercase mb-2"
                     style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
                   >
                     Email Address
                   </label>
-                  <div className="position-relative d-flex align-items-center">
+                  <div className="position-relative">
                     <Mail
                       size={18}
-                      className="position-absolute pe-none"
-                      style={{ left: "14px", color: "#9ca3af" }}
+                      className="position-absolute top-50 start-0 translate-middle-y ms-3 pe-none"
+                      style={{ color: "#9ca3af" }}
                     />
                     <input
                       type="email"
@@ -100,10 +100,8 @@ const ForgotPasswordPage = () => {
                       autoComplete="email"
                       disabled={isLoading}
                       required
-                      className="form-control shadow-none border"
+                      className="form-control ps-5 py-3 shadow-none"
                       style={{
-                        paddingLeft: "42px",
-                        height: "46px",
                         backgroundColor: "#f9fafb",
                         borderColor: "#e5e7eb",
                         fontSize: "0.95rem",
@@ -127,12 +125,10 @@ const ForgotPasswordPage = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="btn w-100 fw-bold border d-flex align-items-center justify-content-center mb-3"
+                  className="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center border-0 mb-3"
                   style={{
                     backgroundColor: isLoading ? "#4b5563" : "#111827",
-                    borderColor: isLoading ? "#4b5563" : "#111827",
                     color: "#ffffff",
-                    height: "50px",
                     fontSize: "0.85rem",
                     letterSpacing: "0.08em",
                     borderRadius: "8px",
@@ -142,13 +138,11 @@ const ForgotPasswordPage = () => {
                   onMouseEnter={(e) => {
                     if (!isLoading) {
                       e.currentTarget.style.backgroundColor = "#1f2937";
-                      e.currentTarget.style.borderColor = "#1f2937";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isLoading) {
                       e.currentTarget.style.backgroundColor = "#111827";
-                      e.currentTarget.style.borderColor = "#111827";
                     }
                   }}
                 >
@@ -159,7 +153,7 @@ const ForgotPasswordPage = () => {
                   )}
                 </button>
 
-                {/* Back to login Link */}
+                {/* Back to login */}
                 <div className="text-center">
                   <Link
                     to="/login"

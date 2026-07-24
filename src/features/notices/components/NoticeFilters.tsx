@@ -42,7 +42,7 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
   const hasActiveFilters = !!filters.search || !!filters.category || filters.isPinned !== undefined;
 
   return (
-    <div className="d-flex align-items-center gap-2 flex-wrap">
+    <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
 
       {/* Search */}
       <input
@@ -51,11 +51,11 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
         placeholder="Search notices..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ minWidth: '160px', maxWidth: '200px', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
+        style={{ minWidth: '160px', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
       />
 
       {/* Category */}
-      <div style={{ width: '130px' }}>
+      <div className="w-100 w-sm-auto" style={{ minWidth: '130px' }}>
         <Select
           name="category"
           options={CATEGORY_OPTIONS}
@@ -73,7 +73,7 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
       </div>
 
       {/* Pinned */}
-      <div style={{ width: '130px' }}>
+      <div className="w-100 w-sm-auto" style={{ minWidth: '130px' }}>
         <Select
           name="isPinned"
           options={PINNED_OPTIONS}

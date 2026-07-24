@@ -213,7 +213,7 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
       </div>
 
       {/* Actions */}
-      <div className="d-flex justify-content-end gap-2">
+      <div className="d-flex gap-2 justify-content-end">
         <button
           type="button"
           className="btn btn-outline-secondary"
@@ -225,7 +225,7 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
         </button>
         <button
           type="submit"
-          className="btn btn-dark"
+          className="btn btn-dark d-flex align-items-center justify-content-center gap-1"
           disabled={loading}
           style={{ borderRadius: '8px', fontSize: '0.875rem' }}
         >

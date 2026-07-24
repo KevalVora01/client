@@ -94,16 +94,16 @@ const TenantHistorySection = () => {
                       </div>
                     </div>
 
-                    <div className="detail-header__actions">
+                    <div className="detail-header__actions d-flex flex-wrap gap-2">
                       <button
-                        className="btn btn-outline-danger d-inline-flex align-items-center gap-2"
+                        className="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0"
                         style={{ fontSize: '0.875rem', borderRadius: '8px' }}
                         onClick={() => setShowRevokeModal(currentTenant)}
                       >
                         <Ban size={16} /> Revoke
                       </button>
                       <button
-                        className="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
+                        className="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0"
                         style={{ fontSize: '0.875rem', borderRadius: '8px' }}
                         onClick={() => navigate(`/tenant/${currentTenant.id}`)}
                       >
@@ -285,10 +285,10 @@ const TenantHistorySection = () => {
                 </p>
               </div>
 
-              <div className="p-3 bg-white border-top border-light-subtle d-flex justify-content-end gap-2">
+              <div className="p-3 bg-white border-top border-light-subtle d-flex flex-column-reverse flex-sm-row justify-content-end gap-2">
                 <button
                   type="button"
-                  className="btn btn-outline-secondary rounded-3 px-3.5 py-2 fw-medium"
+                  className="btn btn-outline-secondary rounded-3 py-2 fw-medium"
                   style={{ fontSize: '0.875rem' }}
                   onClick={() => setShowRevokeModal(null)}
                   disabled={revokingId === showRevokeModal.id}
@@ -297,7 +297,7 @@ const TenantHistorySection = () => {
                 </button>
                 <button
                   type="button"
-                  className="btn btn-danger rounded-3 px-3.5 py-2 fw-semibold d-inline-flex align-items-center gap-2 text-nowrap"
+                  className="btn btn-danger rounded-3 py-2 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 text-nowrap"
                   style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}
                   onClick={handleConfirmRevoke}
                   disabled={revokingId === showRevokeModal.id}

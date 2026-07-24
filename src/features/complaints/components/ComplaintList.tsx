@@ -401,7 +401,7 @@ const ComplaintList = ({
                                         src={img.imageUrl}
                                         alt=""
                                         className="d-block w-100"
-                                        style={{ height: '300px', objectFit: 'contain', backgroundColor: '#f0f2f5' }}
+                                        style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f0f2f5' }}
                                       />
                                     </a>
                                   </div>

@@ -22,14 +22,14 @@ const FamilyMemberFormModal = ({ show, mode, member, loading, onClose, onSubmit 
       className="modal d-block bg-dark bg-opacity-50"
       style={{ backdropFilter: "blur(4px)" }}
     >
-      <div
-        className="modal-dialog modal-lg modal-dialog-centered"
-        onClick={(e) => e.stopPropagation()}
-      >
+        <div
+          className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+          onClick={(e) => e.stopPropagation()}
+        >
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
           {/* ── Header ── */}
-          <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
+          <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
             <div>
               <h5 className="modal-title fw-bold fs-6" style={{ color: "#1a1f36" }}>
                 {isEdit ? `Edit Family Member — ${member?.name}` : "Add Family Member"}
@@ -51,7 +51,7 @@ const FamilyMemberFormModal = ({ show, mode, member, loading, onClose, onSubmit 
           </div>
 
           {/* ── Body ── */}
-          <div className="modal-body p-4">
+          <div className="modal-body p-3 p-sm-4">
             <FamilyMemberForm
               member={isEdit ? member : null}
               loading={loading}

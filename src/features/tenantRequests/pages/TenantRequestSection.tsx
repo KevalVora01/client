@@ -151,12 +151,12 @@ const RequestForm = ({
         </div>
       </div>
 
-      <div className="d-flex justify-content-end gap-2 mt-4">
+      <div className="d-grid d-sm-flex gap-2 justify-content-sm-end mt-4">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="btn btn-outline-secondary rounded-2 px-3 d-inline-flex align-items-center"
+          className="btn btn-outline-secondary rounded-2 d-flex align-items-center justify-content-center"
           style={{ height: '38px', fontSize: '0.875rem' }}
         >
           Cancel
@@ -164,7 +164,7 @@ const RequestForm = ({
         <button
           type="submit"
           disabled={loading}
-          className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center justify-content-center gap-2"
+          className="btn btn-dark fw-medium d-flex align-items-center justify-content-center gap-2"
           style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36', opacity: loading ? 0.55 : 1 }}
         >
           {loading ? <span className="spinner-border spinner-border-sm" /> : <UserPlus size={16} />}
@@ -274,9 +274,9 @@ const TenantRequestSection = ({
       {/* ── Request Tenant Modal ── */}
       {showForm && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
-              <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
+              <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
                 <div>
                   <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
                     Request a Tenant
@@ -296,7 +296,7 @@ const TenantRequestSection = ({
                   <i className="bi bi-x" />
                 </button>
               </div>
-              <div className="modal-body p-4">
+              <div className="modal-body p-3 p-sm-4">
                 <RequestForm loading={actionLoading} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
               </div>
             </div>

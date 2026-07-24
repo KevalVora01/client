@@ -17,7 +17,6 @@ const ResetPasswordPage = () => {
     handleSubmit,
   } = useResetPassword();
 
-  // Shared interactive states for input focus/blur handling
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     e.target.style.backgroundColor = "#ffffff";
     e.target.style.borderColor = "#111827";
@@ -30,28 +29,50 @@ const ResetPasswordPage = () => {
     e.target.style.boxShadow = "none";
   };
 
-  // Base shared styles
-  const labelStyle = { fontSize: "0.72rem", fontWeight: 700, letterSpacing: "0.06em", color: "#374151" };
-  const inputStyle = { paddingLeft: "42px", paddingRight: "42px", height: "46px", backgroundColor: "#f9fafb", borderColor: "#e5e7eb", fontSize: "0.95rem", borderRadius: "8px" };
-  const submitStyle = { backgroundColor: isLoading ? "#4b5563" : "#111827", borderColor: isLoading ? "#4b5563" : "#111827", color: "#ffffff", height: "50px", fontSize: "0.85rem", letterSpacing: "0.08em", borderRadius: "8px", cursor: isLoading ? "not-allowed" : "pointer", transition: "background-color 0.15s ease" };
-  const linkStyle = { fontSize: "0.875rem", color: "#374151", transition: "color 0.15s ease" };
+  const labelStyle: React.CSSProperties = { fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" };
+  const linkStyle: React.CSSProperties = { fontSize: "0.875rem", color: "#374151", transition: "color 0.15s ease" };
 
-  // ── Render Case 1: Token is Invalid or Missing ──
+  const submitBtnStyle = (): React.CSSProperties => ({
+    backgroundColor: isLoading ? "#4b5563" : "#111827",
+    color: "#ffffff",
+    fontSize: "0.85rem",
+    letterSpacing: "0.08em",
+    borderRadius: "8px",
+    cursor: isLoading ? "not-allowed" : "pointer",
+    transition: "background-color 0.15s ease",
+  });
+
+  // ── Render Case 1: Invalid/Missing Token ──
   if (!token) {
     return (
-      <div className="d-flex align-items-center justify-content-center min-vh-100 px-3" style={{ backgroundColor: "#f3f4f6" }}>
+      <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
         <div className="w-100" style={{ maxWidth: "480px" }}>
-          <div className="bg-white p-4 p-sm-5 rounded-3 border-0 text-center" style={{ boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)" }}>
-            <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: "64px", height: "64px", backgroundColor: "#fef2f2", color: "#dc2626" }}>
+          <div className="bg-white p-4 p-sm-5 rounded-4 shadow-sm border-0 text-center">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+              style={{ width: "64px", height: "64px", backgroundColor: "#fef2f2", color: "#dc2626" }}
+            >
               <Lock size={28} strokeWidth={1.75} />
             </div>
-            <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Invalid reset link</h2>
-            <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>This password reset link is invalid or has expired. Please request a new one.</p>
-            <Link to="/forgot-password" className="btn w-100 fw-bold border d-inline-flex align-items-center justify-content-center text-decoration-none mb-3" style={{ ...submitStyle, backgroundColor: "#111827" }} onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#1f2937"; }} onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "#111827"; }}>
+            <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Invalid reset link</h2>
+            <p className="text-body-secondary mb-4">
+              This password reset link is invalid or has expired. Please request a new one.
+            </p>
+            <Link
+              to="/forgot-password"
+              className="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center border-0 text-decoration-none mb-3"
+              style={submitBtnStyle()}
+            >
               REQUEST NEW LINK
             </Link>
             <div>
-              <Link to="/login" className="d-inline-flex align-items-center gap-2 fw-semibold text-decoration-none" style={linkStyle} onMouseEnter={(e) => e.currentTarget.style.color = "#111827"} onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}>
+              <Link
+                to="/login"
+                className="d-inline-flex align-items-center gap-2 fw-semibold text-decoration-none"
+                style={linkStyle}
+                onMouseEnter={(e) => e.currentTarget.style.color = "#111827"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
+              >
                 <ArrowLeft size={16} strokeWidth={2} /> Back to login
               </Link>
             </div>
@@ -61,58 +82,125 @@ const ResetPasswordPage = () => {
     );
   }
 
-  // ── Render Case 2: Token Active / Change Password Form ──
+  // ── Render Case 2: Valid Token / Password Form ──
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 px-3" style={{ backgroundColor: "#f3f4f6" }}>
+    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
       <div className="w-100" style={{ maxWidth: "480px" }}>
+        {/* Brand */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center gap-2 mb-2">
-            <div className="d-flex align-items-center justify-content-center rounded-2" style={{ width: "38px", height: "38px", backgroundColor: "#111827" }}>
+            <div
+              className="d-flex align-items-center justify-content-center rounded-2"
+              style={{ width: "38px", height: "38px", backgroundColor: "#111827" }}
+            >
               <Home size={20} strokeWidth={2} color="#ffffff" />
             </div>
-            <span className="fw-bold" style={{ fontSize: "1.3rem", color: "#111827" }}>Civic Horizon</span>
+            <span className="fw-bold fs-5" style={{ color: "#111827" }}>
+              Civic Horizon
+            </span>
           </div>
         </div>
 
-        <div className="bg-white p-4 p-sm-5 rounded-3 border-0" style={{ boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)" }}>
-          <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Set new password</h2>
-          <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>Your new password must be at least 8 characters and contain an uppercase letter, a number, and a special character.</p>
+        <div className="bg-white p-4 p-sm-5 rounded-4 shadow-sm border-0">
+          <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Set new password</h2>
+          <p className="text-body-secondary mb-4">
+            Your new password must be at least 8 characters and contain an uppercase letter, a number, and a special character.
+          </p>
 
           <form onSubmit={handleSubmit}>
-            {/* New Password Field */}
+            {/* New Password */}
             <div className="mb-3">
-              <label className="d-block text-uppercase mb-2" htmlFor="newPassword" style={labelStyle}>New Password</label>
-              <div className="position-relative d-flex align-items-center">
-                <Lock size={18} className="position-absolute pe-none" style={{ left: "14px", color: "#9ca3af" }} />
-                <input type={showPassword ? 'text' : 'password'} id="newPassword" placeholder="Min 8 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} disabled={isLoading} className="form-control shadow-none border" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required />
-                <button type="button" onClick={() => setShowPassword(p => !p)} className="position-absolute border-0 bg-transparent p-1 d-flex align-items-center justify-content-center" style={{ right: "12px", color: "#9ca3af" }}>
+              <label htmlFor="newPassword" className="form-label fw-bold text-uppercase mb-2" style={labelStyle}>
+                New Password
+              </label>
+              <div className="position-relative">
+                <Lock
+                  size={18}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-3 pe-none"
+                  style={{ color: "#9ca3af" }}
+                />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="newPassword"
+                  placeholder="Min 8 characters"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="form-control ps-5 pe-5 py-3 shadow-none"
+                  style={{ backgroundColor: "#f9fafb", borderColor: "#e5e7eb", fontSize: "0.95rem", borderRadius: "8px" }}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(p => !p)}
+                  className="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent p-2 pe-3 d-flex align-items-center justify-content-center"
+                  style={{ color: "#9ca3af" }}
+                >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Confirm Password Field */}
+            {/* Confirm Password */}
             <div className="mb-4">
-              <label className="d-block text-uppercase mb-2" htmlFor="confirmPassword" style={labelStyle}>Confirm Password</label>
-              <div className="position-relative d-flex align-items-center">
-                <Lock size={18} className="position-absolute pe-none" style={{ left: "14px", color: "#9ca3af" }} />
-                <input type={showConfirmPassword ? 'text' : 'password'} id="confirmPassword" placeholder="Re-enter new password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={isLoading} className="form-control shadow-none border" style={inputStyle} onFocus={handleFocus} onBlur={handleBlur} required />
-                <button type="button" onClick={() => setShowConfirmPassword(p => !p)} className="position-absolute border-0 bg-transparent p-1 d-flex align-items-center justify-content-center" style={{ right: "12px", color: "#9ca3af" }}>
+              <label htmlFor="confirmPassword" className="form-label fw-bold text-uppercase mb-2" style={labelStyle}>
+                Confirm Password
+              </label>
+              <div className="position-relative">
+                <Lock
+                  size={18}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-3 pe-none"
+                  style={{ color: "#9ca3af" }}
+                />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  placeholder="Re-enter new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  disabled={isLoading}
+                  required
+                  className="form-control ps-5 pe-5 py-3 shadow-none"
+                  style={{ backgroundColor: "#f9fafb", borderColor: "#e5e7eb", fontSize: "0.95rem", borderRadius: "8px" }}
+                  onFocus={handleFocus}
+                  onBlur={handleBlur}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(p => !p)}
+                  className="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent p-2 pe-3 d-flex align-items-center justify-content-center"
+                  style={{ color: "#9ca3af" }}
+                >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
             </div>
 
-            {/* Action Submit Button */}
-            <button type="submit" disabled={isLoading} className="btn w-100 fw-bold border d-flex align-items-center justify-content-center mb-3" style={submitStyle} onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#1f2937"; }} onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#111827"; }}>
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center border-0 mb-3"
+              style={submitBtnStyle()}
+              onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#1f2937"; }}
+              onMouseLeave={(e) => { if (!isLoading) e.currentTarget.style.backgroundColor = "#111827"; }}
+            >
               {isLoading ? (
                 <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />
               ) : 'RESET PASSWORD'}
             </button>
 
-            {/* Back Link */}
+            {/* Back to login */}
             <div className="text-center">
-              <Link to="/login" className="d-inline-flex align-items-center gap-2 fw-semibold text-decoration-none" style={linkStyle} onMouseEnter={(e) => e.currentTarget.style.color = "#111827"} onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}>
+              <Link
+                to="/login"
+                className="d-inline-flex align-items-center gap-2 fw-semibold text-decoration-none"
+                style={linkStyle}
+                onMouseEnter={(e) => e.currentTarget.style.color = "#111827"}
+                onMouseLeave={(e) => e.currentTarget.style.color = "#374151"}
+              >
                 <ArrowLeft size={16} strokeWidth={2} /> Back to login
               </Link>
             </div>

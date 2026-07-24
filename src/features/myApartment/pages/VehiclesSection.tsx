@@ -76,15 +76,15 @@ const VehiclesSection = ({ residentId, readOnly = false, tenantResidentId = null
   return (
     <>
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
-        <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
-          <div className="d-flex align-items-center gap-3">
-            <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
+        <div className="card-header bg-white border-bottom border-light-subtle px-3 px-sm-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+          <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3">
+            <h6 className="fw-bold mb-0 text-nowrap" style={{ color: '#1a1f36' }}>
               <i className="bi bi-car-front me-2" />Vehicles
             </h6>
             {showTenantSelector && (
               <select
                 className="form-select form-select-sm"
-                style={{ width: 'auto', minWidth: '220px', fontSize: '0.85rem' }}
+                style={{ minWidth: '160px', fontSize: '0.85rem' }}
                 value={viewingTenantId ?? ''}
                 onChange={(e) => handleTenantChange(e.target.value ? Number(e.target.value) : null)}
               >
@@ -106,7 +106,7 @@ const VehiclesSection = ({ residentId, readOnly = false, tenantResidentId = null
           )}
         </div>
 
-        <div className="card-body px-4 py-3">
+        <div className="card-body px-3 px-sm-4 py-3">
 
           {/* ── List ── */}
           {loading ? (

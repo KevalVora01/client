@@ -84,7 +84,7 @@ const ComplaintsPage = () => {
         </div>
         {!isAdmin && isCurrentOccupant && !(showScopeToggle && scope === 'tenant') && (
           <button
-            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
+            className="btn btn-dark fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100 w-sm-auto"
             onClick={openAddModal}
             style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
           >
@@ -123,7 +123,7 @@ const ComplaintsPage = () => {
       )}
 
       {/* ── Filters ── */}
-      <div className="d-flex align-items-center gap-3 mb-3">
+      <div className="mb-3">
         <ComplaintFilters
           filters={filters}
           onFilterChange={updateFilters}
@@ -150,10 +150,10 @@ const ComplaintsPage = () => {
       {/* ── Add Complaint Modal (Resident only) ── */}
       {addModalOpen && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
             <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
-              <div className="modal-header border-bottom border-light-subtle px-4 pt-4 pb-3 align-items-start position-relative">
+              <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
                 <div>
                   <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
                     Raise a Complaint
@@ -174,7 +174,7 @@ const ComplaintsPage = () => {
                 </button>
               </div>
 
-              <div className="modal-body p-4">
+              <div className="modal-body p-3 p-sm-4">
                 <ComplaintForm
                   loading={mutationLoading}
                   onSubmit={handleAdd}

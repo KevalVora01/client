@@ -58,7 +58,7 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
 
   return (
     <div
-      className="p-3"
+      className="p-3 rounded-3 shadow-sm"
       style={{
         border: '1px solid #e5e7eb',
         background: '#fff',
@@ -84,7 +84,6 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
               <div
                 className="position-absolute bg-white rounded-3 border border-light-subtle shadow-sm p-1"
                 style={{ right: 0, top: '110%', minWidth: 140, zIndex: 100 }}
-                onMouseLeave={() => setShowMenu(false)}
               >
                 <button
                   className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"

@@ -12,10 +12,10 @@ const LoginPage = () => {
   } = useLogin();
 
   return (
-    <div className="d-flex align-items-center justify-content-center min-vh-100 px-3" style={{ backgroundColor: "#f3f4f6" }}>
+    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
       <div className="w-100" style={{ maxWidth: "480px" }}>
 
-        {/* ── Brand ── */}
+        {/* Brand */}
         <div className="text-center mb-4">
           <div className="d-inline-flex align-items-center gap-2 mb-2">
             <div
@@ -24,35 +24,35 @@ const LoginPage = () => {
             >
               <Home size={20} strokeWidth={2} color="#ffffff" />
             </div>
-            <span className="fw-bold" style={{ fontSize: "1.3rem", color: "#111827" }}>
+            <span className="fw-bold fs-5" style={{ color: "#111827" }}>
               Civic Horizon
             </span>
           </div>
         </div>
 
-        {/* ── Card ── */}
-        <div className="bg-white p-4 p-sm-5 rounded-3 border-0" style={{ boxShadow: "0 2px 16px rgba(0, 0, 0, 0.06)" }}>
-          <h2 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: "#111827" }}>Welcome Back</h2>
-          <p className="mb-4" style={{ fontSize: "0.9rem", color: "#6b7280" }}>
+        {/* Card */}
+        <div className="bg-white p-4 p-sm-5 rounded-4 shadow-sm border-0">
+          <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Welcome Back</h2>
+          <p className="text-body-secondary mb-4">
             Enter your credentials to access your dashboard.
           </p>
 
           <form onSubmit={handleSubmit}>
 
-            {/* Identifier: Email or Mobile */}
+            {/* Email or Mobile */}
             <div className="mb-3">
               <label
-                className="d-block fw-bold text-uppercase mb-2"
                 htmlFor="identifier"
+                className="form-label fw-bold text-uppercase mb-2"
                 style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
               >
                 Email or Mobile Number
               </label>
-              <div className="position-relative d-flex align-items-center">
+              <div className="position-relative">
                 <Mail
                   size={18}
-                  className="position-absolute pe-none"
-                  style={{ left: "14px", color: "#9ca3af" }}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-3 pe-none"
+                  style={{ color: "#9ca3af" }}
                 />
                 <input
                   type="text"
@@ -62,10 +62,8 @@ const LoginPage = () => {
                   onChange={(e) => setIdentifier(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="form-control shadow-none border"
+                  className="form-control ps-5 py-3 shadow-none"
                   style={{
-                    paddingLeft: "42px",
-                    height: "46px",
                     backgroundColor: "#f9fafb",
                     borderColor: "#e5e7eb",
                     fontSize: "0.95rem",
@@ -89,8 +87,8 @@ const LoginPage = () => {
             <div className="mb-4">
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <label
-                  className="fw-bold text-uppercase m-0"
                   htmlFor="password"
+                  className="fw-bold text-uppercase mb-0"
                   style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
                 >
                   Password
@@ -99,23 +97,17 @@ const LoginPage = () => {
                   to="/forgot-password"
                   className="fw-semibold text-decoration-none"
                   style={{ fontSize: "0.85rem", color: "#1f2937" }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.color = "#111827";
-                    e.currentTarget.style.textDecoration = "underline";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.color = "#1f2937";
-                    e.currentTarget.style.textDecoration = "none";
-                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = "#111827"; e.currentTarget.style.textDecoration = "underline"; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = "#1f2937"; e.currentTarget.style.textDecoration = "none"; }}
                 >
                   Forgot?
                 </Link>
               </div>
-              <div className="position-relative d-flex align-items-center">
+              <div className="position-relative">
                 <Lock
                   size={18}
-                  className="position-absolute pe-none"
-                  style={{ left: "14px", color: "#9ca3af" }}
+                  className="position-absolute top-50 start-0 translate-middle-y ms-3 pe-none"
+                  style={{ color: "#9ca3af" }}
                 />
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -125,11 +117,8 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={isLoading}
-                  className="form-control shadow-none border"
+                  className="form-control ps-5 pe-5 py-3 shadow-none"
                   style={{
-                    paddingLeft: "42px",
-                    paddingRight: "42px",
-                    height: "46px",
                     backgroundColor: "#f9fafb",
                     borderColor: "#e5e7eb",
                     fontSize: "0.95rem",
@@ -150,8 +139,8 @@ const LoginPage = () => {
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="position-absolute border-0 bg-transparent p-1 d-flex align-items-center justify-content-center"
-                  style={{ right: "12px", color: "#9ca3af", cursor: "pointer" }}
+                  className="position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent p-2 pe-3 d-flex align-items-center justify-content-center"
+                  style={{ color: "#9ca3af", cursor: "pointer" }}
                   onMouseEnter={(e) => e.currentTarget.style.color = "#4b5563"}
                   onMouseLeave={(e) => e.currentTarget.style.color = "#9ca3af"}
                 >
@@ -164,12 +153,10 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="btn w-100 fw-bold border d-flex align-items-center justify-content-center"
+              className="btn w-100 fw-bold py-3 d-flex align-items-center justify-content-center border-0"
               style={{
                 backgroundColor: isLoading ? "#4b5563" : "#111827",
-                borderColor: isLoading ? "#4b5563" : "#111827",
                 color: "#ffffff",
-                height: "50px",
                 fontSize: "0.85rem",
                 letterSpacing: "0.08em",
                 borderRadius: "8px",
@@ -178,13 +165,11 @@ const LoginPage = () => {
               onMouseEnter={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.backgroundColor = "#1f2937";
-                  e.currentTarget.style.borderColor = "#1f2937";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isLoading) {
                   e.currentTarget.style.backgroundColor = "#111827";
-                  e.currentTarget.style.borderColor = "#111827";
                 }
               }}
             >

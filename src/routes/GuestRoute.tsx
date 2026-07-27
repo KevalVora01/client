@@ -1,0 +1,33 @@
+import { Navigate, Outlet } from 'react-router-dom';
+import useAuth from '../hooks/useAuth';
+
+const GuestRoute = () => {
+  const { isAuthenticated, user, isLoading } = useAuth();
+
+  // Still attempting silent refresh — don't redirect yet
+  if (isLoading) return null;
+
+  // Already logged in → redirect away from login page to their proper home
+  if (isAuthenticated && user) {
+    // Must-reset users always go to the email-link notice screen
+    if (user.mustResetPassword) {
+      return <Navigate to="/set-password-required" replace />;
+    }
+
+    const role = user.role?.toLowerCase();
+
+    if (role === 'resident') {
+      return <Navigate to="/resident" replace />;
+    }
+    if (role === 'security') {
+      return <Navigate to="/security" replace />;
+    }
+    // Default fallback for admins
+    return <Navigate to="/" replace />;
+  }
+
+  // Not logged in → let them see the login page
+  return <Outlet />;
+};
+
+export default GuestRoute;

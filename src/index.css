@@ -1,0 +1,92 @@
+* {
+  font-family: "Alexandria", sans-serif;
+}
+
+/* ── Custom scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: #000;
+  box-shadow: none;
+}
+.form-control,
+.form-select {
+  height: 42px;
+}
+
+/* ── Button theme ── */
+.btn-dark {
+  --bs-btn-bg: #1a1f36;
+  --bs-btn-border-color: #1a1f36;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #111827;
+  --bs-btn-hover-border-color: #111827;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #0f142b;
+  --bs-btn-active-border-color: #0f142b;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #1a1f36;
+  --bs-btn-disabled-border-color: #1a1f36;
+}
+
+.btn-primary {
+  --bs-btn-bg: #1a1f36;
+  --bs-btn-border-color: #1a1f36;
+  --bs-btn-color: #fff;
+  --bs-btn-hover-bg: #111827;
+  --bs-btn-hover-border-color: #111827;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-bg: #0f142b;
+  --bs-btn-active-border-color: #0f142b;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-bg: #1a1f36;
+  --bs-btn-disabled-border-color: #1a1f36;
+}
+
+body.modal-open {
+  overflow: hidden !important;
+}
+
+.dropdown-item:disabled {
+  cursor: not-allowed;
+  pointer-events: auto !important;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus,
+.dropdown-item:active {
+  background-color: #eef2ff !important;
+  color: #1a1f36 !important;
+}
+
+.dropdown-item.text-danger:hover,
+.dropdown-item.text-danger:focus,
+.dropdown-item.text-danger:active {
+  background-color: #fef2f2 !important;
+  color: #dc2626 !important;
+}

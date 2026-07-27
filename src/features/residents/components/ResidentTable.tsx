@@ -1,0 +1,160 @@
+import AppTable from '../../../components/AppTable/AppTable';
+import type { TableColumn } from '../../../components/AppTable/AppTable';
+import type { ResidentDetail, ResidentTableProps } from '../types/resident.types';
+import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
+import RowActions from './RowActions';
+import { useResidentStore } from '../hooks/useResidentStore';
+import { highlightMatch } from '../../../utils/highlight';
+
+const COL_WIDTH = '145px';
+
+const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
+  const { filters } = useResidentStore();
+  const searchVal = filters.search ?? '';
+
+  const columns: TableColumn<ResidentDetail>[] = [
+    {
+      key: 'name',
+      label: 'Resident Name',
+      width: '220px',
+      render: (r) => {
+        const { bg, color } = getAvatarColor(r.user.name);
+        return (
+          <div className="d-flex align-items-center gap-3 py-1">
+            <div
+              className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+              style={{
+                background: bg,
+                color: color,
+                width: '42px',
+                height: '42px',
+                fontSize: '0.85rem'
+              }}
+            >
+              {getInitials(r.user.name)}
+            </div>
+            <div>
+              <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+                {highlightMatch(r.user.name, searchVal)}
+              </p>
+              <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+                {highlightMatch(r.user.email, searchVal)}
+              </p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'apartment',
+      label: 'Apartment',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => r.apartment ? (
+        <div>
+          <p className="fw-semibold m-0 text-dark" style={{ fontSize: '0.9rem' }}>
+            {highlightMatch(`${r.apartment.block}-${r.apartment.floorNumber}${r.apartment.unitNumber}`, searchVal)}
+          </p>
+          <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+            Block {highlightMatch(r.apartment.block, searchVal)} - Floor {r.apartment.floorNumber}
+          </p>
+        </div>
+      ) : <span className="text-muted small">—</span>,
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-medium px-3 py-2"
+          style={{
+            fontSize: '0.8rem',
+            backgroundColor: r.isOwner ? '#e0f2fe' : '#e0e7ff',
+            color: r.isOwner ? '#0369a1' : '#4f46e5'
+          }}
+        >
+          {r.isOwner ? 'Owner' : 'Tenant'}
+        </span>
+      ),
+    },
+    {
+      key: 'moveInDate',
+      label: 'Move-in Date',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveInDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isActive ? '#f0fdf4' : '#e5e7eb',
+            color: r.isActive ? '#16a34a' : '#4b5563'
+          }}
+        >
+          {r.isActive ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'occupant',
+      label: 'Occupant',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
+            color: r.isOccupant ? '#166534' : '#6b7280'
+          }}
+        >
+          {r.isOccupant ? 'Occupant' : 'Non-occupant'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <div className="d-flex justify-content-center">
+          <RowActions
+            resident={r}
+            onView={() => onView(r)}
+            onEdit={() => onEdit(r)}
+            onDeactivate={() => onDeactivate(r)}
+          />
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <AppTable
+      columns={columns}
+      data={residents}
+      loading={loading}
+      rowKey={(r) => r.id}
+      emptyTitle="No residents found"
+      emptySubtitle="Try adjusting your filters or add a new resident."
+      emptyIcon="bi-people"
+    />
+  );
+};
+
+export default ResidentTable;

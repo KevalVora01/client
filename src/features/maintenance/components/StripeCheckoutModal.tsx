@@ -1,0 +1,117 @@
+import { useState } from 'react';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { showError } from '../../../utils/toast';
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+interface StripeCheckoutModalProps {
+  clientSecret: string;
+  amount: number;
+  invoiceId: number;
+  onClose: () => void;
+  onPaymentSuccess: (paymentIntentId: string) => void;
+}
+
+const CheckoutForm = ({ amount, invoiceId, onClose, onPaymentSuccess }: Omit<StripeCheckoutModalProps, 'clientSecret'>) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setSubmitting(true);
+    const { paymentIntent, error: stripeError } = await stripe.confirmPayment({
+      elements,
+      redirect: 'if_required',
+      confirmParams: {
+        return_url: `${window.location.origin}/maintenance?invoice_id=${invoiceId}`,
+      },
+    });
+
+    if (stripeError) {
+      showError(stripeError.message ?? 'Payment failed');
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
+    onPaymentSuccess(paymentIntent!.id);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <p className="fw-medium mb-3" style={{ fontSize: '1rem', color: '#1a1f36' }}>
+        Amount to pay: ₹{amount.toFixed(2)}
+      </p>
+
+      <PaymentElement />
+
+      <div className="d-flex gap-2 justify-content-end mt-4">
+        <button
+          type="button"
+          className="btn btn-outline-secondary"
+          onClick={onClose}
+          disabled={submitting}
+          style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="btn btn-primary d-flex align-items-center gap-1"
+          disabled={!stripe || submitting}
+          style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+        >
+          {submitting ? (
+            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+          ) : (
+            `Pay ₹${amount.toFixed(2)}`
+          )}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+const StripeCheckoutModal = ({ clientSecret, amount, invoiceId, onClose, onPaymentSuccess }: StripeCheckoutModalProps) => {
+  return (
+    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }} onClick={onClose}>
+      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+
+          <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 position-relative">
+            <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
+              Pay Maintenance
+            </h5>
+            <button
+              type="button"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <i className="bi bi-x" />
+            </button>
+          </div>
+
+          <div className="modal-body p-3 p-sm-4">
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <CheckoutForm amount={amount} invoiceId={invoiceId} onClose={onClose} onPaymentSuccess={onPaymentSuccess} />
+            </Elements>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default StripeCheckoutModal;

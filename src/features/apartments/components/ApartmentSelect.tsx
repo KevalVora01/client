@@ -44,13 +44,24 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
 
   const highlightMatch = (text: string, query: string) => {
     if (!query.trim()) return text;
-    const idx = text.toLowerCase().indexOf(query.toLowerCase().replace(/\s+/g, ''));
+    const q = query.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const charMap: number[] = [];
+    const cleanText = text.split('').map((c, i) => {
+      if (/[a-zA-Z0-9]/.test(c)) {
+        charMap.push(i);
+        return c.toLowerCase();
+      }
+      return '';
+    }).join('');
+    const idx = cleanText.indexOf(q);
     if (idx === -1) return text;
+    const start = charMap[idx];
+    const end = charMap[idx + q.length - 1] + 1;
     return (
       <>
-        {text.slice(0, idx)}
-        <span style={{ backgroundColor: '#fef08a', fontWeight: 600 }}>{text.slice(idx, idx + query.replace(/\s+/g, '').length)}</span>
-        {text.slice(idx + query.replace(/\s+/g, '').length)}
+        {text.slice(0, start)}
+        <span style={{ backgroundColor: '#fef08a', fontWeight: 600 }}>{text.slice(start, end)}</span>
+        {text.slice(end)}
       </>
     );
   };

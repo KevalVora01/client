@@ -83,13 +83,15 @@ const ComplaintsPage = () => {
           </p>
         </div>
         {!isAdmin && isCurrentOccupant && !(showScopeToggle && scope === 'tenant') && (
-          <button
-            className="btn btn-dark fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 w-100 w-sm-auto"
-            onClick={openAddModal}
-            style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
-          >
-            <i className="bi bi-plus-lg" /> Raise Complaint
-          </button>
+          <div className="d-flex align-items-center gap-2 flex-wrap">
+            <button
+              className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
+              onClick={openAddModal}
+              style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+            >
+              <i className="bi bi-plus-lg" /> Raise Complaint
+            </button>
+          </div>
         )}
       </div>
 

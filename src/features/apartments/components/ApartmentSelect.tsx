@@ -23,10 +23,12 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
 
   const filteredApartments = useMemo(() => {
     if (!search.trim()) return apartments;
-    const term = search.toLowerCase();
-    return apartments.filter((apt) =>
-      apt.block.toLowerCase().includes(term)
-    );
+    const term = search.toLowerCase().replace(/\s+/g, '');
+    return apartments.filter((apt) => {
+      const label = `${apt.block}${apt.floorNumber}${apt.unitNumber}`.toLowerCase();
+      const labelDash = `${apt.block}-${apt.floorNumber}${apt.unitNumber}`.toLowerCase();
+      return label.includes(term) || labelDash.includes(term);
+    });
   }, [apartments, search]);
 
   useEffect(() => {
@@ -39,6 +41,19 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onBlur]);
+
+  const highlightMatch = (text: string, query: string) => {
+    if (!query.trim()) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase().replace(/\s+/g, ''));
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <span style={{ backgroundColor: '#fef08a', fontWeight: 600 }}>{text.slice(idx, idx + query.replace(/\s+/g, '').length)}</span>
+        {text.slice(idx + query.replace(/\s+/g, '').length)}
+      </>
+    );
+  };
 
   const handleToggle = () => {
     if (loading || isEmpty) return;
@@ -108,37 +123,31 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
       {/* ── Custom Dropdown Menu Floating Card ── */}
       {isOpen && (
         <div
-          className="position-absolute w-100 bg-white border border-light-subtle rounded-3 shadow-lg overflow-hidden"
-          style={{ top: "calc(100% + 5px)", zIndex: 200 }}
+          className="position-absolute w-100 bg-white shadow-lg"
+          style={{ top: "calc(100% + 5px)", zIndex: 200, borderRadius: "0.75rem" }}
         >
 
-          {/* Inner Search Box Wrapper */}
-          <div className="d-flex align-items-center gap-2 px-3 py-2 border-bottom border-light-subtle">
-            <i className="bi bi-search text-muted small" style={{ fontSize: "0.8rem" }} />
+          {/* Search — exactly like apartment page filter */}
+          <div
+            className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+            style={{ height: "46px", transition: "border-color 0.15s, box-shadow 0.15s", borderRadius: "calc(0.75rem - 1px) calc(0.75rem - 1px) 0 0" }}
+          >
+            <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
             <input
               type="text"
-              className="form-control border-0 p-0 shadow-none text-dark bg-transparent"
-              placeholder="Search by flat number or block..."
+              className="w-100 border-0 p-0 bg-transparent text-dark"
+              placeholder="Search by Flat No. (e.g. A-101)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
-              style={{ fontSize: "0.8rem" }}
+              style={{ fontSize: "0.875rem", outline: "none" }}
             />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="btn p-0 border-0 bg-transparent text-muted link-dark"
-              >
-                <i className="bi bi-x-circle-fill" />
-              </button>
-            )}
           </div>
 
           {/* List Box Container */}
           <ul
             className="list-unstyled m-0 p-1 overflow-y-auto"
-            style={{ maxHeight: "200px" }}
+            style={{ maxHeight: "200px", border: '1px solid #e5e7eb', borderTop: 'none', borderRadius: '0 0 calc(0.75rem - 1px) calc(0.75rem - 1px)' }}
           >
             {filteredApartments.length === 0 ? (
               <div className="text-center py-3 text-muted" style={{ fontSize: "0.8rem" }}>
@@ -162,10 +171,10 @@ const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }:
                   >
                     <div>
                       <p className="fw-medium m-0" style={{ fontSize: "0.875rem", color: "#1a1f36", lineHeight: 1.2 }}>
-                        Unit {apt.block}-{apt.floorNumber}{apt.unitNumber}
+                        {highlightMatch(`Unit ${apt.block}-${apt.floorNumber}${apt.unitNumber}`, search)}
                       </p>
                       <p className="text-muted m-0" style={{ fontSize: "0.75rem" }}>
-                        Block {apt.block}, Floor {apt.floorNumber}
+                        {highlightMatch(`Block ${apt.block}, Floor ${apt.floorNumber}`, search)}
                       </p>
                     </div>
                     {isSelected && (

@@ -63,20 +63,18 @@ const DocumentsPage = () => {
           </p>
         </div>
 
-        {!isAdmin && (
+        {!isAdmin && activeTab === "my-requests" && (
           <button className="page-add-btn" onClick={() => setShowRequestModal(true)}>
             <Plus size={16} /> Request Document
           </button>
         )}
       </div>
 
-      {/* ── Tabs ── */}
-      {!isAdmin && (
+      {/* ── Tabs (owners only) ── */}
+      {!isAdmin && isOwner && (
         <div className="d-flex flex-wrap gap-2 mb-3">
           <TabButton label="My Sent Requests" count={myRequests.length} active={activeTab === "my-requests"} onClick={() => handleTabChange("my-requests")} />
-          {isOwner && (
-            <TabButton label="Received from Tenant" count={receivedRequests.length} active={activeTab === "received-requests"} onClick={() => handleTabChange("received-requests")} />
-          )}
+          <TabButton label="Received from Tenant" count={receivedRequests.length} active={activeTab === "received-requests"} onClick={() => handleTabChange("received-requests")} />
         </div>
       )}
 

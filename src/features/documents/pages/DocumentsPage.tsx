@@ -8,7 +8,7 @@ import DocumentRequestTable from "../components/DocumentRequestTable";
 import RequestDocumentModal from "../components/RequestDocumentModal";
 import UploadDocumentModal from "../components/UploadDocumentModal";
 import RejectDocumentModal from "../components/RejectDocumentModal";
-import ConfirmCancelModal from "../components/ConfirmCancelModal";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import Pagination from "../../../components/Pagination/Pagination";
 import type { DocumentRequestItem } from "../types/documentRequest.types";
 
@@ -46,6 +46,12 @@ const DocumentsPage = () => {
     totalPages,
     hasPreviousPage: page > 1,
     hasNextPage: page < totalPages,
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancelTargetId) return;
+    await cancelRequest(cancelTargetId);
+    setCancelTargetId(null);
   };
 
   return (
@@ -109,7 +115,15 @@ const DocumentsPage = () => {
       <RequestDocumentModal open={!isAdmin && showRequestModal} onClose={() => setShowRequestModal(false)} isOwner={isOwner} onSubmit={createRequest} />
       <UploadDocumentModal target={uploadTarget} onClose={() => setUploadTarget(null)} onSubmit={uploadDocument} />
       <RejectDocumentModal target={rejectTarget} onClose={() => setRejectTarget(null)} onSubmit={rejectRequest} />
-      <ConfirmCancelModal targetId={cancelTargetId} onClose={() => setCancelTargetId(null)} onConfirm={cancelRequest} />
+      <ConfirmDialog
+        show={!!cancelTargetId}
+        title="Cancel Request"
+        message="Are you sure you want to cancel this document request? This action cannot be undone."
+        confirmLabel="Yes, Cancel"
+        variant="danger"
+        onConfirm={handleCancelConfirm}
+        onCancel={() => setCancelTargetId(null)}
+      />
     </div>
   );
 };

@@ -153,9 +153,9 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
             ))}
           </>
         ) : comments.length === 0 ? (
-          <div className="d-flex flex-column align-items-center justify-content-center flex-grow-1">
-            <i className="bi bi-chat-dots text-secondary" style={{ fontSize: '2rem', opacity: 0.3 }} />
-            <p className="text-secondary mt-2 mb-0" style={{ fontSize: '0.85rem' }}>
+          <div className="d-flex flex-column align-items-center justify-content-center flex-grow-1 h-100 py-5 text-center my-auto">
+            <i className="bi bi-chat-dots text-secondary mb-2" style={{ fontSize: '2.4rem', opacity: 0.35 }} />
+            <p className="text-secondary fw-medium mb-0" style={{ fontSize: '0.875rem' }}>
               No messages yet. Start the conversation!
             </p>
           </div>

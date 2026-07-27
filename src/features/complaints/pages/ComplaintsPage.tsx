@@ -70,7 +70,7 @@ const ComplaintsPage = () => {
   const closeAddModal = () => setAddModalOpen(false);
 
   return (
-    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
+    <div className="container-fluid p-2.5 p-sm-3 p-md-4 max-w-100 mx-auto overflow-x-hidden">
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
@@ -142,6 +142,7 @@ const ComplaintsPage = () => {
           isAdmin={isAdmin}
           currentUserId={user?.id}
           disableChat={showScopeToggle && scope === 'tenant'}
+          hideChatColumn={showScopeToggle && scope === 'tenant'}
           showResidentName={showScopeToggle && scope === 'tenant'}
           pagination={pagination}
           onPageChange={changePage}

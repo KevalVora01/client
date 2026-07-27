@@ -43,12 +43,13 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
   const hasActiveFilters = !!filters.search || !!filters.status || !!filters.month;
 
   return (
-    <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2 w-100">
+    <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
 
-      <div style={{ minWidth: '200px' }}>
+      {/* Search */}
+      <div className="flex-grow-1" style={{ maxWidth: '400px' }}>
         <input
           type="text"
-          className="form-control form-control-sm shadow-none border-light-subtle"
+          className="form-control shadow-none border-light-subtle"
           placeholder="Search unit or resident..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -56,7 +57,8 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
         />
       </div>
 
-      <div className="w-100 w-sm-auto" style={{ minWidth: '140px' }}>
+      {/* Status */}
+      <div style={{ minWidth: '130px' }}>
         <Select
           name="status"
           options={STATUS_OPTIONS}
@@ -68,12 +70,13 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
               pageNumber: 1,
             })
           }
-          style={{ height: '38px' }}
           className="shadow-none"
+          style={{ height: '38px' }}
         />
       </div>
 
-      <div className="w-100 w-sm-auto" style={{ minWidth: '140px' }}>
+      {/* Month */}
+      <div style={{ minWidth: '130px' }}>
         <Select
           name="month"
           options={MONTH_OPTIONS}
@@ -85,14 +88,15 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
               pageNumber: 1,
             })
           }
-          style={{ height: '38px' }}
           className="shadow-none"
+          style={{ height: '38px' }}
         />
       </div>
 
+      {/* Clear filters */}
       {hasActiveFilters && (
         <button
-          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium flex-shrink-0"
+          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
           onClick={handleReset}
           style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
         >

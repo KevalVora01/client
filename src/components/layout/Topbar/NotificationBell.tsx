@@ -20,6 +20,11 @@ const ICON_MAP: Record<string, typeof FileText> = {
   tenant_request_approved: CheckCheck,
   tenant_request_rejected: XCircle,
   tenancy_revoked: UserMinus,
+  document_request_created: FileText,
+  document_request_status_changed: FileText,
+  document_request_approved: CheckCheck,
+  document_request_uploaded: FileText,
+  document_request_rejected: XCircle,
 };
 
 const CLASS_MAP: Record<string, string> = {
@@ -36,6 +41,11 @@ const CLASS_MAP: Record<string, string> = {
   tenant_request_approved: 'bg-success-subtle text-success-emphasis',
   tenant_request_rejected: 'bg-danger-subtle text-danger-emphasis',
   tenancy_revoked: 'bg-warning-subtle text-warning-emphasis',
+  document_request_created: 'bg-primary-subtle text-primary-emphasis',
+  document_request_status_changed: 'bg-info-subtle text-info-emphasis',
+  document_request_approved: 'bg-success-subtle text-success-emphasis',
+  document_request_uploaded: 'bg-success-subtle text-success-emphasis',
+  document_request_rejected: 'bg-danger-subtle text-danger-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
@@ -52,6 +62,11 @@ const NAV_MAP: Record<string, string> = {
   tenant_request_approved: '/my-apartment',
   tenant_request_rejected: '/my-apartment',
   tenancy_revoked: '/my-apartment',
+  document_request_created: '/documents',
+  document_request_status_changed: '/documents',
+  document_request_approved: '/documents',
+  document_request_uploaded: '/documents',
+  document_request_rejected: '/documents',
 };
 
 function timeAgo(dateStr: string): string {

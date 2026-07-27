@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { complaintApi } from '../api/complaintApi';
-import AppTable from '../../../components/AppTable/AppTable';
 import Select from '../../../components/Select/Select';
 import Pagination from '../../../components/Pagination/Pagination';
-import type { TableColumn } from '../../../components/AppTable/AppTable';
 import type { SelectOption } from '../../../components/Select/Select';
 import type { PaginatedResult } from '../../../types/pagination.types';
 import ComplaintStatusBadge from './ComplaintStatusBadge';
@@ -51,6 +49,15 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 }
 
+const getStatusBorderColor = (status: string): string => {
+  switch (status) {
+    case 'Open': return '#f59e0b';
+    case 'In Progress': return '#3b82f6';
+    case 'Resolved': return '#10b981';
+    default: return '#6b7280';
+  }
+};
+
 const ComplaintList = ({
   complaints,
   loading,
@@ -61,7 +68,6 @@ const ComplaintList = ({
   disableChat = false,
   hideChatColumn = false,
   showResidentName = false,
-  bare = false,
   pagination,
   onPageChange,
   onPageSizeChange
@@ -83,6 +89,31 @@ const ComplaintList = ({
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
   const [deletingComplaint, setDeletingComplaint] = useState<Complaint | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [accordionOpenId, setAccordionOpenId] = useState<number | null>(null);
+  const [detailsMap, setDetailsMap] = useState<Record<number, Complaint>>({});
+  const [loadingDetailId, setLoadingDetailId] = useState<number | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const toggleAccordion = async (id: number) => {
+    if (accordionOpenId === id) {
+      setAccordionOpenId(null);
+      return;
+    }
+    setAccordionOpenId(id);
+
+    const complaint = complaints.find((c) => c.id === id);
+    if (!complaint?.images && !detailsMap[id]) {
+      setLoadingDetailId(id);
+      try {
+        const detail = await complaintApi.getComplaint(id);
+        setDetailsMap((prev) => ({ ...prev, [id]: detail }));
+      } catch (err) {
+        console.error('Failed to load complaint details', err);
+      } finally {
+        setLoadingDetailId(null);
+      }
+    }
+  };
 
   const { filters } = useComplaintStore();
   const searchVal = filters.search ?? '';
@@ -166,148 +197,222 @@ const ComplaintList = ({
     onUpdateStatus?.(complaint, value as ComplaintStatus);
   };
 
-  const allColumnDefs: { key: string; label: string; adminWidth: string; residentWidth: string; align?: 'start' | 'center' | 'end'; show?: boolean; render: (c: Complaint) => React.ReactNode }[] = [
-    {
-      key: 'chat', label: 'Chat', align: 'center', adminWidth: '5%', residentWidth: '7%', show: !showResidentName && !hideChatColumn,
-      render: (c) => {
-        const isDisabled = disableChat || c.status === 'Resolved';
-        return (
-          <div
-            className="d-flex align-items-center justify-content-center"
-            style={{
-              cursor: isDisabled ? 'not-allowed' : 'pointer',
-              minHeight: '34px',
-              opacity: isDisabled ? 0.5 : 1
-            }}
-            onClick={() => !isDisabled && handleExpand(c)}
-          >
-            <i
-              className={`bi bi-chat-left-text ${isDisabled ? 'text-secondary' : 'text-primary'}`}
-              style={{ fontSize: '1rem' }}
-            />
-          </div>
-        );
-      },
-    },
-    {
-      key: 'title', label: 'Title', align: 'center', adminWidth: '30%', residentWidth: showResidentName ? '28%' : hideChatColumn ? '40%' : '33%',
-      render: (c) => {
-        const isDisabled = hideChatColumn;
-        return (
-          <div
-            style={{ cursor: isDisabled ? 'default' : 'pointer' }}
-            onClick={() => !isDisabled && handleExpand(c)}
-          >
-            <p className="fw-medium mb-0" style={{ fontSize: '0.875rem', color: '#1a1f36', lineHeight: '1.3' }}>
-              {highlightMatch(c.title, searchVal)}
-            </p>
-          </div>
-        );
-      },
-    },
-    {
-      key: 'raisedBy', label: 'Raised By', align: 'center', adminWidth: '0%', residentWidth: '14.4%', show: showResidentName,
-      render: (c) => (
-        <span className="fw-medium" style={{ fontSize: '0.85rem', color: '#1a1f36' }}>
-          {c.resident?.user?.name ?? '\u2014'}
-        </span>
-      ),
-    },
-    {
-      key: 'status', label: 'Status', align: 'center', adminWidth: '14%', residentWidth: showResidentName ? '14.4%' : '15%',
-      render: (c) => <ComplaintStatusBadge status={c.status} />,
-    },
-    {
-      key: 'priority', label: 'Priority', align: 'center', adminWidth: '15%', residentWidth: showResidentName ? '14.4%' : '15%',
-      render: (c) => <ComplaintPriorityBadge priority={c.priority} />,
-    },
-    {
-      key: 'apt', label: 'Apt', align: 'center', adminWidth: '8%', residentWidth: '0%',
-      render: (c) => {
-        const apt = c.resident?.apartment;
-        const label = apt ? `${apt.block}-${apt.floorNumber}${apt.unitNumber}` : '\u2014';
-        return (
-          <span className="text-muted" style={{ fontSize: '0.8rem' }}>
-            {label}
-          </span>
-        );
-      },
-    },
-    {
-      key: 'date', label: 'Submitted', align: 'center', adminWidth: '10%', residentWidth: showResidentName ? '14.4%' : '15%',
-      render: (c) => (
-        <span className="text-muted" style={{ fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-          {timeAgo(c.createdAt)}
-        </span>
-      ),
-    },
-    {
-      key: 'actions', label: 'Actions', align: 'center', adminWidth: '14%', residentWidth: showResidentName ? '14.4%' : '15%',
-      render: (c) => {
-        let actionContent: React.ReactNode = null;
-
-        if (isAdmin && c.status !== 'Resolved' && onUpdateStatus) {
-          actionContent = (
-            <Select
-              name="status"
-              options={STATUS_OPTIONS}
-              value={c.status}
-              onChange={(e) => handleStatusChange(c, e.target.value)}
-              className="shadow-none"
-              style={{ height: '38px', fontSize: '0.8rem', width: '130px', textAlign: 'center', justifyContent: 'center', gap: '4px' }}
-              dropdownWidth={140}
-            />
-          );
-        } else if (!isAdmin && onDeleteComplaint && c.status === 'Open' && c.resident?.userId === currentUserId) {
-          actionContent = (
-            <button
-              className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
-              onClick={() => setDeletingComplaint(c)}
-              style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-              title="Delete complaint"
-            >
-              <i className="bi bi-trash" />
-            </button>
-          );
-        }
-
-        return (
-          <div onClick={(e) => e.stopPropagation()} className="d-flex justify-content-center">
-            {actionContent ?? <span className="text-secondary" style={{ fontSize: '0.85rem' }}>&mdash;</span>}
-          </div>
-        );
-      },
-    },
-  ];
-
-  const columns: TableColumn<Complaint>[] = allColumnDefs
-    .filter((col) => col.show !== false)
-    .filter((col) => (isAdmin ? col.adminWidth !== '0%' : col.residentWidth !== '0%'))
-    .map((col) => ({
-      key: col.key,
-      label: col.label,
-      align: col.align,
-      width: isAdmin ? col.adminWidth : col.residentWidth,
-      render: col.render,
-    }));
-
   const complaintFromList = complaints.find((c) => c.id === expandedId);
   const activeDetail = expandedDetail?.id === expandedId ? expandedDetail : complaintFromList;
 
   return (
-    <div className={bare ? '' : 'table-card'}>
-      <AppTable
-        columns={columns}
-        data={complaints}
-        loading={loading}
-        rowKey={(c) => c.id}
-        emptyTitle="No complaints found"
-        emptySubtitle="There are no complaints matching your criteria. Try adjusting your filters or check back later."
-        emptyIcon="bi-clipboard-check"
-        skeletonRows={4}
-      />
+    <div className="w-100">
+      {loading ? (
+        <div className="d-flex flex-column gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="skeleton rounded-3" style={{ height: '76px' }} />
+          ))}
+        </div>
+      ) : (complaints?.length ?? 0) === 0 ? (
+        <div className="text-center py-5 px-3 bg-white rounded-3 border border-light-subtle shadow-sm">
+          <i className="bi bi-clipboard-check d-block mb-2 text-muted" style={{ fontSize: '2.2rem' }} />
+          <h6 className="fw-bold text-dark mb-1">No complaints found</h6>
+          <p className="text-muted small mb-0">There are no complaints matching your criteria.</p>
+        </div>
+      ) : (
+        <div className="d-flex flex-column gap-3 w-100 overflow-x-hidden" id="complaintsAccordion">
+          {complaints.map((c) => {
+            const isOpen = accordionOpenId === c.id;
+            const detail = detailsMap[c.id] || (c.id === expandedDetail?.id ? expandedDetail : c);
+            const images = detail?.images ?? c.images ?? [];
+            const isLoadingImages = loadingDetailId === c.id;
+            const apt = c.resident?.apartment;
+            const aptLabel = apt ? `${apt.block}-${apt.floorNumber}${apt.unitNumber}` : null;
+            const statusColor = getStatusBorderColor(c.status);
+
+            return (
+              <div
+                key={c.id}
+                className={`bg-white border border-light-subtle rounded-3 shadow-sm w-100 ${isOpen ? 'overflow-visible' : 'overflow-hidden'}`}
+                style={{
+                  borderLeft: `4px solid ${statusColor}`,
+                  transition: 'all 0.2s ease',
+                }}
+              >
+                {/* ── Card Header Row (Click chevron / header to expand accordion) ── */}
+                <div
+                  className={`p-3 p-sm-3.5 d-flex align-items-center justify-content-between gap-3 ${isOpen ? 'bg-light-subtle' : 'bg-white'}`}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => toggleAccordion(c.id)}
+                >
+                  {/* Left side: Chevron > + Title & Badges */}
+                  <div className="d-flex align-items-start gap-3 min-w-0 flex-grow-1">
+                    {/* Chevron icon at starting (left) */}
+                    <div className="pt-1 text-muted flex-shrink-0">
+                      <i
+                        className="bi bi-chevron-right d-block fw-bold"
+                        style={{
+                          fontSize: '0.95rem',
+                          color: isOpen ? '#1a1f36' : '#9ca3af',
+                          transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                          transition: 'transform 0.2s ease',
+                        }}
+                      />
+                    </div>
+
+                    {/* Main Info (Title & Badges) */}
+                    <div className="d-flex flex-column gap-2 min-w-0 flex-grow-1">
+                      <div className="d-flex align-items-start min-w-0">
+                        <span
+                          className="fw-bold text-dark text-break me-auto"
+                          style={{ fontSize: '0.96rem', color: '#111827', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                        >
+                          {highlightMatch(c.title, searchVal)}
+                        </span>
+                      </div>
+
+                      <div className="d-flex align-items-center gap-2 flex-wrap">
+                        <ComplaintStatusBadge status={c.status} />
+                        <ComplaintPriorityBadge priority={c.priority} />
+                        {isAdmin && aptLabel && (
+                          <span className="badge bg-body-secondary text-secondary border border-light-subtle" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                            Apartment: {aptLabel}
+                          </span>
+                        )}
+
+                        {/* Chat Icon (directly after Apartment badge, hidden if Resolved) */}
+                        {!hideChatColumn && !disableChat && c.status !== 'Resolved' && (
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              className="btn btn-sm border-0 shadow-none d-inline-flex align-items-center justify-content-center p-0 text-primary"
+                              style={{
+                                background: 'transparent',
+                                width: '26px',
+                                height: '26px',
+                                cursor: 'pointer'
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleExpand(c);
+                              }}
+                              title="Open Chat"
+                            >
+                              <i className="bi bi-chat-left-text" style={{ fontSize: '1.15rem' }} />
+                            </button>
+                          </div>
+                        )}
+
+                        {showResidentName && c.resident?.user?.name && (
+                          <span className="badge bg-primary-subtle text-primary-emphasis" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                            Submitted by: {c.resident.user.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Far Right Area: Submitted Timestamp (ALWAYS AT LAST) */}
+                  <div className="flex-shrink-0 ms-2 text-muted small" style={{ fontSize: '0.73rem', whiteSpace: 'nowrap' }}>
+                    <span className="d-none d-sm-inline">Submitted: </span>{timeAgo(c.createdAt)}
+                  </div>
+                </div>
+
+                {/* ── Accordion Body (Images & Description) ── */}
+                {isOpen && (
+                  <div className="p-3 p-sm-3.5 bg-light-subtle border-top border-light-subtle d-flex flex-column gap-3 w-100 overflow-visible">
+                    {/* Attached Images */}
+                    {isLoadingImages ? (
+                      <div className="p-3 bg-white rounded-3 border border-light-subtle d-flex align-items-center gap-2 text-secondary small">
+                        <span className="spinner-border spinner-border-sm text-primary" /> Loading images & details...
+                      </div>
+                    ) : images.length > 0 ? (
+                      <div className="p-3 bg-white rounded-3 border border-light-subtle shadow-xs">
+                        <span className="text-uppercase text-muted fw-bold d-block mb-2" style={{ fontSize: '0.68rem', letterSpacing: '0.06em' }}>
+                          Attached Images ({images.length})
+                        </span>
+                        <div className="d-flex gap-2 flex-wrap">
+                          {images.map((img) => (
+                            <div
+                              key={img.id}
+                              className="d-block rounded-2 overflow-hidden border border-light-subtle shadow-xs hover-shadow"
+                              style={{ width: '100px', height: '100px', cursor: 'pointer' }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedImage(img.imageUrl);
+                              }}
+                              title="Click to view larger image"
+                            >
+                              <img
+                                src={img.imageUrl}
+                                alt="Complaint image attachment"
+                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    {/* Description Box */}
+                    {c.description && (
+                      <div className="p-3 bg-white rounded-3 border border-light-subtle shadow-xs">
+                        <span className="text-uppercase text-muted fw-bold d-block mb-1" style={{ fontSize: '0.68rem', letterSpacing: '0.06em' }}>
+                          Description
+                        </span>
+                        <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                          {highlightMatch(c.description, searchVal)}
+                        </p>
+                      </div>
+                    )}
+
+
+
+                    {/* Admin Status Dropdown */}
+                    {isAdmin && c.status !== 'Resolved' && onUpdateStatus && (
+                      <div className="d-flex align-items-center justify-content-end gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
+                        <span className="text-uppercase text-muted fw-bold" style={{ fontSize: '0.72rem', letterSpacing: '0.05em' }}>
+                          Update Status:
+                        </span>
+                        <div style={{ width: '160px' }}>
+                          <Select
+                            name="status"
+                            options={STATUS_OPTIONS}
+                            value={c.status}
+                            onChange={(e) => handleStatusChange(c, e.target.value)}
+                            className="shadow-none border-light-subtle bg-white"
+                            style={{ height: '34px', fontSize: '0.82rem', borderRadius: '6px', fontWeight: 500 }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Resident Delete Button */}
+                    {!isAdmin && onDeleteComplaint && c.status === 'Open' && c.resident?.userId === currentUserId && (
+                      <div className="d-flex justify-content-end pt-1">
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold shadow-xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeletingComplaint(c);
+                          }}
+                          style={{
+                            borderRadius: '8px',
+                            fontSize: '0.82rem',
+                            transition: 'all 0.2s ease',
+                          }}
+                          title="Delete complaint"
+                        >
+                          <i className="bi bi-trash3" style={{ fontSize: '0.9rem' }} /> Delete Complaint
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {!loading && (complaints?.length ?? 0) > 0 && pagination && onPageChange && (
-        <div className="table-card__footer">
+        <div className="table-card__footer mt-3">
           <Pagination
             pagination={pagination}
             onPageChange={onPageChange}
@@ -316,23 +421,26 @@ const ComplaintList = ({
         </div>
       )}
 
-      {/* ── Slide-Over Panel (Drawer) ── */}
+      {/* ── Slide-Over Panel (Chat Drawer ONLY) ── */}
       {expandedId && (
         <div className="complaint-drawer-backdrop" onClick={handleCloseDrawer}>
-          <div className="complaint-drawer" onClick={(e) => e.stopPropagation()}>
+          <div className="complaint-drawer d-flex flex-column h-100" onClick={(e) => e.stopPropagation()}>
             {/* Drawer Header */}
-            <div className="complaint-drawer-header">
+            <div className="complaint-drawer-header d-flex align-items-center justify-content-between p-3 border-bottom border-light-subtle bg-white">
               {activeDetail ? (
-                <div>
-                  <h6 className="mb-0 fw-bold text-dark text-truncate" style={{ maxWidth: '400px', fontSize: '1rem' }}>
-                    {activeDetail.title}
-                  </h6>
-                  <div className="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                <div className="min-w-0 flex-grow-1 me-2">
+                  <div className="d-flex align-items-center gap-2 mb-1">
+                    <i className="bi bi-chat-left-text text-primary fs-5" />
+                    <h6 className="mb-0 fw-bold text-dark text-break" style={{ fontSize: '1rem', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                      {activeDetail.title}
+                    </h6>
+                  </div>
+                  <div className="d-flex align-items-center gap-2 flex-wrap">
                     <ComplaintStatusBadge status={activeDetail.status} />
                     <ComplaintPriorityBadge priority={activeDetail.priority} />
-                    {activeDetail.resident?.apartment && (
-                      <span className="text-secondary" style={{ fontSize: '0.75rem' }}>
-                        Unit: {activeDetail.resident.apartment.block}-{activeDetail.resident.apartment.floorNumber}{activeDetail.resident.apartment.unitNumber}
+                    {isAdmin && activeDetail.resident?.apartment && (
+                      <span className="text-secondary small">
+                        Apartment: {activeDetail.resident.apartment.block}-{activeDetail.resident.apartment.floorNumber}{activeDetail.resident.apartment.unitNumber}
                       </span>
                     )}
                   </div>
@@ -342,98 +450,34 @@ const ComplaintList = ({
               )}
               <button
                 type="button"
-                className="btn-close shadow-none"
+                className="btn-close shadow-none flex-shrink-0"
                 onClick={handleCloseDrawer}
                 aria-label="Close"
               />
             </div>
 
-            {/* Drawer Body */}
-            <div className="complaint-drawer-body">
+            {/* Drawer Body — Chat Box ONLY */}
+            <div className="complaint-drawer-body p-3 flex-grow-1 overflow-y-auto bg-light-subtle">
               {!expandedDetail || expandedDetail.id !== expandedId ? (
                 <div className="d-flex flex-column align-items-center justify-content-center h-100 flex-grow-1">
                   <span className="spinner-border spinner-border-sm text-primary mb-2" />
-                  <span className="text-secondary small">Loading details...</span>
+                  <span className="text-secondary small">Loading chat...</span>
                 </div>
               ) : (
-                <>
-                  <div
-                    className="complaint-drawer-info"
-                    style={expandedDetail.status !== 'Resolved' && !disableChat ? { maxHeight: '50%' } : undefined}
-                  >
-                    {expandedDetail.images && expandedDetail.images.length > 0 && (
-                      <div className="mb-3">
-                        {(() => {
-                          const images = expandedDetail.images;
-                          const carouselId = `complaint-carousel-${expandedDetail.id}`;
-                          return (
-                            <div id={carouselId} className="carousel slide" data-bs-ride="carousel">
-                              {images.length > 1 && (
-                                <>
-                                  <div className="carousel-indicators">
-                                    {images.map((_, idx) => (
-                                      <button
-                                        key={idx}
-                                        type="button"
-                                        data-bs-target={`#${carouselId}`}
-                                        data-bs-slide-to={idx}
-                                        className={idx === 0 ? 'active' : ''}
-                                        aria-current={idx === 0 ? 'true' : undefined}
-                                        aria-label={`Slide ${idx + 1}`}
-                                      />
-                                    ))}
-                                  </div>
-                                  <button className="carousel-control-prev" type="button" data-bs-target={`#${carouselId}`} data-bs-slide="prev">
-                                    <span className="carousel-control-prev-icon" aria-hidden="true" />
-                                    <span className="visually-hidden">Previous</span>
-                                  </button>
-                                  <button className="carousel-control-next" type="button" data-bs-target={`#${carouselId}`} data-bs-slide="next">
-                                    <span className="carousel-control-next-icon" aria-hidden="true" />
-                                    <span className="visually-hidden">Next</span>
-                                  </button>
-                                </>
-                              )}
-                              <div className="carousel-inner" style={{ borderRadius: '8px', overflow: 'hidden' }}>
-                                {images.map((img, idx) => (
-                                  <div key={img.id} className={`carousel-item ${idx === 0 ? 'active' : ''}`}>
-                                    <a href={img.imageUrl} target="_blank" rel="noopener noreferrer">
-                                      <img
-                                        src={img.imageUrl}
-                                        alt=""
-                                        className="d-block w-100"
-                                        style={{ height: '200px', objectFit: 'contain', backgroundColor: '#f0f2f5' }}
-                                      />
-                                    </a>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
-                    <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
-                      <strong>Description:</strong> {highlightMatch(expandedDetail.description, searchVal)}
-                    </p>
-                  </div>
-
-                  {/* Chat Section */}
-                  {expandedDetail.status !== 'Resolved' && !disableChat && (
-                    <div className="complaint-drawer-chat flex-grow-1 mt-3">
-                      <ComplaintComments
-                        complaintId={expandedDetail.id}
-                        status={expandedDetail.status}
-                        residentName={expandedDetail.resident?.user?.name ?? 'Unknown'}
-                        isAdmin={isAdmin}
-                      />
-                    </div>
-                  )}
-                </>
+                <div className="h-100 d-flex flex-column">
+                  <ComplaintComments
+                    complaintId={expandedDetail.id}
+                    status={expandedDetail.status}
+                    residentName={expandedDetail.resident?.user?.name ?? 'Unknown'}
+                    isAdmin={isAdmin}
+                  />
+                </div>
               )}
             </div>
           </div>
         </div>
       )}
+
       {deletingComplaint && (
         <ConfirmDialog
           show={!!deletingComplaint}
@@ -455,6 +499,47 @@ const ComplaintList = ({
           }}
           onCancel={() => setDeletingComplaint(null)}
         />
+      )}
+
+      {/* ── Image Lightbox Modal ── */}
+      {selectedImage && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+          style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.85)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 10500,
+          }}
+          onClick={() => setSelectedImage(null)}
+        >
+          <div
+            className="position-relative bg-dark rounded-4 overflow-hidden d-flex align-items-center justify-content-center shadow-2xl"
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '85vh',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="btn-close btn-close-white position-absolute top-0 end-0 m-3 shadow-none p-2"
+              onClick={() => setSelectedImage(null)}
+              style={{ zIndex: 10, backgroundColor: 'rgba(0,0,0,0.5)', borderRadius: '50%' }}
+              aria-label="Close"
+            />
+            <img
+              src={selectedImage}
+              alt="Complaint attachment preview"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                objectFit: 'contain',
+                display: 'block',
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

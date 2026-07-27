@@ -75,16 +75,16 @@ const TenantHistorySection = () => {
                 <div className="d-flex flex-column gap-4">
                   {/* ── Header Card copied directly from Resident Detail ── */}
                   <div className="detail-header">
-                    <div className="detail-header__left">
+                    <div className="detail-header__left min-w-0">
                       <div
                         className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
                         style={{ width: 56, height: 56, fontSize: '1rem', background: bg, color }}
                       >
                         {getInitials(currentTenant.user.name)}
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-grow-1">
                         <div className="detail-header__name-row">
-                          <h4 className="detail-header__name">{currentTenant.user.name}</h4>
+                          <h4 className="detail-header__name text-truncate">{currentTenant.user.name}</h4>
                           <span className="badge-pill badge-pill--active">Active</span>
                           <span className="badge-pill badge-pill--tenant">Tenant</span>
                         </div>
@@ -94,7 +94,7 @@ const TenantHistorySection = () => {
                       </div>
                     </div>
 
-                    <div className="detail-header__actions d-flex flex-wrap gap-2">
+                    <div className="detail-header__actions d-flex flex-wrap gap-2 w-100 w-sm-auto">
                       <button
                         className="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0"
                         style={{ fontSize: '0.875rem', borderRadius: '8px' }}
@@ -121,9 +121,9 @@ const TenantHistorySection = () => {
                           <div className="info-card__icon-box">
                             <Icon size={18} strokeWidth={1.75} />
                           </div>
-                          <div>
+                          <div className="min-w-0 flex-grow-1">
                             <p className="info-card__label">{card.label}</p>
-                            <p className="info-card__value">{card.value}</p>
+                            <p className="info-card__value text-truncate" title={String(card.value)}>{card.value}</p>
                           </div>
                         </div>
                       );

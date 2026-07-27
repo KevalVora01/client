@@ -75,9 +75,9 @@ const Select = ({
 
   useEffect(() => {
     if (isOpen && listRef.current) {
-      const selected = listRef.current.querySelector('[data-selected="true"]');
-      if (selected) {
-        selected.scrollIntoView({ block: "nearest" });
+      const selected = listRef.current.querySelector('[data-selected="true"]') as HTMLElement | null;
+      if (selected && listRef.current) {
+        listRef.current.scrollTop = selected.offsetTop - listRef.current.offsetTop;
       }
     }
   }, [isOpen]);

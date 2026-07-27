@@ -179,16 +179,16 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
           <div className="d-flex flex-column gap-4">
             {/* Header Card copied directly from Resident Detail */}
             <div className="detail-header">
-              <div className="detail-header__left">
+              <div className="detail-header__left min-w-0">
                 <div
                   className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
                   style={{ width: 56, height: 56, fontSize: '1rem', background: bg, color }}
                 >
                   {getInitials(tenant.user.name)}
                 </div>
-                <div>
+                <div className="min-w-0 flex-grow-1">
                   <div className="detail-header__name-row">
-                    <h4 className="detail-header__name">{tenant.user.name}</h4>
+                    <h4 className="detail-header__name text-truncate">{tenant.user.name}</h4>
                     <span className={`badge-pill badge-pill--${isCurrent ? 'active' : 'inactive'}`}>
                       {isCurrent ? 'Active' : 'Inactive'}
                     </span>
@@ -210,9 +210,9 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
                     <div className="info-card__icon-box">
                       <Icon size={18} strokeWidth={1.75} />
                     </div>
-                    <div>
+                    <div className="min-w-0 flex-grow-1">
                       <p className="info-card__label">{card.label}</p>
-                      <p className="info-card__value">{card.value}</p>
+                      <p className="info-card__value text-truncate" title={String(card.value)}>{card.value}</p>
                     </div>
                   </div>
                 );

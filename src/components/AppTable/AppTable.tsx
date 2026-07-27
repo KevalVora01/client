@@ -21,6 +21,7 @@ interface AppTableProps<T> {
   emptySubtitle?: string;
   emptyIcon?: string;
   skeletonRows?: number;
+  minWidth?: string;
 }
 
 const skeletonStyle: React.CSSProperties = {
@@ -65,6 +66,7 @@ const AppTable = <T,>({
   emptySubtitle = "Try adjusting your filters.",
   emptyIcon = "bi-inbox",
   skeletonRows = 5,
+  minWidth = "100%",
 }: AppTableProps<T>) => {
 
   const thead = (
@@ -94,7 +96,7 @@ const AppTable = <T,>({
       <>
         <style>{`@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }`}</style>
         <div className="table-responsive" style={{ overflowX: 'auto' }}>
-          <table className="table align-middle mb-0" style={{ minWidth: '1100px' }}>
+          <table className="table align-middle mb-0" style={{ minWidth }}>
             {thead}
             <tbody>
               {Array.from({ length: skeletonRows }).map((_, i) => (
@@ -124,7 +126,7 @@ const AppTable = <T,>({
 
   return (
     <div className="table-responsive" style={{ overflowX: 'auto' }}>
-      <table className="table align-middle mb-0" style={{ minWidth: '1100px' }}>
+      <table className="table align-middle mb-0" style={{ minWidth }}>
         {thead}
         <tbody>
           {data.map((row) => {

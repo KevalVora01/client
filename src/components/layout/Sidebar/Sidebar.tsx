@@ -47,6 +47,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
+    { label: 'Visitors', icon: UserCheck, path: '/visitors' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
     { label: 'Logs', icon: History, path: '/logs' },
   ],
@@ -63,7 +64,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
   security: [
     { label: 'Visitor Check-In', icon: UserCheck, path: '/checkin' },
     { label: 'Visitor Check-Out', icon: UserMinus, path: '/checkout' },
-    { label: 'Visitor Logs', icon: History, path: '/logs' },
+    { label: 'Visitor Logs', icon: History, path: '/visitors' },
   ],
 };
 

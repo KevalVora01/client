@@ -2,6 +2,7 @@ import useAuth from '../../../hooks/useAuth';
 import useMyResident from '../../residents/hooks/useMyResident';
 import FamilyMembersSection from './FamilyMembersSection';
 import VehiclesSection from './VehiclesSection';
+import VisitorsSection from './VisitorsSection';
 
 const MyApartmentPage = () => {
   const { user } = useAuth();
@@ -33,10 +34,13 @@ const MyApartmentPage = () => {
             My Apartment{aptLabel ? <span className="fw-normal text-muted ms-2 fs-6">({aptLabel})</span> : null}
           </h4>
           <p className="text-muted mb-0 small">
-            Manage your family members and vehicles.
+            Manage your family members, vehicles, and expected visitors.
           </p>
         </div>
       </div>
+
+      {/* ── Visitors & Approvals ── */}
+      <VisitorsSection />
 
       {/* ── Family Members ── */}
       <FamilyMembersSection residentId={residentId} />

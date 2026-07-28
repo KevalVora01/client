@@ -22,11 +22,13 @@ import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
 import DocumentsPage from '../features/documents/pages/DocumentsPage';
 import DocumentRequestDetailPage from '../features/documents/pages/DocumentRequestDetailPage';
+import CheckInPage from '../features/visitors/pages/CheckInPage';
+import CheckOutPage from '../features/visitors/pages/CheckOutPage';
+import VisitorLogPage from '../features/visitors/pages/VisitorLogPage';
 
 // ─── Placeholder pages (replace as you build each module) ─────────
 const Dashboard = () => <div className="p-4">Admin Dashboard — coming soon</div>;
 const ResidentDashboard = () => <div className="p-4">Resident Dashboard — coming soon</div>;
-const SecurityDashboard = () => <div className="p-4">Security Dashboard — coming soon</div>;
 
 const AppRoutes = () => {
   return (
@@ -74,7 +76,9 @@ const AppRoutes = () => {
         {/* ─── Protected routes (security only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['security']} />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/security" element={<SecurityDashboard />} />
+            <Route path="/security" element={<CheckInPage />} />
+            <Route path="/checkin" element={<CheckInPage />} />
+            <Route path="/checkout" element={<CheckOutPage />} />
           </Route>
         </Route>
 
@@ -89,9 +93,10 @@ const AppRoutes = () => {
           </Route>
         </Route>
 
-        {/* ─── Shared routes (all roles) ───────────────── */}
+        {/* ─── Shared routes (admin, resident, security) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>
           <Route element={<DashboardLayout />}>
+            <Route path="/visitors" element={<VisitorLogPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

@@ -70,10 +70,7 @@ export interface UpdateMaintenanceAmountPayload {
   amount: number;
 }
 
-export interface CreatePaymentIntentResult {
-  clientSecret: string;
-  amount: number;
-}
+
 
 export interface AdminDashboardMetrics {
   totalCollected: number;

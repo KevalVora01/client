@@ -29,20 +29,32 @@ export const apartmentApi = {
     if (filters.type) params.append("type", filters.type);
     if (filters.isOccupied !== undefined) params.append("isOccupied", String(filters.isOccupied));
 
-    const response = await api.get<ApiResponse<{ data: ApartmentsResponse }>>(`/apartments?${params.toString()}`);
-    return response.data.data.data;
+    const response = await api.get(`/apartments?${params.toString()}`);
+    const body = response.data;
+    const dataObj = body?.data?.data || body?.data || body;
+    const pageNum = dataObj?.pageNumber || filters.pageNumber;
+    const totalP = dataObj?.totalPages || 1;
+    return {
+      items: Array.isArray(dataObj?.items) ? dataObj.items : [],
+      pageNumber: pageNum,
+      pageSize: dataObj?.pageSize || filters.pageSize,
+      totalCount: dataObj?.totalCount || 0,
+      totalPages: totalP,
+      hasNextPage: dataObj?.hasNextPage ?? pageNum < totalP,
+      hasPreviousPage: dataObj?.hasPreviousPage ?? pageNum > 1,
+      stats: dataObj?.stats,
+    };
   },
 
   getApartment: async (id: number): Promise<Apartment> => {
-    const response = await api.get<ApiResponse<{ data: Apartment }>>(`/apartments/${id}`);
-    return response.data.data.data;
+    const response = await api.get(`/apartments/${id}`);
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   getVacantApartments: async (): Promise<Apartment[]> => {
-    const response = await api.get<ApiResponse<{ data: ApartmentsResponse }>>(
-      '/apartments?pageSize=100&pageNumber=1'
-    );
-    return response.data.data.data.items.filter((a) => !a.isOccupied);
+    const res = await apartmentApi.getApartments({ pageSize: 100, pageNumber: 1 });
+    return res.items.filter((a) => !a.isOccupied);
   },
 
   createApartment: async (payload: CreateApartmentPayload): Promise<Apartment> => {

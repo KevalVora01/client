@@ -13,7 +13,7 @@ export const highlightMatch = (text: string, query: string | undefined): React.R
 
   try {
     const parts = cleanQuery.split('').map((char, idx) => {
-      const escapedChar = char.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const escapedChar = char.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
       if (idx < cleanQuery.length - 1) {
         return `${escapedChar}[-\\s]*`;
       }
@@ -34,7 +34,7 @@ export const highlightMatch = (text: string, query: string | undefined): React.R
         )}
       </>
     );
-  } catch (e) {
+  } catch {
     // Fallback in case of regex error
     return text;
   }

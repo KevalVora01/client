@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useInvoicesPage } from '../hooks/useInvoicesPage';
 import { useInvoiceMutations } from '../hooks/useInvoiceMutations';
 import { useMaintenanceSettings } from '../hooks/useMaintenanceSettings';
@@ -62,7 +62,6 @@ const MaintenancePage = () => {
   const { setting, loading: settingLoading, updating, updateAmount } = useMaintenanceSettings(isAdmin);
   const { metrics, loading: metricsLoading, refetch: refetchMetrics } = useDashboardMetrics();
 
-  const [searchParams, setSearchParams] = useSearchParams();
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
   const [settlingInvoice, setSettlingInvoice] = useState<Invoice | null>(null);
   const [paymentMode, setPaymentMode] = useState<'Cash' | 'Cheque'>('Cash');
@@ -72,25 +71,7 @@ const MaintenancePage = () => {
 
   useScrollLock(generateModalOpen);
 
-  useEffect(() => {
-    const redirectStatus = searchParams.get('redirect_status');
-    const paymentIntentId = searchParams.get('payment_intent');
-    const invoiceId = searchParams.get('invoice_id');
-    if (redirectStatus) {
-      setSearchParams({}, { replace: true });
-      if (redirectStatus === 'succeeded') {
-        if (paymentIntentId && invoiceId) {
-          maintenanceApi.confirmPayment(Number(invoiceId), paymentIntentId).catch(() => {});
-        }
-        showSuccess('Payment successful!');
-      } else {
-        showError('Payment failed. Please try again.');
-      }
-      refetch();
-      refetchMetrics();
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   const handleGenerate = async (payload: Parameters<typeof generateInvoices>[0]): Promise<boolean> => {
     const success = await generateInvoices(payload);
@@ -329,7 +310,7 @@ const MaintenancePage = () => {
             <i className="bi bi-download" />
           </button>
         ) : (isCurrentOccupant || inv.residentId === resident?.id) ? (
-          <PayInvoiceButton invoiceId={inv.id} onPaymentSuccess={refetch} />
+          <PayInvoiceButton invoiceId={inv.id} amount={inv.totalAmount} onPaymentSuccess={refetch} />
         ) : (
           <span className="text-muted" style={{ fontSize: '0.78rem' }}>—</span>
         );

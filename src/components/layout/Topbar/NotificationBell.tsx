@@ -121,7 +121,9 @@ const NotificationBell = () => {
       const item = n as NotificationItem;
       setNotifications((prev) => [item, ...prev]);
       setUnreadCount((c) => c + 1);
-      toast.info(item.title);
+      if (item.type !== 'maintenance_payment_succeeded' && item.title !== 'Payment received' && item.title !== 'Payment Successful') {
+        toast.info(item.title);
+      }
     };
 
     socket.on('notification:new', handleNewNotification);
@@ -270,11 +272,9 @@ const NotificationBell = () => {
                       <p className="mb-0 fw-semibold text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
                         {n.title}
                       </p>
-                      <div style={{ maxHeight: '60px', overflowY: 'auto', marginTop: '2px' }}>
-                        <p className="mb-0 text-secondary" style={{ fontSize: '0.78rem', lineHeight: '1.4' }}>
-                          {n.body}
-                        </p>
-                      </div>
+                      <p className="mb-0 text-secondary" style={{ fontSize: '0.78rem', lineHeight: '1.4', marginTop: '2px', wordBreak: 'break-word' }}>
+                        {n.body}
+                      </p>
                       <p className="mb-0 text-muted" style={{ fontSize: '0.7rem', marginTop: '4px' }}>
                         {timeAgo(n.createdAt)}
                       </p>

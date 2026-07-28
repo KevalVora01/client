@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../Sidebar/Sidebar';
 import Topbar from '../Topbar/Topbar';
@@ -5,6 +6,17 @@ import { useSidebar } from '../../../hooks/useSidebar';
 
 const DashboardLayout = () => {
   const { isOpen, toggle, close } = useSidebar();
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('drawer-open');
+    } else {
+      document.body.classList.remove('drawer-open');
+    }
+    return () => {
+      document.body.classList.remove('drawer-open');
+    };
+  }, [isOpen]);
 
   return (
     <>

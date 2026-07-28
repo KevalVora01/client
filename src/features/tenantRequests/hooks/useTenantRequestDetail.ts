@@ -28,7 +28,6 @@ const useTenantRequestDetail = (id: number) => {
       setData(result);
 
       // Pre-fill the draft from any votes already persisted on the server
-      // (e.g. when viewing a pending request that was previously saved).
       const draft: Record<number, VoteChoice> = {};
       let adminVote: VoteChoice | null = null;
       for (const v of result.votes) {
@@ -48,8 +47,37 @@ const useTenantRequestDetail = (id: number) => {
   }, [id]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    const runLoad = async () => {
+      setLoading(true);
+      try {
+        const result = await tenantRequestApi.getTenantRequest(id);
+        if (!cancelled) {
+          setData(result);
+          const draft: Record<number, VoteChoice> = {};
+          let adminVote: VoteChoice | null = null;
+          for (const v of result.votes) {
+            if (v.committeeMemberId != null) {
+              draft[v.committeeMemberId] = v.vote;
+            } else {
+              adminVote = v.vote;
+            }
+          }
+          setDraftVotes(draft);
+          setDraftAdminVote(adminVote);
+        }
+      } catch (err: unknown) {
+        if (!cancelled) {
+          showError(getErrorMessage(err, 'Failed to fetch tenant request'));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    runLoad();
+    return () => { cancelled = true; };
+  }, [id]);
 
   const setMemberVote = useCallback((committeeMemberId: number, vote: VoteChoice) => {
     setDraftVotes((prev) => ({ ...prev, [committeeMemberId]: vote }));

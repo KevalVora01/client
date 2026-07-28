@@ -26,8 +26,28 @@ const useOwnerTenantRequest = () => {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let cancelled = false;
+    const runLoad = async () => {
+      setLoading(true);
+      try {
+        const data = await tenantRequestApi.getMyStatus();
+        if (!cancelled) {
+          setStatus(data);
+          setNotOwner(false);
+        }
+      } catch (err) {
+        const axiosError = err as { response?: { status?: number } };
+        if (axiosError?.response?.status === 403 && !cancelled) {
+          setNotOwner(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    runLoad();
+    return () => { cancelled = true; };
+  }, []);
 
   const submitRequest = useCallback(
     async (payload: SubmitTenantRequestPayload) => {

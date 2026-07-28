@@ -6,7 +6,6 @@ import type {
   MaintenanceSetting,
   GenerateInvoicesPayload,
   UpdateMaintenanceAmountPayload,
-  CreatePaymentIntentResult,
   AdminDashboardMetrics,
   ResidentDashboardMetrics,
 } from '../types/maintenance.types';
@@ -53,14 +52,7 @@ export const maintenanceApi = {
     return response.data.data;
   },
 
-  createPaymentIntent: async (invoiceId: number): Promise<CreatePaymentIntentResult> => {
-    const response = await api.post('/maintenance/invoices/create-payment-intent', { invoiceId });
-    return response.data.data;
-  },
 
-  confirmPayment: async (invoiceId: number, paymentIntentId: string): Promise<void> => {
-    await api.post('/maintenance/invoices/confirm-payment', { invoiceId, paymentIntentId });
-  },
 
   downloadReceipt: async (invoiceId: number): Promise<Blob> => {
     const response = await api.get(`/maintenance/invoices/${invoiceId}/receipt`, {

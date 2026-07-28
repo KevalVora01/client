@@ -8,6 +8,7 @@ const useMyResident = (enabled: boolean = true) => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchResident = useCallback(async () => {
+    if (!enabled) return;
     setLoading(true);
     try {
       const data = await residentApi.getMyResident();
@@ -19,11 +20,32 @@ const useMyResident = (enabled: boolean = true) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
-    if (enabled) fetchResident();
-  }, [enabled, fetchResident]);
+    if (!enabled) return;
+    let cancelled = false;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const data = await residentApi.getMyResident();
+        if (!cancelled) {
+          setResident(data);
+          setError(null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          const message = err instanceof Error ? err.message : "Failed to fetch resident";
+          setError(message);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    load();
+    return () => { cancelled = true; };
+  }, [enabled]);
 
   const isOwner = resident?.isOwner ?? false;
   const isOccupant = resident?.isOccupant ?? false;

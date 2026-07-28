@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, UserPlus, Building2 } from 'lucide-react';
 import useTenantRequestDetail from '../hooks/useTenantRequestDetail';
 import useAuth from '../../../hooks/useAuth';
-import ConfirmModal from '../components/ConfirmModal';
+import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { TenantRequestVote, CommitteeMember, VoteChoice } from '../types/tenantRequest.types';
 
 const StatusBadge = ({ status }: { status: string }) => {
@@ -368,11 +368,12 @@ const TenantRequestDetailPage = () => {
         </div>
       </div>
 
-      <ConfirmModal
+      <ConfirmDialog
         show={showFinalizeConfirm}
         title="Finalize Request"
         message="All recorded votes will be saved and this tenant request will be finalized. This action cannot be undone."
         confirmLabel="Finalize"
+        variant="info"
         loading={actionLoading}
         onConfirm={confirmFinalize}
         onCancel={() => setShowFinalizeConfirm(false)}

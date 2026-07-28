@@ -459,6 +459,7 @@
   justify-content: flex-end;
   animation: fadeIn 0.18s ease-out;
   backdrop-filter: blur(2px);
+  overscroll-behavior: contain;
 }
 
 .complaint-drawer {
@@ -470,6 +471,7 @@
   display: flex;
   flex-direction: column;
   animation: slideInRight 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overscroll-behavior: contain;
 }
 
 .complaint-drawer-header {
@@ -518,7 +520,9 @@
   to { transform: translateX(0); }
 }
 
-.drawer-open {
+.drawer-open,
+.drawer-open body,
+.drawer-open main {
   overflow: hidden !important;
 }
 

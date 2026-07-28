@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Check, X, Gavel, FileText, User, Building, Calendar, Clock } from 'lucide-react';
 import useDocumentRequestDetail from '../hooks/useDocumentRequestDetail';
 import useAuth from '../../../hooks/useAuth';
-import ConfirmModal from '../../tenantRequests/components/ConfirmModal';
+import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { DocumentRequestVote, CommitteeMember } from '../types/documentRequest.types';
 
 type VoteChoice = 'Approve' | 'Reject';
@@ -378,11 +378,12 @@ const DocumentRequestDetailPage = () => {
         </div>
       </div>
 
-      <ConfirmModal
+      <ConfirmDialog
         show={showFinalizeConfirm}
         title="Finalize Request"
         message="All recorded votes will be saved and this document request will be finalized. This action cannot be undone."
         confirmLabel="Finalize"
+        variant="info"
         loading={actionLoading}
         onConfirm={confirmFinalize}
         onCancel={() => setShowFinalizeConfirm(false)}

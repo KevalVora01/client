@@ -7,77 +7,88 @@ interface VisitorStatsRowProps {
   loading?: boolean;
 }
 
-export const VisitorStatsRow: React.FC<VisitorStatsRowProps> = ({ metrics, loading }) => {
+export const VisitorStatsRow: React.FC<VisitorStatsRowProps> = ({ metrics, loading = false }) => {
+  const statItems = [
+    {
+      label: 'Visitors Today',
+      value: metrics?.visitorsToday ?? 0,
+      subtext: 'Logged visitors today',
+      icon: Users,
+      bgClass: 'bg-primary-subtle text-primary',
+      subtextColor: '#0d6efd',
+    },
+    {
+      label: 'Currently Inside',
+      value: metrics?.currentlyInside ?? 0,
+      subtext: 'Active inside society',
+      icon: LogIn,
+      bgClass: 'bg-success-subtle text-success',
+      subtextColor: '#198754',
+    },
+    {
+      label: 'Avg Visit Duration',
+      value: `${metrics?.averageVisitDurationMinutes ?? 0} mins`,
+      subtext: 'Average stay duration',
+      icon: Clock,
+      bgClass: 'bg-info-subtle text-info',
+      customBg: '#e0f2fe',
+      customColor: '#0369a1',
+      subtextColor: '#0369a1',
+    },
+  ];
+
   return (
-    <div className="row g-3 mb-4">
-      {/* Visitors Today */}
-      <div className="col-12 col-sm-4">
-        <div
-          className="p-3 rounded-3 bg-white border shadow-sm h-100 d-flex align-items-center justify-content-between"
-          style={{ transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
-        >
-          <div>
-            <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.05em' }}>
-              Visitors Today
-            </span>
-            <h3 className="fw-bold mb-0 mt-1" style={{ color: '#1a1f36' }}>
-              {loading ? '...' : metrics?.visitorsToday ?? 0}
-            </h3>
-          </div>
-          <div
-            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: 44, height: 44, backgroundColor: '#e0e7ff', color: '#4338ca' }}
-          >
-            <Users size={22} />
-          </div>
-        </div>
-      </div>
+    <div className="row g-3">
+      {statItems.map((item, index) => {
+        const Icon = item.icon;
+        return (
+          <div key={index} className="col-12 col-sm-6 col-md-4">
+            <div className="card bg-white border border-light-subtle rounded-3 p-3 h-100 shadow-sm">
+              {loading || !metrics ? (
+                <>
+                  <div className="d-flex align-items-center justify-content-between mb-3">
+                    <div className="skeleton" style={{ width: '80px', height: '12px', borderRadius: '4px' }} />
+                    <div className="skeleton rounded-2" style={{ width: '30px', height: '30px' }} />
+                  </div>
+                  <div className="skeleton mb-2" style={{ width: '60%', height: '32px', borderRadius: '4px' }} />
+                  <div className="skeleton" style={{ width: '45%', height: '12px', borderRadius: '4px' }} />
+                </>
+              ) : (
+                <>
+                  <div className="d-flex align-items-center justify-content-between mb-2">
+                    <span
+                      className="fw-bold text-muted text-uppercase"
+                      style={{ fontSize: '0.68rem', letterSpacing: '0.07em' }}
+                    >
+                      {item.label}
+                    </span>
+                    <div
+                      className={`rounded-2 d-flex align-items-center justify-content-center flex-shrink-0 ${item.bgClass}`}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        backgroundColor: item.customBg,
+                        color: item.customColor,
+                      }}
+                    >
+                      <Icon size={16} />
+                    </div>
+                  </div>
 
-      {/* Currently Inside */}
-      <div className="col-12 col-sm-4">
-        <div
-          className="p-3 rounded-3 bg-white border shadow-sm h-100 d-flex align-items-center justify-content-between"
-          style={{ transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
-        >
-          <div>
-            <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.05em' }}>
-              Currently Inside
-            </span>
-            <h3 className="fw-bold mb-0 mt-1" style={{ color: '#16a34a' }}>
-              {loading ? '...' : metrics?.currentlyInside ?? 0}
-            </h3>
+                  <div>
+                    <h2 className="fw-bold m-0 lh-1 mb-1" style={{ color: '#1a1f36', fontSize: '2rem' }}>
+                      {item.value}
+                    </h2>
+                    <span className="small" style={{ fontSize: '0.8rem', color: item.subtextColor }}>
+                      {item.subtext}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-          <div
-            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: 44, height: 44, backgroundColor: '#dcfce7', color: '#15803d' }}
-          >
-            <LogIn size={22} />
-          </div>
-        </div>
-      </div>
-
-      {/* Avg Visit Duration */}
-      <div className="col-12 col-sm-4">
-        <div
-          className="p-3 rounded-3 bg-white border shadow-sm h-100 d-flex align-items-center justify-content-between"
-          style={{ transition: 'transform 0.2s ease, box-shadow 0.2s ease' }}
-        >
-          <div>
-            <span className="text-muted small fw-semibold text-uppercase" style={{ fontSize: '0.72rem', letterSpacing: '0.05em' }}>
-              Avg Visit Duration
-            </span>
-            <h3 className="fw-bold mb-0 mt-1" style={{ color: '#0284c7' }}>
-              {loading ? '...' : `${metrics?.averageVisitDurationMinutes ?? 0} mins`}
-            </h3>
-          </div>
-          <div
-            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-            style={{ width: 44, height: 44, backgroundColor: '#e0f2fe', color: '#0369a1' }}
-          >
-            <Clock size={22} />
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };

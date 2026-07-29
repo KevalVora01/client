@@ -96,7 +96,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
           </p>
           <div className="row g-3">
             {pinnedItems.map((notice) => (
-              <div key={notice.id} className="col-12 col-md-6 col-xl-4">
+              <div key={notice.id} className="col-12 col-md-6 col-lg-4">
                 <PinnedNoticeCard
                   notice={notice}
                   onEdit={openEditModal}
@@ -117,7 +117,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
           </p>
           <div className="row g-3">
             {regularItems.map((notice) => (
-              <div key={notice.id} className="col-12 col-md-6 col-xl-4">
+              <div key={notice.id} className="col-12 col-md-6 col-lg-4">
                 <PinnedNoticeCard
                   notice={notice}
                   onEdit={openEditModal}
@@ -135,7 +135,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
       {loading && (
         <div className="row g-3">
           {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="col-12 col-md-6 col-xl-4">
+            <div key={i} className="col-12 col-md-6 col-lg-4">
               <div className="rounded-3 p-3" style={{ border: '1px solid #e5e7eb', background: '#fff' }}>
                 <div className="skeleton mb-2" style={{ width: '30%', height: 20, borderRadius: 20 }} />
                 <div className="skeleton mb-2" style={{ width: '80%', height: 16, borderRadius: 4 }} />

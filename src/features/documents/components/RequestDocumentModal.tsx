@@ -106,19 +106,51 @@ const RequestDocumentModal = ({ open, onClose, isOwner, onSubmit }: Props) => {
             />
             {selectedDocType === "Other" && (
               <div>
-                <label className="form-label fw-medium text-secondary small mb-1">Custom Document Name <span className="text-danger">*</span></label>
-                <input type="text" className="form-control rounded-2 shadow-none small"
-                  placeholder="e.g. Electricity Meter Registration Copy" value={customDocName}
-                  onChange={(e) => setCustomDocName(e.target.value)} style={{ fontSize: "0.875rem" }} />
+                <div className="d-flex justify-content-between align-items-center mb-1">
+                  <label className="form-label fw-medium text-secondary small mb-0">Custom Document Name <span className="text-danger">*</span></label>
+                  <span className={`small fw-medium ${customDocName.length === 150 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
+                    {customDocName.length}/150
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  className="form-control rounded-2 shadow-none small"
+                  placeholder="e.g. Electricity Meter Registration Copy"
+                  maxLength={150}
+                  value={customDocName}
+                  onChange={(e) => setCustomDocName(e.target.value)}
+                  style={{ fontSize: "0.875rem" }}
+                />
+                {customDocName.length === 150 && (
+                  <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
+                    <i className="bi bi-info-circle text-primary me-1" />
+                    Maximum limit of 150 characters reached.
+                  </small>
+                )}
               </div>
             )}
             <div>
-              <label className="form-label fw-medium text-secondary small mb-1">Note / Reason <span className="text-muted fw-normal">(optional)</span></label>
-              <textarea rows={3} className="form-control rounded-2 shadow-none small"
+              <div className="d-flex justify-content-between align-items-center mb-1">
+                <label className="form-label fw-medium text-secondary small mb-0">Note / Reason <span className="text-muted fw-normal">(optional)</span></label>
+                <span className={`small fw-medium ${requestNote.length === 500 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
+                  {requestNote.length}/500
+                </span>
+              </div>
+              <textarea
+                rows={3}
+                className="form-control rounded-2 shadow-none small"
                 placeholder={isOwner ? "e.g. Required for property registration process..." : "e.g. Needed for passport address update application..."}
+                maxLength={500}
                 value={requestNote}
                 onChange={(e) => setRequestNote(e.target.value)}
-                style={{ fontSize: "0.875rem", height: "80px", resize: "none" }} />
+                style={{ fontSize: "0.875rem", height: "80px", resize: "none" }}
+              />
+              {requestNote.length === 500 && (
+                <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
+                  <i className="bi bi-info-circle text-primary me-1" />
+                  Maximum limit of 500 characters reached.
+                </small>
+              )}
             </div>
           </div>
           <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-grid d-sm-flex">

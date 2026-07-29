@@ -7,9 +7,17 @@ interface ApartmentSelectProps {
   onBlur?: () => void;
   error?: string;
   currentApartmentId?: number;
+  onlyVacant?: boolean;
 }
-const ApartmentSelect = ({ value, onChange, onBlur, error, currentApartmentId }: ApartmentSelectProps) => {
-  const { apartments, loading } = useApartmentSelect(currentApartmentId);
+const ApartmentSelect = ({
+  value,
+  onChange,
+  onBlur,
+  error,
+  currentApartmentId,
+  onlyVacant = true,
+}: ApartmentSelectProps) => {
+  const { apartments, loading } = useApartmentSelect(currentApartmentId, onlyVacant);
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");

@@ -1,232 +1,281 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { visitorApi } from '../api/visitorApi';
-import VisitorTable from '../components/VisitorTable';
-import VisitorCardGrid from '../components/VisitorCardGrid';
-import VisitorAccordionList from '../components/VisitorAccordionList';
-import PreRegisterVisitorModal from '../components/PreRegisterVisitorModal';
-import Pagination from '../../../components/Pagination/Pagination';
-import PendingApprovalCard from '../components/PendingApprovalCard';
-import type { PaginatedVisitors, VisitorStatus } from '../types/visitor.types';
-import { getErrorMessage } from '../../../utils/getErrorMessage';
-import { showError } from '../../../utils/toast';
+import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
+import useVisitors from '../hooks/useVisitors';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
-
-const STATUS_OPTIONS: { value: VisitorStatus | ''; label: string }[] = [
-  { value: '', label: 'All statuses' },
-  { value: 'Pending', label: 'Pending' },
-  { value: 'Approved', label: 'Approved' },
-  { value: 'Rejected', label: 'Rejected' },
-  { value: 'CheckedIn', label: 'Checked In' },
-  { value: 'CheckedOut', label: 'Checked Out' },
-];
+import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
+import VisitorTable from '../components/VisitorTable';
+import VisitorStatsRow from '../components/VisitorStatsRow';
+import PreRegisterVisitorModal from '../components/PreRegisterVisitorModal';
+import Select from '../../../components/Select/Select';
+import Pagination from '../../../components/Pagination/Pagination';
+import { useScrollLock } from '../../../hooks/useScrollLock';
+import type { VisitorStatus } from '../types/visitor.types';
+import { Plus } from 'lucide-react';
 
 const VisitorLogPage = () => {
   const { user } = useAuth();
-  const isResident = user?.role === 'resident';
-  const { respond, cancel } = useVisitorMutations();
+  const role = user?.role ?? 'resident';
 
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<VisitorStatus | ''>('');
-  const [results, setResults] = useState<PaginatedVisitors | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [showPreRegisterModal, setShowPreRegisterModal] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
 
-  const fetchLog = useCallback(async (page: number = 1, overrideSearch?: string, overrideStatus?: VisitorStatus | '') => {
-    setLoading(true);
-    try {
-      const params = {
-        search: (overrideSearch !== undefined ? overrideSearch : search).trim() || undefined,
-        status: (overrideStatus !== undefined ? overrideStatus : status) || undefined,
-        pageNumber: page,
-        pageSize: 15,
-      };
+  useScrollLock(addModalOpen);
 
-      const data = isResident
-        ? await visitorApi.getMyVisitors(params)
-        : await visitorApi.getAll(params);
+  const {
+    visitors,
+    loading,
+    error,
+    statusFilter,
+    searchQuery,
+    pageNumber,
+    totalPages,
+    totalCount,
+    setPageNumber,
+    setStatusFilter,
+    setSearchQuery,
+    refetch,
+  } = useVisitors({ userRole: role, pageSize: 10 });
 
-      setResults(data);
-      setPageNumber(page);
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to fetch visitor log'));
-    } finally {
-      setLoading(false);
+  const { metrics, loading: metricsLoading, refetch: refetchMetrics } = useDashboardMetrics(
+    role === 'admin' || role === 'security'
+  );
+
+  const handleRefresh = () => {
+    refetch();
+    if (role === 'admin' || role === 'security') {
+      refetchMetrics();
     }
-  }, [isResident, search, status]);
-
-  useEffect(() => {
-    let isSubscribed = true;
-    Promise.resolve().then(() => {
-      if (isSubscribed) {
-        fetchLog(1);
-      }
-    });
-    return () => {
-      isSubscribed = false;
-    };
-  }, [isResident, status]);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchLog(1);
   };
 
-  const handleApprove = async (visitorId: number) => {
-    await respond(visitorId, 'Approve');
-    fetchLog(pageNumber);
+  const { respond, cancel, checkIn, checkOut, loading: mutationLoading } = useVisitorMutations(handleRefresh);
+
+  const handleSearchClear = () => {
+    setSearchInput('');
+    setSearchQuery('');
   };
 
-  const handleReject = async (visitorId: number) => {
-    await respond(visitorId, 'Reject');
-    fetchLog(pageNumber);
-  };
-
-  const handleCancel = async (visitorId: number) => {
-    await cancel(visitorId);
-    fetchLog(pageNumber);
-  };
-
-  const pendingVisitors = (results?.items ?? []).filter((v) => v.status === 'Pending');
+  const pendingVisitors = role === 'resident'
+    ? visitors.filter((v) => v.status === 'Pending')
+    : [];
 
   return (
-    <div className="container-fluid p-3 p-md-4">
+    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
           <h4 className="fw-bold mb-2 fs-4 fs-sm-3" style={{ color: '#1a1f36' }}>
-            {isResident ? 'My Visitors' : 'Visitor Logs'}
+            {role === 'admin' ? 'Visitor Logs' : role === 'security' ? 'Gate Visitor Logs' : 'My Visitors'}
           </h4>
           <p className="text-muted mb-0 small">
-            {isResident
-              ? 'Pre-register expected guests and manage visitor history for your apartment.'
-              : 'Search and browse the full visitor history across society.'}
+            {role === 'admin'
+              ? 'View, search, and monitor all visitor activities across the society.'
+              : role === 'security'
+                ? 'Track active visitor entries, exits, and verify pre-registrations.'
+                : 'Approve visitor entry requests and pre-register expected guests.'}
           </p>
         </div>
-        {isResident && (
+
+        {role === 'resident' && (
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <button
-              className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2"
-              onClick={() => setShowPreRegisterModal(true)}
-              style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+              type="button"
+              className="btn btn-primary fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+              onClick={() => setAddModalOpen(true)}
+              style={{ fontSize: '0.875rem', borderRadius: '8px' }}
             >
-              <i className="bi bi-plus-lg" /> Pre-Register Visitor
+              <Plus size={18} /> Pre-register Visitor
             </button>
           </div>
         )}
       </div>
 
-      {/* ── Action Required Pending Approvals Banner (For Residents) ── */}
-      {isResident && pendingVisitors.length > 0 && (
-        <div className="card border-warning bg-warning bg-opacity-10 rounded-3 p-3 mb-4">
-          <h6 className="fw-bold text-warning-emphasis mb-2 small text-uppercase" style={{ letterSpacing: '0.05em' }}>
-            Action Required — Pending Gate Approvals ({pendingVisitors.length})
+      {/* ── Stats Dashboard (Admin & Security) ── */}
+      {(role === 'admin' || role === 'security') && (
+        <div className="mb-4">
+          <VisitorStatsRow metrics={metrics} loading={metricsLoading} />
+        </div>
+      )}
+
+      {/* ── Resident Pending Approvals Banner ── */}
+      {role === 'resident' && pendingVisitors.length > 0 && (
+        <div className="card border-warning-subtle rounded-3 shadow-sm p-3 mb-4" style={{ backgroundColor: '#fffbeb' }}>
+          <h6 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.9rem', color: '#92400e' }}>
+            <i className="bi bi-exclamation-circle-fill" />
+            Visitors Awaiting Your Response ({pendingVisitors.length})
           </h6>
-          <div className="d-flex flex-column gap-2">
+          <div className="row row-cols-1 row-cols-md-2 g-3">
             {pendingVisitors.map((visitor) => (
-              <PendingApprovalCard
-                key={visitor.id}
-                visitor={visitor}
-                onApprove={handleApprove}
-                onReject={handleReject}
-              />
+              <div key={visitor.id} className="col">
+                <div className="bg-white rounded-3 p-3 shadow-xs h-100 d-flex flex-column justify-content-between" style={{ border: '1px solid #fde68a' }}>
+                  <div>
+                    <div className="d-flex align-items-center justify-content-between mb-2">
+                      <span className="fw-bold text-dark">{visitor.name}</span>
+                      <span className="badge bg-warning text-dark">Pending Approval</span>
+                    </div>
+                    <p className="text-secondary small mb-1">
+                      <i className="bi bi-telephone me-1" /> {visitor.phone}
+                    </p>
+                    <p className="text-secondary small mb-2">
+                      <i className="bi bi-chat-text me-1" /> Purpose: {visitor.purpose}
+                    </p>
+                  </div>
+                  <div className="d-flex gap-2 mt-2">
+                    <button
+                      className="btn btn-success btn-sm flex-grow-1 fw-semibold"
+                      onClick={() => respond(visitor.id, 'Approve')}
+                      disabled={mutationLoading}
+                      style={{ borderRadius: '6px', fontSize: '0.825rem' }}
+                    >
+                      <i className="bi bi-check-lg me-1" /> Approve Entry
+                    </button>
+                    <button
+                      className="btn btn-outline-danger btn-sm flex-grow-1 fw-semibold"
+                      onClick={() => respond(visitor.id, 'Reject')}
+                      disabled={mutationLoading}
+                      style={{ borderRadius: '6px', fontSize: '0.825rem' }}
+                    >
+                      <i className="bi bi-x-lg me-1" /> Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* ── Filters ── */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3 mb-4">
-        <form onSubmit={handleSearch} className="d-flex align-items-center gap-2 flex-wrap">
-          <input
-            type="text"
-            className="form-control shadow-none"
-            placeholder="Search by name or phone"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ maxWidth: '260px', borderRadius: '8px', fontSize: '0.875rem' }}
-          />
-          <select
-            className="form-select shadow-none"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as VisitorStatus | '')}
-            style={{ maxWidth: '160px', borderRadius: '8px', fontSize: '0.875rem' }}
-          >
-            {STATUS_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ borderRadius: '8px', fontSize: '0.875rem' }}
-          >
-            Search
+      {/* ── Error Alert ── */}
+      {error && (
+        <div className="alert alert-danger rounded-3 d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm" role="alert">
+          <div className="d-flex align-items-center gap-2">
+            <i className="bi bi-exclamation-triangle-fill text-danger fs-5" />
+            <span className="small font-medium">{error}</span>
+          </div>
+          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleRefresh}>
+            Retry
           </button>
-        </form>
-      </div>
-
-      {/* ── 1. Desktop View (>= 992px / lg): Full Table ── */}
-      <div className="d-none d-lg-block card bg-white border border-light-subtle rounded-3 shadow-sm overflow-hidden">
-        <VisitorTable
-          visitors={results?.items ?? []}
-          loading={loading}
-          search={search}
-          isResident={isResident}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onCancel={handleCancel}
-        />
-      </div>
-
-      {/* ── 2. Tablet View (768px - 991px / md): 2-Column Card Grid ── */}
-      <div className="d-none d-md-block d-lg-none">
-        <VisitorCardGrid
-          visitors={results?.items ?? []}
-          loading={loading}
-          search={search}
-          isResident={isResident}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onCancel={handleCancel}
-          onPreRegister={() => setShowPreRegisterModal(true)}
-        />
-      </div>
-
-      {/* ── 3. Mobile View (< 768px / sm & xs): Touch Accordion List ── */}
-      <div className="d-md-none">
-        <VisitorAccordionList
-          visitors={results?.items ?? []}
-          loading={loading}
-          search={search}
-          isResident={isResident}
-          onApprove={handleApprove}
-          onReject={handleReject}
-          onCancel={handleCancel}
-          onPreRegister={() => setShowPreRegisterModal(true)}
-        />
-      </div>
-
-      {/* Pagination Footer */}
-      {(!loading && results && results.items.length > 0) && (
-        <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3 mt-3">
-          <Pagination
-            pagination={results}
-            onPageChange={(page) => fetchLog(page)}
-          />
         </div>
       )}
 
-      {/* ── Pre-Register Visitor Modal ── */}
-      {showPreRegisterModal && (
-        <PreRegisterVisitorModal
-          show={showPreRegisterModal}
-          onClose={() => setShowPreRegisterModal(false)}
-          onSuccess={() => fetchLog(1)}
-        />
-      )}
+      {/* ── Table Container Card (Matching Resident Page Layout) ── */}
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
+        {/* Filters Header Block */}
+        <div className="card-header bg-white border-bottom border-light-subtle p-3">
+          <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
+            {/* Search Input Box */}
+            <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
+              <div
+                className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+                style={{ height: '46px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+              >
+                <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
+                <input
+                  type="text"
+                  className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
+                  placeholder="Search by visitor name or phone..."
+                  value={searchInput}
+                  onChange={(e) => {
+                    setSearchInput(e.target.value);
+                    setSearchQuery(e.target.value);
+                  }}
+                  style={{ fontSize: '0.875rem', outline: 'none' }}
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 text-secondary border-0 ms-2"
+                    onClick={handleSearchClear}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <i className="bi bi-x-circle-fill text-muted" style={{ fontSize: '0.9rem' }} />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Status Filter Select Component */}
+            <div style={{ minWidth: '160px' }}>
+              <Select
+                options={[
+                  { value: 'ALL', label: 'All Status' },
+                  { value: 'Pending', label: 'Pending' },
+                  { value: 'Approved', label: 'Approved' },
+                  { value: 'CheckedIn', label: 'Checked In' },
+                  { value: 'CheckedOut', label: 'Checked Out' },
+                  { value: 'Rejected', label: 'Rejected' },
+                  { value: 'Cancelled', label: 'Cancelled' },
+                ]}
+                placeholder="All Status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter((e.target.value || 'ALL') as VisitorStatus | 'ALL')}
+                className="fw-medium text-secondary"
+                style={{ height: '46px' }}
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            {(searchInput || statusFilter !== 'ALL') && (
+              <div className="col-auto">
+                <button
+                  className="btn btn-outline-secondary border-light-subtle d-flex align-items-center justify-content-center px-3 w-100"
+                  onClick={() => {
+                    handleSearchClear();
+                    setStatusFilter('ALL');
+                  }}
+                  style={{ height: '46px', fontSize: '0.875rem', borderRadius: '8px' }}
+                >
+                  <i className="bi bi-x-circle me-2" />
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Dynamic List Table Area */}
+        <div className="table-responsive">
+          <VisitorTable
+            visitors={visitors}
+            loading={loading}
+            search={searchQuery}
+            isResident={role === 'resident'}
+            userRole={role}
+            onApprove={async (id) => respond(id, 'Approve')}
+            onReject={async (id) => respond(id, 'Reject')}
+            onCancel={async (id) => cancel(id)}
+            onCheckIn={async (id) => checkIn(id)}
+            onCheckOut={async (id) => checkOut(id)}
+          />
+        </div>
+
+        {/* Card Footer Section for Pagination */}
+        {totalPages > 0 && (
+          <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
+            <Pagination
+              pagination={{
+                pageNumber,
+                pageSize: 10,
+                totalCount,
+                totalPages,
+                hasPreviousPage: pageNumber > 1,
+                hasNextPage: pageNumber < totalPages,
+              }}
+              onPageChange={setPageNumber}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* ── Pre-register Modal (For Residents) ── */}
+      <PreRegisterVisitorModal
+        show={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onSuccess={() => {
+          setAddModalOpen(false);
+          handleRefresh();
+        }}
+      />
 
     </div>
   );

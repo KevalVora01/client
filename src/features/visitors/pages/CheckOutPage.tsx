@@ -1,16 +1,158 @@
+import { useState } from 'react';
 import { useCurrentlyInside } from '../hooks/useCurrentlyInside';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
-import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
-import VisitorCard from '../components/VisitorCard';
+import AppTable, { type TableColumn } from '../../../components/AppTable/AppTable';
+import Pagination from '../../../components/Pagination/Pagination';
+import VisitorStatusBadge from '../components/VisitorStatusBadge';
+import { getAvatarColor, getInitials } from '../../residents/components/residentTableHelpers';
+import type { Visitor } from '../types/visitor.types';
+
+const formatDateTime = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+  } catch {
+    return dateStr;
+  }
+};
 
 const CheckOutPage = () => {
   const { visitors, loading, refetch } = useCurrentlyInside();
   const { checkOut, loading: mutationLoading } = useVisitorMutations(refetch);
-  const { metrics } = useDashboardMetrics();
+  const [search, setSearch] = useState('');
+  const [pageNumber, setPageNumber] = useState(1);
+  const pageSize = 10;
 
   const handleCheckOut = async (visitorId: number) => {
     await checkOut(visitorId);
   };
+
+  const filteredVisitors = visitors.filter((v) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase().trim();
+    return (
+      v.name.toLowerCase().includes(q) ||
+      v.phone.toLowerCase().includes(q) ||
+      (v.vehicleNumber && v.vehicleNumber.toLowerCase().includes(q))
+    );
+  });
+
+  const totalPages = Math.ceil(filteredVisitors.length / pageSize) || 1;
+  const paginatedVisitors = filteredVisitors.slice(
+    (pageNumber - 1) * pageSize,
+    pageNumber * pageSize
+  );
+
+  const columns: TableColumn<Visitor>[] = [
+    {
+      key: 'name',
+      label: 'Visitor Details',
+      width: '20%',
+      align: 'start',
+      headerAlign: 'start',
+      headerPaddingLeft: '1.25rem',
+      render: (v) => {
+        const { bg, color } = getAvatarColor(v.name);
+        return (
+          <div className="d-flex align-items-center gap-3 py-1.5 ps-2">
+            {v.photoUrl ? (
+              <img
+                src={v.photoUrl}
+                alt={v.name}
+                className="rounded-circle flex-shrink-0 object-fit-cover border border-white shadow-xs"
+                style={{ width: '40px', height: '40px' }}
+              />
+            ) : (
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold shadow-xs border border-white"
+                style={{
+                  background: bg,
+                  color: color,
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '0.85rem',
+                }}
+              >
+                {getInitials(v.name)}
+              </div>  
+            )}
+            <div className="min-w-0">
+              <p className="fw-semibold text-dark m-0 text-truncate" style={{ fontSize: '0.9rem', lineHeight: '1.3' }}>
+                {v.name}
+              </p>
+              <p className="m-0 text-muted small d-flex align-items-center gap-1 mt-0.5" style={{ fontSize: '0.78rem' }}>
+                <i className="bi bi-telephone text-secondary" style={{ fontSize: '0.75rem' }} />
+                {v.phone}
+              </p>
+              {v.vehicleNumber && (
+                <span className="badge bg-light text-secondary border border-light-subtle mt-1 font-monospace" style={{ fontSize: '0.68rem', fontWeight: 500 }}>
+                  <i className="bi bi-car-front me-1" />
+                  {v.vehicleNumber}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'purpose',
+      label: 'Purpose',
+      width: '20%',
+      align: 'start',
+      headerAlign: 'start',
+      render: (v) => (
+        <p className="m-0 text-secondary small py-1" style={{ fontSize: '0.84rem', lineHeight: '1.45', wordBreak: 'break-word' }}>
+          {v.purpose || '—'}
+        </p>
+      ),
+    },
+    {
+      key: 'checkedInAt',
+      label: 'Checked In',
+      width: '20%',
+      align: 'center',
+      headerAlign: 'center',
+      render: (v) => (
+        <span className="text-dark small fw-medium" style={{ fontSize: '0.825rem' }}>
+          {formatDateTime(v.checkedInAt)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: '20%',
+      align: 'center',
+      headerAlign: 'center',
+      render: (v) => <VisitorStatusBadge status={v.status} size="sm" />,
+    },
+    {
+      key: 'action',
+      label: 'Action',
+      width: '20%',
+      align: 'center',
+      headerAlign: 'center',
+      render: (v) => (
+        <button
+          type="button"
+          className="btn btn-dark btn-sm fw-semibold px-3 py-1.5 rounded-2 d-inline-flex align-items-center gap-1.5 shadow-xs"
+          onClick={() => handleCheckOut(v.id)}
+          disabled={mutationLoading}
+          style={{ fontSize: '0.8rem' }}
+        >
+          <i className="bi bi-box-arrow-right" /> Check Out
+        </button>
+      ),
+    },
+  ];
 
   return (
     <div className="container-fluid p-3 p-md-4">
@@ -25,52 +167,77 @@ const CheckOutPage = () => {
             Manage active entries and record visitor departures from the society.
           </p>
         </div>
-
-        {metrics && (
-          <div className="d-flex align-items-center gap-2">
-            <span className="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fs-6 rounded-pill">
-              <i className="bi bi-people me-1.5" />
-              {metrics.currentlyInside} inside now
-            </span>
-          </div>
-        )}
       </div>
 
-      {/* ── Content Card ── */}
+      {/* ── Search Bar ── */}
+      <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100 mb-4">
+        <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
+          <div
+            className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+            style={{ height: '46px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+          >
+            <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
+            <input
+              type="text"
+              className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
+              placeholder="Search by visitor name, phone, or vehicle..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPageNumber(1);
+              }}
+              style={{ fontSize: '0.875rem', outline: 'none' }}
+            />
+            {search && (
+              <button
+                type="button"
+                className="btn btn-link p-0 text-secondary border-0 ms-2"
+                onClick={() => {
+                  setSearch('');
+                  setPageNumber(1);
+                }}
+                style={{ textDecoration: 'none' }}
+              >
+                <i className="bi bi-x-circle-fill text-muted" style={{ fontSize: '0.9rem' }} />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Table ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3">
-        {loading ? (
-          <div className="d-flex flex-column gap-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="skeleton" style={{ width: '100%', height: '72px', borderRadius: '8px' }} />
-            ))}
-          </div>
-        ) : visitors.length === 0 ? (
-          <div className="d-flex flex-column align-items-center justify-content-center py-5 text-center">
-            <div
-              className="rounded-circle d-flex align-items-center justify-content-center mb-3"
-              style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
-            >
-              <i className="bi bi-door-open" style={{ fontSize: '1.6rem', color: '#9ca3af' }} />
-            </div>
-            <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>
-              No visitors currently inside
-            </p>
-            <p className="text-secondary small" style={{ fontSize: '0.8rem' }}>
-              Everyone who checked in has already checked out.
-            </p>
-          </div>
-        ) : (
-          <div className="d-flex flex-column gap-2">
-            {visitors.map((visitor) => (
-              <VisitorCard
-                key={visitor.id}
-                visitor={visitor}
-                actionLabel="Check Out"
-                actionVariant="outline-secondary"
-                onAction={() => handleCheckOut(visitor.id)}
-                actionLoading={mutationLoading}
-              />
-            ))}
+        <div className="d-flex align-items-center justify-content-between mb-3">
+          <h6 className="fw-semibold mb-0" style={{ fontSize: '0.92rem', color: '#1a1f36' }}>
+            Currently Inside ({filteredVisitors.length})
+          </h6>
+        </div>
+
+        <AppTable
+          columns={columns}
+          data={paginatedVisitors}
+          loading={loading}
+          rowKey={(v) => v.id}
+          minWidth="800px"
+          emptyTitle="No visitors currently inside"
+          emptySubtitle={search ? 'No currently inside visitors match your search query.' : 'Everyone who checked in has already checked out.'}
+          emptyIcon="bi-door-open"
+        />
+
+        {/* ── Pagination inside Table Card ── */}
+        {filteredVisitors.length > 0 && (
+          <div className="pt-3 mt-1">
+            <Pagination
+              pagination={{
+                pageNumber,
+                pageSize,
+                totalCount: filteredVisitors.length,
+                totalPages,
+                hasPreviousPage: pageNumber > 1,
+                hasNextPage: pageNumber < totalPages,
+              }}
+              onPageChange={setPageNumber}
+            />
           </div>
         )}
       </div>

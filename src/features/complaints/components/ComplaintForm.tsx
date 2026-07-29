@@ -82,7 +82,15 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
       {/* Title */}
       <div className="mb-3">
-        <label className="form-label fw-medium text-secondary small mb-1">Title <span className="text-danger">*</span></label>
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <label className="form-label fw-medium text-secondary small mb-0">Title <span className="text-danger">*</span></label>
+          <span
+            className={`small fw-medium ${formik.values.title.length === 150 ? 'text-primary fw-bold' : 'text-muted'}`}
+            style={{ fontSize: '0.78rem' }}
+          >
+            {formik.values.title.length}/150
+          </span>
+        </div>
         <input
           type="text"
           name="title"
@@ -98,16 +106,29 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
             borderColor: formik.touched.title && formik.errors.title ? '#dc3545' : '#e5e7eb'
           }}
         />
-        {formik.touched.title && formik.errors.title && (
+        {formik.touched.title && formik.errors.title ? (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
             {formik.errors.title}
           </div>
-        )}
+        ) : formik.values.title.length === 150 ? (
+          <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
+            <i className="bi bi-info-circle text-primary me-1" />
+            Maximum limit of 150 characters reached.
+          </small>
+        ) : null}
       </div>
 
       {/* Description */}
       <div className="mb-3">
-        <label className="form-label fw-medium text-secondary small mb-1">Description <span className="text-danger">*</span></label>
+        <div className="d-flex justify-content-between align-items-center mb-1">
+          <label className="form-label fw-medium text-secondary small mb-0">Description <span className="text-danger">*</span></label>
+          <span
+            className={`small fw-medium ${formik.values.description.length === 1000 ? 'text-primary fw-bold' : 'text-muted'}`}
+            style={{ fontSize: '0.78rem' }}
+          >
+            {formik.values.description.length}/1000
+          </span>
+        </div>
         <textarea
           name="description"
           className={`form-control shadow-none rounded-2 text-dark ${formik.touched.description && formik.errors.description ? 'is-invalid' : ''}`}
@@ -125,11 +146,16 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
             borderColor: formik.touched.description && formik.errors.description ? '#dc3545' : '#e5e7eb'
           }}
         />
-        {formik.touched.description && formik.errors.description && (
+        {formik.touched.description && formik.errors.description ? (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
             {formik.errors.description}
           </div>
-        )}
+        ) : formik.values.description.length === 1000 ? (
+          <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
+            <i className="bi bi-info-circle text-primary me-1" />
+            Maximum limit of 1000 characters reached.
+          </small>
+        ) : null}
       </div>
 
       {/* Priority */}

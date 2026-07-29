@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
-import { apartmentApi } from '../../apartments/api/apartmentApi';
-import type { Apartment } from '../../apartments/types/apartment.types';
+import { useState } from 'react';
+import ApartmentSelect from '../../apartments/components/ApartmentSelect';
 import type { LogWalkInPayload } from '../types/visitor.types';
 
 interface WalkInVisitorFormProps {
@@ -10,11 +9,7 @@ interface WalkInVisitorFormProps {
 }
 
 const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisitorFormProps) => {
-  const [apartmentQuery, setApartmentQuery] = useState('');
-  const [apartmentResults, setApartmentResults] = useState<Apartment[]>([]);
-  const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
-  const [apartmentSearchLoading, setApartmentSearchLoading] = useState(false);
-
+  const [apartmentId, setApartmentId] = useState<number>(0);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [purpose, setPurpose] = useState('');
@@ -22,41 +17,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (selectedApartment || apartmentQuery.trim().length < 1) {
-      return;
-    }
-
-    let cancelled = false;
-    const timer = setTimeout(async () => {
-      setApartmentSearchLoading(true);
-      try {
-        const res = await apartmentApi.getApartments({ search: apartmentQuery.trim(), pageSize: 8, pageNumber: 1 });
-        if (!cancelled) setApartmentResults(res.items);
-      } catch {
-        if (!cancelled) setApartmentResults([]);
-      } finally {
-        if (!cancelled) setApartmentSearchLoading(false);
-      }
-    }, 300);
-
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
-    };
-  }, [apartmentQuery, selectedApartment]);
-
-  const handleSelectApartment = (apartment: Apartment) => {
-    setSelectedApartment(apartment);
-    setApartmentQuery(`${apartment.block} - ${apartment.unitNumber}`);
-    setApartmentResults([]);
-  };
-
-  const handleClearApartment = () => {
-    setSelectedApartment(null);
-    setApartmentQuery('');
-  };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -69,7 +29,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
     e.preventDefault();
     setError(null);
 
-    if (!selectedApartment) {
+    if (!apartmentId || apartmentId === 0) {
       setError('Please select an apartment');
       return;
     }
@@ -88,7 +48,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
 
     const success = await onSubmit(
       {
-        apartmentId: selectedApartment.id,
+        apartmentId,
         name: name.trim(),
         phone: phone.trim(),
         purpose: purpose.trim(),
@@ -104,7 +64,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
       setVehicleNumber('');
       setPhoto(null);
       setPhotoPreview(null);
-      handleClearApartment();
+      setApartmentId(0);
     }
   };
 
@@ -116,53 +76,19 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
         </div>
       )}
 
-      {/* Apartment lookup */}
-      <div className="mb-3 position-relative">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Apartment</label>
-        <div className="position-relative d-flex align-items-center">
-          <input
-            type="text"
-            className="form-control shadow-none"
-            placeholder="Search block or unit number"
-            value={apartmentQuery}
-            onChange={(e) => { setApartmentQuery(e.target.value); setSelectedApartment(null); }}
-            style={{ borderRadius: '8px', fontSize: '0.9rem' }}
-          />
-          {selectedApartment && (
-            <button
-              type="button"
-              className="btn btn-sm position-absolute"
-              onClick={handleClearApartment}
-              style={{ right: '8px', color: '#9ca3af' }}
-            >
-              <i className="bi bi-x-lg" />
-            </button>
-          )}
-        </div>
-
-        {apartmentSearchLoading && (
-          <div className="text-secondary mt-1" style={{ fontSize: '0.8rem' }}>Searching...</div>
-        )}
-
-        {!selectedApartment && apartmentResults.length > 0 && (
-          <div
-            className="position-absolute w-100 bg-white rounded-3 shadow-sm mt-1"
-            style={{ border: '1px solid #e5e7eb', zIndex: 10, maxHeight: '200px', overflowY: 'auto' }}
-          >
-            {apartmentResults.map((apt) => (
-              <div
-                key={apt.id}
-                className="px-3 py-2"
-                style={{ cursor: 'pointer', fontSize: '0.85rem' }}
-                onClick={() => handleSelectApartment(apt)}
-                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f9fafb'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; }}
-              >
-                {apt.block} - {apt.unitNumber} <span className="text-secondary">(Floor {apt.floorNumber})</span>
-              </div>
-            ))}
-          </div>
-        )}
+      {/* Apartment Select (Same as Resident Modal) */}
+      <div className="mb-3">
+        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
+          Apartment <span className="text-danger">*</span>
+        </label>
+        <ApartmentSelect
+          value={apartmentId}
+          onChange={(id) => {
+            setApartmentId(id);
+            if (error) setError(null);
+          }}
+          onlyVacant={false}
+        />
       </div>
 
       <div className="row g-3 mb-3">
@@ -171,6 +97,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           <input
             type="text"
             className="form-control shadow-none"
+            placeholder="Enter visitor full name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={{ borderRadius: '8px', fontSize: '0.9rem' }}
@@ -181,6 +108,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           <input
             type="tel"
             className="form-control shadow-none"
+            placeholder="Enter 10-digit mobile number"
             value={phone}
             onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
             style={{ borderRadius: '8px', fontSize: '0.9rem' }}
@@ -208,6 +136,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           <input
             type="text"
             className="form-control shadow-none"
+            placeholder="e.g. GJ-01-AB-1234"
             value={vehicleNumber}
             onChange={(e) => setVehicleNumber(e.target.value)}
             style={{ borderRadius: '8px', fontSize: '0.9rem' }}
@@ -236,25 +165,37 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
         </div>
       )}
 
-      <div className="d-flex align-items-center gap-2">
+      <div className="d-flex align-items-center justify-content-end gap-2 mt-4 pt-2">
         {onCancel && (
           <button
             type="button"
-            className="btn btn-outline-secondary"
+            className="btn btn-outline-secondary rounded-2 px-3 small d-inline-flex align-items-center"
             onClick={onCancel}
             disabled={loading}
-            style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+            style={{ height: '38px', fontSize: '0.875rem' }}
           >
             Cancel
           </button>
         )}
         <button
           type="submit"
-          className="btn btn-primary flex-grow-1"
+          className="btn btn-primary fw-medium px-3.5 d-inline-flex align-items-center"
           disabled={loading}
-          style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+          style={{
+            height: '38px',
+            fontSize: '0.875rem',
+            borderRadius: '8px',
+            opacity: loading ? 0.55 : 1,
+          }}
         >
-          {loading ? 'Logging visitor...' : 'Log Visitor & Send Approval Request'}
+          {loading ? (
+            <span className="spinner-border spinner-border-sm mx-auto" role="status" />
+          ) : (
+            <>
+              <i className="bi bi-person-plus me-1.5" />
+              Log Visitor
+            </>
+          )}
         </button>
       </div>
     </form>

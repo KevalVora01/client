@@ -10,9 +10,12 @@ interface VisitorTableProps {
   loading: boolean;
   search?: string;
   isResident?: boolean;
+  userRole?: 'admin' | 'resident' | 'security';
   onApprove?: (visitorId: number) => void;
   onReject?: (visitorId: number) => void;
   onCancel?: (visitorId: number) => void;
+  onCheckIn?: (visitorId: number) => void;
+  onCheckOut?: (visitorId: number) => void;
 }
 
 const formatDateTime = (dateStr: string | null) => {
@@ -36,9 +39,12 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
   loading,
   search = '',
   isResident = false,
+  userRole = 'resident',
   onApprove,
   onReject,
   onCancel,
+  onCheckIn,
+  onCheckOut,
 }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
@@ -46,7 +52,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'name',
       label: 'Visitor Details',
-      width: '24%',
+      width: '16.66%',
       align: 'start',
       headerAlign: 'start',
       headerPaddingLeft: '1.25rem',
@@ -54,18 +60,29 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
         const { bg, color } = getAvatarColor(v.name);
         return (
           <div className="d-flex align-items-center gap-3 py-1.5 ps-2">
-            <div
-              className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold shadow-xs border border-white"
-              style={{
-                background: bg,
-                color: color,
-                width: '40px',
-                height: '40px',
-                fontSize: '0.85rem',
-              }}
-            >
-              {getInitials(v.name)}
-            </div>
+            {v.photoUrl ? (
+              <img
+                src={v.photoUrl}
+                alt={v.name}
+                className="rounded-circle flex-shrink-0 object-fit-cover border border-white shadow-xs"
+                style={{ width: '40px', height: '40px', cursor: 'pointer' }}
+                onClick={() => setSelectedPhoto(v.photoUrl)}
+                title="Click to view photo"
+              />
+            ) : (
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold shadow-xs border border-white"
+                style={{
+                  background: bg,
+                  color: color,
+                  width: '40px',
+                  height: '40px',
+                  fontSize: '0.85rem',
+                }}
+              >
+                {getInitials(v.name)}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="fw-semibold text-dark m-0 text-truncate" style={{ fontSize: '0.9rem', lineHeight: '1.3' }}>
                 {highlightMatch(v.name, search)}
@@ -88,7 +105,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'type',
       label: 'Type',
-      width: '12%',
+      width: '16.66%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -108,11 +125,11 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'purpose',
       label: 'Purpose',
-      width: '22%',
-      align: 'start',
-      headerAlign: 'start',
+      width: '16.66%',
+      align: 'center',
+      headerAlign: 'center',
       render: (v) => (
-        <p className="m-0 text-secondary small py-1" style={{ fontSize: '0.84rem', lineHeight: '1.45', wordBreak: 'break-word' }} title={v.purpose}>
+        <p className="m-0 text-secondary text-center small py-1" style={{ fontSize: '0.84rem', lineHeight: '1.45', wordBreak: 'break-word' }} title={v.purpose}>
           {v.purpose || '—'}
         </p>
       ),
@@ -120,7 +137,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'status',
       label: 'Status',
-      width: '12%',
+      width: '16.66%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -132,7 +149,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'checkIn',
       label: 'Check-In / Expected',
-      width: '13%',
+      width: '16.66%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -152,7 +169,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'checkOut',
       label: 'Check-Out',
-      width: '10%',
+      width: '16.66%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -160,67 +177,6 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
           <span className="text-secondary small fw-medium" style={{ fontSize: '0.825rem' }}>
             {formatDateTime(v.checkedOutAt)}
           </span>
-        </div>
-      ),
-    },
-    {
-      key: 'actions',
-      label: 'Actions',
-      width: '7%',
-      align: 'center',
-      headerAlign: 'center',
-      render: (v) => (
-        <div className="d-flex align-items-center justify-content-center gap-1.5 flex-wrap py-1">
-          {/* Photo Button */}
-          {v.photoUrl && (
-            <button
-              type="button"
-              className="btn btn-sm btn-light border border-light-subtle text-secondary fw-medium p-1 px-2.5 d-inline-flex align-items-center gap-1 shadow-xs"
-              onClick={() => setSelectedPhoto(v.photoUrl)}
-              style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-              title="View Photo"
-            >
-              <i className="bi bi-image text-primary" /> Photo
-            </button>
-          )}
-
-          {/* Resident Response Actions */}
-          {isResident && v.status === 'Pending' && !v.isPreRegistered && onApprove && onReject && (
-            <>
-              <button
-                type="button"
-                className="btn btn-sm btn-success px-2.5 py-1 fw-medium d-inline-flex align-items-center gap-1 shadow-xs"
-                onClick={() => onApprove(v.id)}
-                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-              >
-                <i className="bi bi-check-lg" /> Approve
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger px-2.5 py-1 fw-medium d-inline-flex align-items-center gap-1 shadow-xs"
-                onClick={() => onReject(v.id)}
-                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-              >
-                <i className="bi bi-x-lg" /> Reject
-              </button>
-            </>
-          )}
-
-          {/* Resident Pre-Registration Cancel */}
-          {isResident && v.status === 'Pending' && v.isPreRegistered && onCancel && (
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary px-2.5 py-1 fw-medium d-inline-flex align-items-center gap-1 shadow-xs"
-              onClick={() => onCancel(v.id)}
-              style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-            >
-              <i className="bi bi-trash" /> Cancel
-            </button>
-          )}
-
-          {!v.photoUrl && (!isResident || v.status !== 'Pending') && (
-            <span className="text-muted small">—</span>
-          )}
         </div>
       ),
     },

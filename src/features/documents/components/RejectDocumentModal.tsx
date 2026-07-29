@@ -38,10 +38,26 @@ const RejectDocumentModal = ({ target, onClose, onSubmit }: Props) => {
             Are you sure you want to decline the request for <strong className="text-dark">{target?.documentType}</strong>?
           </p>
           <div>
-            <label className="form-label fw-medium text-secondary small mb-1">Reason <span className="text-muted fw-normal">(optional)</span></label>
-            <textarea className="form-control rounded-2 shadow-none small"
-              placeholder="e.g. Document expired or invalid request..." value={reason}
-              onChange={(e) => setReason(e.target.value)} style={{ fontSize: "0.875rem", height: 80, resize: "none" }} />
+            <div className="d-flex justify-content-between align-items-center mb-1">
+              <label className="form-label fw-medium text-secondary small mb-0">Reason <span className="text-muted fw-normal">(optional)</span></label>
+              <span className={`small fw-medium ${reason.length === 300 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
+                {reason.length}/300
+              </span>
+            </div>
+            <textarea
+              className="form-control rounded-2 shadow-none small"
+              placeholder="e.g. Document expired or invalid request..."
+              maxLength={300}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              style={{ fontSize: "0.875rem", height: 80, resize: "none" }}
+            />
+            {reason.length === 300 && (
+              <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
+                <i className="bi bi-info-circle text-primary me-1" />
+                Maximum limit of 300 characters reached.
+              </small>
+            )}
           </div>
         </div>
         <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-grid d-sm-flex">

@@ -165,8 +165,13 @@ const Select = ({
           >
             <ul
               ref={listRef}
-              className="list-unstyled m-0 p-1 overflow-y-auto"
-              style={{ maxHeight: "220px" }}
+              className="list-unstyled m-0 p-1"
+              style={{
+                maxHeight: "360px",
+                overflowY: "auto",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
             >
               {normalizedOptions.length === 0 ? (
                 <li className="text-center py-3 text-muted" style={{ fontSize: "0.8rem" }}>

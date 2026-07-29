@@ -1,13 +1,19 @@
+import { useState } from 'react';
 import { usePendingVisitors } from '../hooks/usePendingVisitors';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import WalkInVisitorForm from '../components/WalkInVisitorForm';
 import VisitorLookupSearch from '../components/VisitorLookupSearch';
 import VisitorCard from '../components/VisitorCard';
+import { useScrollLock } from '../../../hooks/useScrollLock';
 import type { LogWalkInPayload, Visitor } from '../types/visitor.types';
+import { Plus } from 'lucide-react';
 
 const CheckInPage = () => {
   const { visitors: pendingVisitors, loading: pendingLoading, refetch: refetchPending } = usePendingVisitors();
   const { logWalkIn, checkIn, loading: mutationLoading } = useVisitorMutations(refetchPending);
+  const [walkInModalOpen, setWalkInModalOpen] = useState(false);
+
+  useScrollLock(walkInModalOpen);
 
   const handleLogWalkIn = async (payload: LogWalkInPayload, photo?: File): Promise<boolean> => {
     return logWalkIn(payload, photo);
@@ -30,24 +36,26 @@ const CheckInPage = () => {
             Look up pre-registered visitors or log a new walk-in entry at the gate.
           </p>
         </div>
+        <div className="d-flex align-items-center gap-2">
+          <button
+            type="button"
+            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+            onClick={() => setWalkInModalOpen(true)}
+            style={{ fontSize: '0.875rem', borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+          >
+            <Plus size={16} strokeWidth={2} />
+            Log Walk-In Visitor
+          </button>
+        </div>
       </div>
 
       <div className="row g-4">
 
-        {/* ── Left: Lookup + Walk-in form ── */}
+        {/* ── Left: Lookup Search ── */}
         <div className="col-lg-7">
-
-          <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3 mb-4">
+          <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3">
             <VisitorLookupSearch onCheckIn={handleCheckIn} checkInLoading={mutationLoading} />
           </div>
-
-          <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3">
-            <h6 className="fw-semibold mb-3" style={{ fontSize: '0.9rem', color: '#1a1f36' }}>
-              Log a Walk-In Visitor
-            </h6>
-            <WalkInVisitorForm loading={mutationLoading} onSubmit={handleLogWalkIn} />
-          </div>
-
         </div>
 
         {/* ── Right: Pending approvals ── */}
@@ -85,6 +93,36 @@ const CheckInPage = () => {
         </div>
 
       </div>
+
+      {/* ── Log Walk-In Visitor Modal ── */}
+      {walkInModalOpen && (
+        <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1050 }}>
+          <div className="modal-dialog modal-dialog-centered modal-lg">
+            <div className="modal-content border-0 rounded-3 shadow-lg" style={{ overflow: 'visible' }}>
+              <div className="modal-header border-light-subtle px-4 py-3">
+                <h5 className="modal-title fw-bold text-dark fs-5">Log a Walk-In Visitor</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setWalkInModalOpen(false)}
+                />
+              </div>
+              <div className="modal-body p-4" style={{ overflow: 'visible' }}>
+                <WalkInVisitorForm
+                  loading={mutationLoading}
+                  onSubmit={async (payload, photo) => {
+                    const success = await handleLogWalkIn(payload, photo);
+                    if (success) {
+                      setWalkInModalOpen(false);
+                    }
+                    return success;
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

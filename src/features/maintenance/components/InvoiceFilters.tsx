@@ -45,20 +45,39 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
   return (
     <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
 
-      {/* Search */}
-      <div className="flex-grow-1" style={{ maxWidth: '400px' }}>
-        <input
-          type="text"
-          className="form-control shadow-none border-light-subtle"
-          placeholder="Search unit or resident..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ width: '100%', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
-        />
+      {/* Search Input Box */}
+      <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
+        <div
+          className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+          style={{ height: '46px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+        >
+          <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
+          <input
+            type="text"
+            className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
+            placeholder="Search by unit or resident name..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ fontSize: '0.875rem', outline: 'none' }}
+          />
+          {search && (
+            <button
+              type="button"
+              className="btn btn-link p-0 text-secondary border-0 ms-2"
+              onClick={() => {
+                setSearch('');
+                onFilterChange({ search: undefined, pageNumber: 1 });
+              }}
+              style={{ textDecoration: 'none' }}
+            >
+              <i className="bi bi-x-circle-fill text-muted" style={{ fontSize: '0.9rem' }} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* Status */}
-      <div style={{ minWidth: '130px' }}>
+      {/* Status Filter */}
+      <div style={{ minWidth: '150px' }}>
         <Select
           name="status"
           options={STATUS_OPTIONS}
@@ -70,13 +89,13 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
               pageNumber: 1,
             })
           }
-          className="shadow-none"
-          style={{ height: '38px' }}
+          className="fw-medium text-secondary"
+          style={{ height: '46px' }}
         />
       </div>
 
-      {/* Month */}
-      <div style={{ minWidth: '130px' }}>
+      {/* Month Filter */}
+      <div style={{ minWidth: '150px' }}>
         <Select
           name="month"
           options={MONTH_OPTIONS}
@@ -88,21 +107,23 @@ const InvoiceFilters = ({ filters, onFilterChange }: InvoiceFiltersProps) => {
               pageNumber: 1,
             })
           }
-          className="shadow-none"
-          style={{ height: '38px' }}
+          className="fw-medium text-secondary"
+          style={{ height: '46px' }}
         />
       </div>
 
-      {/* Clear filters */}
+      {/* Clear Filters Button */}
       {hasActiveFilters && (
-        <button
-          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
-          onClick={handleReset}
-          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
-        >
-          <i className="bi bi-x-circle" />
-          Clear
-        </button>
+        <div className="col-auto">
+          <button
+            className="btn btn-outline-secondary border-light-subtle d-flex align-items-center justify-content-center px-3 w-100"
+            onClick={handleReset}
+            style={{ height: '46px', fontSize: '0.875rem', borderRadius: '8px' }}
+          >
+            <i className="bi bi-x-circle me-2" />
+            Clear
+          </button>
+        </div>
       )}
 
     </div>

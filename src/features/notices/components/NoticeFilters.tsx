@@ -42,20 +42,27 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
   const hasActiveFilters = !!filters.search || !!filters.category || filters.isPinned !== undefined;
 
   return (
-    <div className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center gap-2">
-
+    <div className="row g-3">
       {/* Search */}
-      <input
-        type="text"
-        className="form-control shadow-none border-light-subtle"
-        placeholder="Search notices..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        style={{ minWidth: '160px', borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
-      />
+      <div className="col-12 col-md-6 col-lg-4">
+        <div className="position-relative">
+          <input
+            type="text"
+            className="form-control shadow-none border-light-subtle ps-5"
+            placeholder="Search notices..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{ borderRadius: '8px', fontSize: '0.875rem', height: '38px' }}
+          />
+          <i
+            className="bi bi-search position-absolute text-muted"
+            style={{ left: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '0.85rem' }}
+          />
+        </div>
+      </div>
 
       {/* Category */}
-      <div className="w-100 w-sm-auto" style={{ minWidth: '130px' }}>
+      <div className="col-12 col-md-6 col-lg-4">
         <Select
           name="category"
           options={CATEGORY_OPTIONS}
@@ -67,43 +74,46 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
               pageNumber: 1,
             })
           }
-          className="shadow-none"
-          style={{ height: '38px' }}
+          className="shadow-none w-100"
+          style={{ height: '38px', borderRadius: '8px', fontSize: '0.875rem' }}
         />
       </div>
 
       {/* Pinned */}
-      <div className="w-100 w-sm-auto" style={{ minWidth: '130px' }}>
-        <Select
-          name="isPinned"
-          options={PINNED_OPTIONS}
-          placeholder="All notices"
-          value={filters.isPinned === undefined ? '' : String(filters.isPinned)}
-          onChange={(e) =>
-            onFilterChange({
-              isPinned: e.target.value === '' ? undefined : e.target.value === 'true',
-              pageNumber: 1,
-            })
-          }
-          className="shadow-none"
-          style={{ height: '38px' }}
-        />
+      <div className="col-12 col-md-6 col-lg-4">
+        <div className="d-flex gap-2">
+          <div className="flex-grow-1">
+            <Select
+              name="isPinned"
+              options={PINNED_OPTIONS}
+              placeholder="All notices"
+              value={filters.isPinned === undefined ? '' : String(filters.isPinned)}
+              onChange={(e) =>
+                onFilterChange({
+                  isPinned: e.target.value === '' ? undefined : e.target.value === 'true',
+                  pageNumber: 1,
+                })
+              }
+              className="shadow-none w-100"
+              style={{ height: '38px', borderRadius: '8px', fontSize: '0.875rem' }}
+            />
+          </div>
+          {hasActiveFilters && (
+            <button
+              className="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-1 px-3 fw-medium flex-shrink-0"
+              onClick={handleReset}
+              style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
+              title="Clear Filters"
+            >
+              <i className="bi bi-x-circle" />
+              Clear
+            </button>
+          )}
+        </div>
       </div>
-
-      {/* Clear filters */}
-      {hasActiveFilters && (
-        <button
-          className="btn btn-outline-secondary d-flex align-items-center justify-content-center gap-1 px-3 fw-medium"
-          onClick={handleReset}
-          style={{ height: '38px', fontSize: '0.85rem', borderRadius: '8px' }}
-        >
-          <i className="bi bi-x-circle" />
-          Clear
-        </button>
-      )}
-
     </div>
   );
+
 };
 
 export default NoticeFilters;

@@ -9,9 +9,12 @@ interface VisitorCardGridProps {
   loading: boolean;
   search?: string;
   isResident?: boolean;
+  userRole?: 'admin' | 'resident' | 'security';
   onApprove?: (visitorId: number) => void;
   onReject?: (visitorId: number) => void;
   onCancel?: (visitorId: number) => void;
+  onCheckIn?: (visitorId: number) => void;
+  onCheckOut?: (visitorId: number) => void;
   onPreRegister?: () => void;
 }
 
@@ -60,9 +63,12 @@ const VisitorCardGrid: React.FC<VisitorCardGridProps> = ({
   loading,
   search = '',
   isResident = false,
+  userRole = 'resident',
   onApprove,
   onReject,
   onCancel,
+  onCheckIn,
+  onCheckOut,
   onPreRegister,
 }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
@@ -268,6 +274,31 @@ const VisitorCardGrid: React.FC<VisitorCardGridProps> = ({
                           style={{ fontSize: '0.78rem' }}
                         >
                           <i className="bi bi-trash3" /> Cancel
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {userRole === 'security' && (
+                    <div className="d-flex align-items-center gap-1.5 ms-auto">
+                      {v.status === 'Approved' && onCheckIn && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-primary px-2.5 py-1 fw-semibold d-inline-flex align-items-center gap-1 rounded-2 shadow-xs"
+                          onClick={() => onCheckIn(v.id)}
+                          style={{ fontSize: '0.78rem' }}
+                        >
+                          <i className="bi bi-box-arrow-in-right" /> Check In
+                        </button>
+                      )}
+                      {v.status === 'CheckedIn' && onCheckOut && (
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-dark px-2.5 py-1 fw-semibold d-inline-flex align-items-center gap-1 rounded-2 shadow-xs"
+                          onClick={() => onCheckOut(v.id)}
+                          style={{ fontSize: '0.78rem' }}
+                        >
+                          <i className="bi bi-box-arrow-right" /> Check Out
                         </button>
                       )}
                     </div>

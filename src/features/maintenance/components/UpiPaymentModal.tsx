@@ -78,7 +78,7 @@ export const UpiPaymentModal = ({
         style={{ maxWidth: '440px', width: '92%', margin: '1.75rem auto' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-content border-0 rounded-4 shadow-lg bg-white overflow-hidden">
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white overflow-hidden">
 
           {/* Modal Header */}
           <div className="modal-header border-bottom border-light-subtle px-4 py-3 align-items-center justify-content-between text-start">
@@ -211,7 +211,7 @@ export const UpiPaymentModal = ({
               <a
                 href={upiUrl}
                 className="btn btn-primary w-100 py-2.5 fw-semibold d-flex align-items-center justify-content-center gap-2 shadow-sm"
-                style={{ borderRadius: '10px', fontSize: '0.9rem' }}
+                style={{ borderRadius: '8px', fontSize: '0.9rem' }}
               >
                 <i className="bi bi-phone-vibrate fs-6" />
                 Open UPI App on Mobile
@@ -225,7 +225,7 @@ export const UpiPaymentModal = ({
                 className="btn btn-outline-success w-100 py-2 fw-medium d-flex align-items-center justify-content-center gap-2"
                 onClick={handleSimulatePayment}
                 disabled={submitting}
-                style={{ borderRadius: '10px', fontSize: '0.85rem' }}
+                style={{ borderRadius: '8px', fontSize: '0.85rem' }}
               >
                 <i className="bi bi-lightning-charge-fill" />
                 Simulate Instant UPI Payment (In-App)
@@ -256,7 +256,7 @@ export const UpiPaymentModal = ({
                   </span>
                 </div>
                 <div className="input-group">
-                  <span className="input-group-text bg-light text-secondary border-end-0" style={{ borderRadius: '10px 0 0 10px' }}>
+                  <span className="input-group-text bg-light text-secondary border-end-0" style={{ borderRadius: '8px 0 0 8px' }}>
                     <i className="bi bi-hash" />
                   </span>
                   <input
@@ -267,7 +267,7 @@ export const UpiPaymentModal = ({
                     value={utrNumber}
                     onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
                     disabled={submitting}
-                    style={{ borderRadius: '0 10px 10px 0', fontSize: '0.9rem' }}
+                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem' }}
                   />
                 </div>
               </div>

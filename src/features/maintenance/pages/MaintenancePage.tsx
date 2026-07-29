@@ -367,8 +367,10 @@ const MaintenancePage = () => {
       </div>
 
       {/* ── Stats (Admin only) ── */}
-      {isAdmin && !metricsLoading && metrics && (
-        <MaintenanceStatsRow metrics={metrics as AdminDashboardMetrics} />
+      {isAdmin && (
+        <div className="mb-4">
+          <MaintenanceStatsRow metrics={metrics as AdminDashboardMetrics | null} loading={metricsLoading} />
+        </div>
       )}
 
       {/* ── Maintenance Amount Setting (Admin only) ── */}
@@ -414,25 +416,30 @@ const MaintenancePage = () => {
         </div>
       )}
 
-      {/* ── Filters ── */}
-      <div className="mb-3">
-        <InvoiceFilters filters={filters} onFilterChange={updateFilters} />
-      </div>
+      {/* ── Table Container Card (Matching Resident Page Layout) ── */}
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4 mb-4">
+        {/* Filters Header Block */}
+        <div className="card-header bg-white border-bottom border-light-subtle p-3">
+          <InvoiceFilters filters={filters} onFilterChange={updateFilters} />
+        </div>
 
-      {/* ── Table ── */}
-      <div className="table-card mb-4">
-        <AppTable
-          columns={columns}
-          data={invoiceItems}
-          loading={loading}
-          rowKey={(inv) => inv.id}
-          emptyTitle="No invoices found"
-          emptySubtitle="There are no invoices matching your criteria. Try adjusting your filters or check back later."
-          emptyIcon="bi-receipt"
-          skeletonRows={4}
-        />
+        {/* Dynamic List Table Area */}
+        <div className="table-responsive">
+          <AppTable
+            columns={columns}
+            data={invoiceItems}
+            loading={loading}
+            rowKey={(inv) => inv.id}
+            emptyTitle="No invoices found"
+            emptySubtitle="There are no invoices matching your criteria. Try adjusting your filters or check back later."
+            emptyIcon="bi-receipt"
+            skeletonRows={4}
+          />
+        </div>
+
+        {/* Card Footer Section for Pagination */}
         {!loading && invoiceItems.length > 0 && pagination && (
-          <div className="table-card__footer">
+          <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
             <Pagination
               pagination={pagination}
               onPageChange={changePage}

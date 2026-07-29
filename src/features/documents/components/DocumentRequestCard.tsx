@@ -24,7 +24,7 @@ const formatDate = (dateStr: string) => {
 const statusMeta = (status: string) => {
   if (status === "UPLOADED") return { label: "Uploaded", bg: "bg-success-subtle", text: "text-success", border: "border-success-subtle", icon: CheckCircle };
   if (status === "REJECTED") return { label: "Declined", bg: "bg-danger-subtle", text: "text-danger", border: "border-danger-subtle", icon: Ban };
-  return { label: "Pending Review", bg: "bg-warning-subtle", text: "text-warning-emphasis", border: "border-warning-subtle", icon: Clock };
+  return { label: "Pending", bg: "bg-warning-subtle", text: "text-warning-emphasis", border: "border-warning-subtle", icon: Clock };
 };
 
 const cardAccentBorder = (status: string) => {
@@ -67,8 +67,8 @@ const DocumentRequestCard = ({ item, isSent, isAdmin, onUpload, onReject, onCanc
                 <h6 className="fw-bold text-dark mb-0 text-truncate" style={{ fontSize: "0.95rem" }}>
                   {item.documentType}
                 </h6>
-                <span className={`badge rounded-pill ${sm.bg} ${sm.text} ${sm.border} d-inline-flex align-items-center gap-1 px-2 py-1`} style={{ fontSize: "0.7rem", fontWeight: 500, borderWidth: 1 }}>
-                  <StatusIcon size={11} /> {sm.label}
+                <span className={`badge rounded-pill ${sm.bg} ${sm.text} ${sm.border} d-inline-flex align-items-center gap-1 px-3 py-1 text-nowrap`} style={{ fontSize: "0.72rem", fontWeight: 600, borderWidth: 1 }}>
+                  <StatusIcon size={12} /> {sm.label}
                 </span>
               </div>
               <div className="d-flex align-items-center gap-3 text-muted flex-wrap" style={{ fontSize: "0.78rem" }}>

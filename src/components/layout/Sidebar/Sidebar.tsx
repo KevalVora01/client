@@ -47,9 +47,8 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
-    { label: 'Visitors', icon: UserCheck, path: '/visitors' },
+    { label: 'Visitor Logs', icon: History, path: '/visitor-logs' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
-    { label: 'Logs', icon: History, path: '/logs' },
   ],
   resident: [
     { label: 'My Dashboard', icon: LayoutDashboard, path: '/resident' },
@@ -58,13 +57,13 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
-    { label: 'My Visitors', icon: UserCheck, path: '/visitors' },
+    { label: 'My Visitors', icon: UserCheck, path: '/visitor-logs' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],
   security: [
     { label: 'Visitor Check-In', icon: UserCheck, path: '/checkin' },
     { label: 'Visitor Check-Out', icon: UserMinus, path: '/checkout' },
-    { label: 'Visitor Logs', icon: History, path: '/visitors' },
+    { label: 'Visitor Logs', icon: History, path: '/visitor-logs' },
   ],
 };
 

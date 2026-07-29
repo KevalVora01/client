@@ -63,7 +63,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <h4 className="fw-bold mb-3" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
+          <h4 className="fw-bold mb-2 fs-4 fs-sm-3" style={{ color: '#1a1f36' }}>
             Notices Management
           </h4>
           <p className="text-muted mb-0 small">

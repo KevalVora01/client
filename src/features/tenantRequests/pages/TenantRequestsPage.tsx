@@ -9,16 +9,18 @@ const TenantRequestsPage = () => {
   const { requests, pagination, filters, loading, updateFilters, changePage } = useTenantRequests();
 
   return (
-    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
+    <div className="container-fluid p-3 p-md-4">
 
       {/* ── Header ── */}
-      <div className="mb-4">
-        <h4 className="fw-bold mb-1" style={{ fontSize: '1.4rem', color: '#1a1f36' }}>
-          Tenant Requests
-        </h4>
-        <p className="text-secondary mt-2 mb-0 small">
-          Review owner-submitted tenant requests, record committee votes, and finalize decisions.
-        </p>
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
+        <div>
+          <h4 className="fw-bold mb-2 fs-4 fs-sm-3" style={{ color: '#1a1f36' }}>
+            Tenant Requests
+          </h4>
+          <p className="text-muted mb-0 small">
+            Review owner-submitted tenant requests, record committee votes, and finalize decisions.
+          </p>
+        </div>
       </div>
 
       {/* ── Status filter tabs ── */}

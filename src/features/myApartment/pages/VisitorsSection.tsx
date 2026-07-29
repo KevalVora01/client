@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import PendingApprovalCard from '../../visitors/components/PendingApprovalCard';
 import VisitorCard from '../../visitors/components/VisitorCard';
-import PreRegisterVisitorModal from '../../visitors/components/PreRegisterVisitorModal';
 import { useVisitors } from '../../visitors/hooks/useVisitors';
-import { UserCheck, Plus, ArrowRight } from 'lucide-react';
+import { UserCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useVisitorMutations } from '../../visitors/hooks/useVisitorMutations';
 
 export const VisitorsSection: React.FC = () => {
   const { visitors, loading, refetch: fetchVisitors } = useVisitors({ userRole: 'resident', pageSize: 10 });
   const { respond, cancel } = useVisitorMutations();
-
-  const [showPreRegisterModal, setShowPreRegisterModal] = useState(false);
 
   const handleApprove = async (visitorId: number) => {
     await respond(visitorId, 'Approve');
@@ -41,20 +38,13 @@ export const VisitorsSection: React.FC = () => {
           </div>
           <div>
             <h5 className="fw-bold mb-0 text-dark">Visitors & Gate Approvals</h5>
-            <p className="text-muted small mb-0">Pre-register guests and manage walk-in entry requests</p>
+            <p className="text-muted small mb-0">Manage walk-in entry requests and view recent visitor activity</p>
           </div>
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          <button
-            className="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1.5 px-3 fw-semibold shadow-xs"
-            onClick={() => setShowPreRegisterModal(true)}
-          >
-            <Plus size={16} />
-            Pre-Register Visitor
-          </button>
-          <Link to="/visitors" className="btn btn-outline-secondary btn-sm rounded-2 d-flex align-items-center gap-1">
-            View All History
+          <Link to="/visitor-logs" className="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1 px-3 fw-semibold shadow-xs">
+            Go to My Visitors
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -85,13 +75,10 @@ export const VisitorsSection: React.FC = () => {
         </div>
       ) : recentVisitors.length === 0 && pendingVisitors.length === 0 ? (
         <div className="p-4 text-center text-muted bg-light rounded-3">
-          <p className="small mb-1 fw-medium">No visitor logs recorded yet for your apartment.</p>
-          <button
-            className="btn btn-link btn-sm text-primary p-0 fw-semibold"
-            onClick={() => setShowPreRegisterModal(true)}
-          >
-            Pre-register your first visitor
-          </button>
+          <p className="small mb-2 fw-medium">No visitor logs recorded yet for your apartment.</p>
+          <Link to="/visitor-logs" className="btn btn-sm btn-outline-primary rounded-2 fw-semibold">
+            View My Visitors
+          </Link>
         </div>
       ) : (
         <div className="row g-3">
@@ -107,15 +94,6 @@ export const VisitorsSection: React.FC = () => {
             </div>
           ))}
         </div>
-      )}
-
-      {/* Pre-Register Modal */}
-      {showPreRegisterModal && (
-        <PreRegisterVisitorModal
-          show={showPreRegisterModal}
-          onClose={() => setShowPreRegisterModal(false)}
-          onSuccess={fetchVisitors}
-        />
       )}
     </div>
   );

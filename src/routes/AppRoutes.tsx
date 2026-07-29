@@ -96,7 +96,7 @@ const AppRoutes = () => {
         {/* ─── Shared routes (admin, resident, security) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/visitors" element={<VisitorLogPage />} />
+            <Route path="/visitor-logs" element={<VisitorLogPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

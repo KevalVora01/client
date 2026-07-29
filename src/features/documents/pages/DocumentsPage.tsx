@@ -55,11 +55,11 @@ const DocumentsPage = () => {
   };
 
   return (
-    <div className="page">
+    <div className="container-fluid p-3 p-md-4">
       {/* ── Header ── */}
-      <div className="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <h4 className="fw-bold text-dark mb-1">
+          <h4 className="fw-bold mb-2 fs-4 fs-sm-3" style={{ color: '#1a1f36' }}>
             Document Requests
           </h4>
           <p className="text-muted small mb-0">

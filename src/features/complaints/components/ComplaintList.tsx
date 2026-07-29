@@ -215,7 +215,7 @@ const ComplaintList = ({
           <p className="text-muted small mb-0">There are no complaints matching your criteria.</p>
         </div>
       ) : (
-        <div className="d-flex flex-column gap-3 w-100 overflow-x-hidden" id="complaintsAccordion">
+        <div className="accordion d-flex flex-column gap-3 w-100" id="complaintsAccordion">
           {complaints.map((c) => {
             const isOpen = accordionOpenId === c.id;
             const detail = detailsMap[c.id] || (c.id === expandedDetail?.id ? expandedDetail : c);
@@ -228,94 +228,102 @@ const ComplaintList = ({
             return (
               <div
                 key={c.id}
-                className={`bg-white border border-light-subtle rounded-3 shadow-sm w-100 ${isOpen ? 'overflow-visible' : 'overflow-hidden'}`}
+                className={`accordion-item bg-white border border-light-subtle rounded-3 shadow-sm w-100 ${isOpen ? 'overflow-visible' : 'overflow-hidden'}`}
                 style={{
                   borderLeft: `4px solid ${statusColor}`,
                   transition: 'all 0.2s ease',
+                  position: 'relative',
+                  zIndex: isOpen ? 50 : 1,
                 }}
               >
-                {/* ── Card Header Row (Click chevron / header to expand accordion) ── */}
+                {/* ── Accordion Header ── */}
+                <h2 className="accordion-header" id={`heading-${c.id}`}>
+                  <div
+                    className={`accordion-button-custom p-3 p-sm-3.5 d-flex align-items-center justify-content-between gap-3 ${isOpen ? 'bg-light-subtle' : 'bg-white'}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggleAccordion(c.id)}
+                  >
+                    {/* Left side: Chevron > + Title & Badges */}
+                    <div className="d-flex align-items-start gap-3 min-w-0 flex-grow-1">
+                      {/* Chevron icon at starting (left) */}
+                      <div className="pt-1 text-muted flex-shrink-0">
+                        <i
+                          className="bi bi-chevron-right d-block fw-bold"
+                          style={{
+                            fontSize: '0.95rem',
+                            color: isOpen ? '#1a1f36' : '#9ca3af',
+                            transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.2s ease',
+                          }}
+                        />
+                      </div>
+
+                      {/* Main Info (Title & Badges) */}
+                      <div className="d-flex flex-column gap-2 min-w-0 flex-grow-1">
+                        <div className="d-flex align-items-start min-w-0">
+                          <span
+                            className="fw-bold text-dark text-break me-auto"
+                            style={{ fontSize: '0.96rem', color: '#111827', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                          >
+                            {highlightMatch(c.title, searchVal)}
+                          </span>
+                        </div>
+
+                        <div className="d-flex align-items-center gap-2 flex-wrap">
+                          <ComplaintStatusBadge status={c.status} />
+                          <ComplaintPriorityBadge priority={c.priority} />
+                          {isAdmin && aptLabel && (
+                            <span className="badge bg-body-secondary text-secondary border border-light-subtle" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                              Apartment: {aptLabel}
+                            </span>
+                          )}
+
+                          {/* Chat Icon (directly after Apartment badge, hidden if Resolved) */}
+                          {!hideChatColumn && !disableChat && c.status !== 'Resolved' && (
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <button
+                                type="button"
+                                className="btn btn-sm border-0 shadow-none d-inline-flex align-items-center justify-content-center p-0 text-primary"
+                                style={{
+                                  background: 'transparent',
+                                  width: '26px',
+                                  height: '26px',
+                                  cursor: 'pointer'
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleExpand(c);
+                                }}
+                                title="Open Chat"
+                              >
+                                <i className="bi bi-chat-left-text" style={{ fontSize: '1.15rem' }} />
+                              </button>
+                            </div>
+                          )}
+
+                          {showResidentName && c.resident?.user?.name && (
+                            <span className="badge bg-primary-subtle text-primary-emphasis" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
+                              Submitted by: {c.resident.user.name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Far Right Area: Submitted Timestamp (ALWAYS AT LAST) */}
+                    <div className="flex-shrink-0 ms-2 text-muted small" style={{ fontSize: '0.73rem', whiteSpace: 'nowrap' }}>
+                      <span className="d-none d-sm-inline">Submitted: </span>{timeAgo(c.createdAt)}
+                    </div>
+                  </div>
+                </h2>
+
+                {/* ── Accordion Collapse Body ── */}
                 <div
-                  className={`p-3 p-sm-3.5 d-flex align-items-center justify-content-between gap-3 ${isOpen ? 'bg-light-subtle' : 'bg-white'}`}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => toggleAccordion(c.id)}
+                  id={`collapse-${c.id}`}
+                  className={`accordion-collapse collapse ${isOpen ? 'show overflow-visible' : ''}`}
+                  aria-labelledby={`heading-${c.id}`}
                 >
-                  {/* Left side: Chevron > + Title & Badges */}
-                  <div className="d-flex align-items-start gap-3 min-w-0 flex-grow-1">
-                    {/* Chevron icon at starting (left) */}
-                    <div className="pt-1 text-muted flex-shrink-0">
-                      <i
-                        className="bi bi-chevron-right d-block fw-bold"
-                        style={{
-                          fontSize: '0.95rem',
-                          color: isOpen ? '#1a1f36' : '#9ca3af',
-                          transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-                          transition: 'transform 0.2s ease',
-                        }}
-                      />
-                    </div>
-
-                    {/* Main Info (Title & Badges) */}
-                    <div className="d-flex flex-column gap-2 min-w-0 flex-grow-1">
-                      <div className="d-flex align-items-start min-w-0">
-                        <span
-                          className="fw-bold text-dark text-break me-auto"
-                          style={{ fontSize: '0.96rem', color: '#111827', wordBreak: 'break-word', overflowWrap: 'anywhere' }}
-                        >
-                          {highlightMatch(c.title, searchVal)}
-                        </span>
-                      </div>
-
-                      <div className="d-flex align-items-center gap-2 flex-wrap">
-                        <ComplaintStatusBadge status={c.status} />
-                        <ComplaintPriorityBadge priority={c.priority} />
-                        {isAdmin && aptLabel && (
-                          <span className="badge bg-body-secondary text-secondary border border-light-subtle" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
-                            Apartment: {aptLabel}
-                          </span>
-                        )}
-
-                        {/* Chat Icon (directly after Apartment badge, hidden if Resolved) */}
-                        {!hideChatColumn && !disableChat && c.status !== 'Resolved' && (
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              className="btn btn-sm border-0 shadow-none d-inline-flex align-items-center justify-content-center p-0 text-primary"
-                              style={{
-                                background: 'transparent',
-                                width: '26px',
-                                height: '26px',
-                                cursor: 'pointer'
-                              }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleExpand(c);
-                              }}
-                              title="Open Chat"
-                            >
-                              <i className="bi bi-chat-left-text" style={{ fontSize: '1.15rem' }} />
-                            </button>
-                          </div>
-                        )}
-
-                        {showResidentName && c.resident?.user?.name && (
-                          <span className="badge bg-primary-subtle text-primary-emphasis" style={{ fontSize: '0.72rem', fontWeight: 500 }}>
-                            Submitted by: {c.resident.user.name}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Far Right Area: Submitted Timestamp (ALWAYS AT LAST) */}
-                  <div className="flex-shrink-0 ms-2 text-muted small" style={{ fontSize: '0.73rem', whiteSpace: 'nowrap' }}>
-                    <span className="d-none d-sm-inline">Submitted: </span>{timeAgo(c.createdAt)}
-                  </div>
-                </div>
-
-                {/* ── Accordion Body (Images & Description) ── */}
-                {isOpen && (
-                  <div className="p-3 p-sm-3.5 bg-light-subtle border-top border-light-subtle d-flex flex-column gap-3 w-100 overflow-visible">
+                  <div className="accordion-body p-3 p-sm-3.5 bg-light-subtle border-top border-light-subtle d-flex flex-column gap-3 w-100 overflow-visible">
                     {/* Attached Images */}
                     {isLoadingImages ? (
                       <div className="p-3 bg-white rounded-3 border border-light-subtle d-flex align-items-center gap-2 text-secondary small">
@@ -361,8 +369,6 @@ const ComplaintList = ({
                       </div>
                     )}
 
-
-
                     {/* Admin Status Dropdown */}
                     {isAdmin && c.status !== 'Resolved' && onUpdateStatus && (
                       <div className="d-flex align-items-center justify-content-end gap-2 pt-1" onClick={(e) => e.stopPropagation()}>
@@ -404,7 +410,7 @@ const ComplaintList = ({
                       </div>
                     )}
                   </div>
-                )}
+                </div>
               </div>
             );
           })}

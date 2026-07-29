@@ -4,7 +4,7 @@ import type { DocumentRequestItem } from '../types/documentRequest.types';
 import DocumentRowActions from './DocumentRowActions';
 
 const STATUS_BADGE: Record<string, { label: string; bg: string; color: string }> = {
-  PENDING: { label: 'Pending Review', bg: '#fef3c7', color: '#92400e' },
+  PENDING: { label: 'Pending', bg: '#fef3c7', color: '#92400e' },
   APPROVED: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
   UPLOADED: { label: 'Uploaded', bg: '#dbeafe', color: '#1e40af' },
   REJECTED: { label: 'Declined', bg: '#fee2e2', color: '#991b1b' },
@@ -127,8 +127,16 @@ const DocumentRequestTable = ({
         const s = STATUS_BADGE[r.status] ?? STATUS_BADGE.PENDING;
         return (
           <span
-            className="fw-semibold px-3 py-2 rounded-pill d-inline-block"
-            style={{ backgroundColor: s.bg, color: s.color, fontSize: '0.78rem' }}
+            className="d-inline-block fw-bold rounded-pill border text-center text-nowrap"
+            style={{
+              backgroundColor: s.bg,
+              color: s.color,
+              borderColor: `${s.color}40`,
+              fontSize: '0.72rem',
+              letterSpacing: '0.5px',
+              padding: '4px 14px',
+              minWidth: '100px',
+            }}
           >
             {s.label}
           </span>

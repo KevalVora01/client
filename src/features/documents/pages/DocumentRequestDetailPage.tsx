@@ -26,6 +26,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 const VoterRow = ({
   name,
   email,
+  tag,
   draft,
   pending,
   actionLoading,
@@ -33,6 +34,7 @@ const VoterRow = ({
 }: {
   name: string;
   email: string;
+  tag?: string | null;
   draft: string | null | undefined;
   pending: boolean;
   actionLoading: boolean;
@@ -42,6 +44,11 @@ const VoterRow = ({
     <div className="min-w-0" style={{ flex: '1 1 auto' }}>
       <div className="d-flex align-items-center gap-2">
         <span className="fw-semibold text-dark" style={{ fontSize: '0.9rem' }}>{name}</span>
+        {tag && (
+          <span className="badge" style={{ backgroundColor: '#e8eaf6', color: '#3949ab', fontSize: '0.68rem', fontWeight: 600 }}>
+            {tag}
+          </span>
+        )}
       </div>
       <div className="text-muted mt-0" style={{ fontSize: '0.78rem' }}>{email}</div>
     </div>
@@ -91,7 +98,18 @@ const VoterRow = ({
         {draft === 'Approve' ? <Check size={13} /> : <X size={13} />}
         {draft}
       </span>
-    ) : null}
+    ) : (
+      <span
+        className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold flex-shrink-0"
+        style={{
+          fontSize: '0.78rem',
+          backgroundColor: '#f3f4f6',
+          color: '#6b7280',
+        }}
+      >
+        Not Voted
+      </span>
+    )}
   </div>
 );
 
@@ -323,10 +341,11 @@ const DocumentRequestDetailPage = () => {
                 })}
 
                 {/* ── Admin vote ── */}
-                {isAdmin && isPending && (
+                {((isAdmin && isPending) || draftAdminVote || adminVoteFromDb?.vote) && (
                   <VoterRow
                     name={user?.name ?? 'Admin'}
                     email={user?.email ?? ''}
+                    tag="Admin"
                     draft={draftAdminVote ?? adminVoteFromDb?.vote}
                     pending={isPending}
                     actionLoading={actionLoading}
@@ -351,28 +370,7 @@ const DocumentRequestDetailPage = () => {
                 </div>
               )}
 
-              {/* ── Recorded votes summary ── */}
-              {!isPending && votes.length > 0 && (
-                <div className="d-flex flex-wrap gap-2 mt-3 pt-3 border-top border-light-subtle">
-                  {votes.map((v: DocumentRequestVote) => {
-                    const member = committeeMembers.find((m) => m.id === v.committeeMemberId);
-                    return (
-                      <span
-                        key={v.id}
-                        className="d-inline-flex align-items-center gap-1 px-3 py-1 rounded-pill fw-semibold"
-                        style={{
-                          fontSize: '0.78rem',
-                          backgroundColor: v.vote === 'Approve' ? '#dcfce7' : '#fee2e2',
-                          color: v.vote === 'Approve' ? '#166534' : '#991b1b',
-                        }}
-                      >
-                        {v.vote === 'Approve' ? <Check size={12} /> : <X size={12} />}
-                        {(() => { if (v.committeeMemberId) return member?.fullName ?? `Member #${v.committeeMemberId}`; return 'Admin'; })()}
-                      </span>
-                    );
-                  })}
-                </div>
-              )}
+
             </>
           )}
         </div>

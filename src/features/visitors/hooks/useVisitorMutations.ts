@@ -68,11 +68,11 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
     }
   }, [onSuccess]);
 
-  const checkIn = useCallback(async (visitorId: number): Promise<boolean> => {
+  const checkIn = useCallback(async (visitorId: number, photo?: File): Promise<boolean> => {
     try {
       setActionId(visitorId);
       setLoading(true);
-      await visitorApi.checkIn(visitorId);
+      await visitorApi.checkIn(visitorId, photo);
       showSuccess('Visitor checked in successfully.');
       onSuccess?.();
       return true;

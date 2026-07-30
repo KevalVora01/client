@@ -3,8 +3,10 @@ import { visitorApi } from '../api/visitorApi';
 import type { Visitor } from '../types/visitor.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
+import useSocket from '../../../hooks/useSocket';
 
 export const useVisitorSearch = () => {
+  const socket = useSocket();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,19 @@ export const useVisitorSearch = () => {
       clearTimeout(timer);
     };
   }, [query]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const handleRefresh = () => {
+      visitorApi.searchByNameOrPhone(query.trim()).then((data) => setResults(data)).catch(() => {});
+    };
+    socket.on('notification:new', handleRefresh);
+    socket.on('visitor:updated', handleRefresh);
+    return () => {
+      socket.off('notification:new', handleRefresh);
+      socket.off('visitor:updated', handleRefresh);
+    };
+  }, [socket, query]);
 
   return { query, setQuery, results, loading, search };
 };

@@ -1,17 +1,15 @@
 import React, { useState } from 'react';
 import { useVisitorSearch } from '../hooks/useVisitorSearch';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
-import VisitorCard from './VisitorCard';
 import type { Visitor } from '../types/visitor.types';
-import { Search, UserCheck, X, Sparkles, Filter } from 'lucide-react';
+import { Search, UserCheck, X, Clock, Car, Phone, MapPin, CheckCircle2, User } from 'lucide-react';
+import { formatDate } from '../../../utils/formatDate';
 
 interface VisitorLookupSearchProps {
   onCheckIn?: (visitor: Visitor) => void;
   onCheckInSuccess?: () => void;
   checkInLoading?: boolean;
 }
-
-const PRESET_FILTERS = ['All', 'Guest', 'Delivery', 'Cab', 'Service'];
 
 export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
   onCheckIn,
@@ -21,7 +19,6 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
   const { setQuery, results, loading, search } = useVisitorSearch();
   const { checkIn, actionId } = useVisitorMutations();
   const [localQuery, setLocalQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('All');
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,17 +36,10 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
     setQuery('');
   };
 
-  const handlePresetClick = (filter: string) => {
-    setSelectedFilter(filter);
-    const queryTerm = filter === 'All' ? '' : filter;
-    setLocalQuery(queryTerm);
-    setQuery(queryTerm);
-    search(queryTerm);
-  };
-
   const handleVisitorCheckIn = async (visitor: Visitor) => {
     if (onCheckIn) {
-      onCheckIn(visitor);
+      await onCheckIn(visitor);
+      search(localQuery);
       return;
     }
 
@@ -60,143 +50,204 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
     }
   };
 
-  // Ensure ONLY pre-registered visitors are displayed
-  const preRegisteredOnly = results.filter(r => r.isPreRegistered === true);
-
-  const filteredResults = selectedFilter === 'All'
-    ? preRegisteredOnly
-    : preRegisteredOnly.filter(r => r.purpose?.toLowerCase().includes(selectedFilter.toLowerCase()));
+  const filteredResults = results.filter(r => r.isPreRegistered === true && r.status === 'Approved');
 
   return (
-    <div
-      className="card border border-primary-subtle shadow-sm rounded-4 overflow-hidden p-3.5 p-md-4"
-      style={{ background: 'linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%)' }}
-    >
+    <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
       {/* ── Header ── */}
-      <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-        <div className="d-flex align-items-center gap-2.5">
-          <div
-            className="d-flex align-items-center justify-content-center rounded-3 bg-primary bg-opacity-10 text-primary shadow-xs"
-            style={{ width: '42px', height: '42px' }}
-          >
-            <UserCheck size={22} strokeWidth={2.2} />
-          </div>
-          <div>
-            <h6 className="fw-bold mb-0 text-dark" style={{ fontSize: '1rem' }}>
-              Pre-Registered Expected Visitors
-            </h6>
-            <p className="text-secondary mb-0" style={{ fontSize: '0.78rem' }}>
-              Pre-approved guest entries created by residents.
-            </p>
-          </div>
-        </div>
-
-        <span className="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded-pill" style={{ fontSize: '0.72rem' }}>
-          <Sparkles size={13} />
-          Pre-Registered Only
-        </span>
-      </div>
-
-      {/* ── Interactive Search Bar ── */}
-      <form onSubmit={handleSearchSubmit} className="mb-3">
-        <div className="input-group input-group-lg shadow-sm border border-light-subtle rounded-3 overflow-hidden bg-white">
-          <span className="input-group-text bg-white border-0 ps-3 pe-2 text-secondary">
-            <Search size={20} className="text-primary" />
-          </span>
-          <input
-            type="text"
-            className="form-control border-0 ps-1 fs-6 shadow-none"
-            placeholder="Search pre-registered guest name or phone..."
-            value={localQuery}
-            onChange={handleInputChange}
-            style={{ fontSize: '0.925rem' }}
-          />
-          {localQuery && (
-            <button
-              type="button"
-              className="btn btn-link text-secondary text-decoration-none border-0 px-2"
-              onClick={handleClearQuery}
-              aria-label="Clear search"
+      <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3">
+        <div className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center gap-3">
+            <div
+              className="d-flex align-items-center justify-content-center rounded-3"
+              style={{ width: '40px', height: '40px', backgroundColor: '#1a1f36' }}
             >
-              <X size={18} />
-            </button>
+              <UserCheck size={20} className="text-white" />
+            </div>
+            <div>
+              <h6 className="fw-bold mb-0" style={{ fontSize: '0.95rem', color: '#1a1f36' }}>
+                Pre-Registered Visitors
+              </h6>
+              <p className="text-muted mb-0" style={{ fontSize: '0.75rem' }}>
+                Search by name or phone to find expected guests
+              </p>
+            </div>
+          </div>
+          {filteredResults.length > 0 && (
+            <span className="badge bg-dark text-white rounded-pill px-2.5 py-1" style={{ fontSize: '0.7rem' }}>
+              {filteredResults.length} found
+            </span>
           )}
-          <button
-            type="submit"
-            className="btn btn-primary px-4 fw-semibold border-0"
-            disabled={loading}
-            style={{ backgroundColor: '#0d6efd' }}
-          >
-            {loading ? (
-              <span className="spinner-border spinner-border-sm" role="status" />
-            ) : (
-              'Search'
-            )}
-          </button>
         </div>
-      </form>
-
-      {/* ── Quick Purpose Filter Chips ── */}
-      <div className="d-flex align-items-center gap-1.5 flex-wrap mb-3">
-        <span className="text-muted me-1 d-inline-flex align-items-center gap-1" style={{ fontSize: '0.75rem' }}>
-          <Filter size={12} />
-          Filter:
-        </span>
-        {PRESET_FILTERS.map((filter) => (
-          <button
-            key={filter}
-            type="button"
-            className={`btn btn-sm rounded-pill fw-medium px-3 py-1 transition-all ${
-              selectedFilter === filter
-                ? 'btn-dark text-white shadow-xs'
-                : 'btn-outline-secondary border-light-subtle bg-white text-secondary'
-            }`}
-            style={{ fontSize: '0.75rem' }}
-            onClick={() => handlePresetClick(filter)}
-          >
-            {filter}
-          </button>
-        ))}
       </div>
 
-      {/* ── Search Results List ── */}
-      {loading ? (
-        <div className="d-flex flex-column gap-2 mt-2">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="skeleton" style={{ width: '100%', height: '72px', borderRadius: '12px' }} />
-          ))}
-        </div>
-      ) : filteredResults.length === 0 ? (
-        <div className="bg-white rounded-3 border border-light-subtle text-center py-4 px-3 mt-1 shadow-xs">
-          <UserCheck size={32} className="text-muted mb-2 opacity-50" />
-          <p className="fw-semibold text-dark mb-1" style={{ fontSize: '0.875rem' }}>
-            {localQuery.trim() ? `No pre-registered visitors found matching "${localQuery}"` : 'No pre-registered visitors expected today'}
-          </p>
-          <p className="text-secondary mb-0" style={{ fontSize: '0.78rem' }}>
-            {localQuery.trim() ? 'Verify the guest phone number or name.' : 'Pre-registered guests created by residents will appear here.'}
-          </p>
-        </div>
-      ) : (
-        <div className="mt-1">
-          <div className="d-flex align-items-center justify-content-between mb-2.5">
-            <h6 className="fw-bold text-secondary mb-0 small text-uppercase" style={{ letterSpacing: '0.05em', fontSize: '0.72rem' }}>
-              Pre-Registered Visitors ({filteredResults.length})
-            </h6>
+      <div className="card-body p-4">
+
+        {/* ── Search Bar ── */}
+        <form onSubmit={handleSearchSubmit} className="mb-3">
+          <div className="input-group shadow-sm rounded-3 overflow-hidden" style={{ border: '1.5px solid #e2e8f0' }}>
+            <span className="input-group-text bg-white border-0 ps-3">
+              <Search size={18} className="text-muted" />
+            </span>
+            <input
+              type="text"
+              className="form-control border-0 ps-1 shadow-none bg-white"
+              placeholder="Search guest name or phone number..."
+              value={localQuery}
+              onChange={handleInputChange}
+              style={{ fontSize: '0.875rem', height: '44px' }}
+            />
+            {localQuery && (
+              <button
+                type="button"
+                className="btn btn-link text-muted text-decoration-none border-0 px-2"
+                onClick={handleClearQuery}
+                aria-label="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
+            <button
+              type="submit"
+              className="btn px-4 fw-semibold border-0 d-inline-flex align-items-center gap-1.5"
+              disabled={loading}
+              style={{ backgroundColor: '#1a1f36', color: '#fff', fontSize: '0.85rem' }}
+            >
+              {loading ? (
+                <span className="spinner-border spinner-border-sm" role="status" />
+              ) : (
+                'Search'
+              )}
+            </button>
           </div>
-          <div className="d-flex flex-column gap-2.5">
-            {filteredResults.map((visitor) => (
-              <VisitorCard
-                key={visitor.id}
-                visitor={visitor}
-                actionLabel="Check In Visitor"
-                onAction={() => handleVisitorCheckIn(visitor)}
-                actionLoading={checkInLoading || actionId === visitor.id}
-                actionVariant="success"
-              />
+        </form>
+
+        {/* ── Results ── */}
+        {loading ? (
+          <div className="d-flex flex-column gap-2">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="d-flex align-items-center gap-3 p-3 rounded-3" style={{ backgroundColor: '#f9fafb' }}>
+                <div className="skeleton rounded-2 flex-shrink-0" style={{ width: '44px', height: '44px' }} />
+                <div className="flex-grow-1">
+                  <div className="skeleton mb-2" style={{ width: '60%', height: '14px', borderRadius: '4px' }} />
+                  <div className="skeleton" style={{ width: '40%', height: '12px', borderRadius: '4px' }} />
+                </div>
+                <div className="skeleton rounded-pill" style={{ width: '80px', height: '32px' }} />
+              </div>
             ))}
           </div>
-        </div>
-      )}
+        ) : filteredResults.length === 0 ? (
+          <div className="text-center py-5 rounded-3" style={{ backgroundColor: '#f9fafb' }}>
+            <div
+              className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+              style={{ width: '56px', height: '56px', backgroundColor: '#e5e7eb' }}
+            >
+              <UserCheck size={24} className="text-muted" />
+            </div>
+            <p className="fw-semibold text-dark mb-1" style={{ fontSize: '0.875rem' }}>
+              {localQuery.trim()
+                ? `No visitors found for "${localQuery}"`
+                : 'No pre-registered visitors'}
+            </p>
+            <p className="text-muted mb-0" style={{ fontSize: '0.78rem' }}>
+              {localQuery.trim()
+                ? 'Try a different name or phone number'
+                : 'Pre-registered guests will appear here'}
+            </p>
+          </div>
+        ) : (
+          <div className="d-flex flex-column gap-2">
+            {filteredResults.map((visitor) => (
+              <div
+                key={visitor.id}
+                className="card border rounded-3 p-0 shadow-xs overflow-hidden"
+                style={{
+                  borderColor: '#e5e7eb',
+                  transition: 'border-color 0.15s, box-shadow 0.15s',
+                }}
+              >
+                <div className="d-flex align-items-center gap-3 p-3">
+                  {/* Photo / Avatar */}
+                  {visitor.photoUrl ? (
+                    <img
+                      src={visitor.photoUrl}
+                      alt={visitor.name}
+                      className="rounded-2 flex-shrink-0 object-fit-cover border"
+                      style={{ width: '48px', height: '48px', borderColor: '#e5e7eb' }}
+                    />
+                  ) : (
+                    <div
+                      className="rounded-2 flex-shrink-0 d-flex align-items-center justify-content-center"
+                      style={{ width: '48px', height: '48px', backgroundColor: '#f1f5f9' }}
+                    >
+                      <User size={20} className="text-muted" />
+                    </div>
+                  )}
+
+                  {/* Visitor Info */}
+                  <div className="flex-grow-1 min-w-0">
+                    <div className="d-flex align-items-center gap-2 mb-0.5">
+                      <h6 className="fw-bold mb-0 text-truncate" style={{ fontSize: '0.875rem', color: '#1a1f36' }}>
+                        {visitor.name}
+                      </h6>
+                      {visitor.apartment && (
+                        <span className="badge bg-light text-dark font-monospace flex-shrink-0" style={{ fontSize: '0.65rem', border: '1px solid #e5e7eb' }}>
+                          {visitor.apartment.block}-{visitor.apartment.floorNumber}{visitor.apartment.unitNumber}
+                        </span>
+                      )}
+                    </div>
+                    <div className="d-flex align-items-center gap-2 flex-wrap" style={{ fontSize: '0.75rem' }}>
+                      <span className="text-muted d-inline-flex align-items-center gap-1">
+                        <Phone size={11} /> {visitor.phone}
+                      </span>
+                      <span className="text-muted">&middot;</span>
+                      <span className="text-muted d-inline-flex align-items-center gap-1">
+                        <MapPin size={11} /> {visitor.purpose}
+                      </span>
+                      {visitor.vehicleNumber && (
+                        <>
+                          <span className="text-muted">&middot;</span>
+                          <span className="text-muted d-inline-flex align-items-center gap-1 font-monospace">
+                            <Car size={11} /> {visitor.vehicleNumber}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    {visitor.expectedAt && (
+                      <div className="mt-1 d-inline-flex align-items-center gap-1 text-muted" style={{ fontSize: '0.7rem' }}>
+                        <Clock size={10} /> Expected: {formatDate(visitor.expectedAt)}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Check In Button */}
+                  <button
+                    type="button"
+                    disabled={checkInLoading || actionId === visitor.id}
+                    className="btn btn-sm fw-semibold px-3 py-2 d-inline-flex align-items-center gap-1.5 flex-shrink-0 rounded-2"
+                    onClick={() => handleVisitorCheckIn(visitor)}
+                    style={{
+                      backgroundColor: '#16a34a',
+                      color: '#fff',
+                      fontSize: '0.8rem',
+                      minWidth: '100px',
+                    }}
+                  >
+                    {checkInLoading && actionId === visitor.id ? (
+                      <span className="spinner-border spinner-border-sm" role="status" />
+                    ) : (
+                      <>
+                        <CheckCircle2 size={14} />
+                        Check In
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

@@ -9,6 +9,12 @@ import type {
 
 export const visitorApi = {
 
+  getById: async (visitorId: number): Promise<Visitor> => {
+    const response = await api.get(`/visitors/${visitorId}`);
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
+  },
+
   preRegister: async (payload: {
     name: string;
     phone: string;
@@ -43,7 +49,16 @@ export const visitorApi = {
     return body?.data?.data || body?.data || body;
   },
 
-  checkIn: async (visitorId: number): Promise<Visitor> => {
+  checkIn: async (visitorId: number, photo?: File): Promise<Visitor> => {
+    if (photo) {
+      const formData = new FormData();
+      formData.append('photo', photo);
+      const response = await api.patch(`/visitors/${visitorId}/check-in`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const body = response.data;
+      return body?.data?.data || body?.data || body;
+    }
     const response = await api.patch(`/visitors/${visitorId}/check-in`);
     const body = response.data;
     return body?.data?.data || body?.data || body;

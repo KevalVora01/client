@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -8,7 +8,6 @@ import {
   ReceiptText,
   Clock,
   X,
-  Check,
   CheckCheck,
   UserPlus,
   XCircle,
@@ -19,8 +18,7 @@ import { toast } from 'react-toastify';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
 import { notificationApi, type NotificationItem } from '../../../features/notifications/api/notificationApi';
-import { visitorApi } from '../../../features/visitors/api/visitorApi';
-import { getErrorMessage } from '../../../utils/getErrorMessage';
+import VisitorApprovalDialog from '../../../features/visitors/components/VisitorApprovalDialog';
 
 const ICON_MAP: Record<string, typeof FileText> = {
   visitor_approval_needed: ShieldAlert,
@@ -115,7 +113,7 @@ const NotificationBell = () => {
   const [now, setNow] = useState(() => Date.now());
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
-  
+
   const [actionStates, setActionStates] = useState<Record<number, 'Approved' | 'Rejected'>>(() => {
     try {
       const saved = localStorage.getItem('visitor_action_states');
@@ -124,6 +122,9 @@ const NotificationBell = () => {
       return {};
     }
   });
+
+  // Visitor approval dialog state
+  const [approvalDialogVisitorId, setApprovalDialogVisitorId] = useState<number | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -192,60 +193,6 @@ const NotificationBell = () => {
     }
   };
 
-  const handleVisitorDecision = async (
-    n: NotificationItem,
-    decision: 'Approve' | 'Reject',
-    e: React.MouseEvent
-  ) => {
-    e.stopPropagation();
-    const visitorId = n.data?.visitorId;
-    if (!visitorId) return;
-
-    const nextDecision = decision === 'Approve' ? 'Approved' : 'Rejected';
-
-    // Instantly update UI (0ms latency)
-    setActionStates((prev) => ({ ...prev, [n.id]: nextDecision }));
-    setNotifications((prev) =>
-      prev.map((item) => (item.id === n.id ? { ...item, isRead: true } : item))
-    );
-
-    if (!n.isRead) {
-      setUnreadCount((c) => Math.max(0, c - 1));
-    }
-
-    // Persist to localStorage outside of state updater
-    try {
-      const saved = JSON.parse(localStorage.getItem('visitor_action_states') || '{}');
-      saved[n.id] = nextDecision;
-      localStorage.setItem('visitor_action_states', JSON.stringify(saved));
-    } catch {
-      // ignore
-    }
-
-    try {
-      await visitorApi.respond(Number(visitorId), decision);
-      toast.success(
-        decision === 'Approve' ? 'Visitor entry approved!' : 'Visitor entry rejected.'
-      );
-      await notificationApi.markAsRead([n.id]);
-    } catch (err: unknown) {
-      // Revert if API failed
-      setActionStates((prev) => {
-        const next = { ...prev };
-        delete next[n.id];
-        return next;
-      });
-      try {
-        const saved = JSON.parse(localStorage.getItem('visitor_action_states') || '{}');
-        delete saved[n.id];
-        localStorage.setItem('visitor_action_states', JSON.stringify(saved));
-      } catch {
-        // ignore
-      }
-      toast.error(getErrorMessage(err, `Failed to ${decision.toLowerCase()} visitor`));
-    }
-  };
-
   const handleNavigate = async (n: NotificationItem) => {
     if (!n.isRead) {
       setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
@@ -256,6 +203,16 @@ const NotificationBell = () => {
         // silent
       }
     }
+
+    // Open approval dialog for visitor approval notifications
+    if (n.type === 'visitor_approval_needed' && n.data?.visitorId) {
+      const visitorId = Number(n.data.visitorId);
+      if (!isNaN(visitorId) && visitorId > 0) {
+        setApprovalDialogVisitorId(visitorId);
+        return;
+      }
+    }
+
     let path = NAV_MAP[n.type];
     if (path && (n.type === 'complaint_comment_added' || n.type === 'complaint_created' || n.type === 'complaint_status_changed')) {
       const complaintId = n.data?.complaintId;
@@ -265,6 +222,42 @@ const NotificationBell = () => {
     }
     if (path) navigate(path);
   };
+
+  const handleApprovalDialogClose = useCallback(() => {
+    setApprovalDialogVisitorId(null);
+  }, []);
+
+  const handleApprovalDecision = useCallback(async (decision: 'Approve' | 'Reject') => {
+    const nextDecision = decision === 'Approve' ? 'Approved' : 'Rejected';
+
+    // Update action states for badge display
+    setActionStates((prev) => {
+      const next = { ...prev };
+      // Find the notification ID for this visitor
+      const matchingNotification = notifications.find(
+        (n) => n.type === 'visitor_approval_needed' && Number(n.data?.visitorId) === approvalDialogVisitorId
+      );
+      if (matchingNotification) {
+        next[matchingNotification.id] = nextDecision;
+        try {
+          localStorage.setItem('visitor_action_states', JSON.stringify(next));
+        } catch { /* ignore */ }
+      }
+      return next;
+    });
+
+    // Refresh the notifications list
+    try {
+      const [data, count] = await Promise.all([
+        notificationApi.getNotifications(1, 50),
+        notificationApi.getUnreadCount(),
+      ]);
+      setNotifications(data.items);
+      setUnreadCount(count);
+    } catch {
+      // silent
+    }
+  }, [notifications, approvalDialogVisitorId]);
 
   const handleClear = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -347,11 +340,7 @@ const NotificationBell = () => {
             {notifications.map((n) => {
               const Icon = iconFor(n.type);
               const isApprovalNotification = n.type === 'visitor_approval_needed';
-              const createdMs = new Date(n.createdAt).getTime();
-              const elapsedMs = now - createdMs;
-              const isExpired = elapsedMs > 10 * 60 * 1000;
               const decision = actionStates[n.id];
-              const bodyText = n.body?.toLowerCase() || '';
 
               return (
                 <div
@@ -381,43 +370,16 @@ const NotificationBell = () => {
                         {timeAgo(n.createdAt, now)}
                       </p>
 
-                      {/* Interactive Approval Actions inside Notification */}
-                      {isApprovalNotification && (
-                        <div className="mt-2" onClick={(e) => e.stopPropagation()}>
-                          {decision === 'Approved' || (n.isRead && !decision && !bodyText.includes('reject')) ? (
+                      {isApprovalNotification && decision && (
+                        <div className="mt-2">
+                          {decision === 'Approved' ? (
                             <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
                               ✓ Entry Approved
                             </span>
-                          ) : decision === 'Rejected' || (n.isRead && bodyText.includes('reject')) ? (
+                          ) : (
                             <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
                               ✕ Entry Rejected
                             </span>
-                          ) : isExpired ? (
-                            <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
-                              ⌛ Request Expired (10m limit passed)
-                            </span>
-                          ) : (
-                            <div className="d-flex align-items-center gap-2">
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-success fw-semibold px-3 py-1 d-inline-flex align-items-center gap-1 shadow-xs"
-                                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-                                onClick={(e) => handleVisitorDecision(n, 'Approve', e)}
-                              >
-                                <Check size={13} strokeWidth={2.5} />
-                                Approve Entry
-                              </button>
-
-                              <button
-                                type="button"
-                                className="btn btn-sm btn-outline-danger fw-semibold px-2.5 py-1 d-inline-flex align-items-center gap-1"
-                                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
-                                onClick={(e) => handleVisitorDecision(n, 'Reject', e)}
-                              >
-                                <X size={13} strokeWidth={2.5} />
-                                Reject
-                              </button>
-                            </div>
                           )}
                         </div>
                       )}
@@ -443,6 +405,15 @@ const NotificationBell = () => {
           </div>
         )}
       </div>
+
+      {/* Visitor Approval Dialog */}
+      {approvalDialogVisitorId && (
+        <VisitorApprovalDialog
+          visitorId={approvalDialogVisitorId}
+          onClose={handleApprovalDialogClose}
+          onDecision={handleApprovalDecision}
+        />
+      )}
     </div>
   );
 };

@@ -31,6 +31,7 @@ export interface Visitor {
   checkedInAt: string | null;
   checkedOutAt: string | null;
   loggedBySecurityId: number | null;
+  photoUploadedAt: string | null;
   createdAt: string;
   apartment?: VisitorApartment | null;
   resident?: VisitorResident | null;

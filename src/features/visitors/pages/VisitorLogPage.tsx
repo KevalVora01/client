@@ -58,7 +58,7 @@ const VisitorLogPage = () => {
     : [];
 
   return (
-    <div className="container-fluid p-3 p-md-4 max-w-100 mx-auto">
+    <div className="container-fluid p-3 p-md-4">
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
@@ -107,17 +107,39 @@ const VisitorLogPage = () => {
             {pendingVisitors.map((visitor) => (
               <div key={visitor.id} className="col">
                 <div className="bg-white rounded-3 p-3 shadow-xs h-100 d-flex flex-column justify-content-between" style={{ border: '1px solid #fde68a' }}>
-                  <div>
-                    <div className="d-flex align-items-center justify-content-between mb-2">
-                      <span className="fw-bold text-dark">{visitor.name}</span>
-                      <span className="badge bg-warning text-dark">Pending Approval</span>
+                  <div className="d-flex gap-3">
+                    {visitor.photoUrl ? (
+                      <img
+                        src={visitor.photoUrl}
+                        alt={visitor.name}
+                        className="rounded-2 flex-shrink-0 object-fit-cover border"
+                        style={{ width: '56px', height: '56px', borderColor: '#fde68a' }}
+                      />
+                    ) : (
+                      <div
+                        className="rounded-2 flex-shrink-0 d-flex align-items-center justify-content-center"
+                        style={{ width: '56px', height: '56px', backgroundColor: '#fef3c7' }}
+                      >
+                        <i className="bi bi-person-fill text-warning fs-5" />
+                      </div>
+                    )}
+                    <div className="flex-grow-1">
+                      <div className="d-flex align-items-center justify-content-between mb-2">
+                        <span className="fw-bold text-dark">{visitor.name}</span>
+                        <span className="badge bg-warning text-dark">Pending</span>
+                      </div>
+                      <p className="text-secondary small mb-1">
+                        <i className="bi bi-telephone me-1" /> {visitor.phone}
+                      </p>
+                      <p className="text-secondary small mb-2">
+                        <i className="bi bi-chat-text me-1" /> {visitor.purpose}
+                      </p>
+                      {visitor.apartment && (
+                        <span className="badge bg-light text-dark border border-light-subtle font-monospace" style={{ fontSize: '0.7rem' }}>
+                          {visitor.apartment.block}-{visitor.apartment.floorNumber}{visitor.apartment.unitNumber}
+                        </span>
+                      )}
                     </div>
-                    <p className="text-secondary small mb-1">
-                      <i className="bi bi-telephone me-1" /> {visitor.phone}
-                    </p>
-                    <p className="text-secondary small mb-2">
-                      <i className="bi bi-chat-text me-1" /> Purpose: {visitor.purpose}
-                    </p>
                   </div>
                   <div className="d-flex gap-2 mt-2">
                     <button

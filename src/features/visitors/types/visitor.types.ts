@@ -1,6 +1,6 @@
 import type { PaginatedResult } from '../../../types/pagination.types';
 
-export type VisitorStatus = 'Pending' | 'Approved' | 'Rejected' | 'CheckedIn' | 'CheckedOut';
+export type VisitorStatus = 'Pending' | 'Approved' | 'Rejected' | 'CheckedIn' | 'CheckedOut' | 'Cancelled';
 
 export interface VisitorResident {
   id: number;

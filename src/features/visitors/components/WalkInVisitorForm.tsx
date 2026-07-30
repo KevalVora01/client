@@ -87,7 +87,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
             setApartmentId(id);
             if (error) setError(null);
           }}
-          onlyVacant={false}
+          onlyOccupied={true}
         />
       </div>
 

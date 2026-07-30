@@ -9,11 +9,10 @@ interface UseVisitorsOptions {
 }
 
 export const useVisitors = (options: UseVisitorsOptions = {}) => {
-  const { userRole = 'resident', pageSize = 9 } = options;
+  const { userRole = 'resident', pageSize = 10 } = options;
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [statusFilter, setStatusFilter] = useState<VisitorStatus | 'ALL'>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -24,7 +23,6 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
   const fetchVisitors = useCallback(async () => {
     try {
       setLoading(true);
-      setError(null);
       const params: VisitorListParams = {
         pageNumber,
         pageSize,
@@ -36,13 +34,17 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
         ? await visitorApi.getMyVisitors(params)
         : await visitorApi.getAll(params);
 
-      setVisitors(result.items);
+      const LOGGED_STATUSES: VisitorStatus[] = ['CheckedOut', 'Cancelled', 'Rejected'];
+      const filteredItems = result.items.filter((v) =>
+        statusFilter === 'ALL' ? LOGGED_STATUSES.includes(v.status) : v.status === statusFilter
+      );
+
+      setVisitors(filteredItems);
       setTotalPages(result.totalPages || 1);
       setTotalCount(result.totalCount || result.items.length);
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { message?: string } } };
       const msg = axiosError?.response?.data?.message || 'Failed to fetch visitor logs';
-      setError(msg);
       showError(msg);
     } finally {
       setLoading(false);
@@ -55,7 +57,6 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
     const loadData = async () => {
       try {
         setLoading(true);
-        setError(null);
         const params: VisitorListParams = {
           pageNumber,
           pageSize,
@@ -68,7 +69,12 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
           : await visitorApi.getAll(params);
 
         if (isMounted) {
-          setVisitors(result.items);
+          const LOGGED_STATUSES: VisitorStatus[] = ['CheckedOut', 'Cancelled', 'Rejected'];
+          const filteredItems = result.items.filter((v) =>
+            statusFilter === 'ALL' ? LOGGED_STATUSES.includes(v.status) : v.status === statusFilter
+          );
+
+          setVisitors(filteredItems);
           setTotalPages(result.totalPages || 1);
           setTotalCount(result.totalCount || result.items.length);
         }
@@ -76,7 +82,6 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
         if (isMounted) {
           const axiosError = err as { response?: { data?: { message?: string } } };
           const msg = axiosError?.response?.data?.message || 'Failed to fetch visitor logs';
-          setError(msg);
           showError(msg);
         }
       } finally {
@@ -106,7 +111,6 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
   return {
     visitors,
     loading,
-    error,
     statusFilter,
     searchQuery,
     pageNumber,

@@ -24,7 +24,6 @@ const VisitorLogPage = () => {
   const {
     visitors,
     loading,
-    error,
     statusFilter,
     searchQuery,
     pageNumber,
@@ -145,19 +144,6 @@ const VisitorLogPage = () => {
         </div>
       )}
 
-      {/* ── Error Alert ── */}
-      {error && (
-        <div className="alert alert-danger rounded-3 d-flex align-items-center justify-content-between p-3 mb-4 shadow-sm" role="alert">
-          <div className="d-flex align-items-center gap-2">
-            <i className="bi bi-exclamation-triangle-fill text-danger fs-5" />
-            <span className="small font-medium">{error}</span>
-          </div>
-          <button type="button" className="btn btn-outline-danger btn-sm" onClick={handleRefresh}>
-            Retry
-          </button>
-        </div>
-      )}
-
       {/* ── Table Container Card (Matching Resident Page Layout) ── */}
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
         {/* Filters Header Block */}
@@ -198,15 +184,12 @@ const VisitorLogPage = () => {
             <div style={{ minWidth: '160px' }}>
               <Select
                 options={[
-                  { value: 'ALL', label: 'All Status' },
-                  { value: 'Pending', label: 'Pending' },
-                  { value: 'Approved', label: 'Approved' },
-                  { value: 'CheckedIn', label: 'Checked In' },
+                  { value: 'ALL', label: 'All Statuses' },
                   { value: 'CheckedOut', label: 'Checked Out' },
-                  { value: 'Rejected', label: 'Rejected' },
                   { value: 'Cancelled', label: 'Cancelled' },
+                  { value: 'Rejected', label: 'Rejected' },
                 ]}
-                placeholder="All Status"
+                placeholder="All Statuses"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter((e.target.value || 'ALL') as VisitorStatus | 'ALL')}
                 className="fw-medium text-secondary"

@@ -10,14 +10,28 @@ export const ApartmentType = {
 
 export type ApartmentType = typeof ApartmentType[keyof typeof ApartmentType];
 
+export interface ApartmentResident {
+  id: number;
+  isOwner: boolean;
+  moveInDate: string;
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+  };
+}
+
 export interface Apartment {
   id: number;
   block: string;
   floorNumber: number;
   unitNumber: string;
+  flateNumber?: string;
   areaSqft: number;
   type: ApartmentType;
   isOccupied: boolean;
+  resident?: ApartmentResident | null;
   createdAt: string;
 }
 
@@ -61,27 +75,14 @@ export interface ApartmentSelectOption {
   block: string;
 }
 
-export interface ApartmentResident {
-  id: number;
-  isOwner: boolean;
-  moveInDate: string;
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    phone: string;
-  };
+export interface FailedImportItem {
+  row: number;
+  data: Record<string, unknown>;
+  error: string;
 }
 
-export interface Apartment {
-  id: number;
-  block: string;
-  floorNumber: number;
-  unitNumber: string;
-  flateNumber: string;
-  areaSqft: number;
-  type: ApartmentType;
-  isOccupied: boolean;
-  resident?: ApartmentResident | null;
-  createdAt: string;
+export interface ImportApartmentResult {
+  successCount: number;
+  totalProcessed: number;
+  failedItems: FailedImportItem[];
 }

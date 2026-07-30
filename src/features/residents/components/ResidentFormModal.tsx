@@ -183,6 +183,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                         await formik.setFieldValue('apartmentId', id, true);
                         formik.setFieldTouched('apartmentId', true, true);
                       }}
+                      onlyVacant={true}
                       error={formik.touched.apartmentId && formik.errors.apartmentId
                         ? String(formik.errors.apartmentId)
                         : undefined}

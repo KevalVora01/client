@@ -8,16 +8,19 @@ interface ApartmentSelectProps {
   error?: string;
   currentApartmentId?: number;
   onlyVacant?: boolean;
+  onlyOccupied?: boolean;
 }
+
 const ApartmentSelect = ({
   value,
   onChange,
   onBlur,
   error,
   currentApartmentId,
-  onlyVacant = true,
+  onlyVacant = false,
+  onlyOccupied = false,
 }: ApartmentSelectProps) => {
-  const { apartments, loading } = useApartmentSelect(currentApartmentId, onlyVacant);
+  const { apartments, loading } = useApartmentSelect(currentApartmentId, onlyVacant, onlyOccupied);
 
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -33,9 +36,12 @@ const ApartmentSelect = ({
     if (!search.trim()) return apartments;
     const term = search.toLowerCase().replace(/\s+/g, '');
     return apartments.filter((apt) => {
-      const label = `${apt.block}${apt.floorNumber}${apt.unitNumber}`.toLowerCase();
-      const labelDash = `${apt.block}-${apt.floorNumber}${apt.unitNumber}`.toLowerCase();
-      return label.includes(term) || labelDash.includes(term);
+      const block = (apt.block || '').toLowerCase();
+      const floor = apt.floorNumber !== undefined ? String(apt.floorNumber).toLowerCase() : '';
+      const unit = (apt.unitNumber || '').toLowerCase();
+      const label = `${block}${floor}${unit}`;
+      const labelDash = `${block}-${floor}${unit}`;
+      return label.includes(term) || labelDash.includes(term) || unit.includes(term) || block.includes(term);
     });
   }, [apartments, search]);
 
@@ -75,7 +81,7 @@ const ApartmentSelect = ({
   };
 
   const handleToggle = () => {
-    if (loading || isEmpty) return;
+    if (loading) return;
     setIsOpen((prev) => !prev);
     setSearch("");
   };
@@ -92,15 +98,14 @@ const ApartmentSelect = ({
       <button
         type="button"
         onClick={handleToggle}
-        disabled={loading || isEmpty}
+        disabled={loading}
         className={`btn w-100 bg-white d-flex align-items-center justify-content-between px-3 border rounded-2 shadow-none text-start ${error ? "border-danger" : "border-light-subtle"
           }`}
         style={{
           height: "42px",
           boxShadow: isOpen ? "0 0 0 3px rgba(26, 31, 54, 0.15)" : "none",
           borderColor: isOpen ? "#a5b4fc" : "",
-          cursor: isEmpty ? "not-allowed" : "pointer",
-          pointerEvents: isEmpty ? "auto" : undefined
+          cursor: loading ? "wait" : "pointer",
         }}
       >
         <div className="d-flex flex-column min-w-0" style={{ gap: "1px" }}>
@@ -109,8 +114,6 @@ const ApartmentSelect = ({
               <span className="spinner-border spinner-border-sm me-2" role="status" />
               Loading units...
             </span>
-          ) : isEmpty ? (
-            <span className="text-muted small">No vacant apartments available</span>
           ) : selectedApartment ? (
             <>
               <span
@@ -124,7 +127,15 @@ const ApartmentSelect = ({
               </span>
             </>
           ) : (
-            <span className="text-muted" style={{ fontSize: "0.875rem" }}>Select apartment unit</span>
+            <span className="text-muted" style={{ fontSize: "0.875rem" }}>
+              {isEmpty
+                ? onlyOccupied
+                  ? "No occupied apartments available"
+                  : onlyVacant
+                  ? "No vacant apartments available"
+                  : "No apartments found"
+                : "Select apartment unit"}
+            </span>
           )}
         </div>
 
@@ -143,7 +154,7 @@ const ApartmentSelect = ({
       {isOpen && (
         <div
           className="position-absolute w-100 bg-white shadow-lg"
-          style={{ top: "calc(100% + 5px)", zIndex: 200, borderRadius: "0.75rem" }}
+          style={{ top: "calc(100% + 5px)", zIndex: 9999, borderRadius: "0.75rem" }}
         >
 
           {/* Search — exactly like apartment page filter */}
@@ -215,7 +226,7 @@ const ApartmentSelect = ({
         </p>
       )}
 
-      {isEmpty && (
+      {isEmpty && onlyVacant && (
         <p className="m-0 mt-1 d-flex align-items-center gap-1 px-2 py-1" style={{ fontSize: "0.75rem", color: '#92400e', backgroundColor: '#fef3c7', border: '1px solid #fde68a', borderRadius: '6px' }}>
           <i className="bi bi-exclamation-triangle" style={{ fontSize: '0.9rem' }} />
           All apartments are currently occupied. Please try again after some days.

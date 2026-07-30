@@ -3,7 +3,6 @@ import { useCurrentlyInside } from '../hooks/useCurrentlyInside';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import AppTable, { type TableColumn } from '../../../components/AppTable/AppTable';
 import Pagination from '../../../components/Pagination/Pagination';
-import VisitorStatusBadge from '../components/VisitorStatusBadge';
 import { getAvatarColor, getInitials } from '../../residents/components/residentTableHelpers';
 import type { Visitor } from '../types/visitor.types';
 
@@ -54,7 +53,7 @@ const CheckOutPage = () => {
     {
       key: 'name',
       label: 'Visitor Details',
-      width: '20%',
+      width: '25%',
       align: 'start',
       headerAlign: 'start',
       headerPaddingLeft: '1.25rem',
@@ -105,11 +104,11 @@ const CheckOutPage = () => {
     {
       key: 'purpose',
       label: 'Purpose',
-      width: '20%',
-      align: 'start',
-      headerAlign: 'start',
+      width: '25%',
+      align: 'center',
+      headerAlign: 'center',
       render: (v) => (
-        <p className="m-0 text-secondary small py-1" style={{ fontSize: '0.84rem', lineHeight: '1.45', wordBreak: 'break-word' }}>
+        <p className="m-0 text-secondary small py-1 text-center" style={{ fontSize: '0.84rem', lineHeight: '1.45', wordBreak: 'break-word' }}>
           {v.purpose || '—'}
         </p>
       ),
@@ -117,7 +116,7 @@ const CheckOutPage = () => {
     {
       key: 'checkedInAt',
       label: 'Checked In',
-      width: '20%',
+      width: '25%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -127,17 +126,9 @@ const CheckOutPage = () => {
       ),
     },
     {
-      key: 'status',
-      label: 'Status',
-      width: '20%',
-      align: 'center',
-      headerAlign: 'center',
-      render: (v) => <VisitorStatusBadge status={v.status} size="sm" />,
-    },
-    {
       key: 'action',
       label: 'Action',
-      width: '20%',
+      width: '25%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -169,64 +160,63 @@ const CheckOutPage = () => {
         </div>
       </div>
 
-      {/* ── Search Bar ── */}
-      <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100 mb-4">
-        <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
-          <div
-            className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
-            style={{ height: '46px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-          >
-            <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
-            <input
-              type="text"
-              className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
-              placeholder="Search by visitor name, phone, or vehicle..."
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setPageNumber(1);
-              }}
-              style={{ fontSize: '0.875rem', outline: 'none' }}
-            />
-            {search && (
-              <button
-                type="button"
-                className="btn btn-link p-0 text-secondary border-0 ms-2"
-                onClick={() => {
-                  setSearch('');
-                  setPageNumber(1);
-                }}
-                style={{ textDecoration: 'none' }}
+      {/* ── Table Card Container ── */}
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
+        {/* Card Header with Filter Controls */}
+        <div className="card-header bg-white border-bottom border-light-subtle p-3">
+          <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100">
+            <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
+              <div
+                className="d-flex align-items-center bg-white border rounded-2 px-3 text-secondary search-wrapper"
+                style={{ height: '46px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
               >
-                <i className="bi bi-x-circle-fill text-muted" style={{ fontSize: '0.9rem' }} />
-              </button>
-            )}
+                <i className="bi bi-search me-2 fs-6 text-muted" style={{ flexShrink: 0 }} />
+                <input
+                  type="text"
+                  className="w-100 border-0 p-0 shadow-none bg-transparent text-dark"
+                  placeholder="Search by visitor name, phone, or vehicle..."
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPageNumber(1);
+                  }}
+                  style={{ fontSize: '0.875rem', outline: 'none' }}
+                />
+                {search && (
+                  <button
+                    type="button"
+                    className="btn btn-link p-0 text-secondary border-0 ms-2"
+                    onClick={() => {
+                      setSearch('');
+                      setPageNumber(1);
+                    }}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <i className="bi bi-x-circle-fill text-muted" style={{ fontSize: '0.9rem' }} />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Table ── */}
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm p-3">
-        <div className="d-flex align-items-center justify-content-between mb-3">
-          <h6 className="fw-semibold mb-0" style={{ fontSize: '0.92rem', color: '#1a1f36' }}>
-            Currently Inside ({filteredVisitors.length})
-          </h6>
+        {/* Table Body */}
+        <div className="table-responsive">
+          <AppTable
+            columns={columns}
+            data={paginatedVisitors}
+            loading={loading}
+            rowKey={(v) => v.id}
+            minWidth="800px"
+            emptyTitle="No visitors currently inside"
+            emptySubtitle={search ? 'No currently inside visitors match your search query.' : 'Everyone who checked in has already checked out.'}
+            emptyIcon="bi-door-open"
+          />
         </div>
 
-        <AppTable
-          columns={columns}
-          data={paginatedVisitors}
-          loading={loading}
-          rowKey={(v) => v.id}
-          minWidth="800px"
-          emptyTitle="No visitors currently inside"
-          emptySubtitle={search ? 'No currently inside visitors match your search query.' : 'Everyone who checked in has already checked out.'}
-          emptyIcon="bi-door-open"
-        />
-
-        {/* ── Pagination inside Table Card ── */}
+        {/* Card Footer with Pagination */}
         {filteredVisitors.length > 0 && (
-          <div className="pt-3 mt-1">
+          <div className="card-footer bg-white border-top border-light-subtle p-3 d-flex justify-content-end">
             <Pagination
               pagination={{
                 pageNumber,

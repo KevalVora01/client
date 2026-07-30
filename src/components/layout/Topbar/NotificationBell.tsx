@@ -1,12 +1,31 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, FileText, MessageSquareWarning, Megaphone, ReceiptText, Clock, X, CheckCheck, UserPlus, XCircle, UserMinus } from 'lucide-react';
+import {
+  Bell,
+  FileText,
+  MessageSquareWarning,
+  Megaphone,
+  ReceiptText,
+  Clock,
+  X,
+  Check,
+  CheckCheck,
+  UserPlus,
+  XCircle,
+  UserMinus,
+  ShieldAlert,
+} from 'lucide-react';
 import { toast } from 'react-toastify';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
 import { notificationApi, type NotificationItem } from '../../../features/notifications/api/notificationApi';
+import { visitorApi } from '../../../features/visitors/api/visitorApi';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 
 const ICON_MAP: Record<string, typeof FileText> = {
+  visitor_approval_needed: ShieldAlert,
+  visitor_approval_timed_out: Clock,
+  visitor_checked_in: CheckCheck,
   complaint_status_changed: MessageSquareWarning,
   complaint_created: MessageSquareWarning,
   complaint_comment_added: MessageSquareWarning,
@@ -28,6 +47,9 @@ const ICON_MAP: Record<string, typeof FileText> = {
 };
 
 const CLASS_MAP: Record<string, string> = {
+  visitor_approval_needed: 'bg-primary-subtle text-primary',
+  visitor_approval_timed_out: 'bg-danger-subtle text-danger',
+  visitor_checked_in: 'bg-success-subtle text-success',
   complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
   complaint_created: 'bg-warning-subtle text-warning-emphasis',
   complaint_comment_added: 'bg-warning-subtle text-warning-emphasis',
@@ -49,6 +71,9 @@ const CLASS_MAP: Record<string, string> = {
 };
 
 const NAV_MAP: Record<string, string> = {
+  visitor_approval_needed: '/check-in',
+  visitor_approval_timed_out: '/visitors-log',
+  visitor_checked_in: '/check-out',
   complaint_status_changed: '/complaints',
   complaint_created: '/complaints',
   complaint_comment_added: '/complaints',
@@ -69,10 +94,9 @@ const NAV_MAP: Record<string, string> = {
   document_request_rejected: '/documents',
 };
 
-function timeAgo(dateStr: string): string {
-  const now = Date.now();
+function timeAgo(dateStr: string, nowMs: number): string {
   const then = new Date(dateStr).getTime();
-  const diff = now - then;
+  const diff = nowMs - then;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'Just now';
   if (mins < 60) return `${mins}m ago`;
@@ -88,8 +112,25 @@ const NotificationBell = () => {
   const socket = useSocket();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [now, setNow] = useState(() => Date.now());
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  
+  const [actionStates, setActionStates] = useState<Record<number, 'Approved' | 'Rejected'>>(() => {
+    try {
+      const saved = localStorage.getItem('visitor_action_states');
+      return saved ? JSON.parse(saved) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 10000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -151,6 +192,60 @@ const NotificationBell = () => {
     }
   };
 
+  const handleVisitorDecision = async (
+    n: NotificationItem,
+    decision: 'Approve' | 'Reject',
+    e: React.MouseEvent
+  ) => {
+    e.stopPropagation();
+    const visitorId = n.data?.visitorId;
+    if (!visitorId) return;
+
+    const nextDecision = decision === 'Approve' ? 'Approved' : 'Rejected';
+
+    // Instantly update UI (0ms latency)
+    setActionStates((prev) => ({ ...prev, [n.id]: nextDecision }));
+    setNotifications((prev) =>
+      prev.map((item) => (item.id === n.id ? { ...item, isRead: true } : item))
+    );
+
+    if (!n.isRead) {
+      setUnreadCount((c) => Math.max(0, c - 1));
+    }
+
+    // Persist to localStorage outside of state updater
+    try {
+      const saved = JSON.parse(localStorage.getItem('visitor_action_states') || '{}');
+      saved[n.id] = nextDecision;
+      localStorage.setItem('visitor_action_states', JSON.stringify(saved));
+    } catch {
+      // ignore
+    }
+
+    try {
+      await visitorApi.respond(Number(visitorId), decision);
+      toast.success(
+        decision === 'Approve' ? 'Visitor entry approved!' : 'Visitor entry rejected.'
+      );
+      await notificationApi.markAsRead([n.id]);
+    } catch (err: unknown) {
+      // Revert if API failed
+      setActionStates((prev) => {
+        const next = { ...prev };
+        delete next[n.id];
+        return next;
+      });
+      try {
+        const saved = JSON.parse(localStorage.getItem('visitor_action_states') || '{}');
+        delete saved[n.id];
+        localStorage.setItem('visitor_action_states', JSON.stringify(saved));
+      } catch {
+        // ignore
+      }
+      toast.error(getErrorMessage(err, `Failed to ${decision.toLowerCase()} visitor`));
+    }
+  };
+
   const handleNavigate = async (n: NotificationItem) => {
     if (!n.isRead) {
       setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
@@ -209,7 +304,7 @@ const NotificationBell = () => {
 
       <div
         className="dropdown-menu dropdown-menu-end shadow-lg border border-light-subtle p-0 mt-2 rounded-4 overflow-hidden"
-        style={{ width: '380px', maxWidth: 'calc(100vw - 32px)' }}
+        style={{ width: '400px', maxWidth: 'calc(100vw - 32px)' }}
       >
         {/* ── Header ── */}
         <div className="d-flex align-items-center justify-content-between px-4 py-3 bg-light border-bottom border-light-subtle">
@@ -248,13 +343,20 @@ const NotificationBell = () => {
             <p className="mb-0 text-muted" style={{ fontSize: '0.8rem' }}>We'll let you know when something arrives.</p>
           </div>
         ) : (
-          <div className="list-group list-group-flush" style={{ maxHeight: '380px', overflowY: 'auto' }}>
+          <div className="list-group list-group-flush" style={{ maxHeight: '420px', overflowY: 'auto' }}>
             {notifications.map((n) => {
               const Icon = iconFor(n.type);
+              const isApprovalNotification = n.type === 'visitor_approval_needed';
+              const createdMs = new Date(n.createdAt).getTime();
+              const elapsedMs = now - createdMs;
+              const isExpired = elapsedMs > 10 * 60 * 1000;
+              const decision = actionStates[n.id];
+              const bodyText = n.body?.toLowerCase() || '';
+
               return (
                 <div
                   key={n.id}
-                  className={`list-group-item list-group-item-action d-flex align-items-center justify-content-between border-0 border-bottom border-light-subtle px-4 py-3 ${!n.isRead ? 'bg-primary bg-opacity-10' : ''}`}
+                  className={`list-group-item list-group-item-action d-flex align-items-start justify-content-between border-0 border-bottom border-light-subtle px-3.5 py-3 ${!n.isRead ? 'bg-primary bg-opacity-10' : ''}`}
                 >
                   <div
                     className="d-flex align-items-start gap-3 flex-grow-1 min-w-0"
@@ -276,12 +378,53 @@ const NotificationBell = () => {
                         {n.body}
                       </p>
                       <p className="mb-0 text-muted" style={{ fontSize: '0.7rem', marginTop: '4px' }}>
-                        {timeAgo(n.createdAt)}
+                        {timeAgo(n.createdAt, now)}
                       </p>
+
+                      {/* Interactive Approval Actions inside Notification */}
+                      {isApprovalNotification && (
+                        <div className="mt-2" onClick={(e) => e.stopPropagation()}>
+                          {decision === 'Approved' || (n.isRead && !decision && !bodyText.includes('reject')) ? (
+                            <span className="badge bg-success-subtle text-success border border-success-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
+                              ✓ Entry Approved
+                            </span>
+                          ) : decision === 'Rejected' || (n.isRead && bodyText.includes('reject')) ? (
+                            <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
+                              ✕ Entry Rejected
+                            </span>
+                          ) : isExpired ? (
+                            <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2.5 py-1" style={{ fontSize: '0.72rem' }}>
+                              ⌛ Request Expired (10m limit passed)
+                            </span>
+                          ) : (
+                            <div className="d-flex align-items-center gap-2">
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-success fw-semibold px-3 py-1 d-inline-flex align-items-center gap-1 shadow-xs"
+                                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
+                                onClick={(e) => handleVisitorDecision(n, 'Approve', e)}
+                              >
+                                <Check size={13} strokeWidth={2.5} />
+                                Approve Entry
+                              </button>
+
+                              <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger fw-semibold px-2.5 py-1 d-inline-flex align-items-center gap-1"
+                                style={{ fontSize: '0.75rem', borderRadius: '6px' }}
+                                onClick={(e) => handleVisitorDecision(n, 'Reject', e)}
+                              >
+                                <X size={13} strokeWidth={2.5} />
+                                Reject
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  <div className="d-flex align-items-center gap-2 ps-3 flex-shrink-0">
+                  <div className="d-flex align-items-center gap-2 ps-2 flex-shrink-0">
                     {!n.isRead && (
                       <span className="bg-primary rounded-circle" style={{ width: '8px', height: '8px', display: 'inline-block', boxShadow: '0 0 6px rgba(13, 110, 253, 0.5)' }} />
                     )}

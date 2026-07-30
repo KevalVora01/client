@@ -6,15 +6,16 @@ import { showError } from '../../../utils/toast';
 interface UseVisitorsOptions {
   userRole?: 'admin' | 'resident' | 'security';
   pageSize?: number;
+  status?: VisitorStatus | 'ALL';
 }
 
 export const useVisitors = (options: UseVisitorsOptions = {}) => {
-  const { userRole = 'resident', pageSize = 10 } = options;
+  const { userRole = 'security', pageSize = 10, status: initialStatus } = options;
 
   const [visitors, setVisitors] = useState<Visitor[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [statusFilter, setStatusFilter] = useState<VisitorStatus | 'ALL'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<VisitorStatus | 'ALL'>(initialStatus ?? 'ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [pageNumber, setPageNumber] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);

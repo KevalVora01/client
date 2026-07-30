@@ -10,11 +10,6 @@ export const useVisitorSearch = () => {
   const [loading, setLoading] = useState(false);
 
   const search = useCallback(async (searchQuery: string) => {
-    if (searchQuery.trim().length < 2) {
-      setResults([]);
-      return;
-    }
-
     setLoading(true);
     try {
       const data = await visitorApi.searchByNameOrPhone(searchQuery.trim());
@@ -27,10 +22,6 @@ export const useVisitorSearch = () => {
   }, []);
 
   useEffect(() => {
-    if (query.trim() === '') {
-      return;
-    }
-
     let cancelled = false;
     const timer = setTimeout(async () => {
       setLoading(true);

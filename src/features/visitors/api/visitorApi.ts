@@ -78,10 +78,11 @@ export const visitorApi = {
   },
 
   searchByNameOrPhone: async (query: string): Promise<Visitor[]> => {
-    const response = await api.get('/visitors', { params: { search: query, status: 'Approved' } });
+    const response = await api.get('/visitors', { params: { search: query, isPreRegistered: true } });
     const body = response.data;
     const dataObj = body?.data?.data || body?.data || body;
-    return Array.isArray(dataObj?.items) ? dataObj.items : Array.isArray(dataObj) ? dataObj : [];
+    const items: Visitor[] = Array.isArray(dataObj?.items) ? dataObj.items : Array.isArray(dataObj) ? dataObj : [];
+    return items.filter((v) => v.isPreRegistered === true);
   },
 
   getDashboardMetrics: async (): Promise<VisitorDashboardMetrics> => {

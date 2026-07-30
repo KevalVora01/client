@@ -120,7 +120,7 @@ const ApartmentSelect = ({
                 className="fw-medium text-truncate"
                 style={{ fontSize: "0.875rem", color: "#1a1f36", lineHeight: 1.2 }}
               >
-                Unit {selectedApartment.block}-{selectedApartment.floorNumber}{selectedApartment.unitNumber}
+                {selectedApartment.block}-{selectedApartment.floorNumber}{selectedApartment.unitNumber}
               </span>
               <span className="text-muted" style={{ fontSize: "0.72rem", lineHeight: 1 }}>
                 Block {selectedApartment.block} • Floor {selectedApartment.floorNumber}
@@ -201,7 +201,7 @@ const ApartmentSelect = ({
                   >
                     <div>
                       <p className="fw-medium m-0" style={{ fontSize: "0.875rem", color: "#1a1f36", lineHeight: 1.2 }}>
-                        {highlightMatch(`Unit ${apt.block}-${apt.floorNumber}${apt.unitNumber}`, search)}
+                        {highlightMatch(`${apt.block}-${apt.floorNumber}${apt.unitNumber}`, search)}
                       </p>
                       <p className="text-muted m-0" style={{ fontSize: "0.75rem" }}>
                         {highlightMatch(`Block ${apt.block}, Floor ${apt.floorNumber}`, search)}

@@ -17,7 +17,8 @@ export const visitorApi = {
     vehicleNumber?: string;
   }): Promise<Visitor> => {
     const response = await api.post('/visitors/pre-register', payload);
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   logWalkIn: async (payload: LogWalkInPayload, photo?: File): Promise<Visitor> => {
@@ -32,22 +33,26 @@ export const visitorApi = {
     const response = await api.post('/visitors/walk-in', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   respond: async (visitorId: number, decision: 'Approve' | 'Reject'): Promise<Visitor> => {
     const response = await api.post(`/visitors/${visitorId}/respond`, { decision });
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   checkIn: async (visitorId: number): Promise<Visitor> => {
     const response = await api.patch(`/visitors/${visitorId}/check-in`);
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   checkOut: async (visitorId: number): Promise<Visitor> => {
     const response = await api.patch(`/visitors/${visitorId}/check-out`);
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   cancel: async (visitorId: number): Promise<void> => {
@@ -56,27 +61,33 @@ export const visitorApi = {
 
   getMyVisitors: async (params?: VisitorListParams): Promise<PaginatedVisitors> => {
     const response = await api.get('/visitors/my', { params });
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   getCurrentlyInside: async (): Promise<Visitor[]> => {
     const response = await api.get('/visitors/current');
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   getAll: async (params?: VisitorListParams): Promise<PaginatedVisitors> => {
     const response = await api.get('/visitors', { params });
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
   searchByNameOrPhone: async (query: string): Promise<Visitor[]> => {
     const response = await api.get('/visitors', { params: { search: query, status: 'Approved' } });
-    return response.data.data.items;
+    const body = response.data;
+    const dataObj = body?.data?.data || body?.data || body;
+    return Array.isArray(dataObj?.items) ? dataObj.items : Array.isArray(dataObj) ? dataObj : [];
   },
 
   getDashboardMetrics: async (): Promise<VisitorDashboardMetrics> => {
     const response = await api.get('/visitors/dashboard');
-    return response.data.data;
+    const body = response.data;
+    return body?.data?.data || body?.data || body;
   },
 
 };

@@ -8,6 +8,13 @@ export interface VisitorResident {
   apartmentId: number;
 }
 
+export interface VisitorApartment {
+  id: number;
+  block: string;
+  floorNumber: number;
+  unitNumber: string;
+}
+
 export interface Visitor {
   id: number;
   apartmentId: number;
@@ -25,6 +32,7 @@ export interface Visitor {
   checkedOutAt: string | null;
   loggedBySecurityId: number | null;
   createdAt: string;
+  apartment?: VisitorApartment | null;
   resident?: VisitorResident | null;
 }
 

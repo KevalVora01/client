@@ -38,13 +38,6 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
   visitors,
   loading,
   search = '',
-  isResident = false,
-  userRole = 'resident',
-  onApprove,
-  onReject,
-  onCancel,
-  onCheckIn,
-  onCheckOut,
 }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
@@ -52,7 +45,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'name',
       label: 'Visitor Details',
-      width: '16.66%',
+      width: '14.28%',
       align: 'start',
       headerAlign: 'start',
       headerPaddingLeft: '1.25rem',
@@ -103,9 +96,32 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
       },
     },
     {
+      key: 'apartment',
+      label: 'Apartment',
+      width: '14.28%',
+      align: 'center',
+      headerAlign: 'center',
+      render: (v) => {
+        const apt = v.apartment;
+        return (
+          <div className="d-flex justify-content-center py-1">
+            {apt ? (
+              <span className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
+                {apt.block}-{apt.floorNumber}{apt.unitNumber}
+              </span>
+            ) : (
+              <span className="text-secondary small fw-medium" style={{ fontSize: '0.825rem' }}>
+                #{v.apartmentId}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
       key: 'type',
       label: 'Type',
-      width: '16.66%',
+      width: '14.28%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -125,7 +141,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'purpose',
       label: 'Purpose',
-      width: '16.66%',
+      width: '14.28%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -137,7 +153,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'status',
       label: 'Status',
-      width: '16.66%',
+      width: '14.28%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -149,7 +165,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'checkIn',
       label: 'Check-In / Expected',
-      width: '16.66%',
+      width: '14.28%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (
@@ -169,7 +185,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
     {
       key: 'checkOut',
       label: 'Check-Out',
-      width: '16.66%',
+      width: '14.28%',
       align: 'center',
       headerAlign: 'center',
       render: (v) => (

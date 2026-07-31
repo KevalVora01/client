@@ -35,12 +35,7 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
         ? await visitorApi.getMyVisitors(params)
         : await visitorApi.getAll(params);
 
-      const LOGGED_STATUSES: VisitorStatus[] = ['CheckedOut', 'Cancelled', 'Rejected'];
-      const filteredItems = result.items.filter((v) =>
-        statusFilter === 'ALL' ? LOGGED_STATUSES.includes(v.status) : v.status === statusFilter
-      );
-
-      setVisitors(filteredItems);
+      setVisitors(result.items);
       setTotalPages(result.totalPages || 1);
       setTotalCount(result.totalCount || result.items.length);
     } catch (err: unknown) {
@@ -70,12 +65,7 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
           : await visitorApi.getAll(params);
 
         if (isMounted) {
-          const LOGGED_STATUSES: VisitorStatus[] = ['CheckedOut', 'Cancelled', 'Rejected'];
-          const filteredItems = result.items.filter((v) =>
-            statusFilter === 'ALL' ? LOGGED_STATUSES.includes(v.status) : v.status === statusFilter
-          );
-
-          setVisitors(filteredItems);
+          setVisitors(result.items);
           setTotalPages(result.totalPages || 1);
           setTotalCount(result.totalCount || result.items.length);
         }

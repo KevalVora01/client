@@ -1,4 +1,4 @@
-import { UserPlus, RefreshCw, Upload } from "lucide-react";
+import { UserPlus, Upload } from "lucide-react";
 import { useState } from "react";
 import { useResidentsPage } from "../hooks/useResidentsPage";
 import ResidentStatsCards from "../components/ResidentStatsCards";
@@ -27,6 +27,7 @@ const ResidentsPage = () => {
   } = useResidentsPage();
 
   const [promoting, setPromoting] = useState(false);
+  const [showPromoteConfirm, setShowPromoteConfirm] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
 
   const [showResultsModal, setShowResultsModal] = useState(false);
@@ -69,8 +70,8 @@ const ResidentsPage = () => {
         <div className="d-flex align-items-center gap-2 flex-wrap">
           <button
             type="button"
-            className="btn btn-outline-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-            onClick={handlePromoteOccupants}
+            className="btn btn-outline-primary fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2"
+            onClick={() => setShowPromoteConfirm(true)}
             disabled={promoting}
             style={{ fontSize: "0.875rem", borderRadius: "8px" }}
             title="Manually run the occupant promotion job (normally run by the hourly cron)"
@@ -78,7 +79,7 @@ const ResidentsPage = () => {
             {promoting ? (
               <span className="spinner-border spinner-border-sm" />
             ) : (
-              <RefreshCw size={16} strokeWidth={2} />
+              <i className="bi bi-arrow-repeat" />
             )}
             Run Occupant Promotion
           </button>
@@ -203,6 +204,22 @@ const ResidentsPage = () => {
             showSuccess(`Import finished. Successfully imported ${result.successCount} residents.`);
           }
         }}
+      />
+
+      {/* ── Promote Occupants Confirm ── */}
+      <ConfirmDialog
+        show={showPromoteConfirm}
+        title="Run Occupant Promotion"
+        message="Are you sure you want to run the occupant promotion job? This will promote pending tenant-to-owner transitions based on tenancy end dates."
+        confirmLabel="Run Job"
+        cancelLabel="Cancel"
+        variant="warning"
+        loading={promoting}
+        onConfirm={async () => {
+          setShowPromoteConfirm(false);
+          await handlePromoteOccupants();
+        }}
+        onCancel={() => setShowPromoteConfirm(false)}
       />
 
     </div>

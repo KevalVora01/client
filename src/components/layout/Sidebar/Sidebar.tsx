@@ -158,7 +158,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
           <div
             className="d-flex align-items-center gap-2 overflow-hidden"
             style={{ cursor: 'pointer' }}
-            onClick={() => navigate('/profile')}
+            onClick={() => { onClose?.(); navigate('/profile'); }}
           >
             <div
               className="flex-shrink-0 d-flex align-items-center justify-content-center fw-semibold"

@@ -345,7 +345,7 @@ const MaintenancePage = () => {
           </p>
         </div>
         {isAdmin && (
-          <div className="d-flex flex-column flex-sm-row gap-2 w-100 w-sm-auto">
+          <div className="d-flex flex-column flex-sm-row gap-2 flex-shrink-0">
             <button
               className="btn btn-outline-primary fw-medium d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2"
               onClick={() => setApplyPenaltiesConfirmOpen(true)}
@@ -615,11 +615,15 @@ const MaintenancePage = () => {
         variant="warning"
         loading={mutationLoading}
         onConfirm={async () => {
-          const success = await applyOverduePenalties();
-          if (success) {
+          const result = await applyOverduePenalties();
+          if (result) {
             setApplyPenaltiesConfirmOpen(false);
             refetchMetrics();
-            showSuccess("Overdue penalties applied successfully!");
+            showSuccess(
+              result.penaltiesApplied > 0
+                ? `Penalties applied — ${result.penaltiesApplied} invoice(s) penalized.`
+                : "Penalties applied — no new penalties."
+            );
           }
         }}
         onCancel={() => setApplyPenaltiesConfirmOpen(false)}

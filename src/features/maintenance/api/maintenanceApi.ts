@@ -66,8 +66,11 @@ export const maintenanceApi = {
     return response.data.data;
   },
 
-  applyPenalties: async (): Promise<void> => {
-    await api.post('/maintenance/invoices/apply-penalties');
+  applyPenalties: async (): Promise<{ penaltiesApplied: number; remindersSent: number }> => {
+    const response = await api.post('/maintenance/invoices/apply-penalties');
+    const body = response.data;
+    const data = body?.data?.data || body?.data || body;
+    return data ?? { penaltiesApplied: 0, remindersSent: 0 };
   },
 
 };

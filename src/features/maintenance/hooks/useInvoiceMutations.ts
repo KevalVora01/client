@@ -35,15 +35,15 @@ export const useInvoiceMutations = (onSuccess?: () => void) => {
     }
   };
 
-  const applyOverduePenalties = async (): Promise<boolean> => {
+  const applyOverduePenalties = async (): Promise<{ penaltiesApplied: number; remindersSent: number } | null> => {
     try {
       setLoading(true);
-      await maintenanceApi.applyPenalties();
+      const result = await maintenanceApi.applyPenalties();
       onSuccess?.();
-      return true;
+      return result;
     } catch (err: unknown) {
       showError(getErrorMessage(err, 'Failed to apply overdue penalties'));
-      return false;
+      return null;
     } finally {
       setLoading(false);
     }

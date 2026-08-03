@@ -26,20 +26,24 @@ const ImportResultsModal: React.FC<ImportResultsModalProps> = ({
   if (!show) return null;
 
   return (
-    <div className="modal show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1055 }}>
+    <div className="modal d-block bg-dark bg-opacity-50" tabIndex={-1} style={{ backdropFilter: "blur(4px)", zIndex: 1055 }}>
       <div className="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
           
           {/* Modal Header */}
-          <div className="modal-header border-bottom border-light p-3">
-            <h5 className="modal-title fw-bold text-dark d-flex align-items-center gap-2">
-              <i className="bi bi-file-earmark-spreadsheet-fill text-secondary" style={{ fontSize: '1.25rem' }} />
-              {title}
-            </h5>
+          <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
+            <div>
+              <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: "1rem", color: "#1a1f36" }}>
+                {title}
+              </h5>
+              <p className="text-muted m-0 small" style={{ fontSize: "0.8rem" }}>
+                Excel import summary and skipped record details.
+              </p>
+            </div>
             <button
               type="button"
               className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
-              style={{ top: 18, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={onClose}
               aria-label="Close"
             >
@@ -115,8 +119,13 @@ const ImportResultsModal: React.FC<ImportResultsModalProps> = ({
           </div>
 
           {/* Modal Footer */}
-          <div className="modal-footer border-top border-light p-3">
-            <button type="button" className="btn btn-dark fw-semibold px-4" onClick={onClose} style={{ borderRadius: '8px', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}>
+          <div className="modal-footer border-top border-light-subtle px-4 py-3">
+            <button
+              type="button"
+              className="btn btn-dark fw-medium px-4"
+              onClick={onClose}
+              style={{ height: "38px", fontSize: "0.875rem", borderRadius: "8px" }}
+            >
               Close
             </button>
           </div>

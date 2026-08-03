@@ -27,7 +27,13 @@ export const VisitorStatsRow: React.FC<VisitorStatsRowProps> = ({ metrics, loadi
     },
     {
       label: 'Avg Visit Duration',
-      value: `${metrics?.averageVisitDurationMinutes ?? 0} mins`,
+      value: (() => {
+        const mins = metrics?.averageVisitDurationMinutes ?? 0;
+        if (mins < 60) return `${mins}m`;
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m > 0 ? `${h}h ${m}m` : `${h}h`;
+      })(),
       subtext: 'Average stay duration',
       icon: Clock,
       bgClass: 'bg-info-subtle text-info',

@@ -51,9 +51,9 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
   useEffect(() => {
     let isMounted = true;
 
-    const loadData = async () => {
+    const loadData = async (silent = false) => {
       try {
-        setLoading(true);
+        if (!silent) setLoading(true);
         const params: VisitorListParams = {
           pageNumber,
           pageSize,
@@ -72,13 +72,13 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
           setTotalCount(result.totalCount || result.items.length);
         }
       } catch (err: unknown) {
-        if (isMounted) {
+        if (isMounted && !silent) {
           const axiosError = err as { response?: { data?: { message?: string } } };
           const msg = axiosError?.response?.data?.message || 'Failed to fetch visitor logs';
           showError(msg);
         }
       } finally {
-        if (isMounted) {
+        if (isMounted && !silent) {
           setLoading(false);
         }
       }
@@ -86,8 +86,19 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
 
     loadData();
 
+    const handleVisitorUpdate = () => loadData(true);
+    window.addEventListener('visitor-updated', handleVisitorUpdate);
+    window.addEventListener('focus', handleVisitorUpdate);
+
+    const pollInterval = setInterval(() => {
+      loadData(true);
+    }, 8000);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('visitor-updated', handleVisitorUpdate);
+      window.removeEventListener('focus', handleVisitorUpdate);
+      clearInterval(pollInterval);
     };
   }, [userRole, pageNumber, pageSize, statusFilter, searchQuery]);
 

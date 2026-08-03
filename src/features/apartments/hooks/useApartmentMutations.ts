@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { apartmentApi, type ImportResponse } from "../api/apartmentApi";
-import type { CreateApartmentPayload, UpdateApartmentPayload } from "../types/apartment.types";
+import { apartmentApi } from "../api/apartmentApi";
+import type { CreateApartmentPayload, UpdateApartmentPayload, ImportApartmentResult } from "../types/apartment.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { showError } from "../../../utils/toast";
 
@@ -37,7 +37,7 @@ export const useApartmentMutations = (onSuccess?: () => void) => {
     }
   };
 
-  const importApartments = async (file: File): Promise<ImportResponse | null> => {
+  const importApartments = async (file: File): Promise<ImportApartmentResult | null> => {
     try {
       setImportLoading(true);
       const res = await apartmentApi.importApartments(file);

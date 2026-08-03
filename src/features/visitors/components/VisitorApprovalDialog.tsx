@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { visitorApi } from '../api/visitorApi';
 import type { Visitor } from '../types/visitor.types';
-import { X, Phone, MapPin, Car, Clock, Check, User, ShieldAlert } from 'lucide-react';
+import { X, Phone, MapPin, Car, Clock, Check, User } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 
@@ -81,17 +81,29 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
 
   return (
     <>
-    <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', zIndex: 1070 }}>
+    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1070 }}>
       <div className="modal-dialog modal-dialog-centered modal-md">
-        <div className="modal-content border-0 rounded-3 shadow-lg overflow-hidden">
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
           {/* Header */}
-          <div className="modal-header border-0 px-4 py-3" style={{ backgroundColor: '#1a1f36' }}>
-            <div className="d-flex align-items-center gap-2">
-              <ShieldAlert size={20} className="text-white" />
-              <h5 className="modal-title fw-bold text-white fs-6 mb-0">Visitor at the Gate</h5>
+          <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
+            <div>
+              <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: '1rem', color: '#1a1f36' }}>
+                Visitor at the Gate
+              </h5>
+              <p className="text-muted m-0 small" style={{ fontSize: '0.8rem' }}>
+                Entry approval request for incoming guest.
+              </p>
             </div>
-            <button type="button" className="btn-close btn-close-white" onClick={onClose} />
+            <button
+              type="button"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+              onClick={onClose}
+              aria-label="Close"
+            >
+              <i className="bi bi-x" />
+            </button>
           </div>
 
           {/* Body */}
@@ -213,7 +225,7 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
 
           {/* Footer */}
           {!loading && visitor && !decision && (
-            <div className="modal-footer border-0 px-4 pb-4 pt-0 d-flex gap-2">
+            <div className="modal-footer border-top border-light-subtle px-4 py-3 d-flex gap-2">
               {isExpired ? (
                 <div className="text-center w-100">
                   <span className="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2" style={{ fontSize: '0.8rem' }}>
@@ -225,7 +237,7 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
                   <button
                     type="button"
                     className="btn btn-outline-danger fw-semibold py-2 d-inline-flex align-items-center justify-content-center gap-1.5 flex-grow-1"
-                    style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+                    style={{ height: "38px", borderRadius: "8px", fontSize: "0.875rem" }}
                     onClick={() => handleDecision('Reject')}
                     disabled={deciding}
                   >
@@ -233,8 +245,8 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
                   </button>
                   <button
                     type="button"
-                    className="btn btn-success fw-semibold py-2 d-inline-flex align-items-center justify-content-center gap-1.5 flex-grow-1"
-                    style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+                    className="btn btn-dark fw-medium py-2 d-inline-flex align-items-center justify-content-center gap-1.5 flex-grow-1"
+                    style={{ height: "38px", borderRadius: "8px", fontSize: "0.875rem" }}
                     onClick={() => handleDecision('Approve')}
                     disabled={deciding}
                   >

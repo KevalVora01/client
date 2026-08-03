@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useVisitorSearch } from '../hooks/useVisitorSearch';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import type { Visitor } from '../types/visitor.types';
-import { Search, UserCheck, X, Clock, Car, Phone, MapPin, CheckCircle2, User } from 'lucide-react';
-import { formatDate, formatDateOnly } from '../../../utils/formatDate';
+import { Search, UserCheck, X, Clock, Car, Phone, MapPin, User, Camera } from 'lucide-react';
+import { formatDateOnly } from '../../../utils/formatDate';
+import CheckInPhotoModal from './CheckInPhotoModal';
 
 interface VisitorLookupSearchProps {
-  onCheckIn?: (visitor: Visitor) => void;
+  onCheckIn?: (visitor: Visitor, photo?: File) => void | Promise<void>;
   onCheckInSuccess?: () => void;
   checkInLoading?: boolean;
 }
@@ -19,6 +20,7 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
   const { setQuery, results, loading, search } = useVisitorSearch();
   const { checkIn, actionId } = useVisitorMutations();
   const [localQuery, setLocalQuery] = useState('');
+  const [selectedVisitor, setSelectedVisitor] = useState<Visitor | null>(null);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,17 +38,24 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
     setQuery('');
   };
 
-  const handleVisitorCheckIn = async (visitor: Visitor) => {
+  const handleOpenCheckInModal = (visitor: Visitor) => {
+    setSelectedVisitor(visitor);
+  };
+
+  const handleConfirmCheckIn = async (visitorId: number, photo?: File) => {
+    if (!selectedVisitor) return;
     if (onCheckIn) {
-      await onCheckIn(visitor);
+      await onCheckIn(selectedVisitor, photo);
       search(localQuery);
+      setSelectedVisitor(null);
       return;
     }
 
-    const success = await checkIn(visitor.id);
+    const success = await checkIn(visitorId, photo);
     if (success) {
       search(localQuery);
       onCheckInSuccess?.();
+      setSelectedVisitor(null);
     }
   };
 
@@ -224,20 +233,20 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
                   <button
                     type="button"
                     disabled={checkInLoading || actionId === visitor.id}
-                    className="btn btn-sm fw-semibold px-3 py-2 d-inline-flex align-items-center gap-1.5 flex-shrink-0 rounded-2"
-                    onClick={() => handleVisitorCheckIn(visitor)}
+                    className="btn btn-sm fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 flex-shrink-0 rounded-2"
+                    onClick={() => handleOpenCheckInModal(visitor)}
                     style={{
                       backgroundColor: '#16a34a',
                       color: '#fff',
                       fontSize: '0.8rem',
-                      minWidth: '100px',
+                      minWidth: '105px',
                     }}
                   >
                     {checkInLoading && actionId === visitor.id ? (
                       <span className="spinner-border spinner-border-sm" role="status" />
                     ) : (
                       <>
-                        <CheckCircle2 size={14} />
+                        <Camera size={15} className="me-1.5" />
                         Check In
                       </>
                     )}
@@ -247,6 +256,16 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
             ))}
           </div>
         )}
+
+        {/* Photo Capture & Check-In Modal */}
+        <CheckInPhotoModal
+          show={selectedVisitor !== null}
+          visitor={selectedVisitor}
+          loading={checkInLoading || actionId === selectedVisitor?.id}
+          onClose={() => setSelectedVisitor(null)}
+          onConfirm={handleConfirmCheckIn}
+        />
+
       </div>
     </div>
   );

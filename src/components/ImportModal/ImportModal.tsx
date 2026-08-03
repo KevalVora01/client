@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { Download, UploadCloud, FileSpreadsheet, AlertCircle } from "lucide-react";
+import { Download, UploadCloud, FileSpreadsheet } from "lucide-react";
 import { useScrollLock } from "../../hooks/useScrollLock";
+import { showError } from "../../utils/toast";
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -25,7 +26,6 @@ export const ImportModal = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
@@ -43,7 +43,6 @@ export const ImportModal = ({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    setError(null);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
@@ -52,7 +51,6 @@ export const ImportModal = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
     if (e.target.files && e.target.files[0]) {
       validateAndSetFile(e.target.files[0]);
     }
@@ -61,7 +59,7 @@ export const ImportModal = ({
   const validateAndSetFile = (file: File) => {
     const ext = file.name.split(".").pop()?.toLowerCase();
     if (ext !== "xlsx" && ext !== "xls") {
-      setError("Please select a valid Excel spreadsheet file (.xlsx or .xls)");
+      showError("Please select a valid Excel spreadsheet file (.xlsx or .xls)");
       setSelectedFile(null);
       return;
     }
@@ -75,7 +73,7 @@ export const ImportModal = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
-      setError("Please select or drop a file to import");
+      showError("Please select or drop a file to import");
       return;
     }
     onUpload(selectedFile);
@@ -85,7 +83,6 @@ export const ImportModal = ({
 
   const clearSelection = () => {
     setSelectedFile(null);
-    setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -228,13 +225,6 @@ export const ImportModal = ({
                     </>
                   )}
                 </div>
-
-                {error && (
-                  <div className="alert alert-danger d-flex align-items-center gap-2 p-2 mt-3 mb-0 border-0 rounded-2" style={{ fontSize: "0.85rem" }}>
-                    <AlertCircle size={16} className="flex-shrink-0" />
-                    <span>{error}</span>
-                  </div>
-                )}
               </div>
             </div>
 

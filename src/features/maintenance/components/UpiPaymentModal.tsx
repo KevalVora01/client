@@ -17,6 +17,8 @@ export const UpiPaymentModal = ({
   onPaymentSuccess,
 }: UpiPaymentModalProps) => {
   const [utrNumber, setUtrNumber] = useState('');
+  const [utrError, setUtrError] = useState<string | null>(null);
+  const [utrTouched, setUtrTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -25,16 +27,19 @@ export const UpiPaymentModal = ({
     const utr = customUtr || utrNumber.trim();
 
     if (!utr) {
-      showError('Please enter a 12-digit UPI transaction UTR / Reference number.');
+      setUtrError('Please enter a 12-digit UPI transaction UTR / Reference number.');
+      setUtrTouched(true);
       return;
     }
 
     if (!/^\d{12}$/.test(utr)) {
-      showError('UPI UTR number must be exactly 12 digits.');
+      setUtrError('UPI UTR number must be broken down to exactly 12 digits.');
+      setUtrTouched(true);
       return;
     }
 
     setSubmitting(true);
+    setUtrError(null);
     try {
       await maintenanceApi.markInvoiceSettled(invoiceId, `UPI - ${utr}`);
       showSuccess('UPI Payment submitted and verified successfully!');
@@ -81,7 +86,7 @@ export const UpiPaymentModal = ({
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white overflow-hidden">
 
           {/* Modal Header */}
-          <div className="modal-header border-bottom border-light-subtle px-4 py-3 align-items-center justify-content-between text-start">
+          <div className="modal-header border-bottom border-light-subtle px-4 py-4 position-relative align-items-center justify-content-between text-start">
             <div className="d-flex align-items-center gap-3 text-start">
               <div
                 className="p-2 rounded-3 d-flex align-items-center justify-content-center text-dark"
@@ -98,11 +103,14 @@ export const UpiPaymentModal = ({
             </div>
             <button
               type="button"
-              className="btn-close ms-2"
+              className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={onClose}
-              aria-label="Close"
               disabled={submitting}
-            />
+              aria-label="Close"
+            >
+              <i className="bi bi-x" />
+            </button>
           </div>
 
           {/* Modal Body */}
@@ -256,20 +264,33 @@ export const UpiPaymentModal = ({
                   </span>
                 </div>
                 <div className="input-group">
-                  <span className="input-group-text bg-light text-secondary border-end-0" style={{ borderRadius: '8px 0 0 8px' }}>
+                  <span
+                    className={`input-group-text bg-light text-secondary border-end-0 ${utrTouched && utrError ? 'border-danger text-danger' : ''}`}
+                    style={{ borderRadius: '8px 0 0 8px', borderColor: utrTouched && utrError ? '#dc3545' : '#e5e7eb' }}
+                  >
                     <i className="bi bi-hash" />
                   </span>
                   <input
                     type="text"
-                    className="form-control border-start-0"
+                    className={`form-control border-start-0 shadow-none ${utrTouched && utrError ? 'is-invalid' : ''}`}
                     placeholder="e.g. 987654321098"
                     maxLength={12}
                     value={utrNumber}
-                    onChange={(e) => setUtrNumber(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setUtrNumber(val);
+                      if (utrTouched) setUtrError(val.length === 12 ? null : 'UPI UTR number must be exactly 12 digits.');
+                    }}
+                    onBlur={() => setUtrTouched(true)}
                     disabled={submitting}
-                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem' }}
+                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem', borderColor: utrTouched && utrError ? '#dc3545' : '#e5e7eb' }}
                   />
                 </div>
+                {utrTouched && utrError && (
+                  <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+                    {utrError}
+                  </div>
+                )}
               </div>
 
               <div className="d-flex gap-2 justify-content-end mt-4 pt-1">

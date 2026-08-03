@@ -21,7 +21,22 @@ export const visitorApi = {
     purpose: string;
     expectedAt: string;
     vehicleNumber?: string;
-  }): Promise<Visitor> => {
+  }, photo?: File): Promise<Visitor> => {
+    if (photo) {
+      const formData = new FormData();
+      formData.append('name', payload.name);
+      formData.append('phone', payload.phone);
+      formData.append('purpose', payload.purpose);
+      formData.append('expectedAt', payload.expectedAt);
+      if (payload.vehicleNumber) formData.append('vehicleNumber', payload.vehicleNumber);
+      formData.append('photo', photo);
+
+      const response = await api.post('/visitors/pre-register', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      const body = response.data;
+      return body?.data?.data || body?.data || body;
+    }
     const response = await api.post('/visitors/pre-register', payload);
     const body = response.data;
     return body?.data?.data || body?.data || body;

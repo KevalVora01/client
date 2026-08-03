@@ -17,12 +17,13 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [actionId, setActionId] = useState<number | null>(null);
 
-  const preRegister = useCallback(async (payload: PreRegisterPayload): Promise<Visitor | null> => {
+  const preRegister = useCallback(async (payload: PreRegisterPayload, photo?: File): Promise<Visitor | null> => {
     try {
       setSubmitting(true);
       setLoading(true);
-      const visitor = await visitorApi.preRegister(payload);
+      const visitor = await visitorApi.preRegister(payload, photo);
       showSuccess('Visitor pre-registered successfully!');
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return visitor;
     } catch (err: unknown) {
@@ -40,6 +41,7 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
       setLoading(true);
       await visitorApi.logWalkIn(payload, photo);
       showSuccess('Walk-in visitor logged successfully!');
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -57,6 +59,7 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
       setLoading(true);
       await visitorApi.respond(visitorId, decision);
       showSuccess(`Visitor entry request ${decision.toLowerCase()}d.`);
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -74,6 +77,7 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
       setLoading(true);
       await visitorApi.checkIn(visitorId, photo);
       showSuccess('Visitor checked in successfully.');
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -91,6 +95,7 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
       setLoading(true);
       await visitorApi.checkOut(visitorId);
       showSuccess('Visitor checked out successfully.');
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return true;
     } catch (err: unknown) {
@@ -108,6 +113,7 @@ export const useVisitorMutations = (onSuccess?: () => void) => {
       setLoading(true);
       await visitorApi.cancel(visitorId);
       showSuccess('Pre-registration cancelled successfully.');
+      window.dispatchEvent(new CustomEvent('visitor-updated'));
       onSuccess?.();
       return true;
     } catch (err: unknown) {

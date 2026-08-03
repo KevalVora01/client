@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { showError, showSuccess } from '../../../utils/toast';
 
 interface MaintenanceSettingsFormProps {
   currentAmount: number | undefined;
@@ -8,24 +9,19 @@ interface MaintenanceSettingsFormProps {
 
 const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: MaintenanceSettingsFormProps) => {
   const [amount, setAmount] = useState<string>(currentAmount !== undefined ? String(currentAmount) : '');
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
 
     const parsed = Number(amount);
     if (!parsed || parsed <= 0) {
-      setError('Amount must be greater than 0');
+      showError('Amount must be greater than 0');
       return;
     }
 
     const ok = await onSubmit(parsed);
     if (ok) {
-      setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
+      showSuccess('Saved');
     }
   };
 
@@ -56,11 +52,6 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
           'Save'
         )}
       </button>
-
-      <div className="d-flex align-items-center gap-2">
-        {error && <span className="text-danger" style={{ fontSize: '0.8rem' }}>{error}</span>}
-        {success && <span className="text-success" style={{ fontSize: '0.8rem' }}><i className="bi bi-check-circle me-1" />Saved</span>}
-      </div>
     </form>
   );
 };

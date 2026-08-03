@@ -25,21 +25,34 @@ export const useDashboardMetrics = (enabled: boolean = true) => {
     if (!enabled) return;
     let cancelled = false;
 
-    const load = async () => {
-      setLoading(true);
+    const load = async (silent = false) => {
+      if (!silent) setLoading(true);
       try {
         const data = await visitorApi.getDashboardMetrics();
         if (!cancelled) setMetrics(data);
       } catch (err: unknown) {
-        if (!cancelled) showError(getErrorMessage(err, 'Failed to fetch dashboard metrics'));
+        if (!cancelled && !silent) showError(getErrorMessage(err, 'Failed to fetch dashboard metrics'));
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && !silent) setLoading(false);
       }
     };
 
     load();
 
-    return () => { cancelled = true; };
+    const handleVisitorUpdate = () => load(true);
+    window.addEventListener('visitor-updated', handleVisitorUpdate);
+    window.addEventListener('focus', handleVisitorUpdate);
+
+    const pollInterval = setInterval(() => {
+      load(true);
+    }, 8000);
+
+    return () => {
+      cancelled = true;
+      window.removeEventListener('visitor-updated', handleVisitorUpdate);
+      window.removeEventListener('focus', handleVisitorUpdate);
+      clearInterval(pollInterval);
+    };
   }, [enabled]);
 
   return { metrics, loading, refetch: fetchMetrics };

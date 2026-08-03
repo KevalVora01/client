@@ -94,6 +94,7 @@ export const apartmentApi = {
 
     return {
       successCount: data?.successCount || 0,
+      failedCount: data?.failedItems?.length || data?.failedCount || 0,
       failedItems: data?.failedItems || [],
       totalProcessed: data?.totalProcessed || 0,
     };

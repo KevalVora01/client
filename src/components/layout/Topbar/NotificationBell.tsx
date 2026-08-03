@@ -14,7 +14,6 @@ import {
   UserMinus,
   ShieldAlert,
 } from 'lucide-react';
-import { toast } from 'react-toastify';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
 import { notificationApi, type NotificationItem } from '../../../features/notifications/api/notificationApi';
@@ -42,6 +41,7 @@ const ICON_MAP: Record<string, typeof FileText> = {
   document_request_approved: CheckCheck,
   document_request_uploaded: FileText,
   document_request_rejected: XCircle,
+  document_request_cancelled: XCircle,
 };
 
 const CLASS_MAP: Record<string, string> = {
@@ -66,6 +66,7 @@ const CLASS_MAP: Record<string, string> = {
   document_request_approved: 'bg-success-subtle text-success-emphasis',
   document_request_uploaded: 'bg-success-subtle text-success-emphasis',
   document_request_rejected: 'bg-danger-subtle text-danger-emphasis',
+  document_request_cancelled: 'bg-warning-subtle text-warning-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
@@ -90,6 +91,7 @@ const NAV_MAP: Record<string, string> = {
   document_request_approved: '/documents',
   document_request_uploaded: '/documents',
   document_request_rejected: '/documents',
+  document_request_cancelled: '/documents',
 };
 
 function timeAgo(dateStr: string, nowMs: number): string {
@@ -163,9 +165,6 @@ const NotificationBell = () => {
       const item = n as NotificationItem;
       setNotifications((prev) => [item, ...prev]);
       setUnreadCount((c) => c + 1);
-      if (item.type !== 'maintenance_payment_succeeded' && item.title !== 'Payment received' && item.title !== 'Payment Successful') {
-        toast.info(item.title);
-      }
     };
 
     socket.on('notification:new', handleNewNotification);

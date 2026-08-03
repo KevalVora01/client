@@ -2,6 +2,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import ApartmentSelect from '../../apartments/components/ApartmentSelect';
 import type { LogWalkInPayload } from '../types/visitor.types';
 import { Camera, RefreshCw, X } from 'lucide-react';
+import { showError } from '../../../utils/toast';
 
 interface WalkInVisitorFormProps {
   loading?: boolean;
@@ -17,7 +18,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   const [vehicleNumber, setVehicleNumber] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -31,7 +31,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
       streamRef.current = mediaStream;
       setCameraOpen(true);
     } catch {
-      setError('Unable to access camera. Please upload a photo instead.');
+      showError('Unable to access camera. Please upload a photo instead.');
     }
   }, []);
 
@@ -82,28 +82,27 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
     setPhotoPreview(null);
   };
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!apartmentId || apartmentId === 0) errs.apartmentId = 'Please select an apartment';
+    if (!name.trim() || name.trim().length < 2) errs.name = 'Visitor full name is required';
+    if (!phone.trim()) errs.phone = 'Phone number is required';
+    else if (phone.length !== 10 || !/^\d{10}$/.test(phone)) errs.phone = 'Phone must be exactly 10 digits';
+    if (!purpose.trim() || purpose.trim().length < 2) errs.purpose = 'Purpose of visit is required';
+    if (!photo) errs.photo = 'Visitor photo is required for security verification';
+    return errs;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
-    if (!apartmentId || apartmentId === 0) {
-      setError('Please select an apartment');
-      return;
-    }
-    if (name.trim().length < 2) {
-      setError('Visitor name is required');
-      return;
-    }
-    if (phone.trim().length !== 10) {
-      setError('Phone must be exactly 10 digits');
-      return;
-    }
-    if (purpose.trim().length < 2) {
-      setError('Purpose is required');
-      return;
-    }
-    if (!photo) {
-      setError('Visitor photo is required for security verification');
+    const errs = validate();
+    setTouched({ apartmentId: true, name: true, phone: true, purpose: true, photo: true });
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
       return;
     }
 
@@ -126,86 +125,117 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
       setPhoto(null);
       setPhotoPreview(null);
       setApartmentId(0);
+      setErrors({});
+      setTouched({});
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      {error && (
-        <div className="alert alert-danger py-2 px-3 mb-3" style={{ fontSize: '0.85rem', borderRadius: '8px' }}>
-          {error}
-        </div>
-      )}
-
+    <form onSubmit={handleSubmit} noValidate>
       {/* Apartment Select */}
       <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
+        <label className="form-label fw-medium text-secondary small mb-1">
           Apartment <span className="text-danger">*</span>
         </label>
         <ApartmentSelect
           value={apartmentId}
           onChange={(id) => {
             setApartmentId(id);
-            if (error) setError(null);
+            if (touched.apartmentId) setErrors(prev => ({ ...prev, apartmentId: id ? '' : 'Please select an apartment' }));
           }}
           onlyOccupied={true}
+          error={touched.apartmentId && errors.apartmentId ? errors.apartmentId : undefined}
         />
       </div>
 
       <div className="row g-3 mb-3">
         <div className="col-md-6">
-          <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Visitor Name</label>
+          <label className="form-label fw-medium text-secondary small mb-1">
+            Visitor Name <span className="text-danger">*</span>
+          </label>
           <input
             type="text"
-            className="form-control shadow-none"
+            className={`form-control shadow-none rounded-2 text-dark ${touched.name && errors.name ? 'is-invalid' : ''}`}
             placeholder="Enter visitor full name"
             value={name}
-            onChange={(e) => setName(e.target.value)}
-            style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+            onChange={(e) => {
+              setName(e.target.value);
+              if (touched.name) setErrors(prev => ({ ...prev, name: e.target.value.trim() ? '' : 'Visitor full name is required' }));
+            }}
+            onBlur={() => setTouched(prev => ({ ...prev, name: true }))}
+            style={{ fontSize: '0.875rem', borderColor: touched.name && errors.name ? '#dc3545' : '#e5e7eb' }}
           />
+          {touched.name && errors.name && (
+            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+              {errors.name}
+            </div>
+          )}
         </div>
         <div className="col-md-6">
-          <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Phone Number</label>
+          <label className="form-label fw-medium text-secondary small mb-1">
+            Phone Number <span className="text-danger">*</span>
+          </label>
           <input
             type="tel"
-            className="form-control shadow-none"
+            className={`form-control shadow-none rounded-2 text-dark ${touched.phone && errors.phone ? 'is-invalid' : ''}`}
             placeholder="Enter 10-digit mobile number"
             value={phone}
-            onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-            style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+              setPhone(val);
+              if (touched.phone) setErrors(prev => ({ ...prev, phone: val.length === 10 ? '' : 'Phone must be exactly 10 digits' }));
+            }}
+            onBlur={() => setTouched(prev => ({ ...prev, phone: true }))}
+            style={{ fontSize: '0.875rem', borderColor: touched.phone && errors.phone ? '#dc3545' : '#e5e7eb' }}
           />
+          {touched.phone && errors.phone && (
+            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+              {errors.phone}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Purpose of Visit</label>
-        <input
-          type="text"
-          className="form-control shadow-none"
-          placeholder="e.g. Delivery, Guest, Maintenance work"
-          value={purpose}
-          onChange={(e) => setPurpose(e.target.value)}
-          style={{ borderRadius: '8px', fontSize: '0.9rem' }}
-        />
-      </div>
-
-      <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
-          Vehicle Number <span className="text-secondary fw-normal">(optional)</span>
+        <label className="form-label fw-medium text-secondary small mb-1">
+          Purpose of Visit <span className="text-danger">*</span>
         </label>
         <input
           type="text"
-          className="form-control shadow-none"
+          className={`form-control shadow-none rounded-2 text-dark ${touched.purpose && errors.purpose ? 'is-invalid' : ''}`}
+          placeholder="e.g. Delivery, Guest, Maintenance work"
+          value={purpose}
+          onChange={(e) => {
+            setPurpose(e.target.value);
+            if (touched.purpose) setErrors(prev => ({ ...prev, purpose: e.target.value.trim() ? '' : 'Purpose of visit is required' }));
+          }}
+          onBlur={() => setTouched(prev => ({ ...prev, purpose: true }))}
+          style={{ fontSize: '0.875rem', borderColor: touched.purpose && errors.purpose ? '#dc3545' : '#e5e7eb' }}
+        />
+        {touched.purpose && errors.purpose && (
+          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+            {errors.purpose}
+          </div>
+        )}
+      </div>
+
+      <div className="mb-3">
+        <label className="form-label fw-medium text-secondary small mb-1">
+          Vehicle Number <span className="text-muted fw-normal">(optional)</span>
+        </label>
+        <input
+          type="text"
+          className="form-control shadow-none rounded-2 text-dark"
           placeholder="e.g. GJ-01-AB-1234"
           value={vehicleNumber}
           onChange={(e) => setVehicleNumber(e.target.value)}
-          style={{ borderRadius: '8px', fontSize: '0.9rem' }}
+          style={{ fontSize: '0.875rem', borderColor: '#e5e7eb' }}
         />
       </div>
 
       {/* Photo Capture Section */}
       <div className="mb-3">
-        <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
+        <label className="form-label fw-medium text-secondary small mb-1">
           Visitor Photo <span className="text-danger">*</span>
         </label>
 
@@ -297,6 +327,12 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
                 <X size={12} /> Remove
               </button>
             </div>
+          </div>
+        )}
+
+        {touched.photo && errors.photo && (
+          <div className="invalid-feedback d-block text-danger mt-2" style={{ fontSize: "0.8rem" }}>
+            {errors.photo}
           </div>
         )}
 

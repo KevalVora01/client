@@ -4,13 +4,14 @@ import { useVisitors } from '../hooks/useVisitors';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import WalkInVisitorForm from '../components/WalkInVisitorForm';
 import VisitorLookupSearch from '../components/VisitorLookupSearch';
+import CheckInPhotoModal from '../components/CheckInPhotoModal';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
 import type { LogWalkInPayload, Visitor } from '../types/visitor.types';
 import {
-  Plus, UserPlus, Clock, CheckCircle2, UserCheck, Check, X, XCircle,
-  ShieldCheck, BadgeCheck, Car, Phone, MapPin, User
+  Plus, UserPlus, Clock, UserCheck, Check, X, XCircle,
+  ShieldCheck, BadgeCheck, Car, Phone, MapPin, User, Camera
 } from 'lucide-react';
 import { visitorApi } from '../api/visitorApi';
 import { toast } from 'react-toastify';
@@ -33,6 +34,7 @@ const CheckInPage = () => {
   const [now, setNow] = useState(() => Date.now());
   const [activeTab, setActiveTab] = useState<'checkin' | 'queue' | 'denied'>('checkin');
   const [confirmAction, setConfirmAction] = useState<{ visitorId: number; decision: 'Approve' | 'Reject' } | null>(null);
+  const [selectedApprovedVisitor, setSelectedApprovedVisitor] = useState<Visitor | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -54,7 +56,7 @@ const CheckInPage = () => {
   const [walkInModalOpen, setWalkInModalOpen] = useState(false);
   const [optimisticDecisions, setOptimisticDecisions] = useState<Record<number, 'Approve' | 'Reject'>>({});
 
-  useScrollLock(walkInModalOpen || confirmAction !== null);
+  useScrollLock(walkInModalOpen || confirmAction !== null || selectedApprovedVisitor !== null);
 
   useEffect(() => {
     if (!socket) return;
@@ -75,8 +77,8 @@ const CheckInPage = () => {
     return logWalkIn(payload, photo);
   };
 
-  const handleCheckIn = async (visitor: Visitor) => {
-    await checkIn(visitor.id);
+  const handleCheckIn = async (visitor: Visitor, photo?: File) => {
+    await checkIn(visitor.id, photo);
   };
 
   const handleSecurityRespond = async (visitorId: number, decision: 'Approve' | 'Reject') => {
@@ -284,15 +286,15 @@ const CheckInPage = () => {
                               <button
                                 type="button"
                                 disabled={mutationLoading && actionId === visitor.id}
-                                className="btn btn-sm fw-semibold px-3 py-2 d-inline-flex align-items-center gap-1.5 flex-shrink-0 rounded-2"
-                                onClick={() => handleCheckIn(visitor)}
-                                style={{ backgroundColor: '#16a34a', color: '#fff', fontSize: '0.8rem', minWidth: '90px' }}
+                                className="btn btn-sm fw-semibold px-3 py-2 d-inline-flex align-items-center gap-2 flex-shrink-0 rounded-2"
+                                onClick={() => setSelectedApprovedVisitor(visitor)}
+                                style={{ backgroundColor: '#16a34a', color: '#fff', fontSize: '0.8rem', minWidth: '95px' }}
                               >
                                 {mutationLoading && actionId === visitor.id ? (
                                   <span className="spinner-border spinner-border-sm" role="status" />
                                 ) : (
                                   <>
-                                    <CheckCircle2 size={14} />
+                                    <Camera size={15} className="me-1.5" />
                                     Check In
                                   </>
                                 )}
@@ -596,21 +598,29 @@ const CheckInPage = () => {
 
       {/* ── Log Walk-In Visitor Modal ── */}
       {walkInModalOpen && (
-        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1050 }}>
+        <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1050 }}>
           <div className="modal-dialog modal-dialog-centered modal-lg">
-            <div className="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-              <div className="modal-header border-0 px-4 py-3" style={{ backgroundColor: '#1a1f36' }}>
-                <h5 className="modal-title fw-bold text-white fs-6 d-flex align-items-center gap-2 mb-0">
-                  <UserPlus size={20} />
-                  Log Walk-In Visitor
-                </h5>
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+              <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
+                <div>
+                  <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: '1rem', color: '#1a1f36' }}>
+                    Log Walk-In Visitor
+                  </h5>
+                  <p className="text-muted m-0 small" style={{ fontSize: '0.8rem' }}>
+                    Log an unregistered visitor and request apartment resident entry approval.
+                  </p>
+                </div>
                 <button
                   type="button"
-                  className="btn-close btn-close-white"
+                  className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+                  style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
                   onClick={() => setWalkInModalOpen(false)}
-                />
+                  aria-label="Close"
+                >
+                  <i className="bi bi-x" />
+                </button>
               </div>
-              <div className="modal-body p-4">
+              <div className="modal-body px-4 py-3">
                 <WalkInVisitorForm
                   loading={mutationLoading}
                   onCancel={() => setWalkInModalOpen(false)}
@@ -630,6 +640,20 @@ const CheckInPage = () => {
           </div>
         </div>
       )}
+
+      {/* ── Check-In Photo Capture Modal for Approved Visitors ── */}
+      <CheckInPhotoModal
+        show={selectedApprovedVisitor !== null}
+        visitor={selectedApprovedVisitor}
+        loading={mutationLoading && actionId === selectedApprovedVisitor?.id}
+        onClose={() => setSelectedApprovedVisitor(null)}
+        onConfirm={async (_visitorId, photo) => {
+          if (selectedApprovedVisitor) {
+            await handleCheckIn(selectedApprovedVisitor, photo);
+            setSelectedApprovedVisitor(null);
+          }
+        }}
+      />
 
     </div>
   );

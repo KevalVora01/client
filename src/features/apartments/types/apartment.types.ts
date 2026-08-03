@@ -83,6 +83,7 @@ export interface FailedImportItem {
 
 export interface ImportApartmentResult {
   successCount: number;
+  failedCount: number;
   totalProcessed: number;
   failedItems: FailedImportItem[];
 }

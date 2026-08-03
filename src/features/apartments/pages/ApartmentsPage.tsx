@@ -139,7 +139,15 @@ const ApartmentsPage = () => {
         onUpload={async (file) => {
           const result = await importApartments(file);
           if (result) {
-            setImportResults(result);
+            setImportResults({
+              successCount: result.successCount,
+              failedCount: result.failedCount,
+              failedItems: result.failedItems.map((item) => ({
+                row: item.row,
+                identifier: `Row ${item.row}`,
+                reason: item.error,
+              })),
+            });
             setShowResultsModal(true);
             showSuccess(`Import finished. Successfully imported ${result.successCount} apartments.`);
           }

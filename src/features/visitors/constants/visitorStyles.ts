@@ -6,4 +6,5 @@ export const STATUS_CONFIG: Record<VisitorStatus, { bg: string; color: string; i
   'Rejected': { bg: '#fee2e2', color: '#991b1b', icon: 'bi-x-circle' },
   'CheckedIn': { bg: '#d1fae5', color: '#065f46', icon: 'bi-box-arrow-in-right' },
   'CheckedOut': { bg: '#f3f4f6', color: '#4b5563', icon: 'bi-box-arrow-right' },
+  'Cancelled': { bg: '#f3f4f6', color: '#6b7280', icon: 'bi-slash-circle' },
 };

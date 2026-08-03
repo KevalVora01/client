@@ -205,12 +205,24 @@ const VisitorLogPage = () => {
             {/* Status Filter Select Component */}
             <div style={{ minWidth: '160px' }}>
               <Select
-                options={[
-                  { value: 'ALL', label: 'All Statuses' },
-                  { value: 'CheckedOut', label: 'Checked Out' },
-                  { value: 'Cancelled', label: 'Cancelled' },
-                  { value: 'Rejected', label: 'Rejected' },
-                ]}
+                options={
+                  role === 'resident'
+                    ? [
+                        { value: 'ALL', label: 'All Statuses' },
+                        { value: 'Pending', label: 'Pending' },
+                        { value: 'Approved', label: 'Approved' },
+                        { value: 'Rejected', label: 'Rejected' },
+                        { value: 'CheckedIn', label: 'Checked In' },
+                        { value: 'CheckedOut', label: 'Checked Out' },
+                        { value: 'Cancelled', label: 'Cancelled' },
+                      ]
+                    : [
+                        { value: 'ALL', label: 'All Statuses' },
+                        { value: 'CheckedOut', label: 'Checked Out' },
+                        { value: 'Cancelled', label: 'Cancelled' },
+                        { value: 'Rejected', label: 'Rejected' },
+                      ]
+                }
                 placeholder="All Statuses"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter((e.target.value || 'ALL') as VisitorStatus | 'ALL')}

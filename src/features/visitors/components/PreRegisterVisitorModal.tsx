@@ -35,7 +35,14 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
       return;
     }
     if (!expectedAt) {
-      showError('Expected arrival date and time is required');
+      showError('Expected arrival date is required');
+      return;
+    }
+    const selectedDate = new Date(expectedAt + 'T00:00:00');
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (selectedDate < today) {
+      showError('Expected arrival date cannot be in the past');
       return;
     }
 
@@ -45,7 +52,7 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
         name: name.trim(),
         phone: phone.trim(),
         purpose: purpose.trim(),
-        expectedAt: new Date(expectedAt).toISOString(),
+        expectedAt: new Date(expectedAt + 'T00:00:00').toISOString(),
         vehicleNumber: vehicleNumber.trim() || undefined,
       });
 
@@ -176,19 +183,20 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                 )}
               </div>
 
-              {/* Expected Date & Time */}
+              {/* Expected Date */}
               <div className="mb-3">
                 <label className="form-label fw-semibold small text-dark">
-                  Expected Date & Time <span className="text-danger">*</span>
+                  Expected Date <span className="text-danger">*</span>
                 </label>
                 <div className="input-group">
                   <span className="input-group-text bg-light border-end-0">
                     <Calendar size={18} className="text-secondary" />
                   </span>
                   <input
-                    type="datetime-local"
+                    type="date"
                     className="form-control border-start-0"
                     value={expectedAt}
+                    min={new Date().toISOString().slice(0, 10)}
                     onChange={(e) => setExpectedAt(e.target.value)}
                     required
                   />
@@ -227,13 +235,19 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
               </div>
             </div>
 
-            <div className="modal-footer bg-light border-top px-4 py-3">
-              <button type="button" className="btn btn-outline-secondary rounded-2 px-3" onClick={onClose}>
+            <div className="modal-footer bg-light-subtle border-top border-light-subtle px-4 py-3 d-flex gap-2 justify-content-end">
+              <button
+                type="button"
+                className="btn btn-light border px-4 py-2 small fw-medium"
+                style={{ borderRadius: "8px", fontSize: "0.875rem" }}
+                onClick={onClose}
+              >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn btn-primary rounded-2 px-4 d-flex align-items-center gap-2 fw-semibold"
+                className="btn btn-primary px-4 py-2 small fw-semibold d-inline-flex align-items-center gap-2"
+                style={{ borderRadius: "8px", fontSize: "0.875rem" }}
                 disabled={submitting}
               >
                 {submitting ? (

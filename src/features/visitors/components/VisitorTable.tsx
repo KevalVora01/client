@@ -34,10 +34,26 @@ const formatDateTime = (dateStr: string | null) => {
   }
 };
 
+const formatDateOnly = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
 const VisitorTable: React.FC<VisitorTableProps> = ({
   visitors,
   loading,
   search = '',
+  isResident,
+  onCancel,
 }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
@@ -174,7 +190,7 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
             {v.checkedInAt ? (
               <span className="text-dark">{formatDateTime(v.checkedInAt)}</span>
             ) : v.expectedAt ? (
-              <span className="text-primary">Exp: {formatDateTime(v.expectedAt)}</span>
+              <span className="text-primary">Exp: {formatDateOnly(v.expectedAt)}</span>
             ) : (
               '—'
             )}
@@ -196,6 +212,27 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
         </div>
       ),
     },
+    ...(isResident
+      ? [{
+          key: 'actions',
+          label: '',
+          width: '6%',
+          align: 'center' as const,
+          headerAlign: 'center' as const,
+          render: (v: Visitor) =>
+            v.isPreRegistered && v.status !== 'CheckedIn' && v.status !== 'CheckedOut' && v.status !== 'Cancelled' && onCancel ? (
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-danger px-2 py-1 fw-semibold d-inline-flex align-items-center gap-1 rounded-2"
+                onClick={() => onCancel(v.id)}
+                style={{ fontSize: '0.78rem' }}
+                title="Cancel pre-registration"
+              >
+                <i className="bi bi-x-lg" />
+              </button>
+            ) : null,
+        }]
+      : []),
   ];
 
   return (

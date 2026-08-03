@@ -29,6 +29,7 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
         pageSize,
         status: statusFilter === 'ALL' ? undefined : statusFilter,
         search: searchQuery.trim() || undefined,
+        loggedOnly: statusFilter === 'ALL' && userRole !== 'resident' ? true : undefined,
       };
 
       const result = userRole === 'resident'
@@ -58,6 +59,7 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
           pageSize,
           status: statusFilter === 'ALL' ? undefined : statusFilter,
           search: searchQuery.trim() || undefined,
+          loggedOnly: statusFilter === 'ALL' && userRole !== 'resident' ? true : undefined,
         };
 
         const result = userRole === 'resident'

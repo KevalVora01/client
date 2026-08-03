@@ -43,6 +43,20 @@ const formatDateTime = (dateStr: string | null) => {
   }
 };
 
+const formatDateOnly = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
 const timeAgo = (dateStr: string) => {
   if (!dateStr) return '';
   try {
@@ -266,7 +280,7 @@ const VisitorAccordionList: React.FC<VisitorAccordionListProps> = ({
                           <i className="bi bi-calendar-event text-primary me-1" /> Expected / Check-In
                         </div>
                         <span className="fw-bold text-dark d-block" style={{ fontSize: '0.8rem' }}>
-                          {v.checkedInAt ? formatDateTime(v.checkedInAt) : v.expectedAt ? formatDateTime(v.expectedAt) : '—'}
+                          {v.checkedInAt ? formatDateTime(v.checkedInAt) : v.expectedAt ? formatDateOnly(v.expectedAt) : '—'}
                         </span>
                       </div>
                     </div>

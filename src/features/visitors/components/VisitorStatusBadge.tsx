@@ -13,6 +13,7 @@ const STATUS_LABELS: Record<VisitorStatus, string> = {
   Rejected: 'Rejected',
   CheckedIn: 'Checked In',
   CheckedOut: 'Checked Out',
+  Cancelled: 'Cancelled',
 };
 
 export const VisitorStatusBadge: React.FC<VisitorStatusBadgeProps> = ({ status, size = 'md' }) => {

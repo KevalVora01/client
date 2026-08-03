@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Notice } from '../types/notice.types';
 import { useNoticeStore } from '../hooks/useNoticeStore';
 
@@ -21,6 +21,18 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
   const badge = CATEGORY_BADGE[notice.category] ?? CATEGORY_BADGE.General;
   const [showMenu, setShowMenu] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showMenu]);
 
   const { filters } = useNoticeStore();
   const searchVal = filters.search ?? '';
@@ -72,7 +84,7 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
           {notice.category}
         </span>
         {!readOnly && (
-          <div className="position-relative">
+          <div className="position-relative" ref={menuRef}>
             <button
               className="btn btn-sm btn-outline-secondary border-0 p-1"
               onClick={() => setShowMenu(!showMenu)}

@@ -3,7 +3,7 @@ import { useVisitorSearch } from '../hooks/useVisitorSearch';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import type { Visitor } from '../types/visitor.types';
 import { Search, UserCheck, X, Clock, Car, Phone, MapPin, CheckCircle2, User } from 'lucide-react';
-import { formatDate } from '../../../utils/formatDate';
+import { formatDate, formatDateOnly } from '../../../utils/formatDate';
 
 interface VisitorLookupSearchProps {
   onCheckIn?: (visitor: Visitor) => void;
@@ -215,7 +215,7 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
                     </div>
                     {visitor.expectedAt && (
                       <div className="mt-1 d-inline-flex align-items-center gap-1 text-muted" style={{ fontSize: '0.7rem' }}>
-                        <Clock size={10} /> Expected: {formatDate(visitor.expectedAt)}
+                        <Clock size={10} /> Expected: {formatDateOnly(visitor.expectedAt)}
                       </div>
                     )}
                   </div>

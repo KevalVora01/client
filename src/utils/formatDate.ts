@@ -15,3 +15,18 @@ export const formatDate = (dateInput?: string | Date | null): string => {
     return String(dateInput);
   }
 };
+
+export const formatDateOnly = (dateInput?: string | Date | null): string => {
+  if (!dateInput) return '';
+  try {
+    const d = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+    if (isNaN(d.getTime())) return String(dateInput);
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(d);
+  } catch {
+    return String(dateInput);
+  }
+};

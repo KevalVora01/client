@@ -45,6 +45,20 @@ const formatDateTime = (dateStr: string | null) => {
   }
 };
 
+const formatDateOnly = (dateStr: string | null) => {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+};
+
 const timeAgo = (dateStr: string) => {
   if (!dateStr) return '';
   try {
@@ -205,7 +219,7 @@ const VisitorCardGrid: React.FC<VisitorCardGridProps> = ({
                       <div className="p-2 bg-white rounded-2 border border-light-subtle h-100 d-flex flex-column justify-content-center">
                         <span className="text-muted d-block text-uppercase fw-semibold mb-0.5" style={{ fontSize: '0.6rem', letterSpacing: '0.03em' }}>Expected</span>
                         <span className="fw-semibold text-dark d-block" style={{ fontSize: '0.74rem', lineHeight: '1.25', wordBreak: 'break-word' }}>
-                          {formatDateTime(v.expectedAt)}
+                          {formatDateOnly(v.expectedAt)}
                         </span>
                       </div>
                     </div>

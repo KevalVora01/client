@@ -134,7 +134,7 @@ const LoginPage = () => {
                     e.target.style.borderColor = "#e5e7eb";
                     e.target.style.boxShadow = "none";
                   }}
-                />
+                />  
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}

@@ -2,7 +2,7 @@ import React from 'react';
 import type { Visitor } from '../types/visitor.types';
 import VisitorStatusBadge from './VisitorStatusBadge';
 import { User, Phone, Car, Tag, Calendar, Check, X, LogIn, LogOut, Trash2 } from 'lucide-react';
-import { formatDate } from '../../../utils/formatDate';
+import { formatDate, formatDateOnly } from '../../../utils/formatDate';
 import type { UserRole } from '../../auth/types/auth.types';
 
 export interface VisitorCardProps {
@@ -122,7 +122,7 @@ export const VisitorCard: React.FC<VisitorCardProps> = ({
                 </span>
                 <div className="text-dark d-flex align-items-center gap-1.5">
                   <Calendar size={14} className="text-secondary flex-shrink-0" />
-                  <span>{formatDate(visitor.expectedAt)}</span>
+                  <span>{formatDateOnly(visitor.expectedAt)}</span>
                 </div>
               </div>
             )}

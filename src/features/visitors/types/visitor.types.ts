@@ -51,6 +51,7 @@ export interface VisitorListParams {
   status?: VisitorStatus;
   apartmentId?: number;
   search?: string;
+  loggedOnly?: boolean;
 }
 
 export interface VisitorDashboardMetrics {

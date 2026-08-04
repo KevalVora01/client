@@ -27,6 +27,7 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingNotice, setEditingNotice] = useState<Notice | null>(null);
   const [deletingNotice, setDeletingNotice] = useState<Notice | null>(null);
+  const [expandedNoticeId, setExpandedNoticeId] = useState<number | null>(null);
 
   useScrollLock(modalOpen);
 
@@ -102,6 +103,8 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
                   onEdit={openEditModal}
                   onTogglePin={(n) => togglePin(n.id)}
                   readOnly={readOnly}
+                  isExpanded={expandedNoticeId === notice.id}
+                  onToggleExpand={() => setExpandedNoticeId(expandedNoticeId === notice.id ? null : notice.id)}
                 />
               </div>
             ))}
@@ -124,6 +127,8 @@ const NoticesPage = ({ readOnly: readOnlyProp }: NoticesPageProps) => {
                   onDelete={(n) => setDeletingNotice(n)}
                   onTogglePin={(n) => togglePin(n.id)}
                   readOnly={readOnly}
+                  isExpanded={expandedNoticeId === notice.id}
+                  onToggleExpand={() => setExpandedNoticeId(expandedNoticeId === notice.id ? null : notice.id)}
                 />
               </div>
             ))}

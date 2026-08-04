@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { Notice } from '../types/notice.types';
 import { useNoticeStore } from '../hooks/useNoticeStore';
 
@@ -15,13 +16,27 @@ interface PinnedNoticeCardProps {
   onDelete?: (notice: Notice) => void;
   onTogglePin: (notice: Notice) => void;
   readOnly: boolean;
+  isExpanded?: boolean;
+  onToggleExpand?: () => void;
 }
 
-const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: PinnedNoticeCardProps) => {
+const PinnedNoticeCard = ({
+  notice,
+  onEdit,
+  onDelete,
+  onTogglePin,
+  readOnly,
+  isExpanded,
+  onToggleExpand,
+}: PinnedNoticeCardProps) => {
   const badge = CATEGORY_BADGE[notice.category] ?? CATEGORY_BADGE.General;
   const [showMenu, setShowMenu] = useState(false);
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setInternalExpanded] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const expanded = isExpanded !== undefined ? isExpanded : internalExpanded;
+  const handleToggleExpand = onToggleExpand ?? (() => setInternalExpanded(!internalExpanded));
 
   useEffect(() => {
     if (!showMenu) return;
@@ -33,6 +48,17 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showMenu]);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleToggleExpand();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [expanded, handleToggleExpand]);
 
   const { filters } = useNoticeStore();
   const searchVal = filters.search ?? '';
@@ -69,100 +95,159 @@ const PinnedNoticeCard = ({ notice, onEdit, onDelete, onTogglePin, readOnly }: P
     new Date(dateStr).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <div
-      className="p-3 rounded-3 shadow-sm"
-      style={{
-        border: '1px solid #e5e7eb',
-        background: '#fff',
-      }}
-    >
-      <div className="d-flex align-items-start justify-content-between mb-2">
-        <span
-          className="fw-medium"
-          style={{ background: badge.bg, color: badge.color, fontSize: '0.72rem', padding: '3px 10px', borderRadius: '20px' }}
-        >
-          {notice.category}
-        </span>
-        {!readOnly && (
-          <div className="position-relative" ref={menuRef}>
-            <button
-              className="btn btn-sm btn-outline-secondary border-0 p-1"
-              onClick={() => setShowMenu(!showMenu)}
-              style={{ borderRadius: '6px' }}
-            >
-              <i className="bi bi-three-dots-vertical" style={{ fontSize: '1.1rem' }} />
-            </button>
-            {showMenu && (
-              <div
-                className="position-absolute bg-white rounded-3 border border-light-subtle shadow-sm p-1"
-                style={{ right: 0, top: '110%', minWidth: 140, zIndex: 100 }}
+    <>
+      {/* ── Normal In-Flow Card ── */}
+      <div
+        className="p-3 rounded-3 shadow-sm bg-white"
+        style={{ border: '1px solid #e5e7eb' }}
+      >
+        <div className="d-flex align-items-start justify-content-between mb-2">
+          <span
+            className="fw-medium"
+            style={{ background: badge.bg, color: badge.color, fontSize: '0.72rem', padding: '3px 10px', borderRadius: '20px' }}
+          >
+            {notice.category}
+          </span>
+          {!readOnly && (
+            <div className="position-relative" ref={menuRef}>
+              <button
+                className="btn btn-sm btn-outline-secondary border-0 p-1"
+                onClick={() => setShowMenu(!showMenu)}
+                style={{ borderRadius: '6px' }}
               >
-                <button
-                  className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
-                  onClick={() => { onTogglePin(notice); setShowMenu(false); }}
-                  style={{ fontSize: '0.85rem' }}
+                <i className="bi bi-three-dots-vertical" style={{ fontSize: '1.1rem' }} />
+              </button>
+              {showMenu && (
+                <div
+                  className="position-absolute bg-white rounded-3 border border-light-subtle shadow-sm p-1"
+                  style={{ right: 0, top: '110%', minWidth: 140, zIndex: 100 }}
                 >
-                  <i className={`bi ${notice.isPinned ? 'bi-pin' : 'bi-pin-fill'}`} />
-                  {notice.isPinned ? 'Unpin' : 'Pin'}
-                </button>
-                <button
-                  className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
-                  onClick={() => { onEdit(notice); setShowMenu(false); }}
-                  style={{ fontSize: '0.85rem' }}
-                >
-                  <i className="bi bi-pencil" /> Edit
-                </button>
-                {onDelete && (
                   <button
-                    className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small text-danger"
-                    onClick={() => { onDelete(notice); setShowMenu(false); }}
+                    className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
+                    onClick={() => { onTogglePin(notice); setShowMenu(false); }}
                     style={{ fontSize: '0.85rem' }}
                   >
-                    <i className="bi bi-trash3" /> Delete
+                    <i className={`bi ${notice.isPinned ? 'bi-pin' : 'bi-pin-fill'}`} />
+                    {notice.isPinned ? 'Unpin' : 'Pin'}
                   </button>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-      <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#1a1f36', lineHeight: '1.4' }}>
-        {highlightMatch(notice.title, searchVal)}
-      </p>
-      {!expanded && (
+                  <button
+                    className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
+                    onClick={() => { onEdit(notice); setShowMenu(false); }}
+                    style={{ fontSize: '0.85rem' }}
+                  >
+                    <i className="bi bi-pencil" /> Edit
+                  </button>
+                  {onDelete && (
+                    <button
+                      className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small text-danger"
+                      onClick={() => { onDelete(notice); setShowMenu(false); }}
+                      style={{ fontSize: '0.85rem' }}
+                    >
+                      <i className="bi bi-trash3" /> Delete
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#1a1f36', lineHeight: '1.4' }}>
+          {highlightMatch(notice.title, searchVal)}
+        </p>
+
         <p className="text-secondary mb-2" style={{ fontSize: '0.8rem', lineHeight: '1.6' }}>
           {highlightMatch(notice.body.length > 100 ? notice.body.slice(0, 100) + '...' : notice.body, searchVal)}
         </p>
-      )}
 
-      {/* ── Expanded Content ── */}
-      {expanded && (
-        <div className="mb-3 pb-3" style={{ borderTop: '1px solid #e5e7eb' }}>
-          <p className="text-secondary mt-3 mb-2" style={{ fontSize: '0.85rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
-            {highlightMatch(notice.body, searchVal)}
-          </p>
-          <div className="d-flex gap-4 flex-wrap">
-            <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-              <i className="bi bi-person me-1" />{notice.admin?.name ?? 'Unknown'}
-            </span>
-          </div>
+        <div className="d-flex align-items-center justify-content-between">
+          <span className="text-muted" style={{ fontSize: '0.72rem' }}>
+            <i className="bi bi-calendar3 me-1" />
+            {formatDate(notice.publishedAt)}
+          </span>
+          <button
+            className="btn btn-link p-0 fw-medium text-decoration-none"
+            onClick={handleToggleExpand}
+            style={{ fontSize: '0.78rem', color: badge.color }}
+          >
+            View Details →
+          </button>
         </div>
-      )}
-
-      <div className="d-flex align-items-center justify-content-between">
-        <span className="text-muted" style={{ fontSize: '0.72rem' }}>
-          <i className="bi bi-calendar3 me-1" />
-          {formatDate(notice.publishedAt)}
-        </span>
-        <button
-          className="btn btn-link p-0 fw-medium text-decoration-none"
-          onClick={() => setExpanded(!expanded)}
-          style={{ fontSize: '0.78rem', color: badge.color }}
-        >
-          {expanded ? 'Show less ↑' : 'View Details →'}
-        </button>
       </div>
-    </div>
+
+      {/* ── Expanded Overlay with Full Screen Blur Portal ── */}
+      {expanded && createPortal(
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center p-3"
+          style={{
+            backgroundColor: 'rgba(15, 23, 42, 0.45)',
+            backdropFilter: 'blur(5px)',
+            WebkitBackdropFilter: 'blur(5px)',
+            zIndex: 1070,
+          }}
+          onClick={handleToggleExpand}
+        >
+          <div
+            ref={modalRef}
+            className="bg-white rounded-3 p-4 shadow-lg position-relative w-100"
+            style={{
+              maxWidth: '560px',
+              border: `1.5px solid ${badge.border}`,
+              zIndex: 1080,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="d-flex align-items-start justify-content-between mb-3">
+              <span
+                className="fw-medium"
+                style={{ background: badge.bg, color: badge.color, fontSize: '0.75rem', padding: '4px 12px', borderRadius: '20px' }}
+              >
+                {notice.category}
+              </span>
+              <button
+                type="button"
+                className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
+                style={{ top: 16, right: 16, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+                onClick={handleToggleExpand}
+                aria-label="Close"
+              >
+                <i className="bi bi-x" />
+              </button>
+            </div>
+
+            <h5 className="fw-bold mb-2 text-break" style={{ color: '#1a1f36', fontSize: '1.1rem' }}>
+              {highlightMatch(notice.title, searchVal)}
+            </h5>
+
+            <div className="pt-2 pb-3 my-2" style={{ borderTop: '1px solid #e5e7eb', borderBottom: '1px solid #e5e7eb' }}>
+              <p className="text-secondary mb-0" style={{ fontSize: '0.875rem', lineHeight: '1.7', whiteSpace: 'pre-wrap' }}>
+                {highlightMatch(notice.body, searchVal)}
+              </p>
+            </div>
+
+            <div className="d-flex align-items-center justify-content-between pt-1">
+              <span className="text-muted small" style={{ fontSize: '0.78rem' }}>
+                <i className="bi bi-person me-1" />
+                {notice.admin?.name ?? 'Admin'}
+                <span className="mx-2">•</span>
+                <i className="bi bi-calendar3 me-1" />
+                {formatDate(notice.publishedAt)}
+              </span>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary btn-sm px-3 fw-medium"
+                onClick={handleToggleExpand}
+                style={{ borderRadius: '6px', fontSize: '0.82rem' }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };
 

@@ -14,7 +14,25 @@ const TenantDetailPage = () => {
   if (loading) {
     return (
       <div className="container-fluid p-3 p-md-4">
-        <div className="skeleton mx-auto" style={{ height: '60vh', borderRadius: 12 }} />
+        <div className="d-flex flex-column gap-4">
+          <div className="skeleton mb-1" style={{ width: '130px', height: '24px', borderRadius: '6px' }} />
+          <div className="card bg-white border border-light-subtle rounded-3 p-4 shadow-sm">
+            <div className="d-flex align-items-center gap-3 mb-4">
+              <div className="skeleton rounded-circle flex-shrink-0" style={{ width: 56, height: 56 }} />
+              <div className="d-flex flex-column gap-2 flex-grow-1">
+                <div className="skeleton" style={{ width: '180px', height: '22px', borderRadius: '6px' }} />
+                <div className="skeleton" style={{ width: '130px', height: '14px', borderRadius: '6px' }} />
+              </div>
+            </div>
+            <div className="row g-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="col-12 col-sm-6 col-md-3">
+                  <div className="skeleton" style={{ height: '70px', borderRadius: '10px' }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

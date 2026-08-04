@@ -27,11 +27,11 @@ const formatMonth = (month: number, year: number): string =>
 
 const SectionCard = ({ icon: Icon, title, children }: { icon: typeof Receipt; title: string; children: React.ReactNode }) => (
   <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
-    <div className="card-header bg-white border-bottom border-light-subtle px-4 py-3 d-flex align-items-center gap-2">
+    <div className="card-header bg-white border-bottom border-light-subtle px-3 px-sm-4 py-3 d-flex align-items-center gap-2">
       <Icon size={18} className="text-dark" />
       <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>{title}</h6>
     </div>
-    <div className="card-body px-4 py-3">{children}</div>
+    <div className="card-body px-3 px-sm-4 py-3">{children}</div>
   </div>
 );
 
@@ -247,42 +247,79 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
           })}
         </div>
 
-        {/* Active section */}
-        {activeTab === 'family' && (
+        {/* Tab panels — all mounted so initial loads happen together and switching tabs is instant */}
+        <div className={activeTab === 'family' ? 'd-block' : 'd-none'}>
           <FamilyMembersSection residentId={tenant.id} readOnly />
-        )}
+        </div>
 
-        {activeTab === 'vehicles' && (
+        <div className={activeTab === 'vehicles' ? 'd-block' : 'd-none'}>
           <VehiclesSection residentId={tenant.id} readOnly />
-        )}
+        </div>
 
-        {activeTab === 'complaints' && (
-          <SectionCard icon={ClipboardList} title="Complaints Raised">
-            <ComplaintList
-              complaints={complaintItems}
-              loading={cLoading}
-              isAdmin={false}
-              disableChat
-              hideChatColumn
-              bare
-            />
-          </SectionCard>
-        )}
-
-        {activeTab === 'maintenance' && (
+        <div className={activeTab === 'maintenance' ? 'd-block' : 'd-none'}>
           <SectionCard icon={Receipt} title="Maintenance">
-            <AppTable
-              columns={invoiceColumns}
-              data={invoiceItems}
-              loading={invLoading}
-              rowKey={(inv) => inv.id}
-              emptyTitle="No invoices found"
-              emptySubtitle="No maintenance records for this tenant."
-              emptyIcon="bi-receipt"
-              skeletonRows={4}
-            />
+            {invLoading ? (
+              <div className="d-flex flex-column gap-3 py-1">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="skeleton rounded-3" style={{ height: '52px' }} />
+                ))}
+              </div>
+            ) : invoiceItems.length === 0 ? (
+              <div className="text-center py-5">
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                  style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
+                >
+                  <Receipt size={28} style={{ color: '#9ca3af' }} />
+                </div>
+                <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>No invoices found</p>
+                <p className="text-secondary small mb-0" style={{ fontSize: '0.8rem' }}>No maintenance records for this tenant.</p>
+              </div>
+            ) : (
+              <AppTable
+                columns={invoiceColumns}
+                data={invoiceItems}
+                loading={invLoading}
+                rowKey={(inv) => inv.id}
+                emptyTitle="No invoices found"
+                emptySubtitle="No maintenance records for this tenant."
+                skeletonRows={4}
+              />
+            )}
           </SectionCard>
-        )}
+        </div>
+
+        <div className={activeTab === 'complaints' ? 'd-block' : 'd-none'}>
+          <SectionCard icon={ClipboardList} title="Complaints">
+            {cLoading ? (
+              <div className="d-flex flex-column gap-3 py-1">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="skeleton rounded-3" style={{ height: '76px' }} />
+                ))}
+              </div>
+            ) : complaintItems.length === 0 ? (
+              <div className="text-center py-5">
+                <div
+                  className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                  style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
+                >
+                  <ClipboardList size={28} style={{ color: '#9ca3af' }} />
+                </div>
+                <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>No complaints found</p>
+                <p className="text-secondary small mb-0" style={{ fontSize: '0.8rem' }}>No complaints raised by this tenant.</p>
+              </div>
+            ) : (
+              <ComplaintList
+                complaints={complaintItems}
+                loading={cLoading}
+                isAdmin={false}
+                disableChat
+                hideChatColumn
+                bare
+              />
+            )}
+          </SectionCard>
+        </div>
       </div>
     </div>
   );

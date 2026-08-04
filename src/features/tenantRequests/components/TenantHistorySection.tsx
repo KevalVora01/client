@@ -6,6 +6,7 @@ import { tenantRequestApi } from "../api/tenantRequestApi";
 import { showError, showSuccess } from "../../../utils/toast";
 import { getAvatarColor, getInitials } from "../../residents/components/residentTableHelpers";
 import type { TenantHistoryItem } from "../../residents/types/resident.types";
+import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 
 const formatDate = (d: string | null): string =>
   d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "—";
@@ -223,102 +224,20 @@ const TenantHistorySection = () => {
         </div>
       </div>
 
-      {/* ── Revoke Tenancy Confirmation Modal ── */}
-      {showRevokeModal && (
-        <div
-          className="modal d-block bg-dark bg-opacity-50"
-          style={{ backdropFilter: 'blur(4px)', zIndex: 1055 }}
-          onClick={() => setShowRevokeModal(null)}
-        >
-          <div
-            className="modal-dialog modal-dialog-centered"
-            style={{ maxWidth: '440px' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white overflow-hidden position-relative">
-              <button
-                type="button"
-                className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
-                style={{ top: 16, right: 16, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px', zIndex: 10 }}
-                onClick={() => setShowRevokeModal(null)}
-                aria-label="Close"
-              >
-                <i className="bi bi-x" />
-              </button>
-              <div className="p-4 text-center border-bottom border-light-subtle">
-                <div
-                  className="rounded-circle bg-danger-subtle text-danger d-inline-flex align-items-center justify-content-center mb-3"
-                  style={{ width: 56, height: 56 }}
-                >
-                  <Ban size={28} />
-                </div>
-                <h5 className="fw-bold text-dark mb-1" style={{ fontSize: '1.15rem' }}>
-                  Revoke Tenancy?
-                </h5>
-                <p className="text-muted mb-0 small" style={{ fontSize: '0.875rem' }}>
-                  Are you sure you want to end the active tenancy for{' '}
-                  <strong className="text-dark">{showRevokeModal.user.name}</strong>?
-                </p>
-              </div>
-
-              <div className="p-4 bg-light-subtle">
-                <div className="bg-white p-3 rounded-3 border border-light-subtle mb-3" style={{ fontSize: '0.85rem' }}>
-                  <div className="d-flex justify-content-between mb-1.5">
-                    <span className="text-muted">Tenant:</span>
-                    <span className="fw-semibold text-dark">{showRevokeModal.user.name}</span>
-                  </div>
-                  <div className="d-flex justify-content-between mb-1.5">
-                    <span className="text-muted">Email:</span>
-                    <span className="text-dark">{showRevokeModal.user.email}</span>
-                  </div>
-                  <div className="d-flex justify-content-between">
-                    <span className="text-muted">Moved in:</span>
-                    <span className="text-dark">{formatDate(showRevokeModal.moveInDate)}</span>
-                  </div>
-                </div>
-
-                <p className="text-secondary small mb-0 d-flex align-items-start gap-1.5" style={{ fontSize: '0.78rem' }}>
-                  <i className="bi bi-exclamation-triangle text-warning flex-shrink-0 me-1" />
-                  <span>
-                    Upon revoking, the tenant will lose resident access and the apartment status will revert to Owner Occupancy.
-                  </span>
-                </p>
-              </div>
-
-              <div className="p-3 bg-white border-top border-light-subtle d-flex flex-column-reverse flex-sm-row justify-content-end gap-2">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary rounded-3 py-2 fw-medium"
-                  style={{ fontSize: '0.875rem' }}
-                  onClick={() => setShowRevokeModal(null)}
-                  disabled={revokingId === showRevokeModal.id}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-danger rounded-3 py-2 fw-semibold d-inline-flex align-items-center justify-content-center gap-2 text-nowrap"
-                  style={{ fontSize: '0.875rem', whiteSpace: 'nowrap' }}
-                  onClick={handleConfirmRevoke}
-                  disabled={revokingId === showRevokeModal.id}
-                >
-                  {revokingId === showRevokeModal.id ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                      Revoking...
-                    </>
-                  ) : (
-                    <>
-                      <Ban size={15} />
-                      Confirm Revoke
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        show={!!showRevokeModal}
+        title="Revoke Tenancy"
+        message={
+          showRevokeModal
+            ? `Are you sure you want to end the active tenancy for ${showRevokeModal.user.name}? Upon revoking, the tenant will lose resident access and the apartment status will revert to Owner Occupancy.`
+            : ""
+        }
+        confirmLabel="Yes, Revoke"
+        variant="danger"
+        loading={!!showRevokeModal && revokingId === showRevokeModal.id}
+        onConfirm={handleConfirmRevoke}
+        onCancel={() => setShowRevokeModal(null)}
+      />
     </div>
   );
 };

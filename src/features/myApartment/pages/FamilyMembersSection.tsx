@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Users } from "lucide-react";
 import { useFamilyMembers } from "../hooks/useFamilyMembers";
 import useMyResident from "../../residents/hooks/useMyResident";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
@@ -76,11 +77,11 @@ const FamilyMembersSection = ({ residentId, readOnly = false, tenantResidentId =
 
   return (
     <>
-      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm">
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
         <div className="card-header bg-white border-bottom border-light-subtle px-3 px-sm-4 py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
           <div className="d-flex flex-column flex-sm-row align-items-start align-items-sm-center gap-2 gap-sm-3">
-            <h6 className="fw-bold mb-0 text-nowrap" style={{ color: '#1a1f36' }}>
-              <i className="bi bi-people me-2" />Family Members
+            <h6 className="fw-bold mb-0 text-nowrap d-flex align-items-center gap-2" style={{ color: '#1a1f36' }}>
+              <Users size={18} className="text-dark" /> Family Members
             </h6>
             {showTenantSelector && (
               <select
@@ -118,8 +119,14 @@ const FamilyMembersSection = ({ residentId, readOnly = false, tenantResidentId =
             </div>
           ) : familyMembers.length === 0 ? (
             <div className="text-center py-5">
-              <i className="bi bi-people d-block mb-2" style={{ fontSize: '2rem', color: '#d1d5db' }} />
-              <p className="text-muted mb-0" style={{ fontSize: '0.875rem' }}>
+              <div
+                className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                style={{ width: '64px', height: '64px', backgroundColor: '#f3f4f6' }}
+              >
+                <Users size={28} style={{ color: '#9ca3af' }} />
+              </div>
+              <p className="fw-semibold mb-1" style={{ fontSize: '0.95rem', color: '#4b5563' }}>No family members found</p>
+              <p className="text-secondary small mb-0" style={{ fontSize: '0.8rem' }}>
                 {isViewingOwn ? 'No family members added yet' : 'Tenant has no family members added'}
               </p>
             </div>

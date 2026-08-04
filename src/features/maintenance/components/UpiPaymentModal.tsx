@@ -77,10 +77,6 @@ export const UpiPaymentModal = ({
     formik.handleSubmit();
   };
 
-  const handleSimulatePayment = () => {
-    const mockUtr = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10)).join('');
-    handleSubmit(undefined, mockUtr);
-  };
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText('society@icici');
@@ -246,19 +242,6 @@ export const UpiPaymentModal = ({
               </a>
             </div>
 
-            {/* Quick Test / Instant Payment Simulation Button */}
-            <div className="mb-3">
-              <button
-                type="button"
-                className="btn btn-outline-success w-100 py-2 fw-medium d-flex align-items-center justify-content-center gap-2"
-                onClick={handleSimulatePayment}
-                disabled={submitting}
-                style={{ borderRadius: '8px', fontSize: '0.85rem' }}
-              >
-                <i className="bi bi-lightning-charge-fill" />
-                Simulate Instant UPI Payment (In-App)
-              </button>
-            </div>
 
             {/* Divider */}
             <div className="d-flex align-items-center my-3">
@@ -275,36 +258,28 @@ export const UpiPaymentModal = ({
             {/* Manual UTR Input Form */}
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label className="form-label small fw-semibold text-secondary mb-0">
-                    12-Digit UTR / Transaction Reference
-                  </label>
-                  <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                    {formik.values.utrNumber.length}/12
-                  </span>
-                </div>
-                <div className="input-group">
-                  <span
-                    className={`input-group-text bg-light text-secondary border-end-0 ${formik.touched.utrNumber && formik.errors.utrNumber ? 'border-danger text-danger' : ''}`}
-                    style={{ borderRadius: '8px 0 0 8px', borderColor: formik.touched.utrNumber && formik.errors.utrNumber ? '#dc3545' : '#e5e7eb' }}
-                  >
-                    <i className="bi bi-hash" />
-                  </span>
-                  <input
-                    type="text"
-                    className={`form-control border-start-0 shadow-none ${formik.touched.utrNumber && formik.errors.utrNumber ? 'is-invalid' : ''}`}
-                    placeholder="e.g. 987654321098"
-                    maxLength={12}
-                    value={formik.values.utrNumber}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      formik.setFieldValue('utrNumber', val);
-                    }}
-                    onBlur={formik.handleBlur}
-                    disabled={submitting}
-                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem', borderColor: formik.touched.utrNumber && formik.errors.utrNumber ? '#dc3545' : '#e5e7eb' }}
-                  />
-                </div>
+                <label className="form-label fw-medium text-secondary small mb-1">
+                  12-Digit UTR / Transaction Reference <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="utrNumber"
+                  className={`form-control shadow-none rounded-2 text-dark ${formik.touched.utrNumber && formik.errors.utrNumber ? 'is-invalid' : ''}`}
+                  placeholder="e.g. 987654321098"
+                  maxLength={12}
+                  value={formik.values.utrNumber}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    formik.setFieldValue('utrNumber', val);
+                  }}
+                  onBlur={formik.handleBlur}
+                  disabled={submitting}
+                  style={{
+                    fontSize: '0.875rem',
+                    height: '42px',
+                    borderColor: formik.touched.utrNumber && formik.errors.utrNumber ? '#dc3545' : '#e5e7eb',
+                  }}
+                />
                 {formik.touched.utrNumber && formik.errors.utrNumber && (
                   <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
                     {formik.errors.utrNumber}

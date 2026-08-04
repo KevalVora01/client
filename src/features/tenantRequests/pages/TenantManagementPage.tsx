@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { UserPlus } from 'lucide-react';
-import TenantRequestSection from '../../tenantRequests/pages/TenantRequestSection';
-import TenantHistorySection from '../pages/TenantHistorySection';
-import useOwnerTenantRequest from '../../tenantRequests/hooks/useOwnerTenantRequest';
+import TenantRequestSection from '../components/TenantRequestSection';
+import TenantHistorySection from '../components/TenantHistorySection';
+import useOwnerTenantRequest from '../hooks/useOwnerTenantRequest';
 
 const TenantManagementPage = () => {
   const { status, loading, actionLoading, notOwner, submitRequest } = useOwnerTenantRequest();

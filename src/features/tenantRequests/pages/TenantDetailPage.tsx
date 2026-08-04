@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import useTenantHistory from '../hooks/useTenantHistory';
-import TenantOverview from '../../tenantRequests/components/TenantOverview';
+import TenantOverview from '../components/TenantOverview';
 
 const TenantDetailPage = () => {
   const { id } = useParams<{ id: string }>();

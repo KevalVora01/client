@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Ban, Calendar, Mail, Phone, ArrowRight, UserCheck, Clock } from "lucide-react";
 import useTenantHistory from "../hooks/useTenantHistory";
-import { tenantRequestApi } from "../../tenantRequests/api/tenantRequestApi";
+import { tenantRequestApi } from "../api/tenantRequestApi";
 import { showError, showSuccess } from "../../../utils/toast";
 import { getAvatarColor, getInitials } from "../../residents/components/residentTableHelpers";
 import type { TenantHistoryItem } from "../../residents/types/resident.types";

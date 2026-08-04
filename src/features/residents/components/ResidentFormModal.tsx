@@ -49,34 +49,25 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
               <div className="row g-3 mb-3">
 
                 <div className="col-md-6">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <label className="form-label fw-medium text-secondary small mb-0">Full name <span className="text-danger">*</span></label>
-                    <span className={`small fw-medium ${formik.values.name.length === 100 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
-                      {formik.values.name.length}/100
-                    </span>
-                  </div>
+                  <label className="form-label fw-medium text-secondary small mb-1">Full name <span className="text-danger">*</span></label>
                   <input
                     type="text"
                     name="name"
                     autoComplete="name"
                     className={`form-control shadow-none rounded-2 text-dark ${formik.touched.name && formik.errors.name ? "is-invalid" : ""}`}
                     placeholder="Enter full name"
-                    maxLength={100}
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     style={{
                       fontSize: "0.875rem",
-                      borderColor: formik.touched.name && formik.errors.name ? "#dc3545" : "#e5e7eb"
+                      borderColor: formik.values.name.length > 100 ? "#dc3545" : formik.touched.name && formik.errors.name ? "#dc3545" : "#e5e7eb"
                     }}
                   />
                   {formik.touched.name && formik.errors.name ? (
                     <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.name}</div>
-                  ) : formik.values.name.length === 100 ? (
-                    <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-                      <i className="bi bi-info-circle text-primary me-1" />
-                      Maximum limit of 100 characters reached.
-                    </small>
+                  ) : formik.values.name.length > 100 ? (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 100 characters allowed.</small>
                   ) : null}
                 </div>
 
@@ -105,37 +96,28 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                 )}
 
                 <div className="col-md-6">
-                  <div className="d-flex justify-content-between align-items-center mb-1">
-                    <label className="form-label fw-medium text-secondary small mb-0">Phone <span className="text-danger">*</span></label>
-                    <span className={`small fw-medium ${formik.values.phone.length === 10 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
-                      {formik.values.phone.length}/10
-                    </span>
-                  </div>
+                  <label className="form-label fw-medium text-secondary small mb-1">Phone <span className="text-danger">*</span></label>
                   <input
                     type="text"
                     name="phone"
                     autoComplete="phone"
                     className={`form-control shadow-none rounded-2 text-dark ${formik.touched.phone && formik.errors.phone ? "is-invalid" : ""}`}
                     placeholder="Enter 10-digit phone number"
-                    maxLength={10}
                     value={formik.values.phone}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      const val = e.target.value.replace(/\D/g, '');
                       formik.setFieldValue('phone', val);
                     }}
                     onBlur={formik.handleBlur}
                     style={{
                       fontSize: "0.875rem",
-                      borderColor: formik.touched.phone && formik.errors.phone ? "#dc3545" : "#e5e7eb"
+                      borderColor: formik.values.phone.length > 10 ? "#dc3545" : formik.touched.phone && formik.errors.phone ? "#dc3545" : "#e5e7eb"
                     }}
                   />
                   {formik.touched.phone && formik.errors.phone ? (
                     <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.phone}</div>
-                  ) : formik.values.phone.length === 10 ? (
-                    <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-                      <i className="bi bi-info-circle text-primary me-1" />
-                      Maximum limit of 10 digits reached.
-                    </small>
+                  ) : formik.values.phone.length > 10 ? (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 10 digits allowed.</small>
                   ) : null}
                 </div>
 

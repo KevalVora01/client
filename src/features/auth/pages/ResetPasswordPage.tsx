@@ -5,16 +5,12 @@ import { useResetPassword } from '../hooks/useResetPassword';
 const ResetPasswordPage = () => {
   const {
     token,
-    newPassword,
-    setNewPassword,
-    confirmPassword,
-    setConfirmPassword,
+    formik,
     showPassword,
     setShowPassword,
     showConfirmPassword,
     setShowConfirmPassword,
     isLoading,
-    handleSubmit,
   } = useResetPassword();
 
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -40,6 +36,13 @@ const ResetPasswordPage = () => {
     borderRadius: "8px",
     cursor: isLoading ? "not-allowed" : "pointer",
     transition: "background-color 0.15s ease",
+  });
+
+  const inputStyle = (hasError: boolean): React.CSSProperties => ({
+    backgroundColor: "#f9fafb",
+    borderColor: hasError ? "#dc2626" : "#e5e7eb",
+    fontSize: "0.95rem",
+    borderRadius: "8px",
   });
 
   // ── Render Case 1: Invalid/Missing Token ──
@@ -107,7 +110,7 @@ const ResetPasswordPage = () => {
             Your new password must be at least 8 characters and contain an uppercase letter, a number, and a special character.
           </p>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={formik.handleSubmit}>
             {/* New Password */}
             <div className="mb-3">
               <label htmlFor="newPassword" className="form-label fw-bold text-uppercase mb-2" style={labelStyle}>
@@ -122,15 +125,15 @@ const ResetPasswordPage = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="newPassword"
+                  name="newPassword"
                   placeholder="Min 8 characters"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
+                  value={formik.values.newPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={isLoading}
-                  required
                   className="form-control ps-5 pe-5 py-3 shadow-none"
-                  style={{ backgroundColor: "#f9fafb", borderColor: "#e5e7eb", fontSize: "0.95rem", borderRadius: "8px" }}
+                  style={inputStyle(!!(formik.touched.newPassword && formik.errors.newPassword))}
                   onFocus={handleFocus}
-                  onBlur={handleBlur}
                 />
                 <button
                   type="button"
@@ -141,6 +144,11 @@ const ResetPasswordPage = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {formik.touched.newPassword && formik.errors.newPassword && (
+                <div className="text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+                  {formik.errors.newPassword}
+                </div>
+              )}
             </div>
 
             {/* Confirm Password */}
@@ -157,15 +165,15 @@ const ResetPasswordPage = () => {
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   id="confirmPassword"
+                  name="confirmPassword"
                   placeholder="Re-enter new password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={isLoading}
-                  required
                   className="form-control ps-5 pe-5 py-3 shadow-none"
-                  style={{ backgroundColor: "#f9fafb", borderColor: "#e5e7eb", fontSize: "0.95rem", borderRadius: "8px" }}
+                  style={inputStyle(!!(formik.touched.confirmPassword && formik.errors.confirmPassword))}
                   onFocus={handleFocus}
-                  onBlur={handleBlur}
                 />
                 <button
                   type="button"
@@ -176,6 +184,11 @@ const ResetPasswordPage = () => {
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+                <div className="text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+                  {formik.errors.confirmPassword}
+                </div>
+              )}
             </div>
 
             {/* Submit */}

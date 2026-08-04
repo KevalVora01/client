@@ -4,12 +4,21 @@ import useLogin from '../hooks/useLogin';
 
 const LoginPage = () => {
   const {
-    identifier, setIdentifier,
-    password, setPassword,
+    formik,
     showPassword, setShowPassword,
     isLoading,
     handleSubmit,
   } = useLogin();
+
+  const hasIdentifierError = formik.touched.identifier && !!formik.errors.identifier;
+  const hasPasswordError = formik.touched.password && !!formik.errors.password;
+
+  const getInputBorder = (hasError: boolean) => ({
+    backgroundColor: hasError ? '#fef2f2' : '#f9fafb',
+    borderColor: hasError ? '#ef4444' : '#e5e7eb',
+    fontSize: '0.95rem' as const,
+    borderRadius: '8px' as const,
+  });
 
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
@@ -57,30 +66,36 @@ const LoginPage = () => {
                 <input
                   type="text"
                   id="identifier"
+                  name="identifier"
                   placeholder="Email or Phone number"
-                  value={identifier}
-                  onChange={(e) => setIdentifier(e.target.value)}
-                  required
+                  value={formik.values.identifier}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={isLoading}
                   className="form-control ps-5 py-3 shadow-none"
-                  style={{
-                    backgroundColor: "#f9fafb",
-                    borderColor: "#e5e7eb",
-                    fontSize: "0.95rem",
-                    borderRadius: "8px"
-                  }}
+                  style={getInputBorder(hasIdentifierError)}
                   onFocus={(e) => {
-                    e.target.style.backgroundColor = "#ffffff";
-                    e.target.style.borderColor = "#111827";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                    if (!hasIdentifierError) {
+                      e.target.style.backgroundColor = "#ffffff";
+                      e.target.style.borderColor = "#111827";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                    }
                   }}
-                  onBlur={(e) => {
-                    e.target.style.backgroundColor = "#f9fafb";
-                    e.target.style.borderColor = "#e5e7eb";
-                    e.target.style.boxShadow = "none";
+                  onBlurCapture={(e) => {
+                    formik.handleBlur(e);
+                    if (!hasIdentifierError) {
+                      e.target.style.backgroundColor = "#f9fafb";
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.boxShadow = "none";
+                    }
                   }}
                 />
               </div>
+              {hasIdentifierError && (
+                <div className="text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+                  {formik.errors.identifier}
+                </div>
+              )}
             </div>
 
             {/* Password */}
@@ -112,29 +127,30 @@ const LoginPage = () => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   id="password"
+                  name="password"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   disabled={isLoading}
                   className="form-control ps-5 pe-5 py-3 shadow-none"
-                  style={{
-                    backgroundColor: "#f9fafb",
-                    borderColor: "#e5e7eb",
-                    fontSize: "0.95rem",
-                    borderRadius: "8px"
-                  }}
+                  style={getInputBorder(hasPasswordError)}
                   onFocus={(e) => {
-                    e.target.style.backgroundColor = "#ffffff";
-                    e.target.style.borderColor = "#111827";
-                    e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                    if (!hasPasswordError) {
+                      e.target.style.backgroundColor = "#ffffff";
+                      e.target.style.borderColor = "#111827";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                    }
                   }}
-                  onBlur={(e) => {
-                    e.target.style.backgroundColor = "#f9fafb";
-                    e.target.style.borderColor = "#e5e7eb";
-                    e.target.style.boxShadow = "none";
+                  onBlurCapture={(e) => {
+                    formik.handleBlur(e);
+                    if (!hasPasswordError) {
+                      e.target.style.backgroundColor = "#f9fafb";
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.boxShadow = "none";
+                    }
                   }}
-                />  
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
@@ -147,6 +163,11 @@ const LoginPage = () => {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {hasPasswordError && (
+                <div className="text-danger mt-1" style={{ fontSize: '0.8rem' }}>
+                  {formik.errors.password}
+                </div>
+              )}
             </div>
 
             {/* Submit */}

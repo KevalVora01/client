@@ -1,5 +1,6 @@
-import { useState } from "react";
 import { Mail, Phone, User } from 'lucide-react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import type { ProfileUser, UpdateProfilePayload } from "../types/profile.types";
 
 interface PersonalInfoFormProps {
@@ -9,35 +10,65 @@ interface PersonalInfoFormProps {
 }
 
 const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) => {
-  const [name, setName] = useState(user.name);
-  const [phone, setPhone] = useState(user.phone);
+  const formik = useFormik({
+    initialValues: {
+      name: user.name,
+      phone: user.phone,
+    },
+    validationSchema: Yup.object({
+      name: Yup.string()
+        .trim()
+        .min(2, 'Name must be at least 2 characters')
+        .max(100, 'Name must be at most 100 characters')
+        .required('Name is required'),
+      phone: Yup.string()
+        .trim()
+        .length(10, 'Phone must be exactly 10 digits')
+        .matches(/^\d+$/, 'Phone must contain only digits')
+        .required('Phone is required'),
+    }),
+    onSubmit: async (values) => {
+      await onSubmit(values);
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await onSubmit({ name, phone });
+  const inputStyle = {
+    paddingLeft: "42px",
+    height: "46px",
+    backgroundColor: "#f9fafb",
+    borderColor: "#e5e7eb",
+    fontSize: "0.95rem",
+    borderRadius: "8px",
+  };
+
+  const errorInputStyle = {
+    ...inputStyle,
+    borderColor: "#ef4444",
+  };
+
+  const getInputStyle = (fieldName: 'name' | 'phone') => {
+    if (formik.touched[fieldName] && formik.errors[fieldName]) {
+      return errorInputStyle;
+    }
+    return inputStyle;
   };
 
   return (
-    // .pf-card -> card, border, white bg, rounded-3 (12px), custom padding match
-    <form className="card bg-white border border-light-subtle rounded-3 p-3 p-sm-4 h-100 shadow-sm" onSubmit={handleSubmit}>
+    <form className="card bg-white border border-light-subtle rounded-3 p-3 p-sm-4 h-100 shadow-sm" onSubmit={formik.handleSubmit}>
 
-      {/* ── Card Header (.pf-card__head) ── */}
       <div className="d-flex align-items-center justify-content-between border-bottom pb-2 mb-4">
-        {/* .pf-card__title */}
         <h5 className="fs-6 fw-bold text-dark m-0 d-flex align-items-center gap-2">
           <i className="bi bi-person text-secondary" />
           <span className="ms-1">Personal info</span>
         </h5>
       </div>
 
-      {/* ── Form Inputs Grid (.pf-form-grid) ── */}
       <div className="row g-3">
 
-        {/* Full Name Field */}
         <div className="col-12 col-md-6">
           <label
             className="d-block fw-bold text-uppercase mb-2"
-            htmlFor="fullName"
+            htmlFor="name"
             style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "#374151" }}
           >
             Full name
@@ -50,35 +81,33 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
             />
             <input
               type="text"
-              id="fullName"
+              id="name"
               placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
+              {...formik.getFieldProps('name')}
               className="form-control shadow-none border"
-              style={{
-                paddingLeft: "42px",
-                height: "46px",
-                backgroundColor: "#f9fafb",
-                borderColor: "#e5e7eb",
-                fontSize: "0.95rem",
-                borderRadius: "8px"
-              }}
+              style={getInputStyle('name')}
               onFocus={(e) => {
                 e.target.style.backgroundColor = "#ffffff";
-                e.target.style.borderColor = "#111827";
-                e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                e.target.style.borderColor = formik.touched.name && formik.errors.name ? "#ef4444" : "#111827";
+                e.target.style.boxShadow = formik.touched.name && formik.errors.name
+                  ? "0 0 0 3px rgba(239, 68, 68, 0.1)"
+                  : "0 0 0 3px rgba(17, 24, 39, 0.1)";
               }}
               onBlur={(e) => {
+                formik.handleBlur(e);
                 e.target.style.backgroundColor = "#f9fafb";
-                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.borderColor = formik.touched.name && formik.errors.name ? "#ef4444" : "#e5e7eb";
                 e.target.style.boxShadow = "none";
               }}
             />
           </div>
+          {formik.touched.name && formik.errors.name && (
+            <div className="text-danger small mt-1" style={{ fontSize: '0.75rem' }}>
+              {formik.errors.name}
+            </div>
+          )}
         </div>
 
-        {/* Phone Field */}
         <div className="col-12 col-md-6">
           <label
             className="d-block fw-bold text-uppercase mb-2"
@@ -97,33 +126,35 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
               type="text"
               id="phone"
               placeholder="10 digit number"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              className="form-control shadow-none border"
-              style={{
-                paddingLeft: "42px",
-                height: "46px",
-                backgroundColor: "#f9fafb",
-                borderColor: "#e5e7eb",
-                fontSize: "0.95rem",
-                borderRadius: "8px"
+              {...formik.getFieldProps('phone')}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, '');
+                formik.setFieldValue('phone', val);
               }}
+              className="form-control shadow-none border"
+              style={getInputStyle('phone')}
               onFocus={(e) => {
                 e.target.style.backgroundColor = "#ffffff";
-                e.target.style.borderColor = "#111827";
-                e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
+                e.target.style.borderColor = formik.touched.phone && formik.errors.phone ? "#ef4444" : "#111827";
+                e.target.style.boxShadow = formik.touched.phone && formik.errors.phone
+                  ? "0 0 0 3px rgba(239, 68, 68, 0.1)"
+                  : "0 0 0 3px rgba(17, 24, 39, 0.1)";
               }}
               onBlur={(e) => {
+                formik.handleBlur(e);
                 e.target.style.backgroundColor = "#f9fafb";
-                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.borderColor = formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e5e7eb";
                 e.target.style.boxShadow = "none";
               }}
             />
           </div>
+          {formik.touched.phone && formik.errors.phone && (
+            <div className="text-danger small mt-1" style={{ fontSize: '0.75rem' }}>
+              {formik.errors.phone}
+            </div>
+          )}
         </div>
 
-        {/* Email Address Field (.pf-field--full -> col-12) */}
         <div className="col-12">
           <label
             className="d-block fw-bold text-uppercase mb-2"
@@ -163,13 +194,11 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
 
       </div>
 
-      {/* ── Card Footer (.pf-card__footer) ── */}
       <div className="d-flex align-items-center justify-content-end mt-4 pt-2">
-        {/* .pf-btn .pf-btn--primary */}
         <button
           type="submit"
           className="btn btn-dark d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
-          disabled={loading}
+          disabled={loading || !formik.isValid}
           style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
         >
           {loading ? (

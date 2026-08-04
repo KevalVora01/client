@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import Select from "../../../components/Select/Select";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
 import { DocModal } from "./DocModal";
@@ -40,115 +42,126 @@ interface Props {
 
 const RequestDocumentModal = ({ open, onClose, isOwner, onSubmit }: Props) => {
   const docTypes = isOwner ? OWNER_DOC_TYPES : TENANT_DOC_TYPES;
-  const [selectedDocType, setSelectedDocType] = useState(docTypes[0]);
-  const [customDocName, setCustomDocName] = useState("");
-  const [requestNote, setRequestNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+
+  const validationSchema = Yup.object().shape({
+    selectedDocType: Yup.string().required("Document type is required"),
+    customDocName: Yup.string().when("selectedDocType", {
+      is: "Other",
+      then: (schema) => schema.trim().max(150, "Must be at most 150 characters").required("Document name is required"),
+      otherwise: (schema) => schema.notRequired(),
+    }),
+    requestNote: Yup.string().trim().max(500, "Must be at most 500 characters").optional(),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      selectedDocType: docTypes[0],
+      customDocName: "",
+      requestNote: "",
+    },
+    validationSchema,
+    enableReinitialize: true,
+    onSubmit: async (values) => {
+      setSubmitting(true);
+      const ok = await onSubmit({
+        documentType: values.selectedDocType === "Other" ? values.customDocName : values.selectedDocType,
+        customDocumentName: values.selectedDocType === "Other" ? values.customDocName : undefined,
+        note: values.requestNote || undefined,
+      });
+      setSubmitting(false);
+      if (ok) {
+        formik.resetForm();
+        onClose();
+      }
+    },
+  });
 
   // Reset document list when the modal type changes
   const [prevIsOwner, setPrevIsOwner] = useState(isOwner);
   if (isOwner !== prevIsOwner) {
     setPrevIsOwner(isOwner);
-    setSelectedDocType(docTypes[0]);
+    formik.setFieldValue("selectedDocType", docTypes[0]);
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (selectedDocType === "Other" && !customDocName.trim()) return;
-
-    setSubmitting(true);
-    const ok = await onSubmit({
-      documentType: selectedDocType === "Other" ? customDocName : selectedDocType,
-      customDocumentName: selectedDocType === "Other" ? customDocName : undefined,
-      note: requestNote || undefined,
-    });
-    setSubmitting(false);
-    if (ok) {
-      resetForm();
-      onClose();
-    }
-  };
-
-  const resetForm = () => {
-    setSelectedDocType(docTypes[0]);
-    setCustomDocName("");
-    setRequestNote("");
-  };
-
   const handleCancel = () => {
-    const hasChanges = selectedDocType !== docTypes[0] || customDocName || requestNote;
+    const hasChanges =
+      formik.values.selectedDocType !== docTypes[0] ||
+      formik.values.customDocName ||
+      formik.values.requestNote;
     if (hasChanges) {
       setShowCancelConfirm(true);
     } else {
-      resetForm();
+      formik.resetForm();
       onClose();
     }
   };
 
   const confirmCancel = () => {
     setShowCancelConfirm(false);
-    resetForm();
+    formik.resetForm();
     onClose();
   };
+
+  const hasError = (field: keyof typeof formik.values) =>
+    formik.touched[field] && formik.errors[field];
+
+  const getBorderColor = (field: keyof typeof formik.values) =>
+    hasError(field) ? "#dc3545" : undefined;
 
   return (
     <>
       <DocModal open={open} onClose={handleCancel} title={`Request Document (${isOwner ? "Admin" : "Owner"})`} maxWidth="520px">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <div className="modal-body p-3 p-sm-4 d-flex flex-column gap-3">
             <Select
               label="Document Type"
               required
               options={docTypes}
-              value={selectedDocType}
-              onChange={(e) => setSelectedDocType(e.target.value)}
+              value={formik.values.selectedDocType}
+              onChange={(e) => formik.setFieldValue("selectedDocType", e.target.value)}
             />
-            {selectedDocType === "Other" && (
+            {hasError("selectedDocType") && (
+              <small className="text-danger d-block" style={{ fontSize: "0.78rem", marginTop: "-0.5rem" }}>
+                {formik.errors.selectedDocType}
+              </small>
+            )}
+            {formik.values.selectedDocType === "Other" && (
               <div>
-                <div className="d-flex justify-content-between align-items-center mb-1">
-                  <label className="form-label fw-medium text-secondary small mb-0">Custom Document Name <span className="text-danger">*</span></label>
-                  <span className={`small fw-medium ${customDocName.length === 150 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
-                    {customDocName.length}/150
-                  </span>
-                </div>
+                <label className="form-label fw-medium text-secondary small mb-1">Custom Document Name <span className="text-danger">*</span></label>
                 <input
                   type="text"
                   className="form-control rounded-2 shadow-none small"
                   placeholder="e.g. Electricity Meter Registration Copy"
-                  maxLength={150}
-                  value={customDocName}
-                  onChange={(e) => setCustomDocName(e.target.value)}
-                  style={{ fontSize: "0.875rem" }}
+                  value={formik.values.customDocName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  name="customDocName"
+                  style={{ fontSize: "0.875rem", borderColor: getBorderColor("customDocName") }}
                 />
-                {customDocName.length === 150 && (
-                  <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-                    <i className="bi bi-info-circle text-primary me-1" />
-                    Maximum limit of 150 characters reached.
+                {hasError("customDocName") && (
+                  <small className="text-danger d-block mt-1" style={{ fontSize: "0.78rem" }}>
+                    {formik.errors.customDocName}
                   </small>
                 )}
               </div>
             )}
             <div>
-              <div className="d-flex justify-content-between align-items-center mb-1">
-                <label className="form-label fw-medium text-secondary small mb-0">Note / Reason <span className="text-muted fw-normal">(optional)</span></label>
-                <span className={`small fw-medium ${requestNote.length === 500 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
-                  {requestNote.length}/500
-                </span>
-              </div>
+              <label className="form-label fw-medium text-secondary small mb-1">Note / Reason <span className="text-muted fw-normal">(optional)</span></label>
               <textarea
                 rows={3}
                 className="form-control rounded-2 shadow-none small"
                 placeholder={isOwner ? "e.g. Required for property registration process..." : "e.g. Needed for passport address update application..."}
-                maxLength={500}
-                value={requestNote}
-                onChange={(e) => setRequestNote(e.target.value)}
-                style={{ fontSize: "0.875rem", height: "80px", resize: "none" }}
+                value={formik.values.requestNote}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                name="requestNote"
+                style={{ fontSize: "0.875rem", height: "80px", resize: "none", borderColor: getBorderColor("requestNote") }}
               />
-              {requestNote.length === 500 && (
-                <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-                  <i className="bi bi-info-circle text-primary me-1" />
-                  Maximum limit of 500 characters reached.
+              {hasError("requestNote") && (
+                <small className="text-danger d-block mt-1" style={{ fontSize: "0.78rem" }}>
+                  {formik.errors.requestNote}
                 </small>
               )}
             </div>

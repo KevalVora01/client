@@ -15,17 +15,19 @@ interface UseResidentFormProps {
 
 // ── Yup Schemas ───────────────────────────────────────────────
 const addSchema = Yup.object({
-  name: Yup.string().trim().required("Name is required"),
-  email: Yup.string().trim().email("Invalid email").required("Email is required"),
-  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
-  password: Yup.string().min(8, "Minimum 8 characters").required("Password is required"),
-  apartmentId: Yup.number().min(1, "Please select an apartment").required("Please select an apartment"),
+  name: Yup.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be at most 100 characters").required("Name is required"),
+  email: Yup.string().trim().email("Please provide a valid email").required("Email is required"),
+  phone: Yup.string().trim().length(10, "Phone must be exactly 10 digits").matches(/^\d+$/, "Phone must contain only numbers").required("Phone is required"),
+  password: Yup.string().min(8, "Password must be at least 8 characters").matches(/[A-Z]/, "Password must contain at least one uppercase letter").matches(/[0-9]/, "Password must contain at least one number").matches(/[\W_]/, "Password must contain at least one special character").required("Password is required"),
+  apartmentId: Yup.number().typeError("Apartment ID must be a number").min(1, "Please select an apartment").required("Apartment ID is required"),
 });
 
 const editSchema = Yup.object({
-  name: Yup.string().trim().required("Name cannot be empty"),
-  phone: Yup.string().matches(/^\d{10}$/, "Phone must be 10 digits").required("Phone is required"),
-  moveOutDate: Yup.string().optional(),
+  name: Yup.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be at most 100 characters").required("Name is required"),
+  phone: Yup.string().trim().length(10, "Phone must be exactly 10 digits").matches(/^\d+$/, "Phone must contain only numbers").required("Phone is required"),
+  apartmentId: Yup.number().typeError("Apartment ID must be a number").min(1, "Please select an apartment").required("Apartment ID is required"),
+  isOwner: Yup.boolean().optional(),
+  moveOutDate: Yup.date().typeError("Move out date must be a valid date").max(new Date(), "Move out date cannot be in the future").optional().nullable(),
 });
 
 // ── Hook ─────────────────────────────────────────────────────
@@ -39,6 +41,8 @@ export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: Use
       ? {
         name: resident?.user.name ?? "",
         phone: resident?.user.phone ?? "",
+        apartmentId: resident?.apartment?.id ?? 0,
+        isOwner: resident?.isOwner ?? false,
         moveOutDate: resident?.moveOutDate ?? "",
       }
       : {

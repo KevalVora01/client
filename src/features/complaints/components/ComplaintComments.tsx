@@ -245,12 +245,12 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
-              maxLength={1000}
               style={{
                 borderRadius: '24px',
                 fontSize: '0.85rem',
                 height: '42px',
                 paddingLeft: '16px',
+                borderColor: newComment.length > 1000 ? '#dc3545' : '#e5e7eb'
               }}
             />
             <button
@@ -271,18 +271,9 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
               )}
             </button>
           </div>
-          <div className="d-flex justify-content-end mt-1">
-            <span
-              className="text-secondary"
-              style={{
-                fontSize: '0.68rem',
-                opacity: newComment.length > 900 ? 1 : 0.5,
-                color: newComment.length >= 1000 ? '#dc2626' : undefined,
-              }}
-            >
-              {newComment.length}/1000
-            </span>
-          </div>
+          {newComment.length > 1000 && (
+            <div className="text-danger mt-1" style={{ fontSize: '0.78rem' }}>Maximum 1000 characters allowed.</div>
+          )}
         </div>
       )}
     </div>

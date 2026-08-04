@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { Ban } from "lucide-react";
 import { DocModal } from "./DocModal";
 import type { DocumentRequestItem } from "../types/documentRequest.types";
@@ -9,54 +11,59 @@ interface Props {
   onSubmit: (requestId: number, reason?: string) => Promise<boolean>;
 }
 
+const validationSchema = Yup.object({
+  reason: Yup.string()
+    .trim()
+    .max(300, "Reason must be at most 300 characters"),
+});
+
 const RejectDocumentModal = ({ target, onClose, onSubmit }: Props) => {
-  const [reason, setReason] = useState("");
   const [rejecting, setRejecting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!target) return;
-    setRejecting(true);
-    const ok = await onSubmit(target.id, reason);
-    setRejecting(false);
-    if (ok) {
-      setReason("");
-      onClose();
-    }
-  };
+  const formik = useFormik({
+    initialValues: { reason: "" },
+    validationSchema,
+    onSubmit: async (values) => {
+      if (!target) return;
+      setRejecting(true);
+      const ok = await onSubmit(target.id, values.reason);
+      setRejecting(false);
+      if (ok) {
+        formik.resetForm();
+        onClose();
+      }
+    },
+  });
 
   const handleClose = () => {
-    setReason("");
+    formik.resetForm();
     onClose();
   };
 
   return (
     <DocModal open={!!target} onClose={handleClose} title="Decline Request" maxWidth="460px">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <div className="modal-body p-3 p-sm-4 d-flex flex-column gap-3">
           <p className="text-secondary small mb-0">
             Are you sure you want to decline the request for <strong className="text-dark">{target?.documentType}</strong>?
           </p>
           <div>
-            <div className="d-flex justify-content-between align-items-center mb-1">
-              <label className="form-label fw-medium text-secondary small mb-0">Reason <span className="text-muted fw-normal">(optional)</span></label>
-              <span className={`small fw-medium ${reason.length === 300 ? 'text-primary fw-bold' : 'text-muted'}`} style={{ fontSize: '0.78rem' }}>
-                {reason.length}/300
-              </span>
-            </div>
+            <label className="form-label fw-medium text-secondary small mb-1">Reason <span className="text-muted fw-normal">(optional)</span></label>
             <textarea
               className="form-control rounded-2 shadow-none small"
               placeholder="e.g. Document expired or invalid request..."
-              maxLength={300}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              style={{ fontSize: "0.875rem", height: 80, resize: "none" }}
+              {...formik.getFieldProps("reason")}
+              style={{
+                fontSize: "0.875rem",
+                height: 80,
+                resize: "none",
+                borderColor: formik.touched.reason && formik.errors.reason
+                  ? '#dc3545'
+                  : undefined,
+              }}
             />
-            {reason.length === 300 && (
-              <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-                <i className="bi bi-info-circle text-primary me-1" />
-                Maximum limit of 300 characters reached.
-              </small>
+            {formik.touched.reason && formik.errors.reason && (
+              <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>{formik.errors.reason}</small>
             )}
           </div>
         </div>

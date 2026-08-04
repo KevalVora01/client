@@ -82,15 +82,7 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
 
       {/* Title */}
       <div className="mb-3">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <label className="form-label fw-medium text-secondary small mb-0">Title <span className="text-danger">*</span></label>
-          <span
-            className={`small fw-medium ${formik.values.title.length === 150 ? 'text-primary fw-bold' : 'text-muted'}`}
-            style={{ fontSize: '0.78rem' }}
-          >
-            {formik.values.title.length}/150
-          </span>
-        </div>
+        <label className="form-label fw-medium text-secondary small mb-1">Title <span className="text-danger">*</span></label>
         <input
           type="text"
           name="title"
@@ -99,36 +91,24 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
           value={formik.values.title}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          maxLength={150}
           style={{
             borderRadius: '8px',
             fontSize: '0.9rem',
-            borderColor: formik.touched.title && formik.errors.title ? '#dc3545' : '#e5e7eb'
+            borderColor: formik.values.title.length > 150 ? '#dc3545' : formik.touched.title && formik.errors.title ? '#dc3545' : '#e5e7eb'
           }}
         />
         {formik.touched.title && formik.errors.title ? (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
             {formik.errors.title}
           </div>
-        ) : formik.values.title.length === 150 ? (
-          <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-            <i className="bi bi-info-circle text-primary me-1" />
-            Maximum limit of 150 characters reached.
-          </small>
+        ) : formik.values.title.length > 150 ? (
+          <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 150 characters allowed.</small>
         ) : null}
       </div>
 
       {/* Description */}
       <div className="mb-3">
-        <div className="d-flex justify-content-between align-items-center mb-1">
-          <label className="form-label fw-medium text-secondary small mb-0">Description <span className="text-danger">*</span></label>
-          <span
-            className={`small fw-medium ${formik.values.description.length === 1000 ? 'text-primary fw-bold' : 'text-muted'}`}
-            style={{ fontSize: '0.78rem' }}
-          >
-            {formik.values.description.length}/1000
-          </span>
-        </div>
+        <label className="form-label fw-medium text-secondary small mb-1">Description <span className="text-danger">*</span></label>
         <textarea
           name="description"
           className={`form-control shadow-none rounded-2 text-dark ${formik.touched.description && formik.errors.description ? 'is-invalid' : ''}`}
@@ -136,25 +116,21 @@ const ComplaintForm = ({ loading, onSubmit, onCancel }: ComplaintFormProps) => {
           value={formik.values.description}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          maxLength={1000}
           rows={5}
           style={{
             borderRadius: '8px',
             fontSize: '0.9rem',
             resize: 'vertical',
             minHeight: '120px',
-            borderColor: formik.touched.description && formik.errors.description ? '#dc3545' : '#e5e7eb'
+            borderColor: formik.values.description.length > 1000 ? '#dc3545' : formik.touched.description && formik.errors.description ? '#dc3545' : '#e5e7eb'
           }}
         />
         {formik.touched.description && formik.errors.description ? (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
             {formik.errors.description}
           </div>
-        ) : formik.values.description.length === 1000 ? (
-          <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-            <i className="bi bi-info-circle text-primary me-1" />
-            Maximum limit of 1000 characters reached.
-          </small>
+        ) : formik.values.description.length > 1000 ? (
+          <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 1000 characters allowed.</small>
         ) : null}
       </div>
 

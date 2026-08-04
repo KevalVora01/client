@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { showError, showSuccess } from '../../../utils/toast';
 
 interface MaintenanceSettingsFormProps {
@@ -8,36 +9,44 @@ interface MaintenanceSettingsFormProps {
 }
 
 const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: MaintenanceSettingsFormProps) => {
-  const [amount, setAmount] = useState<string>(currentAmount !== undefined ? String(currentAmount) : '');
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const parsed = Number(amount);
-    if (!parsed || parsed <= 0) {
-      showError('Amount must be greater than 0');
-      return;
-    }
-
-    const ok = await onSubmit(parsed);
-    if (ok) {
-      showSuccess('Saved');
-    }
-  };
+  const formik = useFormik({
+    initialValues: {
+      amount: currentAmount !== undefined ? String(currentAmount) : '',
+    },
+    validationSchema: Yup.object({
+      amount: Yup.number()
+        .typeError('Amount must be a valid number')
+        .required('Amount is required')
+        .moreThan(0, 'Amount must be greater than 0'),
+    }),
+    onSubmit: async (values) => {
+      const parsed = Number(values.amount);
+      const ok = await onSubmit(parsed);
+      if (ok) {
+        showSuccess('Saved');
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit} className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end gap-2">
+    <form onSubmit={formik.handleSubmit} className="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end gap-2">
       <div className="flex-grow-1" style={{ minWidth: '160px', maxWidth: '200px' }}>
         <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>
           Monthly Maintenance Amount (₹)
         </label>
         <input
           type="number"
-          className="form-control shadow-none"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          className={`form-control shadow-none${formik.touched.amount && formik.errors.amount ? ' is-invalid' : ''}`}
+          value={formik.values.amount}
+          onChange={formik.handleChange}
+          onBlur={formik.handleBlur}
           style={{ borderRadius: '8px', fontSize: '0.9rem' }}
         />
+        {formik.touched.amount && formik.errors.amount && (
+          <div className="invalid-feedback" style={{ fontSize: '0.75rem' }}>
+            {formik.errors.amount}
+          </div>
+        )}
       </div>
 
       <button

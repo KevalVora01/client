@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { maintenanceApi } from '../api/maintenanceApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError, showSuccess } from '../../../utils/toast';
@@ -10,52 +12,73 @@ interface UpiPaymentModalProps {
   onPaymentSuccess: () => void;
 }
 
+const validationSchema = Yup.object({
+  utrNumber: Yup.string()
+    .trim()
+    .length(12, 'UPI UTR number must be exactly 12 digits')
+    .matches(/^\d{12}$/, 'UPI UTR number must be exactly 12 digits')
+    .required('Please enter a 12-digit UPI transaction UTR / Reference number'),
+});
+
 export const UpiPaymentModal = ({
   invoiceId,
   amount,
   onClose,
   onPaymentSuccess,
 }: UpiPaymentModalProps) => {
-  const [utrNumber, setUtrNumber] = useState('');
-  const [utrError, setUtrError] = useState<string | null>(null);
-  const [utrTouched, setUtrTouched] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [qrError, setQrError] = useState(false);
+
+  const formik = useFormik({
+    initialValues: {
+      utrNumber: '',
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      setSubmitting(true);
+      try {
+        await maintenanceApi.markInvoiceSettled(invoiceId, `UPI - ${values.utrNumber}`);
+        showSuccess('UPI Payment submitted and verified successfully!');
+        onPaymentSuccess();
+        onClose();
+      } catch (err: unknown) {
+        showError(getErrorMessage(err, 'Failed to process UPI payment'));
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
 
   const handleSubmit = async (e?: React.FormEvent, customUtr?: string) => {
     if (e) e.preventDefault();
-    const utr = customUtr || utrNumber.trim();
+    const utr = customUtr || formik.values.utrNumber;
 
-    if (!utr) {
-      setUtrError('Please enter a 12-digit UPI transaction UTR / Reference number.');
-      setUtrTouched(true);
-      return;
+    if (customUtr) {
+      await formik.setFieldValue('utrNumber', customUtr);
+      formik.setFieldTouched('utrNumber', true);
+      const errors = await validationSchema.validateAt('utrNumber', { utrNumber: customUtr }).catch(() => null);
+      if (!errors) {
+        setSubmitting(true);
+        try {
+          await maintenanceApi.markInvoiceSettled(invoiceId, `UPI - ${customUtr}`);
+          showSuccess('UPI Payment submitted and verified successfully!');
+          onPaymentSuccess();
+          onClose();
+        } catch (err: unknown) {
+          showError(getErrorMessage(err, 'Failed to process UPI payment'));
+        } finally {
+          setSubmitting(false);
+        }
+        return;
+      }
     }
 
-    if (!/^\d{12}$/.test(utr)) {
-      setUtrError('UPI UTR number must be broken down to exactly 12 digits.');
-      setUtrTouched(true);
-      return;
-    }
-
-    setSubmitting(true);
-    setUtrError(null);
-    try {
-      await maintenanceApi.markInvoiceSettled(invoiceId, `UPI - ${utr}`);
-      showSuccess('UPI Payment submitted and verified successfully!');
-      onPaymentSuccess();
-      onClose();
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to process UPI payment'));
-    } finally {
-      setSubmitting(false);
-    }
+    formik.handleSubmit();
   };
 
   const handleSimulatePayment = () => {
-    // Generate a random 12-digit mock UTR number
     const mockUtr = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10)).join('');
-    setUtrNumber(mockUtr);
     handleSubmit(undefined, mockUtr);
   };
 
@@ -65,9 +88,6 @@ export const UpiPaymentModal = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const [qrError, setQrError] = useState(false);
-
-  // Generate dynamic QR image using public SVG QR service
   const upiUrl = `upi://pay?pa=society@icici&pn=Society%20Management&am=${amount.toFixed(2)}&cu=INR`;
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiUrl)}`;
 
@@ -260,35 +280,34 @@ export const UpiPaymentModal = ({
                     12-Digit UTR / Transaction Reference
                   </label>
                   <span className="text-muted" style={{ fontSize: '0.75rem' }}>
-                    {utrNumber.length}/12
+                    {formik.values.utrNumber.length}/12
                   </span>
                 </div>
                 <div className="input-group">
                   <span
-                    className={`input-group-text bg-light text-secondary border-end-0 ${utrTouched && utrError ? 'border-danger text-danger' : ''}`}
-                    style={{ borderRadius: '8px 0 0 8px', borderColor: utrTouched && utrError ? '#dc3545' : '#e5e7eb' }}
+                    className={`input-group-text bg-light text-secondary border-end-0 ${formik.touched.utrNumber && formik.errors.utrNumber ? 'border-danger text-danger' : ''}`}
+                    style={{ borderRadius: '8px 0 0 8px', borderColor: formik.touched.utrNumber && formik.errors.utrNumber ? '#dc3545' : '#e5e7eb' }}
                   >
                     <i className="bi bi-hash" />
                   </span>
                   <input
                     type="text"
-                    className={`form-control border-start-0 shadow-none ${utrTouched && utrError ? 'is-invalid' : ''}`}
+                    className={`form-control border-start-0 shadow-none ${formik.touched.utrNumber && formik.errors.utrNumber ? 'is-invalid' : ''}`}
                     placeholder="e.g. 987654321098"
                     maxLength={12}
-                    value={utrNumber}
+                    value={formik.values.utrNumber}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
-                      setUtrNumber(val);
-                      if (utrTouched) setUtrError(val.length === 12 ? null : 'UPI UTR number must be exactly 12 digits.');
+                      formik.setFieldValue('utrNumber', val);
                     }}
-                    onBlur={() => setUtrTouched(true)}
+                    onBlur={formik.handleBlur}
                     disabled={submitting}
-                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem', borderColor: utrTouched && utrError ? '#dc3545' : '#e5e7eb' }}
+                    style={{ borderRadius: '0 8px 8px 0', fontSize: '0.9rem', borderColor: formik.touched.utrNumber && formik.errors.utrNumber ? '#dc3545' : '#e5e7eb' }}
                   />
                 </div>
-                {utrTouched && utrError && (
+                {formik.touched.utrNumber && formik.errors.utrNumber && (
                   <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-                    {utrError}
+                    {formik.errors.utrNumber}
                   </div>
                 )}
               </div>
@@ -306,7 +325,7 @@ export const UpiPaymentModal = ({
                 <button
                   type="submit"
                   className="btn btn-primary fw-medium px-4 d-flex align-items-center gap-2"
-                  disabled={submitting || utrNumber.length !== 12}
+                  disabled={submitting || formik.values.utrNumber.length !== 12}
                   style={{ borderRadius: '8px', fontSize: '0.875rem' }}
                 >
                   {submitting ? (

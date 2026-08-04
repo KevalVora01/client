@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import type { GenerateInvoicesPayload } from '../types/maintenance.types';
 
 interface GenerateInvoicesFormProps {
@@ -14,122 +16,82 @@ const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
 
 const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesFormProps) => {
   const today = new Date();
-  const [month, setMonth] = useState<number>(today.getMonth() + 1);
-  const [year, setYear] = useState<number>(today.getFullYear());
-  const [dueDate, setDueDate] = useState<string>('');
-  const [extraCharges, setExtraCharges] = useState<{ label: string; amount: string }[]>([]);
-  const [errors, setErrors] = useState<{ dueDate?: string; extraCharges?: { label?: string; amount?: string }[] }>({});
-  const [touched, setTouched] = useState<{ dueDate?: boolean; extraCharges?: { label?: boolean; amount?: boolean }[] }>({});
+  const [extraChargesTouched, setExtraChargesTouched] = useState<{ label: boolean; amount: boolean }[]>([]);
 
-  const handleDueDateBlur = () => {
-    setTouched(prev => ({ ...prev, dueDate: true }));
-    setErrors(prev => ({ ...prev, dueDate: dueDate ? undefined : 'Due date is required' }));
-  };
-
-  const handleChargeBlur = (index: number, field: 'label' | 'amount', value: string) => {
-    const updatedTouched = [...(touched.extraCharges ?? [])];
-    updatedTouched[index] = { ...(updatedTouched[index] ?? {}), [field]: true };
-    setTouched(prev => ({ ...prev, extraCharges: updatedTouched }));
-
-    const charge = extraCharges[index];
-    const labelVal = field === 'label' ? value : charge.label;
-    const amountVal = field === 'amount' ? value : charge.amount;
-
-    const chargeErr: { label?: string; amount?: string } = {};
-    const trimmedLabel = labelVal.trim();
-    const trimmedAmount = amountVal.trim();
-
-    if (trimmedLabel !== '' || trimmedAmount !== '') {
-      if (trimmedLabel === '') {
-        chargeErr.label = 'Description is required';
-      }
-      if (trimmedAmount === '') {
-        chargeErr.amount = 'Amount is required';
-      } else {
-        const val = Number(trimmedAmount);
-        if (isNaN(val) || val <= 0) {
-          chargeErr.amount = 'Amount must be greater than 0';
-        }
-      }
-    }
-
-    const updatedErrors = [...(errors.extraCharges ?? [])];
-    updatedErrors[index] = chargeErr;
-    setErrors(prev => ({ ...prev, extraCharges: updatedErrors }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const newTouchedExtra = extraCharges.map(() => ({ label: true, amount: true }));
-    setTouched({ dueDate: true, extraCharges: newTouchedExtra });
-
-    const dueDateErr = dueDate ? undefined : 'Due date is required';
-
-    const extraChargesErrors: { label?: string; amount?: string }[] = [];
-    let hasExtraError = false;
-
-    extraCharges.forEach((charge, index) => {
-      const chargeErr: { label?: string; amount?: string } = {};
-      const trimmedLabel = charge.label.trim();
-      const trimmedAmount = charge.amount.trim();
-
-      if (trimmedLabel !== '' || trimmedAmount !== '') {
-        if (trimmedLabel === '') {
-          chargeErr.label = 'Description is required';
-          hasExtraError = true;
-        }
-        if (trimmedAmount === '') {
-          chargeErr.amount = 'Amount is required';
-          hasExtraError = true;
-        } else {
-          const val = Number(trimmedAmount);
-          if (isNaN(val) || val <= 0) {
-            chargeErr.amount = 'Amount must be greater than 0';
-            hasExtraError = true;
+  const validationSchema = Yup.object({
+    month: Yup.number().required('Month is required'),
+    year: Yup.number().required('Year is required').min(2000, 'Year must be 2000 or later'),
+    dueDate: Yup.string().required('Due date is required'),
+    extraCharges: Yup.array().of(
+      Yup.object({
+        label: Yup.string().test('label-required', 'Description is required', function (value) {
+          const { amount } = this.parent;
+          if ((value && value.trim() !== '') || (amount && String(amount).trim() !== '')) {
+            return !!(value && value.trim() !== '');
           }
-        }
+          return true;
+        }),
+        amount: Yup.string().test('amount-required', 'Amount is required', function (value) {
+          const { label } = this.parent;
+          if ((label && label.trim() !== '') || (value && value.trim() !== '')) {
+            if (!value || value.trim() === '') return false;
+            const num = Number(value);
+            return !isNaN(num) && num > 0;
+          }
+          return true;
+        }),
+      }),
+    ),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      month: today.getMonth() + 1,
+      year: today.getFullYear(),
+      dueDate: '',
+      extraCharges: [] as { label: string; amount: string }[],
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      const validatedExtraCharges = values.extraCharges
+        .filter((c) => c.label.trim() !== '' && c.amount.trim() !== '')
+        .map((c) => ({
+          label: c.label.trim(),
+          amount: Number(c.amount),
+        }));
+
+      const success = await onSubmit({
+        month: values.month,
+        year: values.year,
+        dueDate: values.dueDate,
+        extraCharges: validatedExtraCharges.length > 0 ? validatedExtraCharges : undefined,
+      });
+
+      if (success) {
+        formik.resetForm();
+        setExtraChargesTouched([]);
       }
-      extraChargesErrors[index] = chargeErr;
-    });
+    },
+  });
 
-    setErrors({ dueDate: dueDateErr, extraCharges: extraChargesErrors });
-
-    if (dueDateErr || hasExtraError) {
-      return;
-    }
-
-    const validatedExtraCharges = extraCharges
-      .filter((c) => c.label.trim() !== '' && c.amount.trim() !== '')
-      .map((c) => ({
-        label: c.label.trim(),
-        amount: Number(c.amount),
-      }));
-
-    const success = await onSubmit({
-      month,
-      year,
-      dueDate,
-      extraCharges: validatedExtraCharges.length > 0 ? validatedExtraCharges : undefined,
-    });
-    
-    if (success) {
-      setExtraCharges([]);
-      setErrors({});
-      setTouched({});
-    }
+  const handleChargeBlur = (index: number, field: 'label' | 'amount') => {
+    const updated = [...extraChargesTouched];
+    updated[index] = { ...(updated[index] ?? {}), [field]: true };
+    setExtraChargesTouched(updated);
+    formik.setFieldTouched(`extraCharges[${index}].${field}`, true, false);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={formik.handleSubmit}>
 
       <div className="row g-3 mb-3">
         <div className="col-6">
           <label className="form-label fw-medium" style={{ fontSize: '0.85rem' }}>Month</label>
           <select
             className="form-select shadow-none"
-            value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
+            name="month"
+            value={formik.values.month}
+            onChange={formik.handleChange}
             style={{ borderRadius: '8px', fontSize: '0.9rem' }}
           >
             {MONTH_OPTIONS.map((opt) => (
@@ -143,8 +105,9 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
           <input
             type="number"
             className="form-control shadow-none"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            name="year"
+            value={formik.values.year}
+            onChange={formik.handleChange}
             style={{ borderRadius: '8px', fontSize: '0.9rem' }}
           />
         </div>
@@ -154,24 +117,22 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
         <label className="form-label fw-medium text-secondary small mb-1">Due Date <span className="text-danger">*</span></label>
         <input
           type="date"
-          className={`form-control shadow-none rounded-2 text-dark ${touched.dueDate && errors.dueDate ? 'is-invalid' : ''}`}
-          value={dueDate}
+          className={`form-control shadow-none rounded-2 text-dark ${formik.touched.dueDate && formik.errors.dueDate ? 'is-invalid' : ''}`}
+          name="dueDate"
+          value={formik.values.dueDate}
           onChange={(e) => {
-            setDueDate(e.target.value);
-            if (touched.dueDate) {
-              setErrors(prev => ({ ...prev, dueDate: e.target.value ? undefined : 'Due date is required' }));
-            }
+            formik.setFieldValue('dueDate', e.target.value);
           }}
-          onBlur={handleDueDateBlur}
+          onBlur={formik.handleBlur}
           style={{
             borderRadius: '8px',
             fontSize: '0.9rem',
-            borderColor: touched.dueDate && errors.dueDate ? '#dc3545' : '#e5e7eb'
+            borderColor: formik.touched.dueDate && formik.errors.dueDate ? '#dc3545' : '#e5e7eb'
           }}
         />
-        {touched.dueDate && errors.dueDate && (
+        {formik.touched.dueDate && formik.errors.dueDate && (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-            {errors.dueDate}
+            {formik.errors.dueDate}
           </div>
         )}
       </div>
@@ -186,9 +147,8 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
             type="button"
             className="btn btn-sm btn-outline-primary d-flex align-items-center gap-1 py-1 px-2"
             onClick={() => {
-              setExtraCharges([...extraCharges, { label: '', amount: '' }]);
-              const newTouched = [...(touched.extraCharges ?? []), { label: false, amount: false }];
-              setTouched(prev => ({ ...prev, extraCharges: newTouched }));
+              formik.setFieldValue('extraCharges', [...formik.values.extraCharges, { label: '', amount: '' }]);
+              setExtraChargesTouched([...extraChargesTouched, { label: false, amount: false }]);
             }}
             style={{ fontSize: '0.78rem', borderRadius: '6px' }}
           >
@@ -196,11 +156,11 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
           </button>
         </div>
 
-        {extraCharges.length > 0 && (
+        {formik.values.extraCharges.length > 0 && (
           <div className="d-flex flex-column gap-3 pe-1" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-            {extraCharges.map((charge, index) => {
-              const chargeError = errors.extraCharges?.[index];
-              const chargeTouched = touched.extraCharges?.[index];
+            {formik.values.extraCharges.map((charge, index) => {
+              const chargeError = formik.errors.extraCharges?.[index] as { label?: string; amount?: string } | undefined;
+              const chargeTouched = extraChargesTouched[index];
 
               return (
                 <div key={index} className="d-flex flex-column gap-1">
@@ -212,14 +172,9 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
                         className={`form-control form-control-sm shadow-none ${chargeTouched?.label && chargeError?.label ? 'is-invalid' : ''}`}
                         value={charge.label}
                         onChange={(e) => {
-                          const updated = [...extraCharges];
-                          updated[index].label = e.target.value;
-                          setExtraCharges(updated);
-                          if (chargeTouched?.label) {
-                            handleChargeBlur(index, 'label', e.target.value);
-                          }
+                          formik.setFieldValue(`extraCharges[${index}].label`, e.target.value);
                         }}
-                        onBlur={(e) => handleChargeBlur(index, 'label', e.target.value)}
+                        onBlur={() => handleChargeBlur(index, 'label')}
                         style={{
                           borderRadius: '6px',
                           fontSize: '0.8rem',
@@ -236,14 +191,9 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
                           className={`form-control shadow-none ${chargeTouched?.amount && chargeError?.amount ? 'is-invalid' : ''}`}
                           value={charge.amount}
                           onChange={(e) => {
-                            const updated = [...extraCharges];
-                            updated[index].amount = e.target.value;
-                            setExtraCharges(updated);
-                            if (chargeTouched?.amount) {
-                              handleChargeBlur(index, 'amount', e.target.value);
-                            }
+                            formik.setFieldValue(`extraCharges[${index}].amount`, e.target.value);
                           }}
-                          onBlur={(e) => handleChargeBlur(index, 'amount', e.target.value)}
+                          onBlur={() => handleChargeBlur(index, 'amount')}
                           style={{
                             borderRadius: '0 6px 6px 0',
                             fontSize: '0.8rem',
@@ -256,19 +206,9 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
                       type="button"
                       className="btn btn-sm btn-outline-danger border-0 rounded-circle d-flex align-items-center justify-content-center p-0 flex-shrink-0"
                       onClick={() => {
-                        setExtraCharges(extraCharges.filter((_, i) => i !== index));
-                        if (errors.extraCharges) {
-                          setErrors(prev => ({
-                            ...prev,
-                            extraCharges: prev.extraCharges?.filter((_, i) => i !== index)
-                          }));
-                        }
-                        if (touched.extraCharges) {
-                          setTouched(prev => ({
-                            ...prev,
-                            extraCharges: prev.extraCharges?.filter((_, i) => i !== index)
-                          }));
-                        }
+                        const updated = formik.values.extraCharges.filter((_: unknown, i: number) => i !== index);
+                        formik.setFieldValue('extraCharges', updated);
+                        setExtraChargesTouched(extraChargesTouched.filter((_, i) => i !== index));
                       }}
                       style={{ width: '28px', height: '28px' }}
                     >

@@ -1,4 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import ApartmentSelect from '../../apartments/components/ApartmentSelect';
 import type { LogWalkInPayload } from '../types/visitor.types';
 import { Camera, RefreshCw, X } from 'lucide-react';
@@ -10,15 +12,33 @@ interface WalkInVisitorFormProps {
   onCancel?: () => void;
 }
 
+const validationSchema = Yup.object({
+  apartmentId: Yup.number()
+    .min(1, 'Please select an apartment')
+    .required('Apartment is required'),
+  name: Yup.string()
+    .trim()
+    .min(2, 'Visitor name is required')
+    .required('Visitor name is required'),
+  phone: Yup.string()
+    .trim()
+    .length(10, 'Phone must be exactly 10 digits')
+    .matches(/^\d+$/, 'Phone must contain only numbers')
+    .required('Phone is required'),
+  purpose: Yup.string()
+    .trim()
+    .min(2, 'Purpose of visit is required')
+    .required('Purpose of visit is required'),
+  vehicleNumber: Yup.string()
+    .trim()
+    .optional(),
+});
+
 const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisitorFormProps) => {
-  const [apartmentId, setApartmentId] = useState<number>(0);
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [purpose, setPurpose] = useState('');
-  const [vehicleNumber, setVehicleNumber] = useState('');
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
+  const [photoError, setPhotoError] = useState('');
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -63,6 +83,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
             const file = new File([blob], `visitor-${Date.now()}.jpg`, { type: 'image/jpeg' });
             setPhoto(file);
             setPhotoPreview(URL.createObjectURL(blob));
+            setPhotoError('');
             stopCamera();
           }
         }, 'image/jpeg', 0.8);
@@ -75,6 +96,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
     if (!file) return;
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
+    setPhotoError('');
   };
 
   const removePhoto = () => {
@@ -82,69 +104,55 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
     setPhotoPreview(null);
   };
 
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const formik = useFormik({
+    initialValues: {
+      apartmentId: 0,
+      name: '',
+      phone: '',
+      purpose: '',
+      vehicleNumber: '',
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      if (!photo) {
+        setPhotoError('Visitor photo is required for security verification');
+        return;
+      }
 
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!apartmentId || apartmentId === 0) errs.apartmentId = 'Please select an apartment';
-    if (!name.trim() || name.trim().length < 2) errs.name = 'Visitor full name is required';
-    if (!phone.trim()) errs.phone = 'Phone number is required';
-    else if (phone.length !== 10 || !/^\d{10}$/.test(phone)) errs.phone = 'Phone must be exactly 10 digits';
-    if (!purpose.trim() || purpose.trim().length < 2) errs.purpose = 'Purpose of visit is required';
-    if (!photo) errs.photo = 'Visitor photo is required for security verification';
-    return errs;
-  };
+      const success = await onSubmit(
+        {
+          apartmentId: values.apartmentId,
+          name: values.name.trim(),
+          phone: values.phone.trim(),
+          purpose: values.purpose.trim(),
+          vehicleNumber: values.vehicleNumber.trim() || undefined,
+        },
+        photo
+      );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const errs = validate();
-    setTouched({ apartmentId: true, name: true, phone: true, purpose: true, photo: true });
-    setErrors(errs);
-    if (Object.keys(errs).length > 0) {
-      return;
-    }
-
-    const success = await onSubmit(
-      {
-        apartmentId,
-        name: name.trim(),
-        phone: phone.trim(),
-        purpose: purpose.trim(),
-        vehicleNumber: vehicleNumber.trim() || undefined,
-      },
-      photo ?? undefined
-    );
-
-    if (success) {
-      setName('');
-      setPhone('');
-      setPurpose('');
-      setVehicleNumber('');
-      setPhoto(null);
-      setPhotoPreview(null);
-      setApartmentId(0);
-      setErrors({});
-      setTouched({});
-    }
-  };
+      if (success) {
+        formik.resetForm();
+        setPhoto(null);
+        setPhotoPreview(null);
+        setPhotoError('');
+      }
+    },
+  });
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
+    <form onSubmit={formik.handleSubmit} noValidate>
       {/* Apartment Select */}
       <div className="mb-3">
         <label className="form-label fw-medium text-secondary small mb-1">
           Apartment <span className="text-danger">*</span>
         </label>
         <ApartmentSelect
-          value={apartmentId}
+          value={formik.values.apartmentId}
           onChange={(id) => {
-            setApartmentId(id);
-            if (touched.apartmentId) setErrors(prev => ({ ...prev, apartmentId: id ? '' : 'Please select an apartment' }));
+            formik.setFieldValue('apartmentId', id);
           }}
           onlyOccupied={true}
-          error={touched.apartmentId && errors.apartmentId ? errors.apartmentId : undefined}
+          error={formik.touched.apartmentId && formik.errors.apartmentId ? formik.errors.apartmentId : undefined}
         />
       </div>
 
@@ -155,19 +163,14 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           </label>
           <input
             type="text"
-            className={`form-control shadow-none rounded-2 text-dark ${touched.name && errors.name ? 'is-invalid' : ''}`}
+            className={`form-control shadow-none rounded-2 text-dark ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''}`}
             placeholder="Enter visitor full name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (touched.name) setErrors(prev => ({ ...prev, name: e.target.value.trim() ? '' : 'Visitor full name is required' }));
-            }}
-            onBlur={() => setTouched(prev => ({ ...prev, name: true }))}
-            style={{ fontSize: '0.875rem', borderColor: touched.name && errors.name ? '#dc3545' : '#e5e7eb' }}
+            {...formik.getFieldProps('name')}
+            style={{ fontSize: '0.875rem', borderColor: formik.touched.name && formik.errors.name ? '#dc3545' : '#e5e7eb' }}
           />
-          {touched.name && errors.name && (
+          {formik.touched.name && formik.errors.name && (
             <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
-              {errors.name}
+              {formik.errors.name}
             </div>
           )}
         </div>
@@ -177,20 +180,19 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           </label>
           <input
             type="tel"
-            className={`form-control shadow-none rounded-2 text-dark ${touched.phone && errors.phone ? 'is-invalid' : ''}`}
+            className={`form-control shadow-none rounded-2 text-dark ${formik.touched.phone && formik.errors.phone ? 'is-invalid' : ''}`}
             placeholder="Enter 10-digit mobile number"
-            value={phone}
+            value={formik.values.phone}
             onChange={(e) => {
               const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-              setPhone(val);
-              if (touched.phone) setErrors(prev => ({ ...prev, phone: val.length === 10 ? '' : 'Phone must be exactly 10 digits' }));
+              formik.setFieldValue('phone', val);
             }}
-            onBlur={() => setTouched(prev => ({ ...prev, phone: true }))}
-            style={{ fontSize: '0.875rem', borderColor: touched.phone && errors.phone ? '#dc3545' : '#e5e7eb' }}
+            onBlur={formik.handleBlur}
+            style={{ fontSize: '0.875rem', borderColor: formik.touched.phone && formik.errors.phone ? '#dc3545' : '#e5e7eb' }}
           />
-          {touched.phone && errors.phone && (
+          {formik.touched.phone && formik.errors.phone && (
             <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
-              {errors.phone}
+              {formik.errors.phone}
             </div>
           )}
         </div>
@@ -202,19 +204,14 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
         </label>
         <input
           type="text"
-          className={`form-control shadow-none rounded-2 text-dark ${touched.purpose && errors.purpose ? 'is-invalid' : ''}`}
+          className={`form-control shadow-none rounded-2 text-dark ${formik.touched.purpose && formik.errors.purpose ? 'is-invalid' : ''}`}
           placeholder="e.g. Delivery, Guest, Maintenance work"
-          value={purpose}
-          onChange={(e) => {
-            setPurpose(e.target.value);
-            if (touched.purpose) setErrors(prev => ({ ...prev, purpose: e.target.value.trim() ? '' : 'Purpose of visit is required' }));
-          }}
-          onBlur={() => setTouched(prev => ({ ...prev, purpose: true }))}
-          style={{ fontSize: '0.875rem', borderColor: touched.purpose && errors.purpose ? '#dc3545' : '#e5e7eb' }}
+          {...formik.getFieldProps('purpose')}
+          style={{ fontSize: '0.875rem', borderColor: formik.touched.purpose && formik.errors.purpose ? '#dc3545' : '#e5e7eb' }}
         />
-        {touched.purpose && errors.purpose && (
+        {formik.touched.purpose && formik.errors.purpose && (
           <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
-            {errors.purpose}
+            {formik.errors.purpose}
           </div>
         )}
       </div>
@@ -227,8 +224,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           type="text"
           className="form-control shadow-none rounded-2 text-dark"
           placeholder="e.g. GJ-01-AB-1234"
-          value={vehicleNumber}
-          onChange={(e) => setVehicleNumber(e.target.value)}
+          {...formik.getFieldProps('vehicleNumber')}
           style={{ fontSize: '0.875rem', borderColor: '#e5e7eb' }}
         />
       </div>
@@ -330,9 +326,9 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           </div>
         )}
 
-        {touched.photo && errors.photo && (
+        {photoError && (
           <div className="invalid-feedback d-block text-danger mt-2" style={{ fontSize: "0.8rem" }}>
-            {errors.photo}
+            {photoError}
           </div>
         )}
 

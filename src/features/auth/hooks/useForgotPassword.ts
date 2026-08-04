@@ -1,35 +1,40 @@
 import { useState } from 'react';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { forgotPasswordApi } from '../api/authApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .trim()
+    .email('Please provide a valid email')
+    .required('Email is required'),
+});
+
 export const useForgotPassword = () => {
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email.trim()) { showError('Email is required'); return; }
-    if (!/\S+@\S+\.\S+/.test(email)) { showError('Please provide a valid email'); return; }
-
-    try {
-      setIsLoading(true);
-      await forgotPasswordApi(email);
-      setIsSubmitted(true);
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Something went wrong. Please try again.'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const formik = useFormik({
+    initialValues: { email: '' },
+    validationSchema,
+    onSubmit: async (values) => {
+      try {
+        setIsLoading(true);
+        await forgotPasswordApi(values.email.trim());
+        setIsSubmitted(true);
+      } catch (err: unknown) {
+        showError(getErrorMessage(err, 'Something went wrong. Please try again.'));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+  });
 
   return {
-    email,
-    setEmail,
+    formik,
     isLoading,
     isSubmitted,
-    handleSubmit,
   };
 };

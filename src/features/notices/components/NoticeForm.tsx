@@ -40,17 +40,9 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
 
         {/* Title */}
         <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center mb-1">
-            <label className="form-label fw-medium text-secondary small mb-0">
-              Title <span className="text-danger">*</span>
-            </label>
-            <span
-              className={`small fw-medium ${formik.values.title.length === 150 ? 'text-primary fw-bold' : 'text-muted'}`}
-              style={{ fontSize: '0.78rem' }}
-            >
-              {formik.values.title.length}/150
-            </span>
-          </div>
+          <label className="form-label fw-medium text-secondary small mb-1">
+            Title <span className="text-danger">*</span>
+          </label>
           <input
             type="text"
             name="title"
@@ -59,16 +51,12 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
             value={formik.values.title}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            maxLength={150}
-            style={{ fontSize: '0.875rem', height: '40px' }}
+            style={{ fontSize: '0.875rem', height: '40px', borderColor: formik.values.title.length > 150 ? '#dc3545' : undefined }}
           />
           {formik.touched.title && formik.errors.title ? (
             <div className="invalid-feedback">{formik.errors.title}</div>
-          ) : formik.values.title.length === 150 ? (
-            <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-              <i className="bi bi-info-circle text-primary me-1" />
-              Maximum limit of 150 characters reached.
-            </small>
+          ) : formik.values.title.length > 150 ? (
+            <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 150 characters allowed.</small>
           ) : null}
         </div>
 
@@ -91,17 +79,9 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
 
         {/* Body */}
         <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center mb-1">
-            <label className="form-label fw-medium text-secondary small mb-0">
-              Body <span className="text-danger">*</span>
-            </label>
-            <span
-              className={`small fw-medium ${formik.values.body.length === 2000 ? 'text-primary fw-bold' : 'text-muted'}`}
-              style={{ fontSize: '0.78rem' }}
-            >
-              {formik.values.body.length}/2000
-            </span>
-          </div>
+          <label className="form-label fw-medium text-secondary small mb-1">
+            Body <span className="text-danger">*</span>
+          </label>
           <textarea
             name="body"
             rows={6}
@@ -110,16 +90,12 @@ const NoticeForm = ({ notice, loading, onSubmit, onCancel }: NoticeFormProps) =>
             value={formik.values.body}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            maxLength={2000}
-            style={{ fontSize: '0.875rem', resize: 'vertical', minHeight: '120px' }}
+            style={{ fontSize: '0.875rem', resize: 'vertical', minHeight: '120px', borderColor: formik.values.body.length > 2000 ? '#dc3545' : undefined }}
           />
           {formik.touched.body && formik.errors.body ? (
             <div className="invalid-feedback">{formik.errors.body}</div>
-          ) : formik.values.body.length === 2000 ? (
-            <small className="text-secondary d-block mt-1" style={{ fontSize: '0.78rem' }}>
-              <i className="bi bi-info-circle text-primary me-1" />
-              Maximum limit of 2000 characters reached.
-            </small>
+          ) : formik.values.body.length > 2000 ? (
+            <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 2000 characters allowed.</small>
           ) : null}
         </div>
 

@@ -167,7 +167,7 @@ const Select = ({
               ref={listRef}
               className="list-unstyled m-0 p-1"
               style={{
-                maxHeight: "360px",
+                maxHeight: "200px",
                 overflowY: "auto",
                 scrollbarWidth: "none",
                 msOverflowStyle: "none",
@@ -207,7 +207,7 @@ const Select = ({
                         style={{
                           fontSize: "0.875rem",
                           color: "#1a1f36",
-                          lineHeight: 1.3,
+                          lineHeight: 1.5,
                           whiteSpace: "nowrap",
                         }}
                       >

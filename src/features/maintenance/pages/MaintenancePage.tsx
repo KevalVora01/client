@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 import { useInvoicesPage } from '../hooks/useInvoicesPage';
 import { useInvoiceMutations } from '../hooks/useInvoiceMutations';
 import { useMaintenanceSettings } from '../hooks/useMaintenanceSettings';
@@ -26,6 +28,16 @@ function formatMonth(month: number, year: number): string {
 }
 
 type InvoiceScope = 'self' | 'tenant';
+
+const settleValidationSchema = Yup.object({
+  paymentMode: Yup.string()
+    .oneOf(['Cash', 'Cheque'], 'Invalid payment mode')
+    .required('Payment mode is required'),
+  chequeNumber: Yup.string().when('paymentMode', {
+    is: 'Cheque',
+    then: (schema) => schema.trim().min(1, 'Cheque number is required').required('Cheque number is required'),
+  }),
+});
 
 const MaintenancePage = () => {
   const { user } = useAuth();
@@ -64,12 +76,40 @@ const MaintenancePage = () => {
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
   const [settlingInvoice, setSettlingInvoice] = useState<Invoice | null>(null);
-  const [paymentMode, setPaymentMode] = useState<'Cash' | 'Cheque'>('Cash');
-  const [chequeNumber, setChequeNumber] = useState<string>('');
-  const [chequeTouched, setChequeTouched] = useState<boolean>(false);
+  const settlingInvoiceRef = useRef<Invoice | null>(null);
   const [applyPenaltiesConfirmOpen, setApplyPenaltiesConfirmOpen] = useState(false);
 
   useScrollLock(generateModalOpen);
+
+  const settleFormik = useFormik({
+    initialValues: {
+      paymentMode: 'Cash' as 'Cash' | 'Cheque',
+      chequeNumber: '',
+    },
+    validationSchema: settleValidationSchema,
+    onSubmit: async (values) => {
+      const invoice = settlingInvoiceRef.current;
+      if (!invoice) return;
+
+      const paymentRef = values.paymentMode === 'Cheque'
+        ? `Cheque - #${values.chequeNumber.trim()}`
+        : '-';
+
+      const success = await markInvoiceSettled(invoice.id, paymentRef);
+      if (success) {
+        refetchMetrics();
+        setSettlingInvoice(null);
+        settleFormik.resetForm();
+      }
+    },
+  });
+
+  useEffect(() => {
+    settlingInvoiceRef.current = settlingInvoice;
+    if (settlingInvoice) {
+      settleFormik.resetForm();
+    }
+  }, [settlingInvoice, settleFormik]);
 
 
 
@@ -80,21 +120,6 @@ const MaintenancePage = () => {
       refetchMetrics();
     }
     return success;
-  };
-
-  const handleMarkSettled = async (invoice: Invoice) => {
-    const paymentRef = paymentMode === 'Cheque'
-      ? `Cheque - #${chequeNumber.trim()}`
-      : '-';
-
-    const success = await markInvoiceSettled(invoice.id, paymentRef);
-    if (success) {
-      refetchMetrics();
-      setSettlingInvoice(null);
-      setPaymentMode('Cash');
-      setChequeNumber('');
-      setChequeTouched(false);
-    }
   };
 
   const handleDownload = async (invoiceId: number) => {
@@ -513,11 +538,11 @@ const MaintenancePage = () => {
                       type="radio"
                       name="paymentMode"
                       id="modeCash"
-                      checked={paymentMode === 'Cash'}
-                      onChange={() => setPaymentMode('Cash')}
+                      checked={settleFormik.values.paymentMode === 'Cash'}
+                      onChange={() => settleFormik.setFieldValue('paymentMode', 'Cash')}
                       style={{
-                        backgroundColor: paymentMode === 'Cash' ? '#1a1f36' : '',
-                        borderColor: paymentMode === 'Cash' ? '#1a1f36' : '',
+                        backgroundColor: settleFormik.values.paymentMode === 'Cash' ? '#1a1f36' : '',
+                        borderColor: settleFormik.values.paymentMode === 'Cash' ? '#1a1f36' : '',
                         boxShadow: 'none',
                         cursor: 'pointer'
                       }}
@@ -532,11 +557,11 @@ const MaintenancePage = () => {
                       type="radio"
                       name="paymentMode"
                       id="modeCheque"
-                      checked={paymentMode === 'Cheque'}
-                      onChange={() => setPaymentMode('Cheque')}
+                      checked={settleFormik.values.paymentMode === 'Cheque'}
+                      onChange={() => settleFormik.setFieldValue('paymentMode', 'Cheque')}
                       style={{
-                        backgroundColor: paymentMode === 'Cheque' ? '#1a1f36' : '',
-                        borderColor: paymentMode === 'Cheque' ? '#1a1f36' : '',
+                        backgroundColor: settleFormik.values.paymentMode === 'Cheque' ? '#1a1f36' : '',
+                        borderColor: settleFormik.values.paymentMode === 'Cheque' ? '#1a1f36' : '',
                         boxShadow: 'none',
                         cursor: 'pointer'
                       }}
@@ -546,9 +571,14 @@ const MaintenancePage = () => {
                     </label>
                   </div>
                 </div>
+                {settleFormik.touched.paymentMode && settleFormik.errors.paymentMode && (
+                  <div className="text-danger mt-1" style={{ fontSize: '0.78rem' }}>
+                    {settleFormik.errors.paymentMode}
+                  </div>
+                )}
               </div>
 
-              {paymentMode === 'Cheque' && (
+              {settleFormik.values.paymentMode === 'Cheque' && (
                 <div className="mb-4">
                   <label className="form-label fw-semibold text-secondary small" htmlFor="chequeNumber">
                     Cheque Number
@@ -556,19 +586,17 @@ const MaintenancePage = () => {
                   <input
                     type="text"
                     id="chequeNumber"
-                    className={`form-control form-control-sm shadow-none ${chequeTouched && !/^\d{6}$/.test(chequeNumber.trim()) ? 'is-invalid' : ''}`}
+                    className={`form-control form-control-sm shadow-none ${settleFormik.touched.chequeNumber && settleFormik.errors.chequeNumber ? 'is-invalid' : ''}`}
                     placeholder="Enter 6-digit cheque number"
-                    value={chequeNumber}
-                    onChange={(e) => {
-                      setChequeNumber(e.target.value.replace(/\D/g, '').slice(0, 6));
-                    }}
-                    onBlur={() => setChequeTouched(true)}
+                    value={settleFormik.values.chequeNumber}
+                    onChange={settleFormik.handleChange}
+                    onBlur={settleFormik.handleBlur}
                     style={{ borderRadius: '6px' }}
                     required
                   />
-                  {chequeTouched && !/^\d{6}$/.test(chequeNumber.trim()) && (
+                  {settleFormik.touched.chequeNumber && settleFormik.errors.chequeNumber && (
                     <div className="invalid-feedback" style={{ fontSize: '0.78rem' }}>
-                      Cheque number must be exactly 6 digits.
+                      {settleFormik.errors.chequeNumber}
                     </div>
                   )}
                 </div>
@@ -579,8 +607,7 @@ const MaintenancePage = () => {
                   className="btn btn-sm btn-outline-secondary px-3"
                   onClick={() => {
                     setSettlingInvoice(null);
-                    setChequeNumber('');
-                    setChequeTouched(false);
+                    settleFormik.resetForm();
                   }}
                   disabled={mutationLoading}
                   style={{ borderRadius: '6px' }}
@@ -589,8 +616,8 @@ const MaintenancePage = () => {
                 </button>
                 <button
                   className="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1"
-                  onClick={async () => { await handleMarkSettled(settlingInvoice); }}
-                  disabled={mutationLoading || (paymentMode === 'Cheque' && !/^\d{6}$/.test(chequeNumber.trim()))}
+                  onClick={async () => { await settleFormik.handleSubmit(); }}
+                  disabled={mutationLoading || (settleFormik.values.paymentMode === 'Cheque' && !/^\d{6}$/.test(settleFormik.values.chequeNumber.trim()))}
                   style={{ borderRadius: '6px' }}
                 >
                   {mutationLoading ? (

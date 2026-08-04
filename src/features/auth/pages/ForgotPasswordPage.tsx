@@ -3,13 +3,7 @@ import { Mail, Home, ArrowLeft } from 'lucide-react';
 import { useForgotPassword } from '../hooks/useForgotPassword';
 
 const ForgotPasswordPage = () => {
-  const {
-    email,
-    setEmail,
-    isLoading,
-    isSubmitted,
-    handleSubmit,
-  } = useForgotPassword();
+  const { formik, isLoading, isSubmitted } = useForgotPassword();
 
   return (
     <div className="d-flex align-items-center justify-content-center min-vh-100 bg-body-tertiary px-3 py-4">
@@ -44,7 +38,7 @@ const ForgotPasswordPage = () => {
               </div>
               <h2 className="fw-bold fs-3 mb-1" style={{ color: "#111827" }}>Check your email</h2>
               <p className="text-body-secondary mb-4">
-                If an account exists for <strong>{email}</strong>, we've sent
+                If an account exists for <strong>{formik.values.email}</strong>, we've sent
                 a password reset link. Check your inbox and spam folder.
               </p>
               <p
@@ -74,7 +68,7 @@ const ForgotPasswordPage = () => {
                 Enter your email and we'll send you a link to reset your password.
               </p>
 
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={formik.handleSubmit}>
 
                 {/* Email */}
                 <div className="mb-4">
@@ -95,30 +89,38 @@ const ForgotPasswordPage = () => {
                       type="email"
                       id="email"
                       placeholder="name@society.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      {...formik.getFieldProps('email')}
                       autoComplete="email"
                       disabled={isLoading}
-                      required
                       className="form-control ps-5 py-3 shadow-none"
                       style={{
                         backgroundColor: "#f9fafb",
-                        borderColor: "#e5e7eb",
+                        borderColor: formik.touched.email && formik.errors.email ? "#ef4444" : "#e5e7eb",
                         fontSize: "0.95rem",
                         borderRadius: "8px"
                       }}
                       onFocus={(e) => {
                         e.target.style.backgroundColor = "#ffffff";
-                        e.target.style.borderColor = "#111827";
+                        if (!(formik.touched.email && formik.errors.email)) {
+                          e.target.style.borderColor = "#111827";
+                        }
                         e.target.style.boxShadow = "0 0 0 3px rgba(17, 24, 39, 0.1)";
                       }}
                       onBlur={(e) => {
+                        formik.handleBlur(e);
                         e.target.style.backgroundColor = "#f9fafb";
-                        e.target.style.borderColor = "#e5e7eb";
+                        if (!(formik.touched.email && formik.errors.email)) {
+                          e.target.style.borderColor = "#e5e7eb";
+                        }
                         e.target.style.boxShadow = "none";
                       }}
                     />
                   </div>
+                  {formik.touched.email && formik.errors.email && (
+                    <div className="mt-1" style={{ color: "#ef4444", fontSize: "0.85rem" }}>
+                      {formik.errors.email}
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit */}

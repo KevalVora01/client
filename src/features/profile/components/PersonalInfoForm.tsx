@@ -197,9 +197,9 @@ const PersonalInfoForm = ({ user, loading, onSubmit }: PersonalInfoFormProps) =>
       <div className="d-flex align-items-center justify-content-end mt-4 pt-2">
         <button
           type="submit"
-          className="btn btn-dark d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
+          className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center justify-content-center gap-2 w-100 w-sm-auto"
           disabled={loading || !formik.isValid}
-          style={{ height: '36px', fontSize: '0.875rem', fontWeight: '500', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+          style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: loading ? 0.55 : 1 }}
         >
           {loading ? (
             <span className="spinner-border spinner-border-sm mx-auto" role="status" aria-hidden="true" />

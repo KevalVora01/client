@@ -31,11 +31,12 @@ const ResetPasswordPage = () => {
   const submitBtnStyle = (): React.CSSProperties => ({
     backgroundColor: isLoading ? "#4b5563" : "#111827",
     color: "#ffffff",
-    fontSize: "0.85rem",
+    fontSize: "0.875rem",
     letterSpacing: "0.08em",
     borderRadius: "8px",
     cursor: isLoading ? "not-allowed" : "pointer",
     transition: "background-color 0.15s ease",
+    height: '38px'
   });
 
   const inputStyle = (hasError: boolean): React.CSSProperties => ({

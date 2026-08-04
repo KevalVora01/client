@@ -67,10 +67,10 @@ const RejectDocumentModal = ({ target, onClose, onSubmit }: Props) => {
             )}
           </div>
         </div>
-        <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-grid d-sm-flex">
-          <button type="button" className="btn btn-outline-secondary rounded-2 px-3 small" onClick={handleClose} disabled={rejecting}>Cancel</button>
-          <button type="submit" className="btn btn-danger rounded-2 px-3 fw-semibold small d-inline-flex align-items-center gap-1.5" disabled={rejecting}>
-            {rejecting ? <span className="spinner-border spinner-border-sm" /> : <Ban size={16} />} Decline Request
+        <div className="modal-footer border-top border-light-subtle px-3 px-sm-4 py-3 gap-2 d-flex justify-content-end align-items-center">
+          <button type="button" className="btn btn-outline-secondary rounded-2 px-3 small" onClick={handleClose} disabled={rejecting} style={{ height: '38px', fontSize: '0.875rem' }}>Cancel</button>
+          <button type="submit" className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center" disabled={rejecting} style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: rejecting ? 0.55 : 1 }}>
+            {rejecting ? <span className="spinner-border spinner-border-sm" /> : <><Ban size={16} className="me-1" /> Decline Request</>}
           </button>
         </div>
       </form>

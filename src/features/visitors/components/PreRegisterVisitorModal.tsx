@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { visitorApi } from '../api/visitorApi';
-import { User, Phone, Tag, Calendar, Car, RefreshCw, Camera, Upload, X } from 'lucide-react';
+import { RefreshCw, Camera, Upload, X } from 'lucide-react';
 import { showError, showSuccess } from '../../../utils/toast';
 
 interface PreRegisterVisitorModalProps {
@@ -137,7 +137,7 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
     >
       <div className="modal-dialog modal-dialog-centered">
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
-          
+
           {/* ── Header ── */}
           <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
             <div>
@@ -162,170 +162,136 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
 
           <form onSubmit={formik.handleSubmit}>
             <div className="modal-body px-4 py-3">
-              {/* Visitor Name */}
-              <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Visitor Name <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
-                  <span
-                    className={`input-group-text bg-light border-end-0 ${formik.touched.name && formik.errors.name ? 'border-danger' : ''}`}
-                    style={{ borderColor: formik.touched.name && formik.errors.name ? '#dc3545' : formik.values.name.length > 100 ? '#dc3545' : '#e5e7eb' }}
-                  >
-                    <User size={18} className={formik.touched.name && formik.errors.name || formik.values.name.length > 100 ? "text-danger" : "text-secondary"} />
-                  </span>
+
+              {/* ── Visitor Details ── */}
+              <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
+                Visitor Details
+              </p>
+              <div className="row g-3 mb-3">
+
+                <div className="col-md-6">
+                  <label className="form-label fw-medium text-secondary small mb-1">Visitor Name <span className="text-danger">*</span></label>
                   <input
                     type="text"
-                    className={`form-control border-start-0 shadow-none text-dark ${formik.touched.name && formik.errors.name ? 'is-invalid' : ''}`}
-                    placeholder="Full name of expected visitor"
+                    name="name"
+                    className={`form-control shadow-none rounded-2 text-dark ${formik.touched.name && formik.errors.name ? "is-invalid" : ""}`}
+                    placeholder="Enter visitor full name"
                     value={formik.values.name}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    name="name"
-                    style={{ fontSize: "0.875rem", borderColor: formik.touched.name && formik.errors.name ? '#dc3545' : formik.values.name.length > 100 ? '#dc3545' : '#e5e7eb' }}
+                    style={{
+                      fontSize: "0.875rem",
+                      borderColor: formik.values.name.length > 100 ? "#dc3545" : formik.touched.name && formik.errors.name ? "#dc3545" : "#e5e7eb"
+                    }}
                   />
+                  {formik.touched.name && formik.errors.name ? (
+                    <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.name}</div>
+                  ) : formik.values.name.length > 100 ? (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 100 characters allowed.</small>
+                  ) : null}
                 </div>
-                {formik.touched.name && formik.errors.name ? (
-                  <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-                    {formik.errors.name}
-                  </div>
-                ) : formik.values.name.length > 100 ? (
-                  <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 100 characters allowed.</small>
-                ) : null}
-              </div>
 
-              {/* Phone Number */}
-              <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Phone Number <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
-                  <span
-                    className={`input-group-text bg-light border-end-0 ${formik.touched.phone && formik.errors.phone ? 'border-danger' : ''}`}
-                    style={{ borderColor: formik.touched.phone && formik.errors.phone ? '#dc3545' : formik.values.phone.length > 10 ? '#dc3545' : '#e5e7eb' }}
-                  >
-                    <Phone size={18} className={formik.touched.phone && formik.errors.phone || formik.values.phone.length > 10 ? "text-danger" : "text-secondary"} />
-                  </span>
+                <div className="col-md-6">
+                  <label className="form-label fw-medium text-secondary small mb-1">Phone Number <span className="text-danger">*</span></label>
                   <input
-                    type="tel"
-                    className={`form-control border-start-0 shadow-none text-dark ${formik.touched.phone && formik.errors.phone ? 'is-invalid' : ''}`}
-                    placeholder="10-digit mobile number"
+                    type="text"
+                    name="phone"
+                    className={`form-control shadow-none rounded-2 text-dark ${formik.touched.phone && formik.errors.phone ? "is-invalid" : ""}`}
+                    placeholder="Enter 10-digit mobile number"
                     value={formik.values.phone}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       formik.setFieldValue('phone', val);
                     }}
                     onBlur={formik.handleBlur}
-                    name="phone"
-                    style={{ fontSize: "0.875rem", borderColor: formik.touched.phone && formik.errors.phone ? '#dc3545' : formik.values.phone.length > 10 ? '#dc3545' : '#e5e7eb' }}
+                    style={{
+                      fontSize: "0.875rem",
+                      borderColor: formik.values.phone.length > 10 ? "#dc3545" : formik.touched.phone && formik.errors.phone ? "#dc3545" : "#e5e7eb"
+                    }}
                   />
+                  {formik.touched.phone && formik.errors.phone ? (
+                    <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.phone}</div>
+                  ) : formik.values.phone.length > 10 ? (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 10 digits allowed.</small>
+                  ) : null}
                 </div>
-                {formik.touched.phone && formik.errors.phone ? (
-                  <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-                    {formik.errors.phone}
-                  </div>
-                ) : formik.values.phone.length > 10 ? (
-                  <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 10 digits allowed.</small>
-                ) : null}
-              </div>
 
-              {/* Purpose of Visit */}
-              <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Purpose of Visit <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
-                  <span
-                    className={`input-group-text bg-light border-end-0 ${formik.touched.purpose && formik.errors.purpose ? 'border-danger' : ''}`}
-                    style={{ borderColor: formik.touched.purpose && formik.errors.purpose ? '#dc3545' : formik.values.purpose.length > 150 ? '#dc3545' : '#e5e7eb' }}
-                  >
-                    <Tag size={18} className={formik.touched.purpose && formik.errors.purpose || formik.values.purpose.length > 150 ? "text-danger" : "text-secondary"} />
-                  </span>
+                <div className="col-md-6">
+                  <label className="form-label fw-medium text-secondary small mb-1">Purpose of Visit <span className="text-danger">*</span></label>
                   <input
                     type="text"
-                    className={`form-control border-start-0 shadow-none text-dark ${formik.touched.purpose && formik.errors.purpose ? 'is-invalid' : ''}`}
+                    name="purpose"
+                    className={`form-control shadow-none rounded-2 text-dark ${formik.touched.purpose && formik.errors.purpose ? "is-invalid" : ""}`}
                     placeholder="e.g. Guest, Delivery, Service"
                     value={formik.values.purpose}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    name="purpose"
-                    style={{ fontSize: "0.875rem", borderColor: formik.touched.purpose && formik.errors.purpose ? '#dc3545' : formik.values.purpose.length > 150 ? '#dc3545' : '#e5e7eb' }}
+                    style={{
+                      fontSize: "0.875rem",
+                      borderColor: formik.values.purpose.length > 150 ? "#dc3545" : formik.touched.purpose && formik.errors.purpose ? "#dc3545" : "#e5e7eb"
+                    }}
                   />
+                  {formik.touched.purpose && formik.errors.purpose ? (
+                    <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.purpose}</div>
+                  ) : formik.values.purpose.length > 150 ? (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 150 characters allowed.</small>
+                  ) : null}
                 </div>
-                {formik.touched.purpose && formik.errors.purpose ? (
-                  <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-                    {formik.errors.purpose}
-                  </div>
-                ) : formik.values.purpose.length > 150 ? (
-                  <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 150 characters allowed.</small>
-                ) : null}
-              </div>
 
-              {/* Expected Date */}
-              <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Expected Date <span className="text-danger">*</span>
-                </label>
-                <div className="input-group">
-                  <span
-                    className={`input-group-text bg-light border-end-0 ${formik.touched.expectedAt && formik.errors.expectedAt ? 'border-danger' : ''}`}
-                    style={{ borderColor: formik.touched.expectedAt && formik.errors.expectedAt ? '#dc3545' : '#e5e7eb' }}
-                  >
-                    <Calendar size={18} className={formik.touched.expectedAt && formik.errors.expectedAt ? "text-danger" : "text-secondary"} />
-                  </span>
+                <div className="col-md-6">
+                  <label className="form-label fw-medium text-secondary small mb-1">Expected Date <span className="text-danger">*</span></label>
                   <input
                     type="date"
-                    className={`form-control border-start-0 shadow-none text-dark ${formik.touched.expectedAt && formik.errors.expectedAt ? 'is-invalid' : ''}`}
+                    name="expectedAt"
+                    className={`form-control shadow-none rounded-2 text-dark ${formik.touched.expectedAt && formik.errors.expectedAt ? "is-invalid" : ""}`}
                     value={formik.values.expectedAt}
                     min={new Date().toISOString().slice(0, 10)}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    name="expectedAt"
-                    style={{ fontSize: "0.875rem", borderColor: formik.touched.expectedAt && formik.errors.expectedAt ? '#dc3545' : '#e5e7eb' }}
+                    style={{
+                      fontSize: "0.875rem",
+                      borderColor: formik.touched.expectedAt && formik.errors.expectedAt ? "#dc3545" : "#e5e7eb"
+                    }}
                   />
+                  {formik.touched.expectedAt && formik.errors.expectedAt && (
+                    <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.expectedAt}</div>
+                  )}
                 </div>
-                {formik.touched.expectedAt && formik.errors.expectedAt && (
-                  <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-                    {formik.errors.expectedAt}
-                  </div>
-                )}
-              </div>
 
-              {/* Vehicle Plate Number */}
-              <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Vehicle Plate Number <span className="text-muted fw-normal">(Optional)</span>
-                </label>
-                <div className="input-group">
-                  <span className={`input-group-text bg-light border-end-0 ${formik.values.vehicleNumber.length > 20 ? 'border-danger' : ''}`}>
-                    <Car size={18} className={formik.values.vehicleNumber.length > 20 ? "text-danger" : "text-secondary"} />
-                  </span>
+                <div className="col-md-6">
+                  <label className="form-label fw-medium text-secondary small mb-1">Vehicle Plate Number <span className="text-muted fw-normal">(Optional)</span></label>
                   <input
                     type="text"
-                    className="form-control border-start-0 shadow-none text-dark"
+                    name="vehicleNumber"
+                    className={`form-control shadow-none rounded-2 text-dark ${formik.values.vehicleNumber.length > 20 ? "is-invalid" : ""}`}
                     placeholder="e.g. MH 12 AB 1234"
                     value={formik.values.vehicleNumber}
                     onChange={formik.handleChange}
-                    name="vehicleNumber"
-                    style={{ fontSize: "0.875rem", borderColor: formik.values.vehicleNumber.length > 20 ? '#dc3545' : '#e5e7eb' }}
+                    style={{
+                      fontSize: "0.875rem",
+                      borderColor: formik.values.vehicleNumber.length > 20 ? "#dc3545" : "#e5e7eb"
+                    }}
                   />
+                  {formik.values.vehicleNumber.length > 20 && (
+                    <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 20 characters allowed.</small>
+                  )}
                 </div>
-                {formik.values.vehicleNumber.length > 20 && (
-                  <small className="text-danger d-block mt-1" style={{ fontSize: '0.78rem' }}>Maximum 20 characters allowed.</small>
-                )}
+
               </div>
 
-              {/* Visitor Photo (Optional) */}
+              <hr className="border-light-subtle my-3" />
+
+              {/* ── Visitor Photo (Optional) ── */}
+              <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
+                Visitor Photo <span className="text-muted fw-normal">(Optional)</span>
+              </p>
               <div className="mb-3">
-                <label className="form-label fw-medium text-secondary small mb-1">
-                  Visitor Photo <span className="text-muted fw-normal">(Optional)</span>
-                </label>
 
                 {!cameraOpen && !photoPreview && (
                   <div className="d-flex gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-dark btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-1.5 flex-grow-1 py-2"
+                      className="btn btn-outline-dark btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2"
                       onClick={startCamera}
                       style={{ borderRadius: '8px' }}
                     >
@@ -333,7 +299,7 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                       Take Photo
                     </button>
                     <label
-                      className="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-1.5 flex-grow-1 py-2 mb-0"
+                      className="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2 mb-0"
                       style={{ cursor: 'pointer', borderRadius: '8px' }}
                     >
                       <Upload size={15} />
@@ -372,6 +338,7 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                 )}
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
               </div>
+
             </div>
 
             {/* ── Footer ── */}
@@ -379,24 +346,29 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
               <button
                 type="button"
                 className="btn btn-outline-secondary rounded-2 px-3 small d-inline-flex align-items-center"
-                style={{ height: "38px", fontSize: "0.875rem" }}
                 onClick={onClose}
+                style={{ height: "38px", fontSize: "0.875rem" }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center gap-2"
-                style={{ height: "38px", fontSize: "0.875rem", borderRadius: "8px" }}
+                className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
                 disabled={submitting}
+                style={{
+                  height: "38px",
+                  fontSize: "0.875rem",
+                  borderRadius: "8px",
+                  opacity: submitting ? 0.55 : 1
+                }}
               >
                 {submitting ? (
-                  <>
-                    <RefreshCw size={16} className="spin" />
-                    Registering...
-                  </>
+                  <span className="spinner-border spinner-border-sm mx-auto" role="status" />
                 ) : (
-                  'Register Visitor'
+                  <>
+                    <i className="bi bi-person-plus me-1" />
+                    Register Visitor
+                  </>
                 )}
               </button>
             </div>

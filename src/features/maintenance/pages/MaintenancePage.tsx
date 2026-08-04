@@ -604,21 +604,21 @@ const MaintenancePage = () => {
 
               <div className="d-flex gap-2 justify-content-end border-top border-light-subtle pt-3">
                 <button
-                  className="btn btn-sm btn-outline-secondary px-3"
+                  className="btn btn-outline-secondary rounded-2 px-3 small"
                   onClick={() => {
                     setSettlingInvoice(null);
                     settleFormik.resetForm();
                   }}
                   disabled={mutationLoading}
-                  style={{ borderRadius: '6px' }}
+                  style={{ height: '38px', fontSize: '0.875rem' }}
                 >
                   Cancel
                 </button>
                 <button
-                  className="btn btn-sm btn-primary px-3 d-flex align-items-center gap-1"
+                  className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
                   onClick={async () => { await settleFormik.handleSubmit(); }}
                   disabled={mutationLoading || (settleFormik.values.paymentMode === 'Cheque' && !/^\d{6}$/.test(settleFormik.values.chequeNumber.trim()))}
-                  style={{ borderRadius: '6px' }}
+                  style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: mutationLoading ? 0.55 : 1 }}
                 >
                   {mutationLoading ? (
                     <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />

@@ -51,9 +51,9 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
 
       <button
         type="submit"
-        className="btn btn-primary"
+        className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
         disabled={updating}
-        style={{ borderRadius: '8px', fontSize: '0.875rem', height: '38px', whiteSpace: 'nowrap' }}
+        style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: updating ? 0.55 : 1, whiteSpace: 'nowrap' }}
       >
         {updating ? (
           <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />

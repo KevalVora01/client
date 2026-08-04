@@ -315,27 +315,27 @@ export const UpiPaymentModal = ({
               <div className="d-flex gap-2 justify-content-end mt-4 pt-1">
                 <button
                   type="button"
-                  className="btn btn-light border fw-medium px-3"
+                  className="btn btn-outline-secondary rounded-2 px-3 small"
                   onClick={onClose}
                   disabled={submitting}
-                  style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+                  style={{ height: '38px', fontSize: '0.875rem' }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary fw-medium px-4 d-flex align-items-center gap-2"
+                  className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
                   disabled={submitting || formik.values.utrNumber.length !== 12}
-                  style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+                  style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: submitting ? 0.55 : 1 }}
                 >
                   {submitting ? (
                     <>
                       <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                      <span>Verifying...</span>
+                      <span className="ms-1">Verifying...</span>
                     </>
                   ) : (
                     <>
-                      <i className="bi bi-check-lg" />
+                      <i className="bi bi-check-lg me-1" />
                       <span>Submit UTR</span>
                     </>
                   )}

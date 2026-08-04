@@ -349,7 +349,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
         )}
         <button
           type="submit"
-          className="btn btn-primary fw-medium px-3.5 d-inline-flex align-items-center"
+          className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
           disabled={loading}
           style={{
             height: '38px',
@@ -362,7 +362,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
             <span className="spinner-border spinner-border-sm mx-auto" role="status" />
           ) : (
             <>
-              <i className="bi bi-person-plus me-1.5" />
+              <i className="bi bi-person-plus me-1" />
               Log Visitor
             </>
           )}

@@ -235,18 +235,18 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
       <div className="d-flex gap-2 justify-content-end border-top border-light-subtle pt-3">
         <button
           type="button"
-          className="btn btn-outline-secondary"
+          className="btn btn-outline-secondary rounded-2 px-3 small"
           onClick={onCancel}
           disabled={loading}
-          style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+          style={{ height: '38px', fontSize: '0.875rem' }}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="btn btn-primary d-flex align-items-center gap-1"
+          className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
           disabled={loading}
-          style={{ borderRadius: '8px', fontSize: '0.875rem' }}
+          style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: loading ? 0.55 : 1 }}
         >
           {loading ? (
             <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />

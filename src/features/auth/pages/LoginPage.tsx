@@ -178,10 +178,11 @@ const LoginPage = () => {
               style={{
                 backgroundColor: isLoading ? "#4b5563" : "#111827",
                 color: "#ffffff",
-                fontSize: "0.85rem",
+                fontSize: "0.875rem",
                 letterSpacing: "0.08em",
                 borderRadius: "8px",
-                cursor: isLoading ? "not-allowed" : "pointer"
+                cursor: isLoading ? "not-allowed" : "pointer",
+                height: '38px'
               }}
               onMouseEnter={(e) => {
                 if (!isLoading) {

@@ -9,9 +9,9 @@ interface PaginationProps {
 const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
   const { pageNumber, totalPages, totalCount, pageSize, hasNextPage, hasPreviousPage } = pagination;
 
-  if (totalPages == 0) return null;
+  if (totalPages == 0 || totalCount == 0) return null;
 
-  const from = (pageNumber - 1) * pageSize + 1;
+  const from = totalCount > 0 ? (pageNumber - 1) * pageSize + 1 : 0;
   const to = Math.min(pageNumber * pageSize, totalCount);
 
   const getPageNumbers = (): (number | '...')[] => {

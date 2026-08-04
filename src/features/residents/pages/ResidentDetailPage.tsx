@@ -101,6 +101,7 @@ const ResidentDetailPage = () => {
           </div>
         </div>
 
+        {resident.isOwner && (
         <div className="detail-header__actions">
           <button
             className="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
@@ -119,6 +120,7 @@ const ResidentDetailPage = () => {
             <i className="bi bi-person-x" /> Deactivate
           </button>
         </div>
+        )}
       </div>
 
       {/* ── Info cards ── */}

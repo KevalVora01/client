@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { residentApi } from "../api/residentApi";
 import type { Resident } from "../types/resident.types";
+import useAuth from "../../../hooks/useAuth";
 
 const useMyResident = (enabled: boolean = true) => {
+  const { user } = useAuth();
   const [resident, setResident] = useState<Resident | null>(null);
   const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
@@ -47,9 +49,9 @@ const useMyResident = (enabled: boolean = true) => {
     return () => { cancelled = true; };
   }, [enabled]);
 
-  const isOwner = resident?.isOwner ?? false;
-  const isOccupant = resident?.isOccupant ?? false;
-  const isActiveResident = resident?.isActive ?? false;
+  const isOwner = resident?.isOwner ?? user?.resident?.isOwner ?? false;
+  const isOccupant = resident?.isOccupant ?? user?.resident?.isOccupant ?? false;
+  const isActiveResident = resident?.isActive ?? (user?.isActive ?? true);
   const isCurrentOccupant = isActiveResident && isOccupant;
 
   return {

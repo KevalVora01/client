@@ -325,6 +325,7 @@ const MaintenancePage = () => {
             </button>
           );
         }
+        const currentResId = resident?.id ?? user?.residentId ?? user?.resident?.id;
         return isPaid ? (
           <button
             className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
@@ -334,7 +335,7 @@ const MaintenancePage = () => {
           >
             <i className="bi bi-download" />
           </button>
-        ) : (isCurrentOccupant || inv.residentId === resident?.id) ? (
+        ) : (isCurrentOccupant || (currentResId && inv.residentId === currentResId)) ? (
           <PayInvoiceButton invoiceId={inv.id} amount={inv.totalAmount} onPaymentSuccess={refetch} />
         ) : (
           <span className="text-muted" style={{ fontSize: '0.78rem' }}>—</span>

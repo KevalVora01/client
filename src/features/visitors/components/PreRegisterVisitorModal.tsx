@@ -15,7 +15,7 @@ const validationSchema = Yup.object({
   name: Yup.string().trim().min(1, 'Visitor name is required').required('Visitor name is required'),
   phone: Yup.string().trim().length(10, 'Phone must be exactly 10 digits').matches(/^\d+$/, 'Phone must contain only numbers').required('Phone is required'),
   purpose: Yup.string().trim().min(1, 'Purpose of visit is required').required('Purpose of visit is required'),
-  expectedAt: Yup.date().typeError('Expected date is required').min(new Date(), 'Date cannot be in the past').required('Expected date is required'),
+  expectedAt: Yup.date().typeError('Expected date is required').min(new Date(new Date().setHours(0, 0, 0, 0)), 'Date cannot be in the past').required('Expected date is required'),
   vehicleNumber: Yup.string().trim().max(20, 'Must be at most 20 characters').optional(),
 });
 

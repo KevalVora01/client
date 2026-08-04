@@ -80,17 +80,26 @@ const Sidebar = ({ onClose }: SidebarProps) => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const role: UserRole = user?.role ?? 'resident';
-  const { isOwner } = useMyResident(role === 'resident');
+  const { resident, loading, isOwner, isOccupant } = useMyResident(role === 'resident');
 
-  const navItems = role === 'resident' && isOwner
+  const effectiveIsOwner = user?.resident?.isOwner ?? (resident ? isOwner : undefined);
+  const effectiveIsOccupant = user?.resident?.isOccupant ?? (resident ? isOccupant : false);
+
+  const baseNav = role === 'resident' && effectiveIsOwner
     ? [
       ...navConfig.resident.slice(0, 2),
-      { label: 'Tenant', icon: Users, path: '/tenant' },
+      { label: 'Tenant Management', icon: Users, path: '/tenant' },
       ...navConfig.resident.slice(2),
     ]
     : navConfig[role];
 
-  const residentLabel = role !== 'resident' ? roleLabel[role] : (isOwner === undefined ? '' : isOwner ? 'Owner' : 'Tenant');
+  const navItems = role === 'resident' && !effectiveIsOccupant
+    ? baseNav.filter((item) => item.path !== '/visitor-logs')
+    : baseNav;
+
+  const residentLabel = role !== 'resident'
+    ? roleLabel[role]
+    : (effectiveIsOwner === undefined ? (loading ? '' : 'Resident') : (effectiveIsOwner ? 'Owner' : 'Tenant'));
 
   return (
     <>

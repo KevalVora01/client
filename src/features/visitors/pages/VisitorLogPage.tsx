@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import useAuth from '../../../hooks/useAuth';
+import useMyResident from '../../residents/hooks/useMyResident';
 import useVisitors from '../hooks/useVisitors';
 import { useVisitorMutations } from '../hooks/useVisitorMutations';
 import { useDashboardMetrics } from '../hooks/useDashboardMetrics';
@@ -15,6 +16,7 @@ import { Plus } from 'lucide-react';
 const VisitorLogPage = () => {
   const { user } = useAuth();
   const role = user?.role ?? 'resident';
+  const { isCurrentOccupant } = useMyResident(role === 'resident');
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -75,7 +77,7 @@ const VisitorLogPage = () => {
           </p>
         </div>
 
-        {role === 'resident' && (
+        {role === 'resident' && isCurrentOccupant && (
           <div className="d-flex align-items-center gap-2 flex-wrap">
             <button
               type="button"

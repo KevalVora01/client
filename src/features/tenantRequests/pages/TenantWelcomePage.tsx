@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import { getMeApi } from '../../auth/api/authApi';
 
-const POLL_INTERVAL_MS = 30000;
+const POLL_INTERVAL_MS = 4000;
 
 const formatDate = (value: string | null): string => {
   if (!value) return 'soon';
@@ -35,13 +35,10 @@ const TenantWelcomePage = () => {
     let active = true;
     const poll = async () => {
       try {
-        const me = await getMeApi();
+        const updatedUser = await getMeApi();
         if (!active) return;
-        updateUser(me.user);
-        const r = me.user.resident;
-        if (r && !r.isOwner && r.isOccupant) {
-          navigate('/resident', { replace: true });
-        }
+        updateUser(updatedUser as Partial<import('../../auth/types/auth.types').User>);
+        // Navigation is handled by the useEffect above that watches `resident`.
       } catch {
         // keep showing the welcome page if the refresh fails
       }
@@ -51,7 +48,7 @@ const TenantWelcomePage = () => {
       active = false;
       clearInterval(interval);
     };
-  }, [navigate, updateUser]);
+  }, [updateUser]);
 
   const handleLogout = async () => {
     await logout();

@@ -2,6 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Visitor } from '../types/visitor.types';
 import { Camera, RefreshCw, X, CheckCircle2, User, Phone, MapPin, Car, Upload } from 'lucide-react';
 import { showError } from '../../../utils/toast';
+import { useScrollLock } from '../../../hooks/useScrollLock';
 
 interface CheckInPhotoModalProps {
   show: boolean;
@@ -21,21 +22,56 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [cameraOpen, setCameraOpen] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Reset modal state when visitor changes or modal closes
-  useEffect(() => {
-    if (!show) {
-      stopCamera();
-      setPhoto(null);
-      setPhotoPreview(null);
-      setError(null);
+  useScrollLock(show && Boolean(visitor));
+
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
     }
-  }, [show]);
+    setCameraOpen(false);
+  }, []);
+
+  const removePhoto = useCallback(() => {
+    if (photoPreview) {
+      URL.revokeObjectURL(photoPreview);
+    }
+    setPhoto(null);
+    setPhotoPreview(null);
+  }, [photoPreview]);
+
+  const handleClose = useCallback(() => {
+    stopCamera();
+    removePhoto();
+    onClose();
+  }, [stopCamera, removePhoto, onClose]);
+
+  // Clean up MediaStream hardware tracks on unmount
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
+  // Escape key handler
+  useEffect(() => {
+    if (!show) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !loading) {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [show, loading, handleClose]);
 
   const startCamera = useCallback(async () => {
     try {
@@ -52,28 +88,24 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
   useEffect(() => {
     if (cameraOpen && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {
+        /* Ignore autoplay errors */
+      });
     }
   }, [cameraOpen]);
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setCameraOpen(false);
-  }, []);
 
   const capturePhoto = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current;
       const video = videoRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(video, 0, 0);
         canvas.toBlob((blob) => {
           if (blob) {
+            if (photoPreview) URL.revokeObjectURL(photoPreview);
             const file = new File([blob], `visitor-checkin-${Date.now()}.jpg`, { type: 'image/jpeg' });
             setPhoto(file);
             setPhotoPreview(URL.createObjectURL(blob));
@@ -82,18 +114,14 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
         }, 'image/jpeg', 0.85);
       }
     }
-  }, [stopCamera]);
+  }, [stopCamera, photoPreview]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
-  };
-
-  const removePhoto = () => {
-    setPhoto(null);
-    setPhotoPreview(null);
   };
 
   const handleCheckIn = async () => {
@@ -107,7 +135,7 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
 
     const success = await onConfirm(visitor.id, photo || undefined);
     if (success !== false) {
-      onClose();
+      handleClose();
     }
   };
 
@@ -119,18 +147,24 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
     <div
       className="modal d-block bg-dark bg-opacity-50"
       tabIndex={-1}
-      style={{ backdropFilter: "blur(4px)", zIndex: 1055 }}
+      style={{ backdropFilter: 'blur(4px)', zIndex: 1055 }}
+      onClick={() => {
+        if (!loading) handleClose();
+      }}
     >
-      <div className="modal-dialog modal-dialog-centered modal-md">
+      <div
+        className="modal-dialog modal-dialog-centered modal-md"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
           
           {/* Modal Header */}
           <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
             <div>
-              <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: "1rem", color: "#1a1f36" }}>
+              <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: '1rem', color: '#1a1f36' }}>
                 Visitor Gate Check-In
               </h5>
-              <p className="text-muted m-0 small" style={{ fontSize: "0.8rem" }}>
+              <p className="text-muted m-0 small" style={{ fontSize: '0.8rem' }}>
                 Capture visitor photo and verify identity to grant entry.
               </p>
             </div>
@@ -138,7 +172,7 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
               type="button"
               className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
               style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
               aria-label="Close"
             >
@@ -147,11 +181,6 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
           </div>
 
           <div className="modal-body p-4">
-            {error && (
-              <div className="alert alert-danger py-2 px-3 mb-3 small rounded-3" style={{ fontSize: '0.85rem' }}>
-                {error}
-              </div>
-            )}
             {/* Visitor Summary Info */}
             <div className="card border-0 bg-light p-3 rounded-3 mb-4">
               <div className="d-flex align-items-center gap-3">
@@ -339,9 +368,9 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
             <button
               type="button"
               className="btn btn-outline-secondary rounded-2 px-3 small d-inline-flex align-items-center"
-              onClick={onClose}
+              onClick={handleClose}
               disabled={loading}
-              style={{ height: "38px", fontSize: "0.875rem" }}
+              style={{ height: '38px', fontSize: '0.875rem' }}
             >
               Cancel
             </button>
@@ -350,7 +379,7 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
               className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center gap-2 text-white"
               onClick={handleCheckIn}
               disabled={loading}
-              style={{ height: "38px", fontSize: "0.875rem", borderRadius: "8px" }}
+              style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px' }}
             >
               {loading ? (
                 <>

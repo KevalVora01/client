@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import ApartmentSelect from '../../apartments/components/ApartmentSelect';
@@ -43,10 +43,29 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
+  // Stop camera helper
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    setCameraOpen(false);
+  }, []);
+
+  // Cleanup camera stream and photo preview URL on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+      if (photoPreview) {
+        URL.revokeObjectURL(photoPreview);
+      }
+    };
+  }, [stopCamera, photoPreview]);
+
   const startCamera = useCallback(async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 640, height: 480 }
+        video: { facingMode: 'environment', width: 640, height: 480 },
       });
       streamRef.current = mediaStream;
       setCameraOpen(true);
@@ -58,50 +77,54 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   useEffect(() => {
     if (cameraOpen && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {
+        /* Ignore autoplay restriction errors */
+      });
     }
   }, [cameraOpen]);
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-    setCameraOpen(false);
-  }, []);
 
   const capturePhoto = useCallback(() => {
     if (videoRef.current && canvasRef.current) {
       const canvas = canvasRef.current;
       const video = videoRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
       if (ctx) {
         ctx.drawImage(video, 0, 0);
         canvas.toBlob((blob) => {
           if (blob) {
+            if (photoPreview) URL.revokeObjectURL(photoPreview);
             const file = new File([blob], `visitor-${Date.now()}.jpg`, { type: 'image/jpeg' });
             setPhoto(file);
             setPhotoPreview(URL.createObjectURL(blob));
             setPhotoError('');
             stopCamera();
           }
-        }, 'image/jpeg', 0.8);
+        }, 'image/jpeg', 0.85);
       }
     }
-  }, [stopCamera]);
+  }, [stopCamera, photoPreview]);
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhoto(file);
     setPhotoPreview(URL.createObjectURL(file));
     setPhotoError('');
   };
 
   const removePhoto = () => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhoto(null);
     setPhotoPreview(null);
+  };
+
+  const handleCancelForm = () => {
+    stopCamera();
+    removePhoto();
+    onCancel?.();
   };
 
   const formik = useFormik({
@@ -132,8 +155,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
 
       if (success) {
         formik.resetForm();
-        setPhoto(null);
-        setPhotoPreview(null);
+        removePhoto();
         setPhotoError('');
       }
     },
@@ -169,7 +191,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
             style={{ fontSize: '0.875rem', borderColor: formik.touched.name && formik.errors.name ? '#dc3545' : '#e5e7eb' }}
           />
           {formik.touched.name && formik.errors.name && (
-            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
               {formik.errors.name}
             </div>
           )}
@@ -191,7 +213,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
             style={{ fontSize: '0.875rem', borderColor: formik.touched.phone && formik.errors.phone ? '#dc3545' : '#e5e7eb' }}
           />
           {formik.touched.phone && formik.errors.phone && (
-            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+            <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
               {formik.errors.phone}
             </div>
           )}
@@ -210,7 +232,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           style={{ fontSize: '0.875rem', borderColor: formik.touched.purpose && formik.errors.purpose ? '#dc3545' : '#e5e7eb' }}
         />
         {formik.touched.purpose && formik.errors.purpose && (
-          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>
+          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
             {formik.errors.purpose}
           </div>
         )}
@@ -245,7 +267,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
                 borderRadius: '6px',
                 fontSize: '0.875rem',
                 height: '42px',
-                border: `1px solid ${formik.touched.photo && formik.errors.photo ? '#dc3545' : '#e5e7eb'}`,
+                border: `1px solid ${photoError ? '#dc3545' : '#e5e7eb'}`,
                 backgroundColor: '#ffffff',
                 color: '#2c2f33',
               }}
@@ -260,7 +282,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
                 fontSize: '0.875rem',
                 height: '42px',
                 cursor: 'pointer',
-                border: `1px solid ${formik.touched.photo && formik.errors.photo ? '#dc3545' : '#e5e7eb'}`,
+                border: `1px solid ${photoError ? '#dc3545' : '#e5e7eb'}`,
                 backgroundColor: '#ffffff',
                 color: '#2c2f33',
               }}
@@ -342,7 +364,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
         )}
 
         {photoError && (
-          <div className="invalid-feedback d-block text-danger mt-2" style={{ fontSize: "0.8rem" }}>
+          <div className="invalid-feedback d-block text-danger mt-2" style={{ fontSize: '0.8rem' }}>
             {photoError}
           </div>
         )}
@@ -355,7 +377,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           <button
             type="button"
             className="btn btn-outline-secondary rounded-2 px-3 small d-inline-flex align-items-center"
-            onClick={onCancel}
+            onClick={handleCancelForm}
             disabled={loading}
             style={{ height: '38px', fontSize: '0.875rem' }}
           >

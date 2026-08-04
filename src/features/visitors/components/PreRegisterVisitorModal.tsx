@@ -53,6 +53,7 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
         );
 
         showSuccess('Visitor pre-registered successfully!');
+        window.dispatchEvent(new CustomEvent('visitor-updated'));
         onSuccess();
         onClose();
         formik.resetForm();

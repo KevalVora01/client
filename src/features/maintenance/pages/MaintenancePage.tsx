@@ -1,7 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
 import { useInvoicesPage } from '../hooks/useInvoicesPage';
 import { useInvoiceMutations } from '../hooks/useInvoiceMutations';
 import { useMaintenanceSettings } from '../hooks/useMaintenanceSettings';
@@ -28,16 +26,6 @@ function formatMonth(month: number, year: number): string {
 }
 
 type InvoiceScope = 'self' | 'tenant';
-
-const settleValidationSchema = Yup.object({
-  paymentMode: Yup.string()
-    .oneOf(['Cash', 'Cheque'], 'Invalid payment mode')
-    .required('Payment mode is required'),
-  chequeNumber: Yup.string().when('paymentMode', {
-    is: 'Cheque',
-    then: (schema) => schema.trim().min(1, 'Cheque number is required').required('Cheque number is required'),
-  }),
-});
 
 const MaintenancePage = () => {
   const { user } = useAuth();
@@ -70,48 +58,14 @@ const MaintenancePage = () => {
     showResidentName ? inv.resident?.userId !== user?.id : true
   );
 
-  const { generateInvoices, markInvoiceSettled, applyOverduePenalties, loading: mutationLoading } = useInvoiceMutations(refetch);
+  const { generateInvoices, applyOverduePenalties, loading: mutationLoading } = useInvoiceMutations(refetch);
   const { setting, loading: settingLoading, updating, updateAmount } = useMaintenanceSettings(isAdmin);
   const { metrics, loading: metricsLoading, refetch: refetchMetrics } = useDashboardMetrics();
 
   const [generateModalOpen, setGenerateModalOpen] = useState(false);
-  const [settlingInvoice, setSettlingInvoice] = useState<Invoice | null>(null);
-  const settlingInvoiceRef = useRef<Invoice | null>(null);
   const [applyPenaltiesConfirmOpen, setApplyPenaltiesConfirmOpen] = useState(false);
 
   useScrollLock(generateModalOpen);
-
-  const settleFormik = useFormik({
-    initialValues: {
-      paymentMode: 'Cash' as 'Cash' | 'Cheque',
-      chequeNumber: '',
-    },
-    validationSchema: settleValidationSchema,
-    onSubmit: async (values) => {
-      const invoice = settlingInvoiceRef.current;
-      if (!invoice) return;
-
-      const paymentRef = values.paymentMode === 'Cheque'
-        ? `Cheque - #${values.chequeNumber.trim()}`
-        : '-';
-
-      const success = await markInvoiceSettled(invoice.id, paymentRef);
-      if (success) {
-        refetchMetrics();
-        setSettlingInvoice(null);
-        settleFormik.resetForm();
-      }
-    },
-  });
-
-  useEffect(() => {
-    settlingInvoiceRef.current = settlingInvoice;
-    if (settlingInvoice) {
-      settleFormik.resetForm();
-    }
-  }, [settlingInvoice, settleFormik]);
-
-
 
   const handleGenerate = async (payload: Parameters<typeof generateInvoices>[0]): Promise<boolean> => {
     const success = await generateInvoices(payload);
@@ -316,13 +270,7 @@ const MaintenancePage = () => {
               <i className="bi bi-download" />
             </button>
           ) : (
-            <button
-              className="btn btn-sm btn-outline-secondary"
-              onClick={() => setSettlingInvoice(inv)}
-              style={{ borderRadius: '6px', fontSize: '0.78rem' }}
-            >
-              Mark Settled
-            </button>
+            <span className="text-muted" style={{ fontSize: '0.78rem' }}>—</span>
           );
         }
         const currentResId = resident?.id ?? user?.residentId ?? user?.resident?.id;
@@ -512,126 +460,7 @@ const MaintenancePage = () => {
         </div>
       )}
 
-      {/* ── Mark Settled Confirm ── */}
-      {settlingInvoice && (
-        <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1070 }} onClick={() => setSettlingInvoice(null)}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white p-3 p-sm-4 position-relative">
-              <div className="d-flex align-items-center justify-content-between mb-3 border-bottom border-light-subtle pb-2">
-                <h5 className="modal-title fw-bold fs-6 text-dark mb-0">Mark Invoice Settled</h5>
-                <button
-                  type="button"
-                  className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
-                  style={{ top: 20, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
-                  onClick={() => setSettlingInvoice(null)}
-                  aria-label="Close"
-                >
-                  <i className="bi bi-x" />
-                </button>
-              </div>
 
-              <div className="mb-3">
-                <label className="form-label fw-semibold text-secondary small">Payment Mode</label>
-                <div className="d-flex gap-4 mt-1">
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="paymentMode"
-                      id="modeCash"
-                      checked={settleFormik.values.paymentMode === 'Cash'}
-                      onChange={() => settleFormik.setFieldValue('paymentMode', 'Cash')}
-                      style={{
-                        backgroundColor: settleFormik.values.paymentMode === 'Cash' ? '#1a1f36' : '',
-                        borderColor: settleFormik.values.paymentMode === 'Cash' ? '#1a1f36' : '',
-                        boxShadow: 'none',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <label className="form-check-label text-dark small" htmlFor="modeCash" style={{ cursor: 'pointer' }}>
-                      Cash
-                    </label>
-                  </div>
-                  <div className="form-check">
-                    <input
-                      className="form-check-input"
-                      type="radio"
-                      name="paymentMode"
-                      id="modeCheque"
-                      checked={settleFormik.values.paymentMode === 'Cheque'}
-                      onChange={() => settleFormik.setFieldValue('paymentMode', 'Cheque')}
-                      style={{
-                        backgroundColor: settleFormik.values.paymentMode === 'Cheque' ? '#1a1f36' : '',
-                        borderColor: settleFormik.values.paymentMode === 'Cheque' ? '#1a1f36' : '',
-                        boxShadow: 'none',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <label className="form-check-label text-dark small" htmlFor="modeCheque" style={{ cursor: 'pointer' }}>
-                      Cheque
-                    </label>
-                  </div>
-                </div>
-                {settleFormik.touched.paymentMode && settleFormik.errors.paymentMode && (
-                  <div className="text-danger mt-1" style={{ fontSize: '0.78rem' }}>
-                    {settleFormik.errors.paymentMode}
-                  </div>
-                )}
-              </div>
-
-              {settleFormik.values.paymentMode === 'Cheque' && (
-                <div className="mb-4">
-                  <label className="form-label fw-semibold text-secondary small" htmlFor="chequeNumber">
-                    Cheque Number
-                  </label>
-                  <input
-                    type="text"
-                    id="chequeNumber"
-                    className={`form-control form-control-sm shadow-none ${settleFormik.touched.chequeNumber && settleFormik.errors.chequeNumber ? 'is-invalid' : ''}`}
-                    placeholder="Enter 6-digit cheque number"
-                    value={settleFormik.values.chequeNumber}
-                    onChange={settleFormik.handleChange}
-                    onBlur={settleFormik.handleBlur}
-                    style={{ borderRadius: '6px' }}
-                    required
-                  />
-                  {settleFormik.touched.chequeNumber && settleFormik.errors.chequeNumber && (
-                    <div className="invalid-feedback" style={{ fontSize: '0.78rem' }}>
-                      {settleFormik.errors.chequeNumber}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <div className="d-flex gap-2 justify-content-end border-top border-light-subtle pt-3">
-                <button
-                  className="btn btn-outline-secondary rounded-2 px-3 small"
-                  onClick={() => {
-                    setSettlingInvoice(null);
-                    settleFormik.resetForm();
-                  }}
-                  disabled={mutationLoading}
-                  style={{ height: '38px', fontSize: '0.875rem' }}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center"
-                  onClick={async () => { await settleFormik.handleSubmit(); }}
-                  disabled={mutationLoading || (settleFormik.values.paymentMode === 'Cheque' && !/^\d{6}$/.test(settleFormik.values.chequeNumber.trim()))}
-                  style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: mutationLoading ? 0.55 : 1 }}
-                >
-                  {mutationLoading ? (
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-                  ) : (
-                    'Confirm'
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── Apply Penalties Confirm ── */}
       <ConfirmDialog

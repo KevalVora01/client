@@ -218,17 +218,32 @@ export const CheckInPhotoModal: React.FC<CheckInPhotoModalProps> = ({
                 <div className="d-flex gap-2 mb-3">
                   <button
                     type="button"
-                    className="btn btn-outline-dark fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1"
+                    className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1"
                     onClick={startCamera}
-                    style={{ borderRadius: '8px', fontSize: '0.85rem', height: '42px' }}
+                    style={{
+                      borderRadius: '6px',
+                      fontSize: '0.875rem',
+                      height: '42px',
+                      border: '1px solid #e5e7eb',
+                      backgroundColor: '#ffffff',
+                      color: '#2c2f33',
+                    }}
                   >
                     <Camera size={16} className="me-1.5" />
                     {visitor.photoUrl ? 'Capture New Photo' : 'Open Camera & Capture'}
                   </button>
 
                   <label
-                    className="btn btn-outline-secondary fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 mb-0"
-                    style={{ borderRadius: '8px', fontSize: '0.85rem', height: '42px', cursor: 'pointer' }}
+                    className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 mb-0"
+                    style={{
+                      borderRadius: '6px',
+                      fontSize: '0.875rem',
+                      height: '42px',
+                      cursor: 'pointer',
+                      border: '1px solid #e5e7eb',
+                      backgroundColor: '#ffffff',
+                      color: '#2c2f33',
+                    }}
                   >
                     <Upload size={16} />
                     Upload File

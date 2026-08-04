@@ -239,16 +239,31 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           <div className="d-flex gap-2">
             <button
               type="button"
-              className="btn btn-outline-dark fw-semibold d-inline-flex align-items-center gap-2 flex-grow-1"
+              className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1"
               onClick={startCamera}
-              style={{ borderRadius: '8px', fontSize: '0.85rem', height: '42px' }}
+              style={{
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                height: '42px',
+                border: `1px solid ${formik.touched.photo && formik.errors.photo ? '#dc3545' : '#e5e7eb'}`,
+                backgroundColor: '#ffffff',
+                color: '#2c2f33',
+              }}
             >
               <Camera size={16} />
               Open Camera
             </button>
             <label
-              className="btn btn-outline-secondary fw-semibold d-inline-flex align-items-center gap-2 flex-grow-1 mb-0"
-              style={{ borderRadius: '8px', fontSize: '0.85rem', height: '42px', cursor: 'pointer' }}
+              className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 mb-0"
+              style={{
+                borderRadius: '6px',
+                fontSize: '0.875rem',
+                height: '42px',
+                cursor: 'pointer',
+                border: `1px solid ${formik.touched.photo && formik.errors.photo ? '#dc3545' : '#e5e7eb'}`,
+                backgroundColor: '#ffffff',
+                color: '#2c2f33',
+              }}
             >
               <i className="bi bi-upload" />
               Upload Photo

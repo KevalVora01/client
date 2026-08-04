@@ -291,16 +291,31 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                   <div className="d-flex gap-2">
                     <button
                       type="button"
-                      className="btn btn-outline-dark btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2"
+                      className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2"
                       onClick={startCamera}
-                      style={{ borderRadius: '8px' }}
+                      style={{
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        border: '1px solid #e5e7eb',
+                        backgroundColor: '#ffffff',
+                        color: '#2c2f33',
+                      }}
                     >
                       <Camera size={15} />
                       Take Photo
                     </button>
                     <label
-                      className="btn btn-outline-secondary btn-sm fw-semibold d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2 mb-0"
-                      style={{ cursor: 'pointer', borderRadius: '8px' }}
+                      className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2 mb-0"
+                      style={{
+                        cursor: 'pointer',
+                        borderRadius: '6px',
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        border: '1px solid #e5e7eb',
+                        backgroundColor: '#ffffff',
+                        color: '#2c2f33',
+                      }}
                     >
                       <Upload size={15} />
                       Upload File

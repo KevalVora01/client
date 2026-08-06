@@ -95,16 +95,16 @@ const TenantHistorySection = () => {
                       </div>
                     </div>
 
-                    <div className="detail-header__actions d-flex flex-wrap gap-2 w-100 w-sm-auto">
+                    <div className="detail-header__actions d-flex flex-wrap align-items-center gap-2 ms-auto">
                       <button
-                        className="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0"
+                        className="btn btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2"
                         style={{ fontSize: '0.875rem', borderRadius: '8px' }}
                         onClick={() => setShowRevokeModal(currentTenant)}
                       >
                         <Ban size={16} /> Revoke
                       </button>
                       <button
-                        className="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2 flex-fill flex-sm-grow-0"
+                        className="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center gap-2"
                         style={{ fontSize: '0.875rem', borderRadius: '8px' }}
                         onClick={() => navigate(`/tenant/${currentTenant.id}`)}
                       >

@@ -43,7 +43,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Stop camera helper
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
@@ -52,7 +51,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
     setCameraOpen(false);
   }, []);
 
-  // Cleanup camera stream and photo preview URL on unmount
   useEffect(() => {
     return () => {
       stopCamera();
@@ -77,9 +75,7 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
   useEffect(() => {
     if (cameraOpen && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
-      videoRef.current.play().catch(() => {
-        /* Ignore autoplay restriction errors */
-      });
+      videoRef.current.play().catch(() => {});
     }
   }, [cameraOpen]);
 
@@ -163,7 +159,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
 
   return (
     <form onSubmit={formik.handleSubmit} noValidate>
-      {/* Apartment Select */}
       <div className="mb-3">
         <label className="form-label fw-medium text-secondary small mb-1">
           Apartment <span className="text-danger">*</span>
@@ -299,7 +294,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           </div>
         )}
 
-        {/* Camera Live View */}
         {cameraOpen && (
           <div className="position-relative rounded-3 overflow-hidden" style={{ backgroundColor: '#000' }}>
             <video
@@ -333,7 +327,6 @@ const WalkInVisitorForm = ({ loading = false, onSubmit, onCancel }: WalkInVisito
           </div>
         )}
 
-        {/* Photo Preview */}
         {photoPreview && !cameraOpen && (
           <div className="d-flex align-items-center gap-3">
             <img

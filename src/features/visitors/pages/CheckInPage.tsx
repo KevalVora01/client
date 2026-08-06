@@ -74,8 +74,8 @@ const CheckInPage = () => {
     return logWalkIn(payload, photo);
   };
 
-  const handleCheckIn = async (visitor: Visitor, photo?: File) => {
-    await checkIn(visitor.id, photo);
+  const handleCheckIn = async (visitor: Visitor) => {
+    await checkIn(visitor.id);
   };
 
   const handleSecurityRespond = async (visitorId: number, decision: 'Approve' | 'Reject') => {
@@ -555,9 +555,9 @@ const CheckInPage = () => {
         visitor={selectedApprovedVisitor}
         loading={mutationLoading && actionId === selectedApprovedVisitor?.id}
         onClose={() => setSelectedApprovedVisitor(null)}
-        onConfirm={async (_visitorId, photo) => {
+        onConfirm={async (_visitorId) => {
           if (selectedApprovedVisitor) {
-            await handleCheckIn(selectedApprovedVisitor, photo);
+            await handleCheckIn(selectedApprovedVisitor);
             setSelectedApprovedVisitor(null);
           }
         }}

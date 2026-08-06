@@ -1,8 +1,7 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { visitorApi } from '../api/visitorApi';
-import { RefreshCw, Camera, Upload, X } from 'lucide-react';
 import { showError, showSuccess } from '../../../utils/toast';
 
 interface PreRegisterVisitorModalProps {
@@ -20,14 +19,7 @@ const validationSchema = Yup.object({
 });
 
 export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = ({ show, onClose, onSuccess }) => {
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [cameraOpen, setCameraOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
   const formik = useFormik({
     initialValues: {
@@ -41,25 +33,19 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
     onSubmit: async (values) => {
       try {
         setSubmitting(true);
-        await visitorApi.preRegister(
-          {
+        await visitorApi.preRegister({
             name: values.name.trim(),
             phone: values.phone.trim(),
             purpose: values.purpose.trim(),
             expectedAt: new Date(values.expectedAt + 'T00:00:00').toISOString(),
             vehicleNumber: values.vehicleNumber.trim() || undefined,
-          },
-          photo || undefined
-        );
+          });
 
         showSuccess('Visitor pre-registered successfully!');
         window.dispatchEvent(new CustomEvent('visitor-updated'));
         onSuccess();
         onClose();
         formik.resetForm();
-        setPhoto(null);
-        setPhotoPreview(null);
-        stopCamera();
       } catch (err: unknown) {
         const axiosError = err as { response?: { data?: { message?: string } } };
         showError(axiosError?.response?.data?.message || 'Failed to pre-register visitor');
@@ -68,65 +54,6 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
       }
     },
   });
-
-  const startCamera = useCallback(async () => {
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment', width: 640, height: 480 },
-      });
-      streamRef.current = mediaStream;
-      setCameraOpen(true);
-    } catch {
-      showError('Unable to access camera. Please upload a photo instead.');
-    }
-  }, []);
-
-  useEffect(() => {
-    if (cameraOpen && videoRef.current && streamRef.current) {
-      videoRef.current.srcObject = streamRef.current;
-    }
-  }, [cameraOpen]);
-
-  const stopCamera = useCallback(() => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setCameraOpen(false);
-  }, []);
-
-  const capturePhoto = useCallback(() => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const video = videoRef.current;
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(video, 0, 0);
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const file = new File([blob], `visitor-prereg-${Date.now()}.jpg`, { type: 'image/jpeg' });
-            setPhoto(file);
-            setPhotoPreview(URL.createObjectURL(blob));
-            stopCamera();
-          }
-        }, 'image/jpeg', 0.85);
-      }
-    }
-  }, [stopCamera]);
-
-  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setPhoto(file);
-    setPhotoPreview(URL.createObjectURL(file));
-  };
-
-  const removePhoto = () => {
-    setPhoto(null);
-    setPhotoPreview(null);
-  };
 
   if (!show) return null;
 
@@ -278,81 +205,6 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                   )}
                 </div>
 
-              </div>
-
-              <hr className="border-light-subtle my-3" />
-
-              {/* ── Visitor Photo (Optional) ── */}
-              <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
-                Visitor Photo <span className="text-muted fw-normal">(Optional)</span>
-              </p>
-              <div className="mb-3">
-
-                {!cameraOpen && !photoPreview && (
-                  <div className="d-flex gap-2">
-                    <button
-                      type="button"
-                      className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2"
-                      onClick={startCamera}
-                      style={{
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        border: '1px solid #e5e7eb',
-                        backgroundColor: '#ffffff',
-                        color: '#2c2f33',
-                      }}
-                    >
-                      <Camera size={15} />
-                      Take Photo
-                    </button>
-                    <label
-                      className="btn fw-medium d-inline-flex align-items-center justify-content-center gap-2 flex-grow-1 py-2 mb-0"
-                      style={{
-                        cursor: 'pointer',
-                        borderRadius: '6px',
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        border: '1px solid #e5e7eb',
-                        backgroundColor: '#ffffff',
-                        color: '#2c2f33',
-                      }}
-                    >
-                      <Upload size={15} />
-                      Upload File
-                      <input type="file" accept="image/*" className="d-none" onChange={handlePhotoUpload} />
-                    </label>
-                  </div>
-                )}
-
-                {cameraOpen && (
-                  <div className="position-relative rounded-3 overflow-hidden" style={{ backgroundColor: '#000' }}>
-                    <video ref={videoRef} autoPlay playsInline muted className="w-100" style={{ maxHeight: '200px', objectFit: 'cover' }} />
-                    <div className="position-absolute bottom-0 start-0 end-0 p-2 d-flex justify-content-center gap-2" style={{ background: 'linear-gradient(transparent, rgba(0,0,0,0.7))' }}>
-                      <button type="button" className="btn btn-light btn-sm fw-semibold rounded-pill px-3" onClick={capturePhoto}>
-                        <Camera size={14} className="me-1" /> Capture
-                      </button>
-                      <button type="button" className="btn btn-outline-light btn-sm fw-semibold rounded-pill px-3" onClick={stopCamera}>
-                        <X size={14} className="me-1" /> Cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {photoPreview && !cameraOpen && (
-                  <div className="d-flex align-items-center gap-3 bg-light p-2 rounded-3 border">
-                    <img src={photoPreview} alt="Preview" className="rounded border object-fit-cover" style={{ width: '60px', height: '60px' }} />
-                    <div className="d-flex gap-2">
-                      <button type="button" className="btn btn-sm btn-outline-secondary py-1 px-2" style={{ fontSize: '0.75rem' }} onClick={() => { removePhoto(); startCamera(); }}>
-                        <RefreshCw size={12} className="me-1" /> Retake
-                      </button>
-                      <button type="button" className="btn btn-sm btn-outline-danger py-1 px-2" style={{ fontSize: '0.75rem' }} onClick={removePhoto}>
-                        <X size={12} className="me-1" /> Remove
-                      </button>
-                    </div>
-                  </div>
-                )}
-                <canvas ref={canvasRef} style={{ display: 'none' }} />
               </div>
 
             </div>

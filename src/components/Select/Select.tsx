@@ -155,7 +155,7 @@ const Select = ({
           <div
             className="position-absolute bg-white border border-light-subtle rounded-3 shadow-lg overflow-hidden"
             style={{
-              zIndex: 9999,
+              zIndex: 1070,
               width: dropdownWidth ? `${dropdownWidth}px` : 'auto',
               minWidth: dropdownWidth ? `${dropdownWidth}px` : '100%',
               ...(openUp

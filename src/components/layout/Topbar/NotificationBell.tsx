@@ -23,6 +23,8 @@ const ICON_MAP: Record<string, typeof FileText> = {
   visitor_approval_needed: ShieldAlert,
   visitor_approval_timed_out: Clock,
   visitor_checked_in: CheckCheck,
+  visitor_approved: CheckCheck,
+  visitor_rejected: XCircle,
   complaint_status_changed: MessageSquareWarning,
   complaint_created: MessageSquareWarning,
   complaint_comment_added: MessageSquareWarning,
@@ -48,6 +50,8 @@ const CLASS_MAP: Record<string, string> = {
   visitor_approval_needed: 'bg-primary-subtle text-primary',
   visitor_approval_timed_out: 'bg-danger-subtle text-danger',
   visitor_checked_in: 'bg-success-subtle text-success',
+  visitor_approved: 'bg-success-subtle text-success-emphasis',
+  visitor_rejected: 'bg-danger-subtle text-danger-emphasis',
   complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
   complaint_created: 'bg-warning-subtle text-warning-emphasis',
   complaint_comment_added: 'bg-warning-subtle text-warning-emphasis',
@@ -73,6 +77,8 @@ const NAV_MAP: Record<string, string> = {
   visitor_approval_needed: '/check-in',
   visitor_approval_timed_out: '/visitors-log',
   visitor_checked_in: '/check-out',
+  visitor_approved: '/my-visitors',
+  visitor_rejected: '/my-visitors',
   complaint_status_changed: '/complaints',
   complaint_created: '/complaints',
   complaint_comment_added: '/complaints',
@@ -167,8 +173,34 @@ const NotificationBell = () => {
       setUnreadCount((c) => c + 1);
     };
 
+    const handleVisitorUpdated = (data: { visitorId: number; status: string }) => {
+      if (!data?.visitorId || !data?.status) return;
+      const nextDecision = data.status === 'Approved' ? 'Approved' : data.status === 'Rejected' ? 'Rejected' : null;
+      if (!nextDecision) return;
+
+      setActionStates((prev) => {
+        const next = { ...prev };
+        setNotifications((current) => {
+          current.forEach((n) => {
+            if ((n.type === 'visitor_approval_needed' || n.type === 'visitor_approved' || n.type === 'visitor_rejected') && Number(n.data?.visitorId) === data.visitorId) {
+              next[n.id] = nextDecision;
+            }
+          });
+          return current;
+        });
+        try {
+          localStorage.setItem('visitor_action_states', JSON.stringify(next));
+        } catch { /* ignore */ }
+        return next;
+      });
+    };
+
     socket.on('notification:new', handleNewNotification);
-    return () => { socket.off('notification:new', handleNewNotification); };
+    socket.on('visitor:updated', handleVisitorUpdated);
+    return () => {
+      socket.off('notification:new', handleNewNotification);
+      socket.off('visitor:updated', handleVisitorUpdated);
+    };
   }, [socket]);
 
   const handleDropdownOpen = async () => {
@@ -341,8 +373,13 @@ const NotificationBell = () => {
           <div className="list-group list-group-flush" style={{ maxHeight: '420px', overflowY: 'auto' }}>
             {notifications.map((n) => {
               const Icon = iconFor(n.type);
-              const isApprovalNotification = n.type === 'visitor_approval_needed';
-              const decision = actionStates[n.id];
+              const isApprovalNotification = n.type === 'visitor_approval_needed' || n.type === 'visitor_approved' || n.type === 'visitor_rejected';
+              const decision =
+                n.type === 'visitor_approved'
+                  ? 'Approved'
+                  : n.type === 'visitor_rejected'
+                  ? 'Rejected'
+                  : actionStates[n.id] || (n.data?.status === 'Approved' ? 'Approved' : n.data?.status === 'Rejected' ? 'Rejected' : null);
 
               return (
                 <div

@@ -277,6 +277,15 @@ const ApartmentDetailPage = () => {
                     </p>
                   </div>
 
+                  <div className="text-end">
+                    <p className="mb-0" style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#9ca3af' }}>
+                      Move-out Date
+                    </p>
+                    <p className="mb-0 fw-semibold" style={{ fontSize: '0.875rem', color: '#111827' }}>
+                      {formatDate(t.moveOutDate)}
+                    </p>
+                  </div>
+
                   <span className={`badge-pill ${t.isOccupant ? 'badge-pill--active' : 'badge-pill--inactive'}`}>
                     {t.isOccupant ? 'Occupant' : 'Past Tenant'}
                   </span>

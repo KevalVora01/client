@@ -7,7 +7,7 @@ import { formatDateOnly } from '../../../utils/formatDate';
 import CheckInPhotoModal from './CheckInPhotoModal';
 
 interface VisitorLookupSearchProps {
-  onCheckIn?: (visitor: Visitor) => void | Promise<void>;
+  onCheckIn?: (visitor: Visitor, photo?: File) => void | Promise<void>;
   onCheckInSuccess?: () => void;
   checkInLoading?: boolean;
 }
@@ -42,16 +42,16 @@ export const VisitorLookupSearch: React.FC<VisitorLookupSearchProps> = ({
     setSelectedVisitor(visitor);
   };
 
-  const handleConfirmCheckIn = async (visitorId: number) => {
+  const handleConfirmCheckIn = async (visitorId: number, photo?: File) => {
     if (!selectedVisitor) return;
     if (onCheckIn) {
-      await onCheckIn(selectedVisitor);
+      await onCheckIn(selectedVisitor, photo);
       search(localQuery);
       setSelectedVisitor(null);
       return;
     }
 
-    const success = await checkIn(visitorId);
+    const success = await checkIn(visitorId, photo);
     if (success) {
       search(localQuery);
       onCheckInSuccess?.();

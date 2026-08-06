@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useScrollLock } from "../../hooks/useScrollLock";
 
-type ConfirmVariant = "danger" | "warning" | "info";
+type ConfirmVariant = "danger" | "warning" | "info" | "success" | "dark";
 
 interface ConfirmDialogProps {
   show: boolean;
@@ -24,7 +24,7 @@ const VARIANT_CONFIG = {
     btnClass: "btn-danger",
   },
   warning: {
-    icon: "bi-person-x",
+    icon: "bi-exclamation-triangle",
     iconBg: "#fffbeb",
     iconColor: "#d97706",
     btnClass: "btn-warning",
@@ -34,6 +34,18 @@ const VARIANT_CONFIG = {
     iconBg: "#eff6ff",
     iconColor: "#2563eb",
     btnClass: "btn-primary",
+  },
+  success: {
+    icon: "bi-check-circle-fill",
+    iconBg: "#dcfce7",
+    iconColor: "#15803d",
+    btnClass: "btn-success",
+  },
+  dark: {
+    icon: "bi-shield-check",
+    iconBg: "#f1f5f9",
+    iconColor: "#1e293b",
+    btnClass: "btn-dark",
   },
 };
 

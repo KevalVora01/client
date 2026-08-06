@@ -13,6 +13,7 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
     initialValues: {
       amount: currentAmount !== undefined ? String(currentAmount) : '',
     },
+    enableReinitialize: true,
     validationSchema: Yup.object({
       amount: Yup.number()
         .typeError('Amount must be a valid number')
@@ -23,7 +24,7 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
       const parsed = Number(values.amount);
       const ok = await onSubmit(parsed);
       if (ok) {
-        showSuccess('Saved');
+        showSuccess('Monthly maintenance amount updated successfully!');
       }
     },
   });
@@ -36,10 +37,11 @@ const MaintenanceSettingsForm = ({ currentAmount, updating, onSubmit }: Maintena
         </label>
         <input
           type="number"
+          name="amount"
+          id="amount"
           className={`form-control shadow-none${formik.touched.amount && formik.errors.amount ? ' is-invalid' : ''}`}
-          value={formik.values.amount}
-          onChange={formik.handleChange}
-          onBlur={formik.handleBlur}
+          placeholder="Enter amount"
+          {...formik.getFieldProps('amount')}
           style={{ borderRadius: '8px', fontSize: '0.9rem' }}
         />
         {formik.touched.amount && formik.errors.amount && (

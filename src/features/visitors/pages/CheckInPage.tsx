@@ -13,6 +13,7 @@ import {
   Plus, UserPlus, Clock, UserCheck, Check, X,
   ShieldCheck, BadgeCheck, Car, Phone, MapPin, User, Camera
 } from 'lucide-react';
+import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import { visitorApi } from '../api/visitorApi';
 import { toast } from 'react-toastify';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
@@ -74,8 +75,8 @@ const CheckInPage = () => {
     return logWalkIn(payload, photo);
   };
 
-  const handleCheckIn = async (visitor: Visitor) => {
-    await checkIn(visitor.id);
+  const handleCheckIn = async (visitor: Visitor, photo?: File) => {
+    await checkIn(visitor.id, photo);
   };
 
   const handleSecurityRespond = async (visitorId: number, decision: 'Approve' | 'Reject') => {
@@ -447,63 +448,20 @@ const CheckInPage = () => {
       </div>
 
       {/* ── Confirmation Dialog for Approve/Reject ── */}
-      {confirmAction && (
-        <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', zIndex: 1060 }}>
-          <div className="modal-dialog modal-dialog-centered modal-sm">
-            <div className="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
-              <div className="modal-body p-4 text-center">
-                <div
-                  className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                  style={{
-                    width: '56px', height: '56px',
-                    backgroundColor: confirmAction.decision === 'Approve' ? '#dcfce7' : '#fee2e2'
-                  }}
-                >
-                  {confirmAction.decision === 'Approve' ? (
-                    <BadgeCheck size={28} className="text-success" />
-                  ) : (
-                    <ShieldCheck size={28} className="text-danger" />
-                  )}
-                </div>
-                <h6 className="fw-bold text-dark mb-2">
-                  {confirmAction.decision === 'Approve' ? 'Approve Entry?' : 'Reject Entry?'}
-                </h6>
-                <p className="text-muted mb-3" style={{ fontSize: '0.85rem' }}>
-                  {confirmAction.decision === 'Approve'
-                    ? 'This will grant the visitor access to the premises.'
-                    : 'This will deny the visitor access. They will be logged as rejected.'}
-                </p>
-              </div>
-              <div className="modal-footer border-0 px-4 pb-4 pt-0 d-flex justify-content-center gap-2">
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary px-3"
-                  onClick={() => setConfirmAction(null)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className={`btn fw-semibold px-4 d-inline-flex align-items-center gap-2 ${
-                    confirmAction.decision === 'Approve' ? 'btn-success' : 'btn-danger'
-                  }`}
-                  onClick={confirmSecurityDecision}
-                >
-                  {confirmAction.decision === 'Approve' ? (
-                    <>
-                      <Check size={16} /> Approve
-                    </>
-                  ) : (
-                    <>
-                      <X size={16} /> Reject
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        show={confirmAction !== null}
+        title={confirmAction?.decision === 'Approve' ? 'Approve Entry?' : 'Reject Entry?'}
+        message={
+          confirmAction?.decision === 'Approve'
+            ? 'This will grant the visitor access to the premises and allow security check-in.'
+            : 'This will deny the visitor access to the society premises.'
+        }
+        confirmLabel={confirmAction?.decision === 'Approve' ? 'Approve' : 'Reject'}
+        cancelLabel="Cancel"
+        variant={confirmAction?.decision === 'Approve' ? 'success' : 'danger'}
+        onConfirm={confirmSecurityDecision}
+        onCancel={() => setConfirmAction(null)}
+      />
 
       {/* ── Log Walk-In Visitor Modal ── */}
       {walkInModalOpen && (
@@ -555,9 +513,9 @@ const CheckInPage = () => {
         visitor={selectedApprovedVisitor}
         loading={mutationLoading && actionId === selectedApprovedVisitor?.id}
         onClose={() => setSelectedApprovedVisitor(null)}
-        onConfirm={async (_visitorId) => {
+        onConfirm={async (_visitorId, photo) => {
           if (selectedApprovedVisitor) {
-            await handleCheckIn(selectedApprovedVisitor);
+            await handleCheckIn(selectedApprovedVisitor, photo);
             setSelectedApprovedVisitor(null);
           }
         }}

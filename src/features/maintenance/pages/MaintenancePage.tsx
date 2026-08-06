@@ -350,14 +350,11 @@ const MaintenancePage = () => {
       {/* ── Maintenance Amount Setting (Admin only) ── */}
       {isAdmin && (
         <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mb-4 p-3">
-          {!settingLoading && setting && (
-            <MaintenanceSettingsForm
-              key={setting.amount}
-              currentAmount={setting.amount}
-              updating={updating}
-              onSubmit={updateAmount}
-            />
-          )}
+          <MaintenanceSettingsForm
+            currentAmount={setting?.amount}
+            updating={updating || settingLoading}
+            onSubmit={updateAmount}
+          />
         </div>
       )}
 

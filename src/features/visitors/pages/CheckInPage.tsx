@@ -10,7 +10,7 @@ import useSocket from '../../../hooks/useSocket';
 import useAuth from '../../../hooks/useAuth';
 import type { LogWalkInPayload, Visitor } from '../types/visitor.types';
 import {
-  Plus, UserPlus, Clock, UserCheck, Check, X, XCircle,
+  Plus, UserPlus, Clock, UserCheck, Check, X,
   ShieldCheck, BadgeCheck, Car, Phone, MapPin, User, Camera
 } from 'lucide-react';
 import { visitorApi } from '../api/visitorApi';
@@ -32,25 +32,23 @@ const CheckInPage = () => {
   const role = user?.role === 'resident' ? 'resident' : 'security';
 
   const [now, setNow] = useState(() => Date.now());
-  const [activeTab, setActiveTab] = useState<'checkin' | 'queue' | 'denied'>('checkin');
+  const [activeTab, setActiveTab] = useState<'checkin' | 'queue'>('checkin');
   const [confirmAction, setConfirmAction] = useState<{ visitorId: number; decision: 'Approve' | 'Reject' } | null>(null);
   const [selectedApprovedVisitor, setSelectedApprovedVisitor] = useState<Visitor | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(Date.now());
-    }, 10000);
+    }, 60000);
     return () => clearInterval(timer);
   }, []);
 
   const { visitors: pendingVisitors, loading: pendingLoading, refetch: refetchPending } = usePendingVisitors();
   const { visitors: approvedVisitors, refetch: refetchApproved } = useVisitors({ userRole: role, status: 'Approved' });
-  const { visitors: rejectedVisitors, refetch: refetchRejected } = useVisitors({ userRole: role, status: 'Rejected' });
 
   const { logWalkIn, checkIn, loading: mutationLoading, actionId } = useVisitorMutations(() => {
     refetchPending();
     refetchApproved();
-    refetchRejected();
   });
 
   const [walkInModalOpen, setWalkInModalOpen] = useState(false);
@@ -63,7 +61,6 @@ const CheckInPage = () => {
     const handleRefetch = () => {
       refetchPending();
       refetchApproved();
-      refetchRejected();
     };
     socket.on('notification:new', handleRefetch);
     socket.on('visitor:updated', handleRefetch);
@@ -71,7 +68,7 @@ const CheckInPage = () => {
       socket.off('notification:new', handleRefetch);
       socket.off('visitor:updated', handleRefetch);
     };
-  }, [socket, refetchPending, refetchApproved, refetchRejected]);
+  }, [socket, refetchPending, refetchApproved]);
 
   const handleLogWalkIn = async (payload: LogWalkInPayload, photo?: File): Promise<boolean> => {
     return logWalkIn(payload, photo);
@@ -97,7 +94,6 @@ const CheckInPage = () => {
       toast.success(decision === 'Approve' ? 'Visitor entry approved at gate!' : 'Visitor entry rejected.');
       refetchPending();
       refetchApproved();
-      refetchRejected();
     } catch (err: unknown) {
       setOptimisticDecisions((prev) => {
         const next = { ...prev };
@@ -110,12 +106,10 @@ const CheckInPage = () => {
 
   const pendingCount = pendingVisitors?.items.length ?? 0;
   const approvedItems = (Array.isArray(approvedVisitors) ? approvedVisitors : []).filter(v => !v.isPreRegistered);
-  const rejectedItems = Array.isArray(rejectedVisitors) ? rejectedVisitors : [];
 
   const tabs = [
     { key: 'checkin', label: 'Gate Check-In', icon: ShieldCheck, count: approvedItems.length, color: 'success' },
     { key: 'queue', label: 'Approval Queue', icon: Clock, count: pendingCount, color: 'warning' },
-    { key: 'denied', label: 'Denied Log', icon: XCircle, count: rejectedItems.length, color: 'danger' },
   ] as const;
 
   return (
@@ -449,91 +443,6 @@ const CheckInPage = () => {
             </div>
           )}
 
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {/* TAB 3: DENIED LOG */}
-          {/* ════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'denied' && (
-            <div className="d-flex flex-column gap-4">
-              <div>
-                <div className="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 border-light-subtle">
-                  <h6 className="fw-bold mb-0 text-danger d-flex align-items-center gap-2" style={{ fontSize: '0.95rem' }}>
-                    <XCircle size={20} />
-                    Denied Entry Log
-                  </h6>
-                  <span className="badge bg-danger-subtle text-danger border border-danger-subtle" style={{ fontSize: '0.75rem' }}>
-                    {rejectedItems.length} Denied
-                  </span>
-                </div>
-
-                {rejectedItems.length === 0 ? (
-                  <div className="text-center py-5 bg-light rounded-3 border border-light-subtle">
-                    <div className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style={{ width: '64px', height: '64px', backgroundColor: '#e2e8f0' }}>
-                      <XCircle size={28} className="text-muted" />
-                    </div>
-                    <p className="fw-semibold text-dark mb-1" style={{ fontSize: '0.9rem' }}>No rejected visitors</p>
-                    <p className="text-muted small mb-0">Visitors denied entry will be recorded here</p>
-                  </div>
-                ) : (
-                  <div className="d-flex flex-column gap-2">
-                    {rejectedItems.map((visitor) => (
-                      <div
-                        key={visitor.id}
-                        className="card border border-danger-subtle rounded-3 p-3 shadow-sm"
-                        style={{ backgroundColor: '#fef2f2' }}
-                      >
-                        <div className="d-flex flex-row align-items-center justify-content-between gap-3">
-                          <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1">
-                            {visitor.photoUrl ? (
-                              <img
-                                src={visitor.photoUrl}
-                                alt={visitor.name}
-                                className="rounded-2 flex-shrink-0 object-fit-cover border border-danger-subtle"
-                                style={{ width: '44px', height: '44px' }}
-                              />
-                            ) : (
-                              <div
-                                className="rounded-2 flex-shrink-0 d-flex align-items-center justify-content-center"
-                                style={{ width: '44px', height: '44px', backgroundColor: '#fee2e2' }}
-                              >
-                                <User size={18} className="text-danger" />
-                              </div>
-                            )}
-                            <div className="min-w-0">
-                              <div className="d-flex align-items-center gap-2 mb-1">
-                                <h6 className="fw-bold text-dark mb-0 text-truncate" style={{ fontSize: '0.875rem' }}>
-                                  {visitor.name}
-                                </h6>
-                                <span className="badge bg-danger text-white rounded-pill" style={{ fontSize: '0.65rem' }}>
-                                  Denied
-                                </span>
-                              </div>
-                              <p className="text-secondary mb-0" style={{ fontSize: '0.78rem' }}>
-                                <span className="d-inline-flex align-items-center gap-1">
-                                  <Phone size={12} /> {visitor.phone}
-                                </span>
-                                <span className="mx-1">&middot;</span>
-                                <span>{visitor.purpose}</span>
-                                {visitor.apartment && (
-                                  <>
-                                    <span className="mx-1">&middot;</span>
-                                    <span className="font-monospace">{visitor.apartment.block}-{visitor.apartment.floorNumber}{visitor.apartment.unitNumber}</span>
-                                  </>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                          <span className="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold px-2.5 py-1" style={{ fontSize: '0.75rem' }}>
-                            Access Denied
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
         </div>
       </div>
 
@@ -630,7 +539,6 @@ const CheckInPage = () => {
                       setWalkInModalOpen(false);
                       refetchPending();
                       refetchApproved();
-                      refetchRejected();
                     }
                     return success;
                   }}

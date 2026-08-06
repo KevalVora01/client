@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import useAuth from '../../../hooks/useAuth';
 import useMyResident from '../../residents/hooks/useMyResident';
 import useVisitors from '../hooks/useVisitors';
@@ -15,8 +16,15 @@ import { Plus } from 'lucide-react';
 
 const VisitorLogPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const role = user?.role ?? 'resident';
-  const { isCurrentOccupant } = useMyResident(role === 'resident');
+  const { isCurrentOccupant, loading: residentLoading } = useMyResident(role === 'resident');
+
+  useEffect(() => {
+    if (!residentLoading && role === 'resident' && !isCurrentOccupant) {
+      navigate('/resident', { replace: true });
+    }
+  }, [residentLoading, role, isCurrentOccupant, navigate]);
 
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');

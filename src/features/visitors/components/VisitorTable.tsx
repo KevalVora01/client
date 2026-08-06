@@ -111,29 +111,37 @@ const VisitorTable: React.FC<VisitorTableProps> = ({
         );
       },
     },
-    {
-      key: 'apartment',
-      label: 'Apartment',
-      width: '14.28%',
-      align: 'center',
-      headerAlign: 'center',
-      render: (v) => {
-        const apt = v.apartment;
-        return (
-          <div className="d-flex justify-content-center py-1">
-            {apt ? (
-              <span className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
-                {apt.block}-{apt.floorNumber}{apt.unitNumber}
-              </span>
-            ) : (
-              <span className="text-secondary small fw-medium" style={{ fontSize: '0.825rem' }}>
-                #{v.apartmentId}
-              </span>
-            )}
-          </div>
-        );
-      },
-    },
+    ...(!isResident
+      ? [{
+          key: 'apartment',
+          label: 'Apartment',
+          width: '14.28%',
+          align: 'center' as const,
+          headerAlign: 'center' as const,
+          render: (v: Visitor) => {
+            const apt = v.apartment;
+            const occupantName = v.resident?.user?.name;
+            return (
+              <div className="d-flex flex-column align-items-center py-1">
+                {apt ? (
+                  <span className="fw-semibold text-dark" style={{ fontSize: '0.85rem' }}>
+                    {apt.block}-{apt.floorNumber}{apt.unitNumber}
+                  </span>
+                ) : (
+                  <span className="text-secondary small fw-medium" style={{ fontSize: '0.825rem' }}>
+                    #{v.apartmentId}
+                  </span>
+                )}
+                {occupantName && (
+                  <span className="text-muted" style={{ fontSize: '0.75rem' }}>
+                    {occupantName}
+                  </span>
+                )}
+              </div>
+            );
+          },
+        }]
+      : []),
     {
       key: 'type',
       label: 'Type',

@@ -219,6 +219,9 @@ const NotificationBell = () => {
         path = `${path}?expandedId=${complaintId}`;
       }
     }
+    if (path && n.type === 'document_request_created') {
+      path = `${path}?tab=received-requests`;
+    }
     if (path) navigate(path);
   };
 

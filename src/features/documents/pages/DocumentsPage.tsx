@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Plus } from "lucide-react";
 import useAuth from "../../../hooks/useAuth";
 import { useDocumentRequests } from "../hooks/useDocumentRequests";
@@ -14,14 +14,17 @@ import type { DocumentRequestItem } from "../types/documentRequest.types";
 
 const DocumentsPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const isOwner = user?.resident?.isOwner ?? false;
 
+  const tabParam = searchParams.get("tab");
+  const activeTab: "my-requests" | "received-requests" =
+    tabParam === "received-requests" ? "received-requests" : "my-requests";
+
   const { myRequests, receivedRequests, loading, refetch } = useDocumentRequests(isAdmin, isOwner);
   const { createRequest, uploadDocument, rejectRequest, cancelRequest } = useDocumentRequestMutations(refetch);
-
-  const [activeTab, setActiveTab] = useState<"my-requests" | "received-requests">("my-requests");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -35,7 +38,7 @@ const DocumentsPage = () => {
   const paginatedList = currentList.slice((page - 1) * pageSize, page * pageSize);
 
   const handleTabChange = (tab: "my-requests" | "received-requests") => {
-    setActiveTab(tab);
+    setSearchParams({ tab });
     setPage(1);
   };
 

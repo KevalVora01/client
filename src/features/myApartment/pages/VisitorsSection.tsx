@@ -43,7 +43,7 @@ export const VisitorsSection: React.FC = () => {
         </div>
 
         <div className="d-flex align-items-center gap-2">
-          <Link to="/visitor-logs" className="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1 px-3 fw-semibold shadow-xs">
+          <Link to="/my-visitors" className="btn btn-primary btn-sm rounded-2 d-flex align-items-center gap-1 px-3 fw-semibold shadow-xs">
             Go to My Visitors
             <ArrowRight size={14} />
           </Link>
@@ -76,7 +76,7 @@ export const VisitorsSection: React.FC = () => {
       ) : recentVisitors.length === 0 && pendingVisitors.length === 0 ? (
         <div className="p-4 text-center text-muted bg-light rounded-3">
           <p className="small mb-2 fw-medium">No visitor logs recorded yet for your apartment.</p>
-          <Link to="/visitor-logs" className="btn btn-sm btn-outline-primary rounded-2 fw-semibold">
+          <Link to="/my-visitors" className="btn btn-sm btn-outline-primary rounded-2 fw-semibold">
             View My Visitors
           </Link>
         </div>

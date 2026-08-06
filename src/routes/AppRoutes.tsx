@@ -97,6 +97,7 @@ const AppRoutes = () => {
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="/visitor-logs" element={<VisitorLogPage />} />
+            <Route path="/my-visitors" element={<VisitorLogPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>

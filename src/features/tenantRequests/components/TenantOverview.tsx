@@ -76,7 +76,7 @@ const TenantOverview = ({ tenant, onBack }: TenantOverviewProps) => {
     { icon: Phone, label: 'PHONE', value: tenant.user.phone, accent: 'info-card--blue' },
     { icon: Mail, label: 'EMAIL', value: tenant.user.email, accent: 'info-card--green' },
     { icon: Calendar, label: 'MOVE-IN DATE', value: formatDate(tenant.moveInDate), accent: 'info-card--purple' },
-    { icon: UserCheck, label: 'OCCUPANCY', value: tenant.isOccupant ? 'Occupant' : 'Non-occupant', accent: 'info-card--amber' },
+    { icon: UserCheck, label: 'MOVE-OUT DATE', value: formatDate(tenant.moveOutDate), accent: 'info-card--amber' },
   ];
 
   const invoiceColumns: TableColumn<Invoice>[] = [

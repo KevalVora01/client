@@ -57,7 +57,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
-    { label: 'My Visitors', icon: UserCheck, path: '/visitor-logs' },
+    { label: 'My Visitors', icon: UserCheck, path: '/my-visitors' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],
   security: [
@@ -94,7 +94,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     : navConfig[role];
 
   const navItems = role === 'resident' && !effectiveIsOccupant
-    ? baseNav.filter((item) => item.path !== '/visitor-logs')
+    ? baseNav.filter((item) => item.path !== '/my-visitors')
     : baseNav;
 
   const residentLabel = role !== 'resident'

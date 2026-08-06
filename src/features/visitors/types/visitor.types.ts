@@ -6,6 +6,7 @@ export interface VisitorResident {
   id: number;
   userId: number;
   apartmentId: number;
+  user?: { id: number; name: string } | null;
 }
 
 export interface VisitorApartment {

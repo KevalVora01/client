@@ -12,6 +12,8 @@ import { showSuccess } from '../../../utils/toast';
 import { showError } from '../../../utils/toast';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import ApartmentFormModal from '../components/ApartmentFormModal';
+import AppTable from '../../../components/AppTable/AppTable';
+import type { TableColumn } from '../../../components/AppTable/AppTable';
 
 const ApartmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -54,6 +56,108 @@ const ApartmentDetailPage = () => {
   const tenantHistory = residents
     .filter((r) => !r.isOwner)
     .sort((a, b) => new Date(b.moveInDate).getTime() - new Date(a.moveInDate).getTime());
+
+  const COL_WIDTH = '157px';
+
+  const tenantColumns: TableColumn<ResidentDetail>[] = [
+    {
+      key: 'name',
+      label: 'Resident Name',
+      width: COL_WIDTH,
+      render: (r) => (
+        <div className="d-flex align-items-center gap-3 py-1">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+            style={{
+              background: getAvatarColor(r.user?.name ?? '').bg,
+              color: getAvatarColor(r.user?.name ?? '').color,
+              width: '42px',
+              height: '42px',
+              fontSize: '0.85rem'
+            }}
+          >
+            {getInitials(r.user?.name ?? '?')}
+          </div>
+          <div>
+            <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+              {r.user?.name}
+            </p>
+            <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+              {r.user?.email}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark" style={{ fontSize: '0.875rem' }}>
+          {r.user?.phone}
+        </span>
+      ),
+    },
+    {
+      key: 'moveInDate',
+      label: 'Move-in Date',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveInDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'moveOutDate',
+      label: 'Move-out Date',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveOutDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'occupant',
+      label: 'Status',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
+            color: r.isOccupant ? '#166534' : '#6b7280'
+          }}
+        >
+          {r.isOccupant ? 'Occupant' : 'Past Tenant'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'VIEW',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+          onClick={() => navigate(`/residents/${r.id}`)}
+          style={{ borderRadius: '6px', fontSize: '0.78rem' }}
+          title="View Details"
+        >
+          <i className="bi bi-eye" />
+        </button>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
@@ -169,7 +273,7 @@ const ApartmentDetailPage = () => {
 
         {owner ? (
           <div
-            className="d-flex align-items-center justify-content-between px-4 py-3 gap-3"
+            className="px-4 py-3 d-flex align-items-center justify-content-between"
             onClick={() => navigate(`/residents/${owner.id}`)}
             style={{ cursor: 'pointer', transition: 'background 0.12s' }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#f9fafb')}
@@ -179,7 +283,7 @@ const ApartmentDetailPage = () => {
               <div
                 className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
                 style={{
-                  width: 44, height: 44, fontSize: '0.875rem',
+                  width: 48, height: 48, fontSize: '1rem',
                   background: getAvatarColor(owner.user?.name ?? '').bg,
                   color: getAvatarColor(owner.user?.name ?? '').color,
                 }}
@@ -187,32 +291,21 @@ const ApartmentDetailPage = () => {
                 {getInitials(owner.user?.name ?? '?')}
               </div>
               <div>
-                <p className="fw-semibold mb-0" style={{ fontSize: '0.9rem', color: '#111827' }}>
+                <p className="fw-bold mb-0" style={{ fontSize: '1rem', color: '#111827', letterSpacing: '-0.01em' }}>
                   {owner.user?.name}
                 </p>
                 <div className="d-flex align-items-center gap-3 mt-1">
-                  <div className="detail-header__meta">
-                    <span><Mail size={13} strokeWidth={1.75} /> {owner.user.email}</span>
-                    <span><Phone size={13} strokeWidth={1.75} /> {owner.user.phone}</span>
-                  </div>
+                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    <Mail size={13} strokeWidth={1.75} className="me-1" />{owner.user?.email}
+                  </span>
+                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>
+                    <Phone size={13} strokeWidth={1.75} className="me-1" />{owner.user?.phone}
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="d-flex align-items-center gap-4 flex-shrink-0">
-              <div className="text-end">
-                <p className="mb-0" style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#9ca3af' }}>
-                  Move-in Date
-                </p>
-                <p className="mb-0 fw-semibold" style={{ fontSize: '0.875rem', color: '#111827' }}>
-                  {formatDate(owner.moveInDate)}
-                </p>
-              </div>
-
-              <span className="badge-pill badge-pill--owner">Owner</span>
-
-              <i className="bi bi-chevron-right" style={{ color: '#9ca3af', fontSize: '0.875rem' }} />
-            </div>
+            <i className="bi bi-chevron-right" style={{ color: '#9ca3af', fontSize: '0.875rem' }} />
           </div>
         ) : (
           <div className="section-card__body--empty">
@@ -233,71 +326,15 @@ const ApartmentDetailPage = () => {
             <p className="placeholder-text">Loading tenants…</p>
           </div>
         ) : tenantHistory.length > 0 ? (
-          <div className="d-flex flex-column">
-            {tenantHistory.map((t) => (
-              <div
-                key={t.id}
-                className="d-flex align-items-center justify-content-between px-4 py-3 gap-3"
-                onClick={() => navigate(`/residents/${t.id}`)}
-                style={{ cursor: 'pointer', transition: 'background 0.12s', borderTop: '1px solid #f3f4f6' }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#f9fafb')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-              >
-                <div className="d-flex align-items-center gap-3">
-                  <div
-                    className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
-                    style={{
-                      width: 44, height: 44, fontSize: '0.875rem',
-                      background: getAvatarColor(t.user?.name ?? '').bg,
-                      color: getAvatarColor(t.user?.name ?? '').color,
-                    }}
-                  >
-                    {getInitials(t.user?.name ?? '?')}
-                  </div>
-                  <div>
-                    <p className="fw-semibold mb-0" style={{ fontSize: '0.9rem', color: '#111827' }}>
-                      {t.user?.name}
-                    </p>
-                    <div className="d-flex align-items-center gap-3 mt-1">
-                      <div className="detail-header__meta">
-                        <span><Mail size={13} strokeWidth={1.75} /> {t.user.email}</span>
-                        <span><Phone size={13} strokeWidth={1.75} /> {t.user.phone}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="d-flex align-items-center gap-4 flex-shrink-0">
-                  <div className="text-end">
-                    <p className="mb-0" style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#9ca3af' }}>
-                      Move-in Date
-                    </p>
-                    <p className="mb-0 fw-semibold" style={{ fontSize: '0.875rem', color: '#111827' }}>
-                      {formatDate(t.moveInDate)}
-                    </p>
-                  </div>
-
-                  <div className="text-end">
-                    <p className="mb-0" style={{ fontSize: '0.68rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#9ca3af' }}>
-                      Move-out Date
-                    </p>
-                    <p className="mb-0 fw-semibold" style={{ fontSize: '0.875rem', color: '#111827' }}>
-                      {formatDate(t.moveOutDate)}
-                    </p>
-                  </div>
-
-                  <span className={`badge-pill ${t.isOccupant ? 'badge-pill--active' : 'badge-pill--inactive'}`}>
-                    {t.isOccupant ? 'Occupant' : 'Past Tenant'}
-                  </span>
-                  {!t.isActive && (
-                    <span className="badge-pill badge-pill--inactive">Inactive</span>
-                  )}
-
-                  <i className="bi bi-chevron-right" style={{ color: '#9ca3af', fontSize: '0.875rem' }} />
-                </div>
-              </div>
-            ))}
-          </div>
+          <AppTable
+            columns={tenantColumns}
+            data={tenantHistory}
+            loading={residentsLoading}
+            rowKey={(r) => r.id!}
+            emptyTitle="No tenants found"
+            emptySubtitle="No tenant history for this apartment."
+            emptyIcon="bi-people"
+          />
         ) : (
           <div className="section-card__body--empty">
             <i className="bi bi-people placeholder-icon" />

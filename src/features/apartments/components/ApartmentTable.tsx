@@ -106,7 +106,7 @@ const ApartmentTable = ({ apartments, loading, onView }: ApartmentTableProps) =>
     },
     {
       key: "actions",
-      label: "ACTIONS",
+      label: "VIEW",
       width: COL_WIDTH,
       align: 'center',
       render: (a) => (

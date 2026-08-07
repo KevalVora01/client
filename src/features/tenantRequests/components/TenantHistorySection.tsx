@@ -4,12 +4,11 @@ import { Ban, Calendar, Mail, Phone, ArrowRight, UserCheck, Clock } from "lucide
 import useTenantHistory from "../hooks/useTenantHistory";
 import { tenantRequestApi } from "../api/tenantRequestApi";
 import { showError, showSuccess } from "../../../utils/toast";
-import { getAvatarColor, getInitials } from "../../residents/components/residentTableHelpers";
+import { getAvatarColor, getInitials, formatDate } from "../../residents/components/residentTableHelpers";
 import type { TenantHistoryItem } from "../../residents/types/resident.types";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
-
-const formatDate = (d: string | null): string =>
-  d ? new Date(d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : "—";
+import AppTable from "../../../components/AppTable/AppTable";
+import type { TableColumn } from "../../../components/AppTable/AppTable";
 
 const TenantHistorySection = () => {
   const { tenants, loading, notOwner, load } = useTenantHistory();
@@ -21,6 +20,108 @@ const TenantHistorySection = () => {
 
   const currentTenant = tenants.find((t) => t.isActive && !t.moveOutDate);
   const pastTenants = tenants.filter((t) => !(t.isActive && !t.moveOutDate));
+
+  const COL_WIDTH = '157px';
+
+  const pastTenantColumns: TableColumn<TenantHistoryItem>[] = [
+    {
+      key: 'name',
+      label: 'Resident Name',
+      width: COL_WIDTH,
+      render: (r) => (
+        <div className="d-flex align-items-center gap-3 py-1">
+          <div
+            className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
+            style={{
+              background: getAvatarColor(r.user?.name ?? '').bg,
+              color: getAvatarColor(r.user?.name ?? '').color,
+              width: '42px',
+              height: '42px',
+              fontSize: '0.85rem'
+            }}
+          >
+            {getInitials(r.user?.name ?? '?')}
+          </div>
+          <div>
+            <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+              {r.user?.name}
+            </p>
+            <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+              {r.user?.email}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'phone',
+      label: 'Phone',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark" style={{ fontSize: '0.875rem' }}>
+          {r.user?.phone}
+        </span>
+      ),
+    },
+    {
+      key: 'moveInDate',
+      label: 'Move-in Date',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveInDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'moveOutDate',
+      label: 'Move-out Date',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span className="text-dark fw-normal" style={{ fontSize: '0.875rem' }}>
+          {formatDate(r.moveOutDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'occupant',
+      label: 'Status',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <span
+          className="badge rounded-pill fw-semibold px-3 py-2"
+          style={{
+            fontSize: '0.75rem',
+            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
+            color: r.isOccupant ? '#166534' : '#6b7280'
+          }}
+        >
+          {r.isOccupant ? 'Occupant' : 'Past Tenant'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'VIEW',
+      width: COL_WIDTH,
+      align: 'center',
+      render: (r) => (
+        <button
+          type="button"
+          className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1"
+          onClick={() => navigate(`/tenant/${r.id}`)}
+          style={{ borderRadius: '6px', fontSize: '0.78rem' }}
+          title="View Details"
+        >
+          <i className="bi bi-eye" />
+        </button>
+      ),
+    },
+  ];
 
   const handleConfirmRevoke = async () => {
     if (!showRevokeModal) return;
@@ -147,81 +248,22 @@ const TenantHistorySection = () => {
         <div className="section-card__header d-flex align-items-center justify-content-between px-4 py-3 border-bottom">
           <h6 className="section-card__title d-flex align-items-center gap-2 mb-0" style={{ fontSize: '0.95rem', color: '#111827' }}>
             <Clock size={18} className="text-secondary" />
-            Past Tenants Log
+            Tenant History
           </h6>
           <span className="badge-pill badge-pill--inactive">
             {pastTenants.length} {pastTenants.length === 1 ? 'Record' : 'Records'}
           </span>
         </div>
 
-        <div className="p-4">
-          {loading ? (
-            <div className="d-flex flex-column gap-3">
-              {Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="skeleton" style={{ height: 72, borderRadius: 12 }} />
-              ))}
-            </div>
-          ) : pastTenants.length === 0 ? (
-            <div className="section-card__body--empty text-center py-4">
-              <i className="bi bi-clock-history placeholder-icon d-block mb-2" style={{ fontSize: '2rem', color: '#d1d5db' }} />
-              <p className="placeholder-text text-muted mb-0">No past tenant history records.</p>
-            </div>
-          ) : (
-            <div className="d-flex flex-column gap-3">
-              {pastTenants.map((t) => {
-                const { bg, color } = getAvatarColor(t.user.name);
-                return (
-                  <div
-                    key={t.id}
-                    onClick={() => navigate(`/tenant/${t.id}`)}
-                    role="button"
-                    className="d-flex align-items-center justify-content-between gap-3 p-3 rounded-3 border bg-white"
-                    style={{ borderColor: '#e5e7eb', cursor: 'pointer' }}
-                  >
-                    {/* Left — Avatar + details */}
-                    <div className="d-flex align-items-center gap-3 min-w-0">
-                      <div
-                        className="rounded-circle fw-bold d-flex align-items-center justify-content-center flex-shrink-0"
-                        style={{ width: 44, height: 44, fontSize: '0.9rem', background: bg, color }}
-                      >
-                        {getInitials(t.user.name)}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="d-flex align-items-center gap-2 flex-wrap">
-                          <span className="fw-semibold text-dark text-truncate" style={{ fontSize: '0.95rem' }}>
-                            {t.user.name}
-                          </span>
-                          <span className="badge-pill badge-pill--inactive" style={{ fontSize: '0.7rem' }}>
-                            Past
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center gap-3 mt-1 text-muted flex-wrap" style={{ fontSize: '0.8rem' }}>
-                          <span className="d-inline-flex align-items-center gap-1">
-                            <Mail size={13} /> {t.user.email}
-                          </span>
-                          <span className="d-inline-flex align-items-center gap-1">
-                            <Phone size={13} /> {t.user.phone}
-                          </span>
-                        </div>
-                        <div className="d-flex align-items-center gap-1 mt-1 text-muted" style={{ fontSize: '0.8rem' }}>
-                          <Calendar size={13} className="me-1" />
-                          <span>{formatDate(t.moveInDate)}</span>
-                          <ArrowRight size={13} className="mx-1" />
-                          <span>{t.moveOutDate ? formatDate(t.moveOutDate) : 'Present'}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right — Arrow button */}
-                    <div className="d-flex align-items-center gap-1 text-muted flex-shrink-0">
-                      <ArrowRight size={16} />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        <AppTable
+          columns={pastTenantColumns}
+          data={pastTenants}
+          loading={loading}
+          rowKey={(t) => t.id}
+          emptyTitle="No past tenants"
+          emptySubtitle="No past tenant history records."
+          emptyIcon="bi-people"
+        />
       </div>
 
       <ConfirmDialog

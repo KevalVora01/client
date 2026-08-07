@@ -18,9 +18,11 @@ export const getAvatarColor = (name: string) => {
 export const getInitials = (name: string) =>
   name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-export const formatDate = (date: string) =>
-  new Date(date).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+export const formatDate = (date: string | null | undefined) =>
+  date
+    ? new Date(date).toLocaleDateString("en-IN", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "—";

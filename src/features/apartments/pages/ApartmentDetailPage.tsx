@@ -2,33 +2,21 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Building2, Layers, Maximize2, Home, Mail, Phone, Crown } from 'lucide-react';
 import { useApartment } from '../hooks/useApartment';
-import { useApartmentMutations } from '../hooks/useApartmentMutations';
 import { formatArea, formatFloor, apartmentTypeLabels } from '../components/apartmentTableHelpers';
 import { getAvatarColor, getInitials, formatDate } from '../../residents/components/residentTableHelpers';
 import { residentApi } from '../../residents/api/residentApi';
 import type { ResidentDetail } from '../../residents/types/resident.types';
-import type { UpdateApartmentPayload } from '../types/apartment.types';
-import { showSuccess } from '../../../utils/toast';
 import { showError } from '../../../utils/toast';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
-import ApartmentFormModal from '../components/ApartmentFormModal';
 import AppTable from '../../../components/AppTable/AppTable';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
 
 const ApartmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { apartment, loading, refetch } = useApartment(Number(id));
-  const [showEdit, setShowEdit] = useState(false);
+  const { apartment, loading } = useApartment(Number(id));
   const [residents, setResidents] = useState<ResidentDetail[]>([]);
   const [residentsLoading, setResidentsLoading] = useState(false);
-  const { updateApartment, updateLoading } = useApartmentMutations(() => refetch());
-
-  const handleUpdate = async (payload: UpdateApartmentPayload, aptId?: number): Promise<boolean> => {
-    const success = await updateApartment(aptId!, payload);
-    if (success) { showSuccess("Apartment updated successfully"); setShowEdit(false); }
-    return success;
-  };
 
   useEffect(() => {
     if (!apartment?.id) return;
@@ -233,16 +221,6 @@ const ApartmentDetailPage = () => {
             </div>
           </div>
         </div>
-
-        <div className="detail-header__actions">
-          <button
-            className="btn btn-outline-secondary d-inline-flex align-items-center gap-2"
-            style={{ fontSize: '0.875rem', borderRadius: '8px' }}
-            onClick={() => setShowEdit(true)}
-          >
-            <i className="bi bi-pencil" /> Edit
-          </button>
-        </div>
       </div>
 
       {/* ── Info cards ── */}
@@ -342,17 +320,6 @@ const ApartmentDetailPage = () => {
           </div>
         )}
       </div>
-
-      {/* ── Edit Modal ── */}
-      <ApartmentFormModal
-        key={apartment.id}
-        show={showEdit}
-        mode="edit"
-        apartment={apartment}
-        loading={updateLoading}
-        onClose={() => setShowEdit(false)}
-        onSubmit={handleUpdate}
-      />
 
     </div>
   );

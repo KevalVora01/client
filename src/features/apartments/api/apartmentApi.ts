@@ -4,7 +4,6 @@ import type {
   ApartmentFilters,
   ApartmentsResponse,
   CreateApartmentPayload,
-  UpdateApartmentPayload,
   ImportApartmentResult,
   FailedImportItem,
 } from '../types/apartment.types';
@@ -69,12 +68,6 @@ export const apartmentApi = {
 
   createApartment: async (payload: CreateApartmentPayload): Promise<Apartment> => {
     const response = await api.post('/apartments', payload);
-    const body = response.data;
-    return body?.data?.data || body?.data || body;
-  },
-
-  updateApartment: async (id: number, payload: UpdateApartmentPayload): Promise<Apartment> => {
-    const response = await api.put(`/apartments/${id}`, payload);
     const body = response.data;
     return body?.data?.data || body?.data || body;
   },

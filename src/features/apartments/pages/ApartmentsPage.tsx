@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Upload } from 'lucide-react';
 import { useApartments } from '../hooks/useApartments';
 import { useApartmentMutations } from '../hooks/useApartmentMutations';
-import type { Apartment, CreateApartmentPayload, UpdateApartmentPayload } from '../types/apartment.types';
+import type { Apartment, CreateApartmentPayload } from '../types/apartment.types';
 import ApartmentStatsCards from '../components/ApartmentStatsCards';
 import ApartmentFiltersComponent from '../components/ApartmentFilters';
 import ApartmentFormModal from '../components/ApartmentFormModal';
@@ -15,12 +15,11 @@ import { ImportModal } from '../../../components/ImportModal/ImportModal';
 
 const ApartmentsPage = () => {
   const { apartments, pagination, stats, filters, loading, updateFilters, changePage, refetch } = useApartments();
-  const { createApartment, createLoading, updateApartment, updateLoading, importApartments, importLoading } = useApartmentMutations(refetch);
+  const { createApartment, createLoading, importApartments, importLoading } = useApartmentMutations(refetch);
   const navigate = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
-  const [modalMode] = useState<"add" | "edit">("add");
-  const [selectedApartment, setSelectedApartment] = useState<Apartment | null>(null);
+  const [selectedApartment] = useState<Apartment | null>(null);
 
   const [showImportModal, setShowImportModal] = useState(false);
   const [showResultsModal, setShowResultsModal] = useState(false);
@@ -36,22 +35,14 @@ const ApartmentsPage = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedApartment(null);
   };
 
   const handleFormSubmit = async (
-    payload: CreateApartmentPayload | UpdateApartmentPayload,
-    id?: number
+    payload: CreateApartmentPayload,
   ): Promise<boolean> => {
-    if (id) {
-      const success = await updateApartment(id, payload as UpdateApartmentPayload);
-      if (success) showSuccess("Apartment updated successfully");
-      return success;
-    } else {
-      const success = await createApartment(payload as CreateApartmentPayload);
-      if (success) showSuccess("Apartment created successfully");
-      return success;
-    }
+    const success = await createApartment(payload);
+    if (success) showSuccess("Apartment created successfully");
+    return success;
   };
 
   return (
@@ -110,9 +101,9 @@ const ApartmentsPage = () => {
       <ApartmentFormModal
         key={selectedApartment?.id ?? "add"}
         show={showModal}
-        mode={modalMode}
+        mode="add"
         apartment={selectedApartment}
-        loading={modalMode === "add" ? createLoading : updateLoading}
+        loading={createLoading}
         onClose={handleCloseModal}
         onSubmit={handleFormSubmit}
       />

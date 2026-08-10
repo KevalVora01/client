@@ -40,7 +40,7 @@ const ApartmentDetailPage = () => {
     return () => { cancelled = true; };
   }, [apartment?.id]);
 
-  const owner = residents.find((r) => r.isOwner) ?? null;
+  const owner = residents.find((r) => r.isOwner && r.isActive) ?? null;
   const tenantHistory = residents
     .filter((r) => !r.isOwner)
     .sort((a, b) => new Date(b.moveInDate).getTime() - new Date(a.moveInDate).getTime());

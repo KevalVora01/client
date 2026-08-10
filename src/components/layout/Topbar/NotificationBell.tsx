@@ -121,6 +121,9 @@ const NotificationBell = () => {
   const [now, setNow] = useState(() => Date.now());
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   const [actionStates, setActionStates] = useState<Record<number, 'Approved' | 'Rejected'>>(() => {
     try {
@@ -149,11 +152,13 @@ const NotificationBell = () => {
     (async () => {
       try {
         const [data, count] = await Promise.all([
-          notificationApi.getNotifications(1, 50),
+          notificationApi.getNotifications(1, 20),
           notificationApi.getUnreadCount(),
         ]);
         if (!cancelled) {
           setNotifications(data.items);
+          setHasNextPage(data.hasNextPage);
+          setPageNumber(1);
           setUnreadCount(count);
         }
       } catch {
@@ -283,10 +288,12 @@ const NotificationBell = () => {
     // Refresh the notifications list
     try {
       const [data, count] = await Promise.all([
-        notificationApi.getNotifications(1, 50),
+        notificationApi.getNotifications(1, 20),
         notificationApi.getUnreadCount(),
       ]);
       setNotifications(data.items);
+      setHasNextPage(data.hasNextPage);
+      setPageNumber(1);
       setUnreadCount(count);
     } catch {
       // silent
@@ -297,11 +304,27 @@ const NotificationBell = () => {
     e.stopPropagation();
     setNotifications([]);
     setUnreadCount(0);
+    setHasNextPage(false);
+    setPageNumber(1);
     try {
       await notificationApi.deleteAll();
     } catch {
       // silent
     }
+  };
+
+  const loadMore = async () => {
+    setLoadingMore(true);
+    try {
+      const nextPage = pageNumber + 1;
+      const data = await notificationApi.getNotifications(nextPage, 20);
+      setNotifications((prev) => [...prev, ...data.items]);
+      setPageNumber(nextPage);
+      setHasNextPage(data.hasNextPage);
+    } catch {
+      // silent
+    }
+    setLoadingMore(false);
   };
 
   const iconFor = (type: string) => ICON_MAP[type] ?? FileText;
@@ -441,6 +464,21 @@ const NotificationBell = () => {
                 </div>
               );
             })}
+            {hasNextPage && (
+              <div className="text-center py-2 border-top border-light-subtle">
+                <button
+                  className="btn btn-sm btn-link text-primary fw-semibold text-decoration-none"
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  style={{ fontSize: '0.8rem' }}
+                >
+                  {loadingMore && (
+                    <span className="spinner-border spinner-border-sm me-1" role="status" />
+                  )}
+                  {loadingMore ? 'Loading...' : 'Load More'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -16,7 +16,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'name',
       label: 'Resident Name',
-      width: '220px',
+      width: COL_WIDTH,
       render: (r) => {
         const { bg, color } = getAvatarColor(r.user.name);
         return (
@@ -81,7 +81,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     },
     {
       key: 'moveInDate',
-      label: 'Move-in Date',
+      label: 'Registered on',
       width: COL_WIDTH,
       align: 'center',
       render: (r) => (

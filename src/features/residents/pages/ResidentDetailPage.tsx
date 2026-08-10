@@ -58,10 +58,10 @@ const ResidentDetailPage = () => {
 
   const infoCards = [
     { icon: Building2, label: 'Apartment', value: resident.apartment ? `${resident.apartment.block}-${resident.apartment.floorNumber}${resident.apartment.unitNumber}` : '—', accent: 'info-card--green' },
-    { icon: Calendar, label: 'Move-in Date', value: formatDate(resident.moveInDate), accent: 'info-card--purple' },
+    { icon: Calendar, label: resident.isOwner ? 'Registered On' : 'Move-in Date', value: formatDate(resident.moveInDate), accent: 'info-card--purple' },
     resident.isActive
       ? { icon: UserCheck, label: 'Resident Type', value: resident.isOwner ? 'Owner' : 'Tenant', accent: 'info-card--amber' }
-      : { icon: Calendar, label: 'Move-out Date', value: resident.moveOutDate ? formatDate(resident.moveOutDate) : '—', accent: 'info-card--amber' },
+      : { icon: Calendar, label: resident.isOwner ? 'Deactivated On' : 'Move-out Date', value: resident.moveOutDate ? formatDate(resident.moveOutDate) : '—', accent: 'info-card--amber' },
     { icon: UserCheck, label: 'Occupancy', value: resident.isOccupant ? 'Occupant' : 'Non-occupant', accent: 'info-card--green' },
   ];
   return (

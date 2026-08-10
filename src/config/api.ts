@@ -68,6 +68,18 @@ api.interceptors.response.use(
       originalRequest.url?.includes(url)
     );
 
+    // 403 from jwtMiddleware (mustResetPassword) — force redirect
+    if (
+      error.response?.status === 403 &&
+      !isSkipped &&
+      typeof error.response?.data?.error === 'string' &&
+      error.response.data.error.includes('Password reset required')
+    ) {
+      setAccessToken(null);
+      window.location.href = '/set-password-required';
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry && !isSkipped) {
 
       if (isRefreshing) {

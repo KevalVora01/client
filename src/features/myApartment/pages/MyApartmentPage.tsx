@@ -1,15 +1,11 @@
 import useAuth from '../../../hooks/useAuth';
-import useMyResident from '../../residents/hooks/useMyResident';
 import FamilyMembersSection from './FamilyMembersSection';
 import VehiclesSection from './VehiclesSection';
 
 const MyApartmentPage = () => {
   const { user } = useAuth();
-  const { resident } = useMyResident(!!user?.residentId);
 
   const residentId = user?.residentId ?? 0;
-  const apt = (resident as { apartment?: { block: string; floorNumber: number; unitNumber: string } } | null)?.apartment;
-  const aptLabel = apt ? `${apt.block}-${apt.floorNumber}${apt.unitNumber}` : null;
 
   if (!user || !user.residentId) {
     return (
@@ -30,7 +26,7 @@ const MyApartmentPage = () => {
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
           <h4 className="fw-bold mb-2 fs-4 fs-sm-3" style={{ color: '#1a1f36' }}>
-            My Apartment{aptLabel ? <span className="fw-normal text-muted ms-2 fs-6">({aptLabel})</span> : null}
+            My Apartment
           </h4>
           <p className="text-muted mb-0 small">
             Manage your family members and vehicles.

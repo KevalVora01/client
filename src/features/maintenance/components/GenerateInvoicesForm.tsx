@@ -16,12 +16,24 @@ const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
 
 const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesFormProps) => {
   const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
   const [extraChargesTouched, setExtraChargesTouched] = useState<{ label: boolean; amount: boolean }[]>([]);
 
   const validationSchema = Yup.object({
     month: Yup.number().required('Month is required'),
     year: Yup.number().required('Year is required').min(2000, 'Year must be 2000 or later'),
-    dueDate: Yup.string().required('Due date is required'),
+    dueDate: Yup.string()
+      .required('Due date is required')
+      .test('future-date', 'Due date must be in the future', (value) => {
+        if (!value) return false;
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(value);
+        return selectedDate > todayStart;
+      }),
     extraCharges: Yup.array().of(
       Yup.object({
         label: Yup.string().test('label-required', 'Description is required', function (value) {
@@ -48,7 +60,7 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
     initialValues: {
       month: today.getMonth() + 1,
       year: today.getFullYear(),
-      dueDate: '',
+      dueDate: tomorrowStr,
       extraCharges: [] as { label: string; amount: string }[],
     },
     validationSchema,
@@ -117,6 +129,7 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
         <label className="form-label fw-medium text-secondary small mb-1">Due Date <span className="text-danger">*</span></label>
         <input
           type="date"
+          min={tomorrowStr}
           className={`form-control shadow-none rounded-2 text-dark ${formik.touched.dueDate && formik.errors.dueDate ? 'is-invalid' : ''}`}
           name="dueDate"
           value={formik.values.dueDate}

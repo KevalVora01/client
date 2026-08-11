@@ -9,7 +9,7 @@ interface ImportModalProps {
   title: string;
   templateUrl: string;
   templateName: string;
-  onUpload: (file: File) => void;
+  onUpload: (file: File) => Promise<void> | void;
   loading: boolean;
 }
 
@@ -26,10 +26,14 @@ export const ImportModal = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   if (!isOpen) return null;
 
+  const isBusy = loading || submitting;
+
   const handleDrag = (e: React.DragEvent) => {
+    if (isBusy) return;
     e.preventDefault();
     e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
@@ -40,6 +44,7 @@ export const ImportModal = ({
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    if (isBusy) return;
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -51,6 +56,7 @@ export const ImportModal = ({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isBusy) return;
     if (e.target.files && e.target.files[0]) {
       validateAndSetFile(e.target.files[0]);
     }
@@ -67,21 +73,30 @@ export const ImportModal = ({
   };
 
   const triggerFileInput = () => {
+    if (isBusy) return;
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFile) {
       showError("Please select or drop a file to import");
       return;
     }
-    onUpload(selectedFile);
-    setSelectedFile(null);
-    onClose();
+    try {
+      setSubmitting(true);
+      await onUpload(selectedFile);
+      setSelectedFile(null);
+      onClose();
+    } catch {
+      // Handled by parent toast/notifications
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const clearSelection = () => {
+    if (isBusy) return;
     setSelectedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -106,6 +121,7 @@ export const ImportModal = ({
               className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
               style={{ top: 18, right: 20, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={onClose}
+              disabled={isBusy}
               aria-label="Close"
             >
               <i className="bi bi-x" />
@@ -132,14 +148,20 @@ export const ImportModal = ({
                     border: "1px solid #cbd5e1",
                     backgroundColor: "#ffffff",
                     transition: "all 0.15s ease-in-out",
+                    pointerEvents: isBusy ? "none" : "auto",
+                    opacity: isBusy ? 0.6 : 1,
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#f1f5f9";
-                    e.currentTarget.style.borderColor = "#94a3b8";
+                    if (!isBusy) {
+                      e.currentTarget.style.backgroundColor = "#f1f5f9";
+                      e.currentTarget.style.borderColor = "#94a3b8";
+                    }
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#ffffff";
-                    e.currentTarget.style.borderColor = "#cbd5e1";
+                    if (!isBusy) {
+                      e.currentTarget.style.backgroundColor = "#ffffff";
+                      e.currentTarget.style.borderColor = "#cbd5e1";
+                    }
                   }}
                 >
                   <Download size={16} />
@@ -149,13 +171,13 @@ export const ImportModal = ({
 
               <hr className="my-4 border-light-subtle" />
 
-              {/* Step 2: Upload File */}
+              {/* Step 2: Upload Excel File */}
               <div>
                 <h6 className="fw-bold text-dark mb-2" style={{ fontSize: "0.95rem" }}>
-                  2. Upload Excel File
+                  2. Upload Completed Spreadsheet
                 </h6>
                 <p className="text-muted small mb-3">
-                  Upload your completed spreadsheet file below (.xlsx or .xls).
+                  Select or drag your filled .xlsx or .xls spreadsheet file below.
                 </p>
 
                 <input
@@ -164,37 +186,39 @@ export const ImportModal = ({
                   onChange={handleFileChange}
                   accept=".xlsx, .xls"
                   className="d-none"
+                  disabled={isBusy}
                 />
 
                 <div
-                  onDragEnter={handleDrag}
-                  onDragOver={handleDrag}
-                  onDragLeave={handleDrag}
-                  onDrop={handleDrop}
+                  className={`border border-2 border-dashed rounded-3 p-4 text-center cursor-pointer ${
+                    dragActive ? "border-primary bg-primary-subtle" : "border-light-subtle bg-white"
+                  }`}
                   onClick={triggerFileInput}
-                  className="border border-2 border-dashed rounded-3 p-4 text-center cursor-pointer d-flex flex-column align-items-center justify-content-center"
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
                   style={{
-                    backgroundColor: dragActive ? "#eff6ff" : "#ffffff",
-                    borderColor: dragActive ? "#3b82f6" : "#cbd5e1",
-                    cursor: "pointer",
+                    cursor: isBusy ? "not-allowed" : "pointer",
                     minHeight: "160px",
-                    transition: "all 0.15s ease-in-out"
+                    transition: "all 0.15s ease-in-out",
+                    opacity: isBusy ? 0.6 : 1,
                   }}
                   onMouseEnter={(e) => {
-                    if (!dragActive) {
+                    if (!dragActive && !isBusy) {
                       e.currentTarget.style.backgroundColor = "#f8fafc";
                       e.currentTarget.style.borderColor = "#94a3b8";
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!dragActive) {
+                    if (!dragActive && !isBusy) {
                       e.currentTarget.style.backgroundColor = "#ffffff";
                       e.currentTarget.style.borderColor = "#cbd5e1";
                     }
                   }}
                 >
                   <UploadCloud size={40} className={`mb-3 ${dragActive ? "text-primary animate-bounce" : "text-muted"}`} />
-                  
+
                   {selectedFile ? (
                     <div className="w-100 px-3">
                       <p className="fw-bold text-dark m-0 text-truncate" style={{ fontSize: "0.9rem" }}>
@@ -203,16 +227,18 @@ export const ImportModal = ({
                       <p className="text-muted small m-0">
                         {(selectedFile.size / 1024).toFixed(1)} KB
                       </p>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          clearSelection();
-                        }}
-                        className="btn btn-link btn-sm text-danger mt-2 p-0 border-0 fw-medium text-decoration-none"
-                      >
-                        Remove file
-                      </button>
+                      {!isBusy && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            clearSelection();
+                          }}
+                          className="btn btn-link btn-sm text-danger mt-2 p-0 border-0 fw-medium text-decoration-none"
+                        >
+                          Remove file
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <>
@@ -235,17 +261,18 @@ export const ImportModal = ({
                 className="btn btn-light border px-4 py-2 small fw-medium"
                 style={{ borderRadius: "8px", fontSize: "0.875rem" }}
                 onClick={onClose}
+                disabled={isBusy}
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                disabled={!selectedFile || loading}
+                disabled={!selectedFile || isBusy}
                 className="btn btn-dark px-4 py-2 small fw-semibold d-inline-flex align-items-center gap-2"
                 style={{ borderRadius: "8px", fontSize: "0.875rem", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
               >
-                {loading && <span className="spinner-border spinner-border-sm" />}
-                Import Data
+                {isBusy && <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />}
+                {isBusy ? "Importing Excel..." : "Import Data"}
               </button>
             </div>
           </form>

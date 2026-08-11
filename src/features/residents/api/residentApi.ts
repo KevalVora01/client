@@ -90,8 +90,4 @@ export const residentApi = {
     });
     return response.data.data;
   },
-
-  sendWelcomeEmail: async (payload: CreatedResidentEmailItem): Promise<void> => {
-    await api.post('/residents/send-welcome-email', payload);
-  },
 };

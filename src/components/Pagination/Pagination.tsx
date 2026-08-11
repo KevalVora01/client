@@ -7,25 +7,30 @@ interface PaginationProps {
 }
 
 const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
-  const { pageNumber, totalPages, totalCount, pageSize, hasNextPage, hasPreviousPage } = pagination;
+  const { hasNextPage, hasPreviousPage } = pagination || {};
 
-  if (totalPages == 0 || totalCount == 0) return null;
+  const safePageNumber = Number(pagination?.pageNumber) || 1;
+  const safePageSize = Number(pagination?.pageSize) || 10;
+  const safeTotalCount = Number(pagination?.totalCount) || 0;
+  const safeTotalPages = Number(pagination?.totalPages) || 0;
 
-  const from = totalCount > 0 ? (pageNumber - 1) * pageSize + 1 : 0;
-  const to = Math.min(pageNumber * pageSize, totalCount);
+  if (safeTotalPages === 0 || safeTotalCount === 0) return null;
+
+  const from = safeTotalCount > 0 ? (safePageNumber - 1) * safePageSize + 1 : 0;
+  const to = Math.min(safePageNumber * safePageSize, safeTotalCount);
 
   const getPageNumbers = (): (number | '...')[] => {
     const pages: (number | '...')[] = [];
-    if (totalPages <= 5) {
-      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    if (safeTotalPages <= 5) {
+      for (let i = 1; i <= safeTotalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      if (pageNumber > 3) pages.push('...');
-      for (let i = Math.max(2, pageNumber - 1); i <= Math.min(totalPages - 1, pageNumber + 1); i++) {
+      if (safePageNumber > 3) pages.push('...');
+      for (let i = Math.max(2, safePageNumber - 1); i <= Math.min(safeTotalPages - 1, safePageNumber + 1); i++) {
         pages.push(i);
       }
-      if (pageNumber < totalPages - 2) pages.push('...');
-      pages.push(totalPages);
+      if (safePageNumber < safeTotalPages - 2) pages.push('...');
+      pages.push(safeTotalPages);
     }
     return pages;
   };
@@ -38,7 +43,7 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
     <div className="d-flex align-items-center justify-content-between flex-wrap w-100" style={{ gap: "12px" }}>
       <div className="d-flex align-items-center gap-3 flex-wrap">
         <span className="small text-muted">
-          Showing {from} to {to} of {totalCount} entries
+          Showing {from} to {to} of {safeTotalCount} entries
         </span>
 
       </div>
@@ -47,7 +52,7 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
         <button
           className={btnClass}
           style={btnStyle}
-          onClick={() => onPageChange(pageNumber - 1)}
+          onClick={() => onPageChange(safePageNumber - 1)}
           disabled={!hasPreviousPage}
           aria-label="Previous page"
         >
@@ -62,7 +67,7 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
           ) : (
             <button
               key={page}
-              className={page === pageNumber ? "btn btn-dark btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-semibold" : btnClass}
+              className={page === safePageNumber ? "btn btn-dark btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-semibold" : btnClass}
               style={btnStyle}
               onClick={() => onPageChange(page as number)}
             >
@@ -74,7 +79,7 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
         <button
           className={btnClass}
           style={btnStyle}
-          onClick={() => onPageChange(pageNumber + 1)}
+          onClick={() => onPageChange(safePageNumber + 1)}
           disabled={!hasNextPage}
           aria-label="Next page"
         >

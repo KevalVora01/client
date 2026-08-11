@@ -5,7 +5,6 @@ import type {
   ResidentDetail,
   CreateResidentPayload,
   UpdateResidentPayload,
-  CreatedResidentEmailItem,
 } from "../types/resident.types";
 import { showSuccess } from "../../../utils/toast";
 import { useNavigate } from "react-router-dom";
@@ -34,10 +33,6 @@ export const useResidentsPage = () => {
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [selectedResident, setSelectedResident] = useState<ResidentDetail | null>(null);
 
-  // ── Live Email Status Modal state ─────────────────────────
-  const [showEmailStatusModal, setShowEmailStatusModal] = useState(false);
-  const [emailStatusItems, setEmailStatusItems] = useState<CreatedResidentEmailItem[]>([]);
-
   // ── Handlers ──────────────────────────────────────────────
   const navigate = useNavigate();
 
@@ -59,12 +54,7 @@ export const useResidentsPage = () => {
     const result = await createResident(payload);
     if (result) {
       setShowAddModal(false);
-      if (result.emailItem) {
-        setEmailStatusItems([result.emailItem]);
-        setShowEmailStatusModal(true);
-      } else {
-        showSuccess("Resident created successfully");
-      }
+      showSuccess("Resident created successfully. Welcome email with credentials sent!");
       return true;
     }
     return false;
@@ -113,12 +103,6 @@ export const useResidentsPage = () => {
     updateLoading,
     deactivateLoading,
     importLoading,
-
-    // email modal states
-    showEmailStatusModal,
-    setShowEmailStatusModal,
-    emailStatusItems,
-    setEmailStatusItems,
 
     // modal handlers
     setShowAddModal,

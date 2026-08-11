@@ -13,7 +13,6 @@ import { showSuccess, showError } from "../../../utils/toast";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import ImportResultsModal, { type FailedImportItem } from "../../../components/ImportResultsModal/ImportResultsModal";
 import { ImportModal } from "../../../components/ImportModal/ImportModal";
-import EmailStatusModal from "../../../components/EmailStatusModal/EmailStatusModal";
 
 const ResidentsPage = () => {
   const {
@@ -25,7 +24,6 @@ const ResidentsPage = () => {
     handleView, handleEdit, handleDeactivate,
     handleCreate, handleUpdate, handleDeactivateConfirm,
     handleCloseEdit, handleCloseDeactivate, importResidents,
-    showEmailStatusModal, setShowEmailStatusModal, emailStatusItems, setEmailStatusItems,
   } = useResidentsPage();
 
   const [promoting, setPromoting] = useState(false);
@@ -201,32 +199,12 @@ const ResidentsPage = () => {
         onUpload={async (file) => {
           const result = await importResidents(file);
           if (result) {
-            if (result.createdResidents && result.createdResidents.length > 0) {
-              setEmailStatusItems(result.createdResidents);
-              setShowEmailStatusModal(true);
-            }
             if (result.failedCount > 0) {
               setImportResults(result);
               setShowResultsModal(true);
+            } else {
+              showSuccess(`Successfully imported ${result.successCount} resident(s). Welcome emails sent!`);
             }
-          }
-        }}
-      />
-
-      {/* Real-time Email Delivery Status Modal */}
-      <EmailStatusModal
-        show={showEmailStatusModal}
-        items={emailStatusItems}
-        onClose={() => {
-          setShowEmailStatusModal(false);
-          setEmailStatusItems([]);
-        }}
-        onSendEmailApi={async (item) => {
-          try {
-            await residentApi.sendWelcomeEmail(item);
-            return true;
-          } catch {
-            return false;
           }
         }}
       />

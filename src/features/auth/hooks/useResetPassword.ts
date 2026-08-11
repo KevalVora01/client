@@ -6,6 +6,7 @@ import { resetPasswordApi } from '../api/authApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showSuccess, showError } from '../../../utils/toast';
 import useAuth from '../../../hooks/useAuth';
+import { setAccessToken } from '../../../config/api';
 
 const validationSchema = Yup.object({
   newPassword: Yup.string()
@@ -22,7 +23,7 @@ const validationSchema = Yup.object({
 export const useResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated, updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const token = searchParams.get('token') ?? '';
 
@@ -43,12 +44,16 @@ export const useResetPassword = () => {
       }
       try {
         setIsLoading(true);
-        await resetPasswordApi(token, values.newPassword);
+        const res = await resetPasswordApi(token, values.newPassword);
+        if (res?.accessToken) {
+          setAccessToken(res.accessToken);
+        }
         showSuccess('Password updated successfully!');
 
-        if (isAuthenticated && user) {
-          updateUser({ mustResetPassword: false, resetToken: undefined });
-          const role = user.role?.toLowerCase();
+        const userObj = res?.user || user;
+        if (userObj) {
+          updateUser({ ...userObj, mustResetPassword: false, resetToken: undefined });
+          const role = userObj.role?.toLowerCase();
           if (role === 'resident') {
             navigate('/resident', { replace: true });
           } else if (role === 'security') {

@@ -95,12 +95,16 @@ const MaintenancePage = () => {
   const highlightMatch = (text: string, search: string) => {
     if (!search || !search.trim()) return <span>{text}</span>;
     const cleanSearch = search.trim();
-    const regex = new RegExp(`(${cleanSearch.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi');
+    const flexSearch = cleanSearch
+      .split('')
+      .map((char) => char.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'))
+      .join('[- ]*');
+    const regex = new RegExp(`(${flexSearch})`, 'gi');
     const parts = text.split(regex);
     return (
       <span>
         {parts.map((part, index) =>
-          regex.test(part) ? (
+          part && regex.test(part) ? (
             <mark
               key={index}
               style={{
@@ -150,7 +154,7 @@ const MaintenancePage = () => {
       show: showResidentName,
       render: (inv) => (
         <span className="fw-medium" style={{ fontSize: '0.85rem', color: '#1a1f36' }}>
-          {inv.resident?.name ?? '\u2014'}
+          {highlightMatch(inv.resident?.name ?? '\u2014', filters.search ?? '')}
         </span>
       ),
     },
@@ -391,7 +395,12 @@ const MaintenancePage = () => {
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4 mb-4">
         {/* Filters Header Block */}
         <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <InvoiceFilters filters={filters} onFilterChange={updateFilters} />
+          <InvoiceFilters
+            filters={filters}
+            onFilterChange={updateFilters}
+            isAdmin={isAdmin}
+            apartmentView={apartmentView}
+          />
         </div>
 
         {/* Dynamic List Table Area */}

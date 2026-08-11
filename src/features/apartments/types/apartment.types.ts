@@ -1,7 +1,6 @@
 import type { PaginatedRequest, PaginatedResult } from "../../../types/pagination.types";
 
 export const ApartmentType = {
-  STUDIO: "studio",
   ONE_BHK: "1bhk",
   TWO_BHK: "2bhk",
   THREE_BHK: "3bhk",
@@ -77,13 +76,12 @@ export interface ApartmentSelectOption {
 
 export interface FailedImportItem {
   row: number;
-  data: Record<string, unknown>;
-  error: string;
+  identifier: string;
+  reason: string;
 }
 
 export interface ImportApartmentResult {
   successCount: number;
   failedCount: number;
-  totalProcessed: number;
   failedItems: FailedImportItem[];
 }

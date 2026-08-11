@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { residentApi, type ResidentImportResponse } from "../api/residentApi";
-import type { CreateResidentPayload, UpdateResidentPayload } from "../types/resident.types";
+import type { CreateResidentPayload, UpdateResidentPayload, CreateResidentResponse } from "../types/resident.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { showError } from "../../../utils/toast";
 
@@ -10,15 +10,15 @@ export const useResidentMutations = (onSuccess?: () => void) => {
   const [deactivateLoading, setDeactivateLoading] = useState(false);
   const [importLoading, setImportLoading] = useState(false);
 
-  const createResident = async (payload: CreateResidentPayload): Promise<boolean> => {
+  const createResident = async (payload: CreateResidentPayload): Promise<CreateResidentResponse | null> => {
     try {
       setCreateLoading(true);
-      await residentApi.createResident(payload);
+      const res = await residentApi.createResident(payload);
       onSuccess?.();
-      return true;
+      return res;
     } catch (err: unknown) {
       showError(getErrorMessage(err, "Failed to create resident"));
-      return false;
+      return null;
     } finally {
       setCreateLoading(false);
     }

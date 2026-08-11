@@ -32,7 +32,7 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
       const payload = {
         name: values.name,
         relation: values.relation as FamilyRelation,
-        age: values.age ? Number(values.age) : null,
+        age: values.age !== "" && values.age != null ? Number(values.age) : null,
       };
       const success = await onSubmit(payload);
       if (success) resetForm();

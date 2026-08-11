@@ -59,20 +59,23 @@ const ApartmentsPage = () => {
           </p>
         </div>
         <div className="d-flex align-items-center gap-2 flex-wrap">
-          <button
-            type="button"
-            className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
-            onClick={() => setShowImportModal(true)}
-            disabled={importLoading}
-            style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
-          >
-            {importLoading ? (
-              <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
-            ) : (
-              <Upload size={16} strokeWidth={2} />
-            )}
-            {importLoading ? "Importing..." : "Import Excel"}
-          </button>
+          {stats.totalCount === 0 && (
+            <button
+              type="button"
+              className="btn btn-dark fw-medium d-inline-flex align-items-center gap-2 px-3 py-2 small shadow-sm"
+              onClick={() => setShowImportModal(true)}
+              disabled={importLoading}
+              title="Upload initial apartment units via Excel sheet"
+              style={{ fontSize: "0.875rem", borderRadius: "8px", backgroundColor: "#1a1f36", borderColor: "#1a1f36" }}
+            >
+              {importLoading ? (
+                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" />
+              ) : (
+                <Upload size={16} strokeWidth={2} />
+              )}
+              {importLoading ? "Importing..." : "Import Excel"}
+            </button>
+          )}
         </div>
       </div>
 
@@ -135,8 +138,8 @@ const ApartmentsPage = () => {
               failedCount: result.failedCount,
               failedItems: result.failedItems.map((item) => ({
                 row: item.row,
-                identifier: `Row ${item.row}`,
-                reason: item.error,
+                identifier: item.identifier || `Row ${item.row}`,
+                reason: item.reason || "Validation failed",
               })),
             });
             setShowResultsModal(true);

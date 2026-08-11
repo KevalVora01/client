@@ -1,5 +1,15 @@
 import api from '../../../config/api';
-import type { ResidentFilters, ResidentsResponse, ResidentDetail, Resident, CreateResidentPayload, UpdateResidentPayload, TenantHistoryItem } from "../types/resident.types";
+import type {
+  ResidentFilters,
+  ResidentsResponse,
+  ResidentDetail,
+  Resident,
+  CreateResidentPayload,
+  UpdateResidentPayload,
+  TenantHistoryItem,
+  CreatedResidentEmailItem,
+  CreateResidentResponse
+} from "../types/resident.types";
 
 export interface ResidentFailedImportItem {
   row: number;
@@ -11,6 +21,7 @@ export interface ResidentImportResponse {
   successCount: number;
   failedCount: number;
   failedItems: ResidentFailedImportItem[];
+  createdResidents?: CreatedResidentEmailItem[];
 }
 
 export const residentApi = {
@@ -45,7 +56,7 @@ export const residentApi = {
     return response.data.data;
   },
 
-  createResident: async (payload: CreateResidentPayload): Promise<ResidentDetail> => {
+  createResident: async (payload: CreateResidentPayload): Promise<CreateResidentResponse> => {
     const response = await api.post("/residents", payload);
     return response.data.data;
   },
@@ -78,5 +89,9 @@ export const residentApi = {
       },
     });
     return response.data.data;
+  },
+
+  sendWelcomeEmail: async (payload: CreatedResidentEmailItem): Promise<void> => {
+    await api.post('/residents/send-welcome-email', payload);
   },
 };

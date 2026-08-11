@@ -9,7 +9,6 @@ export const formatFloor = (floor: number): string => {
 };
 
 export const apartmentTypeLabels: Record<string, string> = {
-  studio: "Studio",
   "1bhk": "1 BHK",
   "2bhk": "2 BHK",
   "3bhk": "3 BHK",

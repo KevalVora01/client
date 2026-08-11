@@ -37,7 +37,7 @@ const FamilyMemberCard = ({ member, onEdit, onDelete, readOnly = false }: Family
             >
               {member.relation}
             </span>
-            {member.age && (
+            {member.age != null && (
               <span className="text-muted" style={{ fontSize: "0.8rem" }}>
                 {member.age} yrs
               </span>

@@ -5,6 +5,7 @@ import type {
   ResidentDetail,
   CreateResidentPayload,
   UpdateResidentPayload,
+  CreatedResidentEmailItem,
 } from "../types/resident.types";
 import { showSuccess } from "../../../utils/toast";
 import { useNavigate } from "react-router-dom";
@@ -33,6 +34,10 @@ export const useResidentsPage = () => {
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [selectedResident, setSelectedResident] = useState<ResidentDetail | null>(null);
 
+  // ── Live Email Status Modal state ─────────────────────────
+  const [showEmailStatusModal, setShowEmailStatusModal] = useState(false);
+  const [emailStatusItems, setEmailStatusItems] = useState<CreatedResidentEmailItem[]>([]);
+
   // ── Handlers ──────────────────────────────────────────────
   const navigate = useNavigate();
 
@@ -51,9 +56,18 @@ export const useResidentsPage = () => {
   };
 
   const handleCreate = async (payload: CreateResidentPayload): Promise<boolean> => {
-    const success = await createResident(payload);
-    if (success) showSuccess("Resident created successfully");
-    return success;
+    const result = await createResident(payload);
+    if (result) {
+      setShowAddModal(false);
+      if (result.emailItem) {
+        setEmailStatusItems([result.emailItem]);
+        setShowEmailStatusModal(true);
+      } else {
+        showSuccess("Resident created successfully");
+      }
+      return true;
+    }
+    return false;
   };
 
   const handleUpdate = async (id: number, payload: UpdateResidentPayload): Promise<boolean> => {
@@ -85,26 +99,29 @@ export const useResidentsPage = () => {
     stats,
     filters,
     loading,
+
+    // actions
     updateFilters,
     changePage,
-    refetch,
 
-    // modal visibility
+    // modal states
     showAddModal,
     showEditModal,
     showDeactivateModal,
-    setShowAddModal,
-
-    // selected
     selectedResident,
-
-    // mutation state
     createLoading,
     updateLoading,
     deactivateLoading,
     importLoading,
 
-    // handlers
+    // email modal states
+    showEmailStatusModal,
+    setShowEmailStatusModal,
+    emailStatusItems,
+    setEmailStatusItems,
+
+    // modal handlers
+    setShowAddModal,
     handleView,
     handleEdit,
     handleDeactivate,

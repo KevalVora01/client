@@ -46,7 +46,7 @@ export interface CreateResidentPayload {
   name: string;
   email: string;
   phone: string;
-  password: string;
+  password?: string;
   apartmentId?: number;
   isOwner: boolean;
 }
@@ -113,4 +113,16 @@ export interface ResidentStats {
 
 export interface ResidentsResponse extends PaginatedResult<ResidentDetail> {
   stats: ResidentStats;
+}
+
+export interface CreatedResidentEmailItem {
+  userId: number;
+  name: string;
+  email: string;
+  unit: string;
+  temporaryPassword?: string;
+}
+
+export interface CreateResidentResponse extends ResidentDetail {
+  emailItem?: CreatedResidentEmailItem;
 }

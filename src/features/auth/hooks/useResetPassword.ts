@@ -5,6 +5,7 @@ import * as Yup from 'yup';
 import { resetPasswordApi } from '../api/authApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showSuccess, showError } from '../../../utils/toast';
+import useAuth from '../../../hooks/useAuth';
 
 const validationSchema = Yup.object({
   newPassword: Yup.string()
@@ -21,6 +22,7 @@ const validationSchema = Yup.object({
 export const useResetPassword = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user, isAuthenticated, updateUser } = useAuth();
 
   const token = searchParams.get('token') ?? '';
 
@@ -42,8 +44,21 @@ export const useResetPassword = () => {
       try {
         setIsLoading(true);
         await resetPasswordApi(token, values.newPassword);
-        showSuccess('Password reset successfully. Please log in.');
-        navigate('/login');
+        showSuccess('Password updated successfully!');
+
+        if (isAuthenticated && user) {
+          updateUser({ mustResetPassword: false, resetToken: undefined });
+          const role = user.role?.toLowerCase();
+          if (role === 'resident') {
+            navigate('/resident', { replace: true });
+          } else if (role === 'security') {
+            navigate('/security', { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
+        } else {
+          navigate('/login', { replace: true });
+        }
       } catch (err: unknown) {
         showError(getErrorMessage(err, 'Failed to reset password. Please try again.'));
       } finally {

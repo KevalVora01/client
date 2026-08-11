@@ -13,11 +13,11 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
       className="modal d-block bg-dark bg-opacity-50"
       style={{ backdropFilter: "blur(4px)" }}
     >
-      <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-dialog modal-md modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
 
           {/* ── Header ── */}
-          <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
+          <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-3 position-relative">
             <div>
               <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: "1rem", color: "#1a1f36" }}>
                 {isEdit ? `Edit Resident — ${resident?.user.name}` : "Add New Resident"}
@@ -30,7 +30,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
             <button
               type="button"
               className="btn position-absolute d-flex align-items-center justify-content-center p-0 text-secondary"
-              style={{ top: 22, right: 22, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
+              style={{ top: 18, right: 18, width: 28, height: 28, border: '1px solid #e9ecef', background: '#fff', fontSize: '1.1rem', borderRadius: '6px' }}
               onClick={handleClose}
               disabled={loading}
               aria-label="Close"
@@ -41,14 +41,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
           <form onSubmit={formik.handleSubmit}>
             <div className="modal-body px-4 py-3">
+              <div className="d-flex flex-column gap-3">
 
-              {/* ── User Account ── */}
-              <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
-                User Account
-              </p>
-              <div className="row g-3 mb-3">
-
-                <div className="col-md-6">
+                {/* Full Name */}
+                <div>
                   <label className="form-label fw-medium text-secondary small mb-1">Full name <span className="text-danger">*</span></label>
                   <input
                     type="text"
@@ -73,7 +69,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
                 {/* Email — add only */}
                 {!isEdit && (
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-medium text-secondary small mb-1">Email <span className="text-danger">*</span></label>
                     <input
                       type="email"
@@ -95,7 +91,8 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   </div>
                 )}
 
-                <div className="col-md-6">
+                {/* Phone */}
+                <div>
                   <label className="form-label fw-medium text-secondary small mb-1">Phone <span className="text-danger">*</span></label>
                   <input
                     type="text"
@@ -121,43 +118,10 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   ) : null}
                 </div>
 
-                {/* Password — add only */}
+                {/* Apartment Select (Add mode) */}
                 {!isEdit && (
-                  <div className="col-md-6">
-                    <label className="form-label fw-medium text-secondary small mb-1">Password <span className="text-danger">*</span></label>
-                    <input
-                      type="password"
-                      name="password"
-                      autoComplete="new-password"
-                      className={`form-control shadow-none rounded-2 text-dark ${formik.touched.password && formik.errors.password ? "is-invalid" : ""}`}
-                      placeholder="Min 8 characters"
-                      value={formik.values.password ?? ""}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      style={{
-                        fontSize: "0.875rem",
-                        borderColor: formik.touched.password && formik.errors.password ? "#dc3545" : "#e5e7eb"
-                      }}
-                    />
-                    {formik.touched.password && formik.errors.password && (
-                      <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.password}</div>
-                    )}
-                  </div>
-                )}
-
-              </div>
-
-              <hr className="border-light-subtle my-3" />
-
-              {/* ── Resident Details ── */}
-              <p className="fw-bold text-muted text-uppercase mb-3" style={{ fontSize: "0.68rem", letterSpacing: "0.08em" }}>
-                Resident Details
-              </p>
-              <div className="row g-3">
-
-                {!isEdit && (
-                  <div className="col-md-6">
-                    <label className="form-label fw-medium text-secondary small mb-1">Apartment</label>
+                  <div>
+                    <label className="form-label fw-medium text-secondary small mb-1">Apartment <span className="text-danger">*</span></label>
                     <ApartmentSelect
                       value={formik.values.apartmentId ?? 0}
                       onChange={async (id) => {
@@ -173,8 +137,9 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                   </div>
                 )}
 
+                {/* Apartment Readonly (Edit mode) */}
                 {isEdit && resident?.apartment && (
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-medium text-secondary small mb-1">Apartment</label>
                     <input
                       type="text"
@@ -188,7 +153,7 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
 
                 {/* Move-out date — edit only */}
                 {isEdit && (
-                  <div className="col-md-6">
+                  <div>
                     <label className="form-label fw-medium text-secondary small mb-1">Move-out date</label>
                     <input
                       type="date"

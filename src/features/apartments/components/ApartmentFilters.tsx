@@ -8,7 +8,6 @@ interface ApartmentFiltersProps {
 }
 
 const apartmentTypeLabels: Record<ApartmentType, string> = {
-  [ApartmentType.STUDIO]: "Studio",
   [ApartmentType.ONE_BHK]: "1 BHK",
   [ApartmentType.TWO_BHK]: "2 BHK",
   [ApartmentType.THREE_BHK]: "3 BHK",

@@ -35,8 +35,10 @@ const useLogin = () => {
           password: values.password,
         });
         showSuccess('Logged in successfully');
-        if (user?.mustResetPassword) {
-          navigate('/set-password-required', { replace: true });
+        if (user?.mustResetPassword && user?.resetToken) {
+          navigate(`/reset-password?token=${user.resetToken}`, { replace: true });
+        } else if (user?.mustResetPassword) {
+          navigate('/reset-password', { replace: true });
         } else {
           navigate('/', { replace: true });
         }

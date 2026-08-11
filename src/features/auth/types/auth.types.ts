@@ -16,6 +16,7 @@ export interface User {
   role: UserRole;
   isActive: boolean;
   mustResetPassword?: boolean;
+  resetToken?: string;
   createdAt: string;
   updatedAt: string;
   residentId?: number | null;

@@ -18,7 +18,6 @@ const addSchema = Yup.object({
   name: Yup.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name must be at most 100 characters").required("Name is required"),
   email: Yup.string().trim().email("Please provide a valid email").required("Email is required"),
   phone: Yup.string().trim().length(10, "Phone must be exactly 10 digits").matches(/^\d+$/, "Phone must contain only numbers").required("Phone is required"),
-  password: Yup.string().min(8, "Password must be at least 8 characters").matches(/[A-Z]/, "Password must contain at least one uppercase letter").matches(/[0-9]/, "Password must contain at least one number").matches(/[\W_]/, "Password must contain at least one special character").required("Password is required"),
   apartmentId: Yup.number().typeError("Apartment ID must be a number").min(1, "Please select an apartment").required("Apartment ID is required"),
 });
 
@@ -49,7 +48,6 @@ export const useResidentForm = ({ show, mode, resident, onSubmit, onClose }: Use
         name: "",
         email: "",
         phone: "",
-        password: "",
         apartmentId: 0,
       },
     validationSchema: isEdit ? editSchema : addSchema,

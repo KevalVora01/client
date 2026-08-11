@@ -7,7 +7,6 @@ import ResidentsPage from '../features/residents/pages/ResidentsPage';
 import ResidentDetailPage from '../features/residents/pages/ResidentDetailPage';
 import ForgotPasswordPage from '../features/auth/pages/ForgotPasswordPage';
 import ResetPasswordPage from '../features/auth/pages/ResetPasswordPage';
-import PasswordResetRequiredPage from '../features/auth/pages/PasswordResetRequiredPage';
 import ProfilePage from '../features/profile/pages/ProfilePage';
 import ApartmentsPage from '../features/apartments/pages/ApartmentsPage';
 import ApartmentDetailPage from '../features/apartments/pages/ApartmentDetailPage';
@@ -39,11 +38,10 @@ const AppRoutes = () => {
         <Route element={<GuestRoute />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
         </Route>
 
-        {/* ─── Must-reset gate (authenticated, but password not yet set) ─── */}
-        <Route path="/set-password-required" element={<PasswordResetRequiredPage />} />
+        {/* ─── Password reset route ─── */}
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* ─── Protected routes (admin only) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin']} />}>

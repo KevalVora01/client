@@ -90,15 +90,10 @@ export const useVisitors = (options: UseVisitorsOptions = {}) => {
     window.addEventListener('visitor-updated', handleVisitorUpdate);
     window.addEventListener('focus', handleVisitorUpdate);
 
-    const pollInterval = setInterval(() => {
-      loadData(true);
-    }, 8000);
-
     return () => {
       isMounted = false;
       window.removeEventListener('visitor-updated', handleVisitorUpdate);
       window.removeEventListener('focus', handleVisitorUpdate);
-      clearInterval(pollInterval);
     };
   }, [userRole, pageNumber, pageSize, statusFilter, searchQuery]);
 

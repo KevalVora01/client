@@ -43,15 +43,10 @@ export const useDashboardMetrics = (enabled: boolean = true) => {
     window.addEventListener('visitor-updated', handleVisitorUpdate);
     window.addEventListener('focus', handleVisitorUpdate);
 
-    const pollInterval = setInterval(() => {
-      load(true);
-    }, 8000);
-
     return () => {
       cancelled = true;
       window.removeEventListener('visitor-updated', handleVisitorUpdate);
       window.removeEventListener('focus', handleVisitorUpdate);
-      clearInterval(pollInterval);
     };
   }, [enabled]);
 

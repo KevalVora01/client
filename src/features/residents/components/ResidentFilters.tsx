@@ -18,8 +18,7 @@ const ResidentFiltersComponent = ({
     }, 500);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, filters.search, onFilterChange]);
 
 
   const handleReset = () => {

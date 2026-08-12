@@ -31,8 +31,7 @@ const NoticeFilters = ({ filters, onFilterChange }: NoticeFiltersProps) => {
       onFilterChange({ search: search || undefined, pageNumber: 1 });
     }, 300);
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, filters.search, onFilterChange]);
 
   const handleReset = () => {
     setSearch('');

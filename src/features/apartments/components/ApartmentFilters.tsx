@@ -26,8 +26,7 @@ const ApartmentFiltersComponent = ({ filters, onFilterChange }: ApartmentFilters
     }, 500);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [search]);
+  }, [search, filters.search, onFilterChange]);
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onFilterChange({ type: e.target.value || undefined });

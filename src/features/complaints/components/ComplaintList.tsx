@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { complaintApi } from '../api/complaintApi';
 import Select from '../../../components/Select/Select';
 import Pagination from '../../../components/Pagination/Pagination';
@@ -72,20 +73,23 @@ const ComplaintList = ({
   onPageChange,
   onPageSizeChange
 }: ComplaintListProps) => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const urlExpId = searchParams.get('expandedId');
+
   const [expandedId, setExpandedId] = useState<number | null>(() => {
-    const params = new URLSearchParams(window.location.search);
-    const expId = params.get('expandedId');
-    if (expId) {
-      params.delete('expandedId');
-      const newSearch = params.toString();
-      const newUrl = newSearch
-        ? `${window.location.pathname}?${newSearch}${window.location.hash}`
-        : `${window.location.pathname}${window.location.hash}`;
-      window.history.replaceState(null, '', newUrl);
-      return Number(expId);
-    }
-    return null;
+    return urlExpId ? Number(urlExpId) : null;
   });
+
+  const [prevUrlExpId, setPrevUrlExpId] = useState<string | null>(urlExpId);
+
+  if (prevUrlExpId !== urlExpId) {
+    setPrevUrlExpId(urlExpId);
+    if (urlExpId) {
+      setExpandedId(Number(urlExpId));
+    }
+  }
+
   const [expandedDetail, setExpandedDetail] = useState<Complaint | null>(null);
   const [deletingComplaint, setDeletingComplaint] = useState<Complaint | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -176,7 +180,7 @@ const ComplaintList = ({
       document.body.classList.remove('drawer-open');
       cancelled = true;
     };
-  }, [expandedId]);
+  }, [expandedId, setExpandedId]);
 
   const handleCloseDrawer = () => {
     setExpandedId(null);
@@ -278,8 +282,8 @@ const ComplaintList = ({
                             </span>
                           )}
 
-                          {/* Chat Icon (directly after Apartment badge, hidden if Resolved) */}
-                          {!hideChatColumn && !disableChat && c.status !== 'Resolved' && (
+                          {/* Chat Icon (directly after Apartment badge) */}
+                          {!hideChatColumn && !disableChat && (
                             <div onClick={(e) => e.stopPropagation()}>
                               <button
                                 type="button"
@@ -294,7 +298,7 @@ const ComplaintList = ({
                                   e.stopPropagation();
                                   handleExpand(c);
                                 }}
-                                title="Open Chat"
+                                title={c.status === 'Resolved' ? "View Chat History (Resolved)" : "Open Chat"}
                               >
                                 <i className="bi bi-chat-left-text" style={{ fontSize: '1.15rem' }} />
                               </button>

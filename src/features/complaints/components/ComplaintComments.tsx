@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { complaintApi } from '../api/complaintApi';
 import type { Comment, ComplaintStatus } from '../types/complaint.types';
 import useAuth from '../../../hooks/useAuth';
+import useSocket from '../../../hooks/useSocket';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
@@ -45,6 +46,7 @@ function formatFullDate(dateStr: string): string {
 }
 
 const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: ComplaintCommentsProps) => {
+  const socket = useSocket();
   const { user } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,13 +76,38 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
         setLoaded(true);
       })
       .catch((err: unknown) => {
-        showError(getErrorMessage(err, 'Failed to load comments'));
+        showError(getErrorMessage(err, 'Failed to load chat messages'));
       })
       .finally(() => {
         setLoading(false);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [complaintId]);
+
+  // Real-time Socket.io listener for new chat messages
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRealtimeMessage = (data: unknown) => {
+      const payload = data as { type?: string; data?: { complaintId?: number } };
+      const targetId = Number(payload?.data?.complaintId);
+      if (payload?.type === 'complaint_comment_added' || targetId === complaintId) {
+        complaintApi.getComments(complaintId)
+          .then((newComments) => {
+            setComments(newComments);
+          })
+          .catch(() => {});
+      }
+    };
+
+    socket.on('notification:new', handleRealtimeMessage);
+    socket.on('complaint:comment', handleRealtimeMessage);
+
+    return () => {
+      socket.off('notification:new', handleRealtimeMessage);
+      socket.off('complaint:comment', handleRealtimeMessage);
+    };
+  }, [socket, complaintId]);
 
   useEffect(() => {
     if (!loading && messagesRef.current) {
@@ -97,7 +124,7 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
       const data = await complaintApi.getComments(complaintId);
       setComments(data);
     } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to add comment'));
+      showError(getErrorMessage(err, 'Failed to send message'));
     } finally {
       setSubmitting(false);
     }
@@ -232,7 +259,7 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
       {isResolved ? (
         <div className="px-3 py-2 flex-shrink-0 text-center" style={{ borderTop: '1px solid #e5e7eb', backgroundColor: '#fff' }}>
           <p className="text-secondary fst-italic mb-0" style={{ fontSize: '0.8rem' }}>
-            This complaint is resolved. Comments are closed.
+            This complaint is resolved. Chat is disabled.
           </p>
         </div>
       ) : (

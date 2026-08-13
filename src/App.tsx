@@ -12,7 +12,6 @@ const App = () => {
         <ToastContainer
           position="top-right"
           autoClose={2000}
-          limit={5}
           hideProgressBar={false}
           newestOnTop={true}
           closeOnClick

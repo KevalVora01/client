@@ -52,7 +52,6 @@ export const UpiPaymentModal = ({
 
   const handleSubmit = async (e?: React.FormEvent, customUtr?: string) => {
     if (e) e.preventDefault();
-    const utr = customUtr || formik.values.utrNumber;
 
     if (customUtr) {
       await formik.setFieldValue('utrNumber', customUtr);

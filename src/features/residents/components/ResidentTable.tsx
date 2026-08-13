@@ -6,7 +6,9 @@ import RowActions from './RowActions';
 import { useResidentStore } from '../hooks/useResidentStore';
 import { highlightMatch } from '../../../utils/highlight';
 
-const COL_WIDTH = '145px';
+const NAME_COL_WIDTH = '18%';
+const ACTIONS_COL_WIDTH = '12%';
+const COL_WIDTH = '14%';
 
 const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: ResidentTableProps) => {
   const { filters } = useResidentStore();
@@ -16,28 +18,28 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'name',
       label: 'Resident Name',
-      width: COL_WIDTH,
+      width: NAME_COL_WIDTH,
       render: (r) => {
         const { bg, color } = getAvatarColor(r.user.name);
         return (
-          <div className="d-flex align-items-center gap-3 py-1">
+          <div className="d-flex align-items-center gap-2 py-1 overflow-hidden">
             <div
               className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold"
               style={{
                 background: bg,
                 color: color,
-                width: '42px',
-                height: '42px',
+                width: '38px',
+                height: '38px',
                 fontSize: '0.85rem'
               }}
             >
               {getInitials(r.user.name)}
             </div>
-            <div>
-              <p className="fw-bold m-0 text-dark" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
+            <div className="overflow-hidden text-truncate">
+              <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.925rem', letterSpacing: '-0.01em' }}>
                 {highlightMatch(r.user.name, searchVal)}
               </p>
-              <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+              <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.8rem' }}>
                 {highlightMatch(r.user.email, searchVal)}
               </p>
             </div>
@@ -51,11 +53,11 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       width: COL_WIDTH,
       align: 'center',
       render: (r) => r.apartment ? (
-        <div>
-          <p className="fw-semibold m-0 text-dark" style={{ fontSize: '0.9rem' }}>
+        <div className="text-truncate">
+          <p className="fw-semibold m-0 text-dark text-truncate" style={{ fontSize: '0.9rem' }}>
             {highlightMatch(`${r.apartment.block}-${r.apartment.floorNumber}${r.apartment.unitNumber}`, searchVal)}
           </p>
-          <p className="m-0 text-muted" style={{ fontSize: '0.8rem' }}>
+          <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.8rem' }}>
             Block {highlightMatch(r.apartment.block, searchVal)} - Floor {r.apartment.floorNumber}
           </p>
         </div>
@@ -129,7 +131,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
     {
       key: 'actions',
       label: 'Actions',
-      width: COL_WIDTH,
+      width: ACTIONS_COL_WIDTH,
       align: 'center',
       render: (r) => (
         <div className="d-flex justify-content-center">
@@ -153,6 +155,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       emptyTitle="No residents found"
       emptySubtitle="Try adjusting your filters or add a new resident."
       emptyIcon="bi-people"
+      tableStyle={{ tableLayout: 'fixed' }}
     />
   );
 };

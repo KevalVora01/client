@@ -62,10 +62,8 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
     if (isAdmin) {
       return { name: residentName, initials: getInitials(residentName), color: getAvatarColor(0) };
     }
-    const adminComment = comments.find((c) => c.userId !== currentUserId && c.user?.name);
-    const name = adminComment?.user?.name ?? 'Admin';
-    return { name, initials: getInitials(name), color: getAvatarColor(adminComment?.userId ?? 1) };
-  }, [isAdmin, residentName, comments, currentUserId]);
+    return { name: 'Admin', initials: 'AD', color: getAvatarColor(1) };
+  }, [isAdmin, residentName]);
 
   useEffect(() => {
     if (loaded) return;

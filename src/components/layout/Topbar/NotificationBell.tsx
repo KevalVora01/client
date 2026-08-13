@@ -4,6 +4,8 @@ import {
   Bell,
   FileText,
   MessageSquareWarning,
+  MessageSquareText,
+  AlertCircle,
   Megaphone,
   ReceiptText,
   Clock,
@@ -26,8 +28,8 @@ const ICON_MAP: Record<string, typeof FileText> = {
   visitor_approved: CheckCheck,
   visitor_rejected: XCircle,
   complaint_status_changed: MessageSquareWarning,
-  complaint_created: MessageSquareWarning,
-  complaint_comment_added: MessageSquareWarning,
+  complaint_created: AlertCircle,
+  complaint_comment_added: MessageSquareText,
   notice_created: Megaphone,
   maintenance_due_soon: ReceiptText,
   maintenance_due_today: ReceiptText,
@@ -54,7 +56,7 @@ const CLASS_MAP: Record<string, string> = {
   visitor_rejected: 'bg-danger-subtle text-danger-emphasis',
   complaint_status_changed: 'bg-warning-subtle text-warning-emphasis',
   complaint_created: 'bg-warning-subtle text-warning-emphasis',
-  complaint_comment_added: 'bg-warning-subtle text-warning-emphasis',
+  complaint_comment_added: 'bg-info-subtle text-info-emphasis',
   notice_created: 'bg-primary-subtle text-primary-emphasis',
   maintenance_due_soon: 'bg-info-subtle text-info-emphasis',
   maintenance_due_today: 'bg-warning-subtle text-warning-emphasis',
@@ -250,7 +252,7 @@ const NotificationBell = () => {
     }
 
     let path = NAV_MAP[n.type];
-    if (path && (n.type === 'complaint_comment_added' || n.type === 'complaint_created' || n.type === 'complaint_status_changed')) {
+    if (path && n.type === 'complaint_comment_added') {
       const complaintId = n.data?.complaintId;
       if (complaintId) {
         path = `${path}?expandedId=${complaintId}`;

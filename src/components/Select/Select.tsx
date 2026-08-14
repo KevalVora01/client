@@ -21,6 +21,7 @@ interface SelectProps {
   className?: string;
   style?: React.CSSProperties;
   dropdownWidth?: string | number;
+  direction?: "up" | "down" | "auto";
 }
 
 const Select = ({
@@ -39,6 +40,7 @@ const Select = ({
   className,
   style,
   dropdownWidth,
+  direction = "auto",
 }: SelectProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [openUp, setOpenUp] = useState(false);
@@ -85,9 +87,16 @@ const Select = ({
   const handleToggle = () => {
     if (disabled) return;
     if (!isOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      setOpenUp(spaceBelow < 200);
+      if (direction === "down") {
+        setOpenUp(false);
+      } else if (direction === "up") {
+        setOpenUp(true);
+      } else {
+        const rect = containerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        setOpenUp(spaceBelow < 180 && spaceAbove > spaceBelow);
+      }
     }
     setIsOpen((prev) => !prev);
   };

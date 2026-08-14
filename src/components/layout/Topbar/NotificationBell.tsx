@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Bell,
@@ -91,9 +91,9 @@ const NAV_MAP: Record<string, string> = {
   maintenance_overdue_reminder: '/maintenance',
   maintenance_payment_succeeded: '/maintenance',
   tenant_request_submitted: '/tenant-requests',
-  tenant_request_approved: '/my-apartment',
-  tenant_request_rejected: '/my-apartment',
-  tenancy_revoked: '/my-apartment',
+  tenant_request_approved: '/tenant',
+  tenant_request_rejected: '/tenant',
+  tenancy_revoked: '/tenant',
   document_request_created: '/documents',
   document_request_status_changed: '/documents',
   document_request_approved: '/documents',
@@ -210,15 +210,34 @@ const NotificationBell = () => {
     };
   }, [socket]);
 
-  const handleDropdownOpen = async () => {
-    if (unreadCount === 0) return;
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleDropdownOpen = useCallback(async () => {
+    setUnreadCount(0);
+    setNotifications((prev) =>
+      prev.map((item) => (item.isRead ? item : { ...item, isRead: true }))
+    );
+
     try {
       await notificationApi.markAllAsRead();
-      setUnreadCount(0);
     } catch {
       // silent
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const el = dropdownRef.current;
+    if (!el) return;
+
+    const onShow = () => {
+      handleDropdownOpen();
+    };
+
+    el.addEventListener('show.bs.dropdown', onShow);
+    return () => {
+      el.removeEventListener('show.bs.dropdown', onShow);
+    };
+  }, [handleDropdownOpen]);
 
   const handleDismiss = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -333,7 +352,7 @@ const NotificationBell = () => {
   const classesFor = (type: string) => CLASS_MAP[type] ?? 'bg-body-secondary text-body-secondary';
 
   return (
-    <div className="dropdown">
+    <div className="dropdown" ref={dropdownRef}>
       <button
         className="btn btn-light border border-light-subtle rounded-circle position-relative d-flex align-items-center justify-content-center shadow-sm text-secondary"
         style={{ width: '40px', height: '40px' }}

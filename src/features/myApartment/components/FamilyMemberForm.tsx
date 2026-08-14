@@ -77,6 +77,7 @@ const FamilyMemberForm = ({ member, loading, onSubmit, onCancel }: FamilyMemberF
             error={formik.errors.relation}
             touched={formik.touched.relation}
             className="shadow-none"
+            direction="down"
           />
         </div>
 

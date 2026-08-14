@@ -79,6 +79,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
             error={formik.errors.type}
             touched={formik.touched.type}
             className="shadow-none"
+            direction="down"
           />
         </div>
 
@@ -96,6 +97,7 @@ const VehicleForm = ({ vehicle, loading, onSubmit, onCancel }: VehicleFormProps)
             error={formik.errors.fuelType}
             touched={formik.touched.fuelType}
             className="shadow-none"
+            direction="down"
           />
         </div>
 

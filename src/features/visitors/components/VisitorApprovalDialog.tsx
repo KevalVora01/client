@@ -29,6 +29,10 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
   const [decision, setDecision] = useState<'Approved' | 'Rejected' | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const effectiveDecision =
+    decision ??
+    (visitor?.status === 'Approved' ? 'Approved' : visitor?.status === 'Rejected' ? 'Rejected' : null);
+
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(timer);
@@ -89,10 +93,12 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
           <div className="modal-header d-flex align-items-start justify-content-between border-bottom border-light-subtle px-4 py-4 position-relative">
             <div>
               <h5 className="modal-title fw-bold m-0 text-dark" style={{ fontSize: '1rem', color: '#1a1f36' }}>
-                Visitor at the Gate
+                {effectiveDecision ? 'Visitor Entry Decision' : 'Visitor at the Gate'}
               </h5>
               <p className="text-muted m-0 small" style={{ fontSize: '0.8rem' }}>
-                Entry approval request for incoming guest.
+                {effectiveDecision
+                  ? `This visitor entry was ${effectiveDecision.toLowerCase()}.`
+                  : 'Entry approval request for incoming guest.'}
               </p>
             </div>
             <button
@@ -113,23 +119,23 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
                 <div className="spinner-border text-secondary mb-2" role="status" style={{ width: '2rem', height: '2rem' }} />
                 <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>Loading visitor details...</p>
               </div>
-            ) : !visitor ? null : decision ? (
+            ) : !visitor ? null : effectiveDecision ? (
               <div className="text-center py-4">
                 <div
                   className="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-                  style={{ width: '64px', height: '64px', backgroundColor: decision === 'Approved' ? '#dcfce7' : '#fee2e2' }}
+                  style={{ width: '64px', height: '64px', backgroundColor: effectiveDecision === 'Approved' ? '#dcfce7' : '#fee2e2' }}
                 >
-                  {decision === 'Approved' ? (
+                  {effectiveDecision === 'Approved' ? (
                     <Check size={32} className="text-success" />
                   ) : (
                     <X size={32} className="text-danger" />
                   )}
                 </div>
-                <p className="fw-bold mb-1" style={{ fontSize: '1.1rem', color: decision === 'Approved' ? '#16a34a' : '#dc2626' }}>
-                  {decision === 'Approved' ? 'Entry Approved!' : 'Entry Rejected'}
+                <p className="fw-bold mb-1" style={{ fontSize: '1.1rem', color: effectiveDecision === 'Approved' ? '#16a34a' : '#dc2626' }}>
+                  {effectiveDecision === 'Approved' ? 'Entry Approved!' : 'Entry Rejected'}
                 </p>
                 <p className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>
-                  {decision === 'Approved' ? 'Visitor has been granted access' : 'Visitor has been denied access'}
+                  {effectiveDecision === 'Approved' ? 'Visitor has been granted access' : 'Visitor has been denied access'}
                 </p>
               </div>
             ) : (
@@ -224,7 +230,7 @@ const VisitorApprovalDialog = ({ visitorId, onClose, onDecision }: VisitorApprov
           </div>
 
           {/* Footer */}
-          {!loading && visitor && !decision && (
+          {!loading && visitor && !effectiveDecision && (
             <div className="modal-footer border-top border-light-subtle px-4 py-3 d-flex gap-2">
               {isExpired ? (
                 <div className="text-center w-100">

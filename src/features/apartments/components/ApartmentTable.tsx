@@ -1,5 +1,6 @@
 import type { TableColumn } from "../../../components/AppTable/AppTable";
 import AppTable from "../../../components/AppTable/AppTable";
+import { StatusBadge } from "../../../components/StatusBadge/StatusBadge";
 import type { Apartment } from "../types/apartment.types";
 import { apartmentTypeLabels, formatArea, formatFloor } from "./apartmentTableHelpers";
 import { useApartmentStore } from '../hooks/useApartmentStore';
@@ -79,30 +80,9 @@ const ApartmentTable = ({ apartments, loading, onView }: ApartmentTableProps) =>
       label: "STATUS",
       width: COL_WIDTH,
       align: 'center',
-      render: (a) => {
-        let badgeStyle = { backgroundColor: "#e0e7ff", color: "#4338ca", borderColor: "#c7d2fe" }; // OCCUPIED
-        let labelText = "OCCUPIED";
-
-        if (!a.isOccupied) {
-          badgeStyle = { backgroundColor: "#e0f2fe", color: "#0369a1", borderColor: "#bae6fd" }; // VACANT
-          labelText = "VACANT";
-        }
-
-        return (
-          <span
-            className="d-inline-block fw-bold rounded-pill border text-center"
-            style={{
-              fontSize: "0.72rem",
-              letterSpacing: "0.6px",
-              padding: "4px 14px",
-              minWidth: "105px",
-              ...badgeStyle
-            }}
-          >
-            {labelText}
-          </span>
-        );
-      },
+      render: (a) => (
+        <StatusBadge variant={a.isOccupied ? 'success' : 'secondary'} label={a.isOccupied ? 'Occupied' : 'Vacant'} />
+      ),
     },
     {
       key: "actions",

@@ -254,7 +254,7 @@ const NotificationBell = () => {
     if (!n.isRead) {
       setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
       try {
-        await notificationApi.markAsRead([n.id]);
+        await notificationApi.markAsRead(n.id);
         setUnreadCount((c) => Math.max(0, c - 1));
       } catch {
         // silent

@@ -23,8 +23,8 @@ export const notificationApi = {
     return response.data.data.data.count;
   },
 
-  markAsRead: async (ids: number[]): Promise<void> => {
-    await api.patch('/notifications/read', { ids });
+  markAsRead: async (id: number): Promise<void> => {
+    await api.patch('/notifications/read', { id });
   },
 
   markAllAsRead: async (): Promise<void> => {

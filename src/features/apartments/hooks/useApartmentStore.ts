@@ -10,7 +10,7 @@ interface ApartmentStore {
 
 const initialFilters: ApartmentFilters = {
   pageNumber: 1,
-  pageSize: 5,
+  pageSize: 10,
   search: undefined,
   type: undefined,
   isOccupied: undefined,

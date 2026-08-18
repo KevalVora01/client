@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Phone, Mail, Building2, Calendar, UserCheck } from 'lucide-react';
+import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 import { useResident } from '../hooks/useResident';
 import { getAvatarColor, getInitials, formatDate } from '../components/residentTableHelpers';
 import ResidentFormModal from '../components/ResidentFormModal';
@@ -84,15 +85,9 @@ const ResidentDetailPage = () => {
           <div>
             <div className="detail-header__name-row">
               <h4 className="detail-header__name">{resident.user.name}</h4>
-              <span className={`badge-pill badge-pill--${resident.isActive ? 'active' : 'inactive'}`}>
-                {resident.isActive ? 'Active' : 'Inactive'}
-              </span>
-              <span className={`badge-pill badge-pill--${resident.isOwner ? 'owner' : 'tenant'}`}>
-                {resident.isOwner ? 'Owner' : 'Tenant'}
-              </span>
-              <span className={`badge-pill ${resident.isOccupant ? 'badge-pill--active' : 'badge-pill--inactive'}`}>
-                {resident.isOccupant ? 'Occupant' : 'Non-occupant'}
-              </span>
+              <StatusBadge variant={resident.isActive ? 'success' : 'secondary'} label={resident.isActive ? 'Active' : 'Inactive'} />
+              <StatusBadge variant={resident.isOwner ? 'info' : 'secondary'} label={resident.isOwner ? 'Owner' : 'Tenant'} />
+              <StatusBadge variant={resident.isOccupant ? 'success' : 'secondary'} label={resident.isOccupant ? 'Occupant' : 'Non-occupant'} />
             </div>
             <div className="detail-header__meta">
               <span><Mail size={13} strokeWidth={1.75} /> {resident.user.email}</span>

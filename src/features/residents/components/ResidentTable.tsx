@@ -1,5 +1,6 @@
 import AppTable from '../../../components/AppTable/AppTable';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
+import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 import type { ResidentDetail, ResidentTableProps } from '../types/resident.types';
 import { formatDate, getAvatarColor, getInitials } from './residentTableHelpers';
 import RowActions from './RowActions';
@@ -98,16 +99,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       width: COL_WIDTH,
       align: 'center',
       render: (r) => (
-        <span
-          className="badge rounded-pill fw-semibold px-3 py-2"
-          style={{
-            fontSize: '0.75rem',
-            backgroundColor: r.isActive ? '#f0fdf4' : '#e5e7eb',
-            color: r.isActive ? '#16a34a' : '#4b5563'
-          }}
-        >
-          {r.isActive ? 'Active' : 'Inactive'}
-        </span>
+        <StatusBadge variant={r.isActive ? 'success' : 'secondary'} label={r.isActive ? 'Active' : 'Inactive'} />
       ),
     },
     {
@@ -116,16 +108,7 @@ const ResidentTable = ({ residents, loading, onView, onEdit, onDeactivate }: Res
       width: COL_WIDTH,
       align: 'center',
       render: (r) => (
-        <span
-          className="badge rounded-pill fw-semibold px-3 py-2"
-          style={{
-            fontSize: '0.75rem',
-            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
-            color: r.isOccupant ? '#166534' : '#6b7280'
-          }}
-        >
-          {r.isOccupant ? 'Occupant' : 'Non-occupant'}
-        </span>
+        <StatusBadge variant={r.isOccupant ? 'success' : 'secondary'} label={r.isOccupant ? 'Occupant' : 'Non-occupant'} />
       ),
     },
     {

@@ -13,7 +13,7 @@ export const useResidents = () => {
   const [pagination, setPagination] = useState<Omit<PaginatedResult<ResidentDetail>, "items">>({
     totalCount: 0,
     pageNumber: 1,
-    pageSize: 5,
+    pageSize: 10,
     totalPages: 0,
     hasNextPage: false,
     hasPreviousPage: false,

@@ -10,6 +10,7 @@ import { showError } from '../../../utils/toast';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import AppTable from '../../../components/AppTable/AppTable';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
+import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 
 const ApartmentDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,16 +117,7 @@ const ApartmentDetailPage = () => {
       width: COL_WIDTH,
       align: 'center',
       render: (r) => (
-        <span
-          className="badge rounded-pill fw-semibold px-3 py-2"
-          style={{
-            fontSize: '0.75rem',
-            backgroundColor: r.isOccupant ? '#dcfce7' : '#e5e7eb',
-            color: r.isOccupant ? '#166534' : '#6b7280'
-          }}
-        >
-          {r.isOccupant ? 'Occupant' : 'Past Tenant'}
-        </span>
+        <StatusBadge variant={r.isOccupant ? 'success' : 'secondary'} label={r.isOccupant ? 'Occupant' : 'Past Tenant'} />
       ),
     },
     {
@@ -205,9 +197,7 @@ const ApartmentDetailPage = () => {
           <div>
             <div className="detail-header__name-row">
               <h4 className="detail-header__name">{apartment.block}-{apartment.floorNumber}{apartment.unitNumber}</h4>
-              <span className={`badge-pill badge-pill--${apartment.isOccupied ? 'occupied' : 'vacant'}`}>
-                {apartment.isOccupied ? 'Occupied' : 'Vacant'}
-              </span>
+              <StatusBadge variant={apartment.isOccupied ? 'success' : 'secondary'} label={apartment.isOccupied ? 'Occupied' : 'Vacant'} />
               <span className="badge-pill badge-pill--type">
                 {apartmentTypeLabels[apartment.type] ?? apartment.type}
               </span>

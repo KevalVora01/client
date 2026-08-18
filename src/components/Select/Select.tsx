@@ -227,7 +227,7 @@ const Select = ({
                           className="bi bi-check-lg flex-shrink-0"
                           style={{
                             color: "#4f46e5",
-                            fontSize: "0.9rem",
+                            fontSize: "0.9rem", 
                             marginLeft: "8px",
                           }}
                         />

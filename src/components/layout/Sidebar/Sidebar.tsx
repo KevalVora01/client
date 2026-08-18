@@ -1,6 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard,
   Users,
   Building2,
   Megaphone,
@@ -39,7 +38,6 @@ interface SidebarProps {
 // ─── Nav config per role ──────────────────────────────────────────
 const navConfig: Record<UserRole, NavItem[]> = {
   admin: [
-    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Residents', icon: Users, path: '/residents' },
     { label: 'Apartments', icon: Building2, path: '/apartments' },
     { label: 'Tenant Requests', bootstrapIcon: 'bi-clipboard-data', path: '/tenant-requests' },
@@ -51,7 +49,6 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],
   resident: [
-    { label: 'My Dashboard', icon: LayoutDashboard, path: '/resident' },
     { label: 'My Apartment', icon: Home, path: '/my-apartment' },
     { label: 'Notices', icon: Megaphone, path: '/notices' },
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
@@ -87,9 +84,9 @@ const Sidebar = ({ onClose }: SidebarProps) => {
 
   const baseNav = role === 'resident' && effectiveIsOwner
     ? [
-      ...navConfig.resident.slice(0, 2),
+      navConfig.resident[0],
       { label: 'Tenant Management', icon: Users, path: '/tenant' },
-      ...navConfig.resident.slice(2),
+      ...navConfig.resident.slice(1),
     ]
     : navConfig[role];
 

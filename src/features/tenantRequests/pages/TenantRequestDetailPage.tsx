@@ -4,21 +4,8 @@ import { ArrowLeft, UserCheck, Mail, Phone, Calendar, Check, X, Gavel, Ban, User
 import useTenantRequestDetail from '../hooks/useTenantRequestDetail';
 import useAuth from '../../../hooks/useAuth';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
+import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 import type { TenantRequestVote, CommitteeMember, VoteChoice } from '../types/tenantRequest.types';
-
-const StatusBadge = ({ status }: { status: string }) => {
-  const map: Record<string, { label: string; bg: string; color: string }> = {
-    Pending: { label: 'Pending', bg: '#fef3c7', color: '#92400e' },
-    Approved: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
-    Rejected: { label: 'Rejected', bg: '#fee2e2', color: '#991b1b' },
-  };
-  const s = map[status] ?? map.Pending;
-  return (
-    <span className="badge-pill" style={{ backgroundColor: s.bg, color: s.color }}>
-      {s.label}
-    </span>
-  );
-};
 
 const VoterRow = ({
   name,
@@ -236,7 +223,10 @@ const TenantRequestDetailPage = () => {
           <div>
             <div className="detail-header__name-row">
               <h4 className="detail-header__name">{request.tenantName}</h4>
-              <StatusBadge status={request.status} />
+              <StatusBadge
+                variant={request.status === 'Approved' ? 'success' : request.status === 'Rejected' ? 'danger' : 'warning'}
+                label={request.status}
+              />
             </div>
             <div className="detail-header__meta">
               <span><Mail size={13} strokeWidth={1.75} /> {request.tenantEmail}</span>

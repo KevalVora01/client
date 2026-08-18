@@ -2,6 +2,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { UserPlus, UserCheck, Mail, Phone, Calendar, Clock } from 'lucide-react';
 import { useScrollLock } from '../../../hooks/useScrollLock';
+import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
 import type { OwnerTenantStatus, SubmitTenantRequestPayload } from '../types/tenantRequest.types';
 
 const TODAY = new Date().toISOString().split('T')[0];
@@ -18,23 +19,6 @@ const tenantRequestSchema = Yup.object({
       value ? value >= TODAY : false
     ),
 });
-
-const StatusBadge = ({ status }: { status: string }) => {
-  const map: Record<string, { label: string; bg: string; color: string }> = {
-    Pending: { label: 'Pending', bg: '#fef3c7', color: '#92400e' },
-    Approved: { label: 'Approved', bg: '#dcfce7', color: '#166534' },
-    Rejected: { label: 'Rejected', bg: '#fee2e2', color: '#991b1b' },
-  };
-  const s = map[status] ?? map.Pending;
-  return (
-    <span
-      className="fw-semibold px-2 py-1 rounded-2"
-      style={{ backgroundColor: s.bg, color: s.color, fontSize: '0.8rem' }}
-    >
-      {s.label}
-    </span>
-  );
-};
 
 const RequestForm = ({
   loading,
@@ -238,7 +222,10 @@ const TenantRequestSection = ({
           </div>
 
           <div className="d-flex align-items-center gap-2 mb-3">
-            <StatusBadge status={r.status} />
+            <StatusBadge
+              variant={r.status === 'Approved' ? 'success' : r.status === 'Rejected' ? 'danger' : 'warning'}
+              label={r.status}
+            />
           </div>
 
           <div className="info-grid">

@@ -10,7 +10,7 @@ interface ResidentStore {
 
 const initialFilters: ResidentFilters = {
   pageNumber: 1,
-  pageSize: 5,
+  pageSize: 10,
   search: undefined,
   apartmentId: undefined,
   isActive: undefined,

@@ -3,6 +3,7 @@ import { complaintApi } from '../api/complaintApi';
 import type { Comment, ComplaintStatus } from '../types/complaint.types';
 import useAuth from '../../../hooks/useAuth';
 import useSocket from '../../../hooks/useSocket';
+import { SOCKET_EVENTS } from '../../../services/socket';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 
@@ -98,11 +99,11 @@ const ComplaintComments = ({ complaintId, status, residentName, isAdmin }: Compl
       }
     };
 
-    socket.on('notification:new', handleRealtimeMessage);
+    socket.on(SOCKET_EVENTS.NOTIFICATION_NEW, handleRealtimeMessage);
     socket.on('complaint:comment', handleRealtimeMessage);
 
     return () => {
-      socket.off('notification:new', handleRealtimeMessage);
+      socket.off(SOCKET_EVENTS.NOTIFICATION_NEW, handleRealtimeMessage);
       socket.off('complaint:comment', handleRealtimeMessage);
     };
   }, [socket, complaintId]);

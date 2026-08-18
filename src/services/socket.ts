@@ -1,5 +1,14 @@
 import { io, Socket } from "socket.io-client";
 
+export const SOCKET_EVENTS = {
+  NOTICE_NEW: "notice:new",
+  COMPLAINT_NEW: "complaint:new",
+  COMPLAINT_STATUS_UPDATED: "complaint:statusUpdated",
+  MESSAGE_NEW: "message:new",
+  NOTIFICATION_NEW: "notification:new",
+  VISITOR_UPDATED: "visitor:updated",
+} as const;
+
 let socket: Socket | null = null;
 
 export function connectSocket(accessToken: string): Socket {

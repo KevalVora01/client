@@ -17,6 +17,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import useSocket from '../../../hooks/useSocket';
+import { SOCKET_EVENTS } from '../../../services/socket';
 import useAuth from '../../../hooks/useAuth';
 import { notificationApi, type NotificationItem } from '../../../features/notifications/api/notificationApi';
 import VisitorApprovalDialog from '../../../features/visitors/components/VisitorApprovalDialog';
@@ -202,11 +203,11 @@ const NotificationBell = () => {
       });
     };
 
-    socket.on('notification:new', handleNewNotification);
-    socket.on('visitor:updated', handleVisitorUpdated);
+    socket.on(SOCKET_EVENTS.NOTIFICATION_NEW, handleNewNotification);
+    socket.on(SOCKET_EVENTS.VISITOR_UPDATED, handleVisitorUpdated);
     return () => {
-      socket.off('notification:new', handleNewNotification);
-      socket.off('visitor:updated', handleVisitorUpdated);
+      socket.off(SOCKET_EVENTS.NOTIFICATION_NEW, handleNewNotification);
+      socket.off(SOCKET_EVENTS.VISITOR_UPDATED, handleVisitorUpdated);
     };
   }, [socket]);
 

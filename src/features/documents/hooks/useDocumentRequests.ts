@@ -4,6 +4,7 @@ import type { DocumentRequestItem } from "../types/documentRequest.types";
 import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { showError } from "../../../utils/toast";
 import useSocket from "../../../hooks/useSocket";
+import { SOCKET_EVENTS } from "../../../services/socket";
 
 const DOC_REQUEST_TYPES = new Set([
   "document_request_created",
@@ -58,8 +59,8 @@ export const useDocumentRequests = (isAdmin: boolean, isOwner: boolean) => {
       }
     };
 
-    socket.on("notification:new", handleNotification);
-    return () => { socket.off("notification:new", handleNotification); };
+    socket.on(SOCKET_EVENTS.NOTIFICATION_NEW, handleNotification);
+    return () => { socket.off(SOCKET_EVENTS.NOTIFICATION_NEW, handleNotification); };
   }, [socket]);
 
   const refetch = useCallback(() => setRefreshKey((k) => k + 1), []);

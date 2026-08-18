@@ -4,6 +4,7 @@ import type { Visitor } from '../types/visitor.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showError } from '../../../utils/toast';
 import useSocket from '../../../hooks/useSocket';
+import { SOCKET_EVENTS } from '../../../services/socket';
 
 export const useVisitorSearch = () => {
   const socket = useSocket();
@@ -48,11 +49,11 @@ export const useVisitorSearch = () => {
     const handleRefresh = () => {
       visitorApi.searchByNameOrPhone(query.trim()).then((data) => setResults(data)).catch(() => {});
     };
-    socket.on('notification:new', handleRefresh);
-    socket.on('visitor:updated', handleRefresh);
+    socket.on(SOCKET_EVENTS.NOTIFICATION_NEW, handleRefresh);
+    socket.on(SOCKET_EVENTS.VISITOR_UPDATED, handleRefresh);
     return () => {
-      socket.off('notification:new', handleRefresh);
-      socket.off('visitor:updated', handleRefresh);
+      socket.off(SOCKET_EVENTS.NOTIFICATION_NEW, handleRefresh);
+      socket.off(SOCKET_EVENTS.VISITOR_UPDATED, handleRefresh);
     };
   }, [socket, query]);
 

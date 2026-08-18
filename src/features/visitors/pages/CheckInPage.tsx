@@ -7,6 +7,7 @@ import VisitorLookupSearch from '../components/VisitorLookupSearch';
 import CheckInPhotoModal from '../components/CheckInPhotoModal';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import useSocket from '../../../hooks/useSocket';
+import { SOCKET_EVENTS } from '../../../services/socket';
 import useAuth from '../../../hooks/useAuth';
 import type { LogWalkInPayload, Visitor } from '../types/visitor.types';
 import {
@@ -63,11 +64,11 @@ const CheckInPage = () => {
       refetchPending();
       refetchApproved();
     };
-    socket.on('notification:new', handleRefetch);
-    socket.on('visitor:updated', handleRefetch);
+    socket.on(SOCKET_EVENTS.NOTIFICATION_NEW, handleRefetch);
+    socket.on(SOCKET_EVENTS.VISITOR_UPDATED, handleRefetch);
     return () => {
-      socket.off('notification:new', handleRefetch);
-      socket.off('visitor:updated', handleRefetch);
+      socket.off(SOCKET_EVENTS.NOTIFICATION_NEW, handleRefetch);
+      socket.off(SOCKET_EVENTS.VISITOR_UPDATED, handleRefetch);
     };
   }, [socket, refetchPending, refetchApproved]);
 

@@ -21,6 +21,12 @@ import ComplaintsPage from '../features/complaints/pages/ComplaintsPage';
 import MaintenancePage from '../features/maintenance/pages/MaintenancePage';
 import DocumentsPage from '../features/documents/pages/DocumentsPage';
 import DocumentRequestDetailPage from '../features/documents/pages/DocumentRequestDetailPage';
+import AmenitiesPage from '../features/amenities/pages/AmenitiesPage';
+import AmenityDetailPage from '../features/amenities/pages/AmenityDetailPage';
+import MyBookingsPage from '../features/amenities/pages/MyBookingsPage';
+import BookingsAdminPage from '../features/amenities/pages/BookingsAdminPage';
+import BookingDetailPage from '../features/amenities/pages/BookingDetailPage';
+import AmenityStatsPage from '../features/amenities/pages/AmenityStatsPage';
 import CheckInPage from '../features/visitors/pages/CheckInPage';
 import CheckOutPage from '../features/visitors/pages/CheckOutPage';
 import VisitorLogPage from '../features/visitors/pages/VisitorLogPage';
@@ -86,10 +92,16 @@ const AppRoutes = () => {
             <Route path="/notices" element={<NoticesPage />} />
             <Route path="/complaints" element={<ComplaintsPage />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
-            <Route path="/documents" element={<DocumentsPage />} />
-            <Route path="/documents/:id" element={<DocumentRequestDetailPage />} />
-          </Route>
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/documents/:id" element={<DocumentRequestDetailPage />} />
+          <Route path="/amenities" element={<AmenitiesPage />} />
+          <Route path="/amenities/:id" element={<AmenityDetailPage />} />
+          <Route path="/bookings/me" element={<MyBookingsPage />} />
+          <Route path="/bookings" element={<BookingsAdminPage />} />
+          <Route path="/bookings/:id" element={<BookingDetailPage />} />
+          <Route path="/bookings/stats" element={<AmenityStatsPage />} />
         </Route>
+      </Route>
 
         {/* ─── Shared routes (admin, resident, security) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>

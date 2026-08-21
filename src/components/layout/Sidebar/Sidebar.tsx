@@ -13,6 +13,9 @@ import {
   X,
   Home,
   FileText,
+  Armchair,
+  CalendarCheck,
+  BarChart3,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
@@ -46,6 +49,9 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
     { label: 'Visitor Logs', icon: History, path: '/visitor-logs' },
+    { label: 'Amenities', icon: Armchair, path: '/amenities' },
+    { label: 'Bookings', icon: CalendarCheck, path: '/bookings' },
+    { label: 'Booking Stats', icon: BarChart3, path: '/bookings/stats' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],
   resident: [
@@ -54,6 +60,8 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
+    { label: 'Amenities', icon: Armchair, path: '/amenities' },
+    { label: 'My Bookings', icon: CalendarCheck, path: '/bookings/me' },
     { label: 'My Visitors', icon: UserCheck, path: '/my-visitors' },
     { label: 'Events', icon: CalendarDays, path: '/events' },
   ],

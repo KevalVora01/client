@@ -7,7 +7,7 @@ import { showSuccess, showError } from '../../../utils/toast';
 export const useAmenityMutations = (onSuccess?: () => void) => {
   const [loading, setLoading] = useState(false);
 
-  const create = async (payload: CreateAmenityPayload): Promise<boolean> => {
+  const create = async (payload: CreateAmenityPayload | FormData): Promise<boolean> => {
     try {
       setLoading(true);
       await amenityApi.create(payload);
@@ -22,7 +22,7 @@ export const useAmenityMutations = (onSuccess?: () => void) => {
     }
   };
 
-  const update = async (id: number, payload: UpdateAmenityPayload): Promise<boolean> => {
+  const update = async (id: number, payload: UpdateAmenityPayload | FormData): Promise<boolean> => {
     try {
       setLoading(true);
       await amenityApi.update(id, payload);
@@ -37,20 +37,5 @@ export const useAmenityMutations = (onSuccess?: () => void) => {
     }
   };
 
-  const deactivate = async (id: number): Promise<boolean> => {
-    try {
-      setLoading(true);
-      await amenityApi.deactivate(id);
-      showSuccess('Amenity deactivated successfully');
-      onSuccess?.();
-      return true;
-    } catch (err: unknown) {
-      showError(getErrorMessage(err, 'Failed to deactivate amenity'));
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return { create, update, deactivate, loading };
+  return { create, update, loading };
 };

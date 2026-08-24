@@ -7,6 +7,16 @@ interface AvailabilityGridProps {
   onOpenBooking?: () => void;
 }
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const formatDisplayDate = (isoStr: string): string => {
+  if (!isoStr) return '';
+  const [y, m, d] = isoStr.split('-').map(Number);
+  if (!y || !m || !d) return isoStr;
+  const monthName = MONTHS[m - 1] || '';
+  return `${monthName} ${d}, ${y}`;
+};
+
 const toMinutes = (timeStr: string): number => {
   const [h, m] = timeStr.split(':').map(Number);
   return h * 60 + m;
@@ -68,7 +78,7 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
       <div className="mb-4">
         <div className="d-flex justify-content-between small text-muted mb-1 px-1" style={{ fontSize: '0.75rem' }}>
           <span>{operatingStart}</span>
-          <span>Timeline for {date}</span>
+          <span className="fw-semibold text-dark">Timeline for {formatDisplayDate(date)}</span>
           <span>{operatingEnd}</span>
         </div>
         <div

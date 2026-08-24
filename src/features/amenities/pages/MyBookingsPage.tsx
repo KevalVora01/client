@@ -6,7 +6,7 @@ import { useAmenities } from '../hooks/useAmenities';
 import { useBookingMutations } from '../hooks/useBookingMutations';
 import BookingTable from '../components/BookingTable';
 import ReasonModal from '../components/ReasonModal';
-import SettleModal from '../components/SettleModal';
+import BookingPaymentModal from '../components/BookingPaymentModal';
 import type { Booking } from '../types/amenity.types';
 
 const MyBookingsPage = () => {
@@ -27,13 +27,6 @@ const MyBookingsPage = () => {
     if (!cancelTarget) return false;
     const ok = await bookingMutations.cancel(cancelTarget.id, reason);
     if (ok) setCancelTarget(null);
-    return ok;
-  };
-
-  const handleSettle = async (ref: string): Promise<boolean> => {
-    if (!settleTarget) return false;
-    const ok = await bookingMutations.settle(settleTarget.id, ref);
-    if (ok) setSettleTarget(null);
     return ok;
   };
 
@@ -93,7 +86,16 @@ const MyBookingsPage = () => {
       )}
 
       {settleTarget && (
-        <SettleModal loading={bookingMutations.loading} onSubmit={handleSettle} onCancel={() => setSettleTarget(null)} />
+        <BookingPaymentModal
+          bookingId={settleTarget.id}
+          amenityName={amenityMap[settleTarget.amenityId] ?? `Amenity #${settleTarget.amenityId}`}
+          amount={amenities.find((a) => a.id === settleTarget.amenityId)?.price ?? 0}
+          onClose={() => setSettleTarget(null)}
+          onPaymentSuccess={() => {
+            setSettleTarget(null);
+            refetch();
+          }}
+        />
       )}
     </div>
   );

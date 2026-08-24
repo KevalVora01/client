@@ -19,18 +19,13 @@ export const amenityApi = {
     return response.data.data;
   },
 
-  create: async (payload: CreateAmenityPayload): Promise<Amenity> => {
+  create: async (payload: CreateAmenityPayload | FormData): Promise<Amenity> => {
     const response = await api.post('/amenities', payload);
     return response.data.data;
   },
 
-  update: async (id: number, payload: UpdateAmenityPayload): Promise<Amenity> => {
+  update: async (id: number, payload: UpdateAmenityPayload | FormData): Promise<Amenity> => {
     const response = await api.put(`/amenities/${id}`, payload);
-    return response.data.data;
-  },
-
-  deactivate: async (id: number): Promise<Amenity> => {
-    const response = await api.delete(`/amenities/${id}`);
     return response.data.data;
   },
 

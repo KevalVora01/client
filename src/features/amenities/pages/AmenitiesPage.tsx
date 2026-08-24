@@ -5,37 +5,29 @@ import { useAmenities } from '../hooks/useAmenities';
 import { useAmenityMutations } from '../hooks/useAmenityMutations';
 import AmenityCard from '../components/AmenityCard';
 import AmenityFormModal from '../components/AmenityFormModal';
-import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { Amenity, CreateAmenityPayload, UpdateAmenityPayload } from '../types/amenity.types';
 
 const AmenitiesPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
   const { amenities, loading, refetch } = useAmenities();
-  const { create, update, deactivate, loading: mutationLoading } = useAmenityMutations(refetch);
+  const { create, update, loading: mutationLoading } = useAmenityMutations(refetch);
 
   const [formOpen, setFormOpen] = useState(false);
   const [editAmenity, setEditAmenity] = useState<Amenity | null>(null);
-  const [deactivateTarget, setDeactivateTarget] = useState<Amenity | null>(null);
 
-  useScrollLock(formOpen || !!deactivateTarget);
+  useScrollLock(formOpen);
 
   const openAdd = () => { setEditAmenity(null); setFormOpen(true); };
   const openEdit = (a: Amenity) => { setEditAmenity(a); setFormOpen(true); };
   const closeForm = () => setFormOpen(false);
 
-  const handleSubmit = async (payload: CreateAmenityPayload | UpdateAmenityPayload): Promise<boolean> => {
+  const handleSubmit = async (payload: CreateAmenityPayload | UpdateAmenityPayload | FormData): Promise<boolean> => {
     const success = editAmenity
-      ? await update(editAmenity.id, payload as UpdateAmenityPayload)
-      : await create(payload as CreateAmenityPayload);
+      ? await update(editAmenity.id, payload as UpdateAmenityPayload | FormData)
+      : await create(payload as CreateAmenityPayload | FormData);
     if (success) closeForm();
     return success;
-  };
-
-  const handleDeactivate = async () => {
-    if (!deactivateTarget) return;
-    const ok = await deactivate(deactivateTarget.id);
-    if (ok) setDeactivateTarget(null);
   };
 
   return (
@@ -66,7 +58,7 @@ const AmenitiesPage = () => {
         <div className="row g-3">
           {amenities.map((a) => (
             <div key={a.id} className="col-12 col-sm-6 col-lg-4 col-xl-3">
-              <AmenityCard amenity={a} isAdmin={isAdmin} onEdit={openEdit} onDeactivate={setDeactivateTarget} />
+              <AmenityCard amenity={a} isAdmin={isAdmin} onEdit={openEdit} />
             </div>
           ))}
         </div>
@@ -75,17 +67,6 @@ const AmenitiesPage = () => {
       {formOpen && (
         <AmenityFormModal amenity={editAmenity} loading={mutationLoading} onSubmit={handleSubmit} onCancel={closeForm} />
       )}
-
-      <ConfirmDialog
-        show={!!deactivateTarget}
-        title="Deactivate Amenity"
-        message={`Are you sure you want to deactivate "${deactivateTarget?.name}"? Residents will no longer be able to book it.`}
-        confirmLabel="Deactivate"
-        cancelLabel="Cancel"
-        variant="danger"
-        onConfirm={handleDeactivate}
-        onCancel={() => setDeactivateTarget(null)}
-      />
     </div>
   );
 };

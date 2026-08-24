@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, X, Gavel } from 'lucide-react';
+import { Check, X, Gavel, IndianRupee, QrCode, AlertCircle, CheckCircle2 } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useBookingDetail } from '../hooks/useBookingDetail';
@@ -8,7 +8,7 @@ import { useBookingMutations } from '../hooks/useBookingMutations';
 import { useAmenities } from '../hooks/useAmenities';
 import BookingStatusBadge from '../components/BookingStatusBadge';
 import ReasonModal from '../components/ReasonModal';
-import SettleModal from '../components/SettleModal';
+import BookingPaymentModal from '../components/BookingPaymentModal';
 import ConfirmDialog from '../../../components/ConfirmDialog/ConfirmDialog';
 import type { VoteChoice, CommitteeMember, BookingVote } from '../types/amenity.types';
 
@@ -126,10 +126,10 @@ const BookingDetailPage = () => {
   const navigate = useNavigate();
 
   const [cancelOpen, setCancelOpen] = useState(false);
-  const [settleOpen, setSettleOpen] = useState(false);
+  const [payModalOpen, setPayModalOpen] = useState(false);
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
 
-  useScrollLock(cancelOpen || settleOpen || showFinalizeConfirm);
+  useScrollLock(cancelOpen || payModalOpen || showFinalizeConfirm);
 
   if (loading) {
     return <div className="container-fluid p-4 text-center"><div className="spinner-border text-primary" /></div>;
@@ -138,14 +138,16 @@ const BookingDetailPage = () => {
     return <div className="container-fluid p-4 text-center text-muted">Booking not found.</div>;
   }
 
-  const amenityName =
-    booking.amenity?.name ??
-    amenities.find((a) => a.id === booking.amenityId)?.name ??
-    `Amenity #${booking.amenityId}`;
+  const amenity = booking.amenity || amenities.find((a) => a.id === booking.amenityId);
+  const amenityName = amenity?.name ?? `Amenity #${booking.amenityId}`;
+  const amenityPrice = amenity?.price ?? 0;
+  const isFree = !amenityPrice || amenityPrice === 0;
 
   const isPending = booking.status === 'Pending';
+  const isConfirmed = booking.status === 'Confirmed';
+  const isPaid = !!booking.paidAt;
   const canCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected';
-  const canSettle = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt;
+  const canPay = isConfirmed && !isPaid && !isFree;
 
   const votes = booking.votes || [];
   const committeeMembers = booking.committeeMembers || [];
@@ -157,12 +159,6 @@ const BookingDetailPage = () => {
   const handleCancel = async (reason: string): Promise<boolean> => {
     const ok = await bookingMutations.cancel(booking.id, reason);
     if (ok) setCancelOpen(false);
-    return ok;
-  };
-
-  const handleSettle = async (ref: string): Promise<boolean> => {
-    const ok = await bookingMutations.settle(booking.id, ref);
-    if (ok) setSettleOpen(false);
     return ok;
   };
 
@@ -183,8 +179,16 @@ const BookingDetailPage = () => {
   const residentUser = booking.resident?.user;
   const residentApt = booking.resident?.apartment;
 
-  const rows: { label: string; value: string }[] = [
-    { label: 'Amenity', value: amenityName },
+  const rows: { label: string; value: React.ReactNode }[] = [
+    { label: 'Amenity', value: <span className="fw-semibold">{amenityName}</span> },
+    {
+      label: 'Booking Fee',
+      value: isFree ? (
+        <span className="badge bg-success-subtle text-success border border-success-subtle">Free</span>
+      ) : (
+        <span className="fw-bold text-dark">₹{amenityPrice}</span>
+      ),
+    },
     {
       label: 'Resident',
       value: residentUser?.name ? `${residentUser.name} (${residentUser.phone || residentUser.email})` : `Resident #${booking.residentId}`,
@@ -196,8 +200,24 @@ const BookingDetailPage = () => {
     { label: 'Booking Date', value: booking.bookingDate },
     { label: 'Time', value: `${booking.startTime} – ${booking.endTime}` },
     { label: 'Purpose', value: booking.purpose ?? '—' },
-    { label: 'Payment', value: booking.paidAt ? `Paid (${booking.paymentRef})` : 'Unpaid' },
+    {
+      label: 'Payment Status',
+      value: isPaid ? (
+        <span className="badge bg-success-subtle text-success border border-success-subtle d-inline-flex align-items-center gap-1">
+          <CheckCircle2 size={13} /> Paid ({booking.paymentRef})
+        </span>
+      ) : isFree ? (
+        <span className="text-muted small">Not applicable (Free)</span>
+      ) : isConfirmed ? (
+        <span className="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle d-inline-flex align-items-center gap-1">
+          <AlertCircle size={13} /> Unpaid — Awaiting Payment
+        </span>
+      ) : (
+        <span className="text-muted small">Payable upon approval</span>
+      ),
+    },
   ];
+
   if (booking.rejectionReason) rows.push({ label: 'Rejection Reason', value: booking.rejectionReason });
   if (booking.cancellationReason) rows.push({ label: 'Cancellation Reason', value: booking.cancellationReason });
 
@@ -207,37 +227,71 @@ const BookingDetailPage = () => {
         <i className="bi bi-arrow-left me-1" /> Back
       </button>
 
-      {/* ── Result banner (after decision) ── */}
-      {!isPending && (
+      {/* ── Status Banners ── */}
+      {isConfirmed && canPay && (
+        <div
+          className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-sm-4 py-3 rounded-3 mb-4 shadow-sm"
+          style={{
+            backgroundColor: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            color: '#1e40af',
+          }}
+        >
+          <div className="d-flex align-items-center gap-2">
+            <CheckCircle2 size={20} className="text-primary flex-shrink-0" />
+            <div>
+              <div className="fw-bold" style={{ fontSize: '0.95rem' }}>
+                Booking Approved by Committee!
+              </div>
+              <div className="small" style={{ color: '#1e3a8a' }}>
+                Please complete the payment of <strong>₹{amenityPrice}</strong> to finalize your booking reservation.
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold"
+            style={{ borderRadius: '8px', fontSize: '0.88rem', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+            onClick={() => setPayModalOpen(true)}
+          >
+            <QrCode size={16} /> Pay ₹{amenityPrice} via UPI
+          </button>
+        </div>
+      )}
+
+      {isConfirmed && isPaid && (
         <div
           className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3 mb-4"
           style={{
-            backgroundColor:
-              booking.status === 'Confirmed'
-                ? '#ecfdf5'
-                : booking.status === 'Cancelled'
-                  ? '#f3f4f6'
-                  : '#fef2f2',
-            border: `1px solid ${booking.status === 'Confirmed'
-                ? '#a7f3d0'
-                : booking.status === 'Cancelled'
-                  ? '#e5e7eb'
-                  : '#fecaca'
-              }`,
-            color:
-              booking.status === 'Confirmed'
-                ? '#065f46'
-                : booking.status === 'Cancelled'
-                  ? '#4b5563'
-                  : '#991b1b',
+            backgroundColor: '#ecfdf5',
+            border: '1px solid #a7f3d0',
+            color: '#065f46',
             fontSize: '0.9rem',
           }}
         >
-          {booking.status === 'Confirmed' ? (
-            <Check size={18} />
-          ) : (
-            <X size={18} />
-          )}
+          <CheckCircle2 size={18} />
+          <div>
+            <span className="fw-semibold">
+              Booking confirmed and payment verified!
+            </span>
+            <div className="small text-muted mt-0.5">
+              UPI Reference: <code>{booking.paymentRef}</code>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isPending && !isConfirmed && (
+        <div
+          className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3 mb-4"
+          style={{
+            backgroundColor: booking.status === 'Cancelled' ? '#f3f4f6' : '#fef2f2',
+            border: `1px solid ${booking.status === 'Cancelled' ? '#e5e7eb' : '#fecaca'}`,
+            color: booking.status === 'Cancelled' ? '#4b5563' : '#991b1b',
+            fontSize: '0.9rem',
+          }}
+        >
+          <X size={18} />
           <div>
             <span className="fw-semibold">
               This booking request was {booking.status.toLowerCase()}.
@@ -254,13 +308,20 @@ const BookingDetailPage = () => {
             )}
           </div>
         </div>
-      )}  
+      )}
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
           <h4 className="fw-bold mb-1 fs-4" style={{ color: '#1a1f36' }}>Booking #{booking.id}</h4>
-          <div className="mt-1"><BookingStatusBadge status={booking.status} /></div>
+          <div className="mt-1 d-flex align-items-center gap-2">
+            <BookingStatusBadge status={booking.status} />
+            {isPaid && (
+              <span className="badge bg-success-subtle text-success border border-success-subtle">
+                Paid
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -272,8 +333,8 @@ const BookingDetailPage = () => {
               <h6 className="fw-bold mb-3" style={{ color: '#1a1f36' }}>Booking Details</h6>
               <table className="table table-sm mb-0">
                 <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.label}>
+                  {rows.map((r, idx) => (
+                    <tr key={idx}>
                       <th className="text-secondary fw-medium small py-2" style={{ width: '38%' }}>{r.label}</th>
                       <td className="small py-2" style={{ color: '#1a1f36' }}>{r.value}</td>
                     </tr>
@@ -282,15 +343,23 @@ const BookingDetailPage = () => {
               </table>
 
               {/* Resident Actions */}
-              {(canSettle || canCancel) && (
+              {(canPay || canCancel) && (
                 <div className="mt-4 pt-3 border-top d-flex gap-2">
-                  {canSettle && (
-                    <button className="btn btn-dark btn-sm flex-fill" style={{ borderRadius: '8px' }} onClick={() => setSettleOpen(true)}>
-                      <i className="bi bi-cash me-1" /> Record Payment
+                  {canPay && (
+                    <button
+                      className="btn btn-dark btn-sm flex-fill d-inline-flex align-items-center justify-content-center gap-1"
+                      style={{ borderRadius: '8px', height: '38px' }}
+                      onClick={() => setPayModalOpen(true)}
+                    >
+                      <IndianRupee size={15} /> Pay ₹{amenityPrice} via UPI
                     </button>
                   )}
                   {canCancel && (
-                    <button className="btn btn-outline-danger btn-sm flex-fill" style={{ borderRadius: '8px' }} onClick={() => setCancelOpen(true)}>
+                    <button
+                      className="btn btn-outline-danger btn-sm flex-fill"
+                      style={{ borderRadius: '8px', height: '38px' }}
+                      onClick={() => setCancelOpen(true)}
+                    >
                       <i className="bi bi-slash-circle me-1" /> Cancel Booking
                     </button>
                   )}
@@ -419,18 +488,23 @@ const BookingDetailPage = () => {
           onCancel={() => setCancelOpen(false)}
         />
       )}
-      {settleOpen && (
-        <SettleModal
-          loading={bookingMutations.loading}
-          onSubmit={handleSettle}
-          onCancel={() => setSettleOpen(false)}
+
+      {payModalOpen && (
+        <BookingPaymentModal
+          bookingId={booking.id}
+          amenityName={amenityName}
+          amount={amenityPrice}
+          onClose={() => setPayModalOpen(false)}
+          onPaymentSuccess={() => {
+            refetch();
+          }}
         />
       )}
 
       <ConfirmDialog
         show={showFinalizeConfirm}
         title="Finalize Booking Decision"
-        message="All recorded votes will be evaluated and the booking request will be approved or rejected based on the majority vote outcome. This action cannot be undone."
+        message="All recorded votes will be evaluated and the booking request will be approved or rejected based on the majority vote outcome. If approved, the resident will be prompted to pay the booking fee."
         confirmLabel="Finalize Decision"
         variant="dark"
         loading={actionLoading}

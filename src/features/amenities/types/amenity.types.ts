@@ -7,6 +7,8 @@ export interface Amenity {
   capacity: number | null;
   operatingStart: string;
   operatingEnd: string;
+  price: number;
+  images?: string[];
   isActive: boolean;
   createdAt: string;
 } 
@@ -58,6 +60,12 @@ export interface AvailabilityResult {
   busyIntervals?: BusyInterval[];
 }
 
+export interface AvailabilitySlot {
+  startTime: string;
+  endTime: string;
+  available: boolean;
+}
+
 export interface BookingStats {
   total: number;
   pending: number;
@@ -77,6 +85,8 @@ export interface CreateAmenityPayload {
   capacity?: number | null;
   operatingStart: string;
   operatingEnd: string;
+  price?: number;
+  images?: string[];
   isActive?: boolean;
 }
 
@@ -86,6 +96,8 @@ export interface UpdateAmenityPayload {
   capacity?: number | null;
   operatingStart?: string;
   operatingEnd?: string;
+  price?: number;
+  images?: string[];
   isActive?: boolean;
 }
 

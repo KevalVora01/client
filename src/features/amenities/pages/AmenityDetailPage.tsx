@@ -10,6 +10,7 @@ import type { AvailabilityResult, CreateBookingPayload, CreateBlackoutPayload } 
 import AvailabilityGrid from '../components/AvailabilityGrid';
 import BookingFormModal from '../components/BookingFormModal';
 import BlackoutModal from '../components/BlackoutModal';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 
 const AmenityDetailPage = () => {
   const { id } = useParams();
@@ -155,13 +156,19 @@ const AmenityDetailPage = () => {
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Availability</h6>
-                <input
-                  type="date"
-                  className="form-control shadow-none border-light-subtle"
-                  style={{ fontSize: '0.875rem', height: '38px', maxWidth: '200px' }}
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                />
+                <div style={{ width: '190px' }}>
+                  <DatePicker
+                    value={date}
+                    required
+                    align="right"
+                    minDate={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => {
+                      const val = typeof e === 'string' ? e : e?.target?.value;
+                      if (val) setDate(val);
+                    }}
+                    style={{ height: '38px' }}
+                  />
+                </div>
               </div>
 
               <AvailabilityGrid

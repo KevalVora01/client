@@ -3,6 +3,7 @@ import * as Yup from 'yup';
 import { UserPlus, UserCheck, Mail, Phone, Calendar, Clock } from 'lucide-react';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { StatusBadge } from '../../../components/StatusBadge/StatusBadge';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { OwnerTenantStatus, SubmitTenantRequestPayload } from '../types/tenantRequest.types';
 
 const TODAY = new Date().toISOString().split('T')[0];
@@ -120,18 +121,22 @@ const RequestForm = ({
         </div>
 
         <div className="col-md-6">
-          <label className="form-label fw-medium text-secondary small mb-1">Expected Move-in Date <span className="text-danger">*</span></label>
-          <input
-            type="date"
+          <DatePicker
+            label="Expected Move-in Date"
             name="moveInDate"
-            min={TODAY}
-            className={fieldClass('moveInDate')}
+            required
+            direction="auto"
+            minDate={TODAY}
             value={formik.values.moveInDate}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            style={{ fontSize: '0.875rem', borderColor: fieldBorder('moveInDate') }}
+            onChange={(e) => {
+              const val = typeof e === 'string' ? e : e?.target?.value;
+              formik.setFieldValue('moveInDate', val);
+            }}
+            onBlur={() => formik.setFieldTouched('moveInDate', true)}
+            error={formik.errors.moveInDate}
+            touched={formik.touched.moveInDate}
+            style={{ height: '40px' }}
           />
-          {errorFor('moveInDate')}
         </div>
       </div>
 
@@ -261,8 +266,8 @@ const TenantRequestSection = ({
       {/* ── Request Tenant Modal ── */}
       {showForm && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+          <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white" style={{ overflow: 'visible' }}>
               <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
                 <div>
                   <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
@@ -283,7 +288,7 @@ const TenantRequestSection = ({
                   <i className="bi bi-x" />
                 </button>
               </div>
-              <div className="modal-body p-3 p-sm-4">
+              <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
                 <RequestForm loading={actionLoading} onSubmit={handleSubmit} onCancel={() => setShowForm(false)} />
               </div>
             </div>

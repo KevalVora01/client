@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import { visitorApi } from '../api/visitorApi';
 import { showError, showSuccess } from '../../../utils/toast';
 
@@ -167,23 +168,21 @@ export const PreRegisterVisitorModal: React.FC<PreRegisterVisitorModalProps> = (
                 </div>
 
                 <div className="col-md-6">
-                  <label className="form-label fw-medium text-secondary small mb-1">Expected Date <span className="text-danger">*</span></label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    label="Expected Date"
                     name="expectedAt"
-                    className={`form-control shadow-none rounded-2 text-dark ${formik.touched.expectedAt && formik.errors.expectedAt ? "is-invalid" : ""}`}
+                    required
+                    minDate={new Date().toISOString().slice(0, 10)}
                     value={formik.values.expectedAt}
-                    min={new Date().toISOString().slice(0, 10)}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    style={{
-                      fontSize: "0.875rem",
-                      borderColor: formik.touched.expectedAt && formik.errors.expectedAt ? "#dc3545" : "#e5e7eb"
+                    onChange={(e) => {
+                      const val = typeof e === 'string' ? e : e?.target?.value;
+                      formik.setFieldValue('expectedAt', val);
                     }}
+                    onBlur={() => formik.setFieldTouched('expectedAt', true)}
+                    error={formik.errors.expectedAt as string | undefined}
+                    touched={formik.touched.expectedAt as boolean | undefined}
+                    style={{ height: '40px' }}
                   />
-                  {formik.touched.expectedAt && formik.errors.expectedAt && (
-                    <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: "0.8rem" }}>{formik.errors.expectedAt}</div>
-                  )}
                 </div>
 
                 <div className="col-md-6">

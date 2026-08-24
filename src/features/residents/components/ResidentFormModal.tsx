@@ -1,4 +1,5 @@
 import ApartmentSelect from "../../apartments/components/ApartmentSelect";
+import DatePicker from "../../../components/DatePicker/DatePicker";
 import { useResidentForm } from "../hooks/useResidentForm";
 import type { ResidentFormModalProps } from "../types/resident.types";
 
@@ -154,22 +155,20 @@ const ResidentFormModal = ({ show, mode, resident, loading, onClose, onSubmit }:
                 {/* Move-out date — edit only */}
                 {isEdit && (
                   <div>
-                    <label className="form-label fw-medium text-secondary small mb-1">Move-out date</label>
-                    <input
-                      type="date"
+                    <DatePicker
+                      label="Move-out date"
                       name="moveOutDate"
-                      className="form-control shadow-none rounded-2 text-dark"
+                      maxDate={new Date().toISOString().split('T')[0]}
                       value={formik.values.moveOutDate ?? ""}
-                      onChange={formik.handleChange}
-                      max={new Date().toISOString().split('T')[0]}
-                      style={{
-                        fontSize: "0.875rem",
-                        borderColor: formik.touched.moveOutDate && formik.errors.moveOutDate ? "#dc3545" : "#e5e7eb"
+                      onChange={(e) => {
+                        const val = typeof e === 'string' ? e : e?.target?.value;
+                        formik.setFieldValue('moveOutDate', val || null);
                       }}
+                      onBlur={() => formik.setFieldTouched('moveOutDate', true)}
+                      error={formik.errors.moveOutDate}
+                      touched={formik.touched.moveOutDate}
+                      style={{ height: '40px' }}
                     />
-                    {formik.touched.moveOutDate && formik.errors.moveOutDate && (
-                      <div className="text-danger small mt-1">{formik.errors.moveOutDate}</div>
-                    )}
                     {formik.values.moveOutDate && (
                       <div className="d-flex align-items-center gap-1 mt-2 small" style={{ color: '#b45309', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 6, padding: '6px 10px' }}>
                         <i className="bi bi-exclamation-triangle" />

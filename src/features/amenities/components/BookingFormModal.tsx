@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { CreateBookingPayload } from '../types/amenity.types';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -32,10 +33,28 @@ const BookingFormModal = ({
   onCancel,
 }: BookingFormModalProps) => {
   const schema = Yup.object({
-    bookingDate: Yup.string().matches(DATE_RE, 'Date is required').required('Date is required'),
+    bookingDate: Yup.string()
+      .matches(DATE_RE, 'Date is required')
+      .required('Date is required')
+      .test('not-in-past', 'Cannot book for a past date', (value) => {
+        if (!value) return true;
+        return value >= today();
+      }),
     startTime: Yup.string()
       .matches(TIME_RE, 'HH:MM required')
       .required('Start time is required')
+      .test('not-past-time-today', 'Start time must be in the future', function (value) {
+        const { bookingDate } = this.parent;
+        if (!value || !bookingDate) return true;
+        if (bookingDate === today()) {
+          const now = new Date();
+          const currentH = String(now.getHours()).padStart(2, '0');
+          const currentM = String(now.getMinutes()).padStart(2, '0');
+          const currentTimeStr = `${currentH}:${currentM}`;
+          return value >= currentTimeStr;
+        }
+        return true;
+      })
       .test('within-operating-start', `Must be at or after ${operatingStart || 'opening'}`, (value) => {
         if (!value || !operatingStart) return true;
         return value >= operatingStart;
@@ -86,10 +105,10 @@ const BookingFormModal = ({
   return (
     <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
       <div
-        className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+        className="modal-dialog modal-lg modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white" style={{ overflow: 'visible' }}>
           <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
             <div>
               <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
@@ -125,25 +144,25 @@ const BookingFormModal = ({
             </button>
           </div>
 
-          <div className="modal-body p-3 p-sm-4">
+          <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
             <form onSubmit={formik.handleSubmit}>
               <div className="row g-3">
                 <div className="col-12 col-md-4">
-                  <label className="form-label fw-medium text-secondary small mb-1">
-                    Date <span className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="date"
+                  <DatePicker
+                    label="Date"
                     name="bookingDate"
-                    className={fieldClass('bookingDate')}
+                    required
+                    minDate={today()}
                     value={formik.values.bookingDate}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    style={{ fontSize: '0.875rem', height: '40px' }}
+                    onChange={(e) => {
+                      const val = typeof e === 'string' ? e : e?.target?.value;
+                      formik.setFieldValue('bookingDate', val);
+                    }}
+                    onBlur={() => formik.setFieldTouched('bookingDate', true)}
+                    error={formik.errors.bookingDate}
+                    touched={formik.touched.bookingDate}
+                    style={{ height: '40px' }}
                   />
-                  {formik.touched.bookingDate && formik.errors.bookingDate && (
-                    <div className="invalid-feedback">{formik.errors.bookingDate}</div>
-                  )}
                 </div>
                 <div className="col-12 col-md-4">
                   <label className="form-label fw-medium text-secondary small mb-1">

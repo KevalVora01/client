@@ -1,4 +1,5 @@
 import Select from '../../../components/Select/Select';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { Amenity, BookingListFilters, BookingStatus } from '../types/amenity.types';
 
 interface BookingFiltersProps {
@@ -47,13 +48,15 @@ const BookingFilters = ({ amenities, filters, onChange }: BookingFiltersProps) =
       </div>
 
       <div className={hasActiveFilters ? "col-12 col-md-3" : "col-12 col-md-4"}>
-        <label className="form-label fw-medium text-secondary small mb-1">Date</label>
-        <input
-          type="date"
-          className="form-control shadow-none border-light-subtle"
-          style={{ fontSize: '0.875rem', height: '40px', borderRadius: '8px' }}
+        <DatePicker
+          label="Date"
+          placeholder="Filter by date"
           value={filters.date ?? ''}
-          onChange={(e) => update({ date: e.target.value || undefined })}
+          onChange={(e) => {
+            const val = typeof e === 'string' ? e : e?.target?.value;
+            update({ date: val || undefined });
+          }}
+          style={{ height: '40px' }}
         />
       </div>
 

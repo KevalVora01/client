@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { GenerateInvoicesPayload } from '../types/maintenance.types';
 
 interface GenerateInvoicesFormProps {
@@ -126,28 +127,21 @@ const GenerateInvoicesForm = ({ loading, onSubmit, onCancel }: GenerateInvoicesF
       </div>
 
       <div className="mb-3">
-        <label className="form-label fw-medium text-secondary small mb-1">Due Date <span className="text-danger">*</span></label>
-        <input
-          type="date"
-          min={tomorrowStr}
-          className={`form-control shadow-none rounded-2 text-dark ${formik.touched.dueDate && formik.errors.dueDate ? 'is-invalid' : ''}`}
+        <DatePicker
+          label="Due Date"
           name="dueDate"
+          required
+          minDate={tomorrowStr}
           value={formik.values.dueDate}
           onChange={(e) => {
-            formik.setFieldValue('dueDate', e.target.value);
+            const val = typeof e === 'string' ? e : e?.target?.value;
+            formik.setFieldValue('dueDate', val);
           }}
-          onBlur={formik.handleBlur}
-          style={{
-            borderRadius: '8px',
-            fontSize: '0.9rem',
-            borderColor: formik.touched.dueDate && formik.errors.dueDate ? '#dc3545' : '#e5e7eb'
-          }}
+          onBlur={() => formik.setFieldTouched('dueDate', true)}
+          error={formik.errors.dueDate}
+          touched={formik.touched.dueDate}
+          style={{ height: '40px' }}
         />
-        {formik.touched.dueDate && formik.errors.dueDate && (
-          <div className="invalid-feedback d-block text-danger mt-1" style={{ fontSize: '0.8rem' }}>
-            {formik.errors.dueDate}
-          </div>
-        )}
       </div>
 
       {/* ── Extra Charges Section ── */}

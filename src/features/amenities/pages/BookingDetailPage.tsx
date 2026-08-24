@@ -254,7 +254,7 @@ const BookingDetailPage = () => {
             )}
           </div>
         </div>
-      )}
+      )}  
 
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">

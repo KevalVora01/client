@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { CreateBlackoutPayload } from '../types/amenity.types';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
@@ -39,8 +40,8 @@ const BlackoutModal = ({ loading, onSubmit, onCancel }: BlackoutModalProps) => {
 
   return (
     <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-      <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+      <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-content border-0 rounded-3 shadow-lg bg-white" style={{ overflow: 'visible' }}>
           <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
             <div>
               <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>Add Blackout</h5>
@@ -58,13 +59,24 @@ const BlackoutModal = ({ loading, onSubmit, onCancel }: BlackoutModalProps) => {
             </button>
           </div>
 
-          <div className="modal-body p-3 p-sm-4">
+          <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
             <form onSubmit={formik.handleSubmit}>
               <div className="row g-3">
                 <div className="col-12 col-md-4">
-                  <label className="form-label fw-medium text-secondary small mb-1">Date <span className="text-danger">*</span></label>
-                  <input type="date" name="date" className={fieldClass('date')} value={formik.values.date} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ fontSize: '0.875rem', height: '40px' }} />
-                  {formik.touched.date && formik.errors.date && <div className="invalid-feedback">{formik.errors.date}</div>}
+                  <DatePicker
+                    label="Date"
+                    name="date"
+                    required
+                    value={formik.values.date}
+                    onChange={(e) => {
+                      const val = typeof e === 'string' ? e : e?.target?.value;
+                      formik.setFieldValue('date', val);
+                    }}
+                    onBlur={() => formik.setFieldTouched('date', true)}
+                    error={formik.errors.date}
+                    touched={formik.touched.date}
+                    style={{ height: '40px' }}
+                  />
                 </div>
                 <div className="col-12 col-md-4">
                   <label className="form-label fw-medium text-secondary small mb-1">Start <span className="text-danger">*</span></label>

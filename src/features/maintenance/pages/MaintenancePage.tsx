@@ -432,8 +432,8 @@ const MaintenancePage = () => {
       {/* ── Generate Invoices Modal ── */}
       {generateModalOpen && (
         <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
-          <div className="modal-dialog modal-dialog-centered modal-dialog-scrollable" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content border-0 rounded-3 shadow-lg bg-white">
+          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-content border-0 rounded-3 shadow-lg bg-white" style={{ overflow: 'visible' }}>
               <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 position-relative">
                 <h5 className="modal-title fw-bold fs-6 d-inline-flex align-items-center gap-2" style={{ color: '#1a1f36' }}>
                   Generate Invoices
@@ -454,7 +454,7 @@ const MaintenancePage = () => {
                   <i className="bi bi-x" />
                 </button>
               </div>
-              <div className="modal-body p-3 p-sm-4">
+              <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
                 <GenerateInvoicesForm
                   loading={mutationLoading}
                   onSubmit={handleGenerate}

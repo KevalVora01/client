@@ -62,6 +62,7 @@ export interface Booking {
   approvedBySecurityId: number | null;
   paidAt: string | null;
   paymentRef: string | null;
+  receiptUrl?: string | null;
   resident?: BookingResidentInfo | null;
   apartment?: BookingApartmentInfo | null;
   createdAt: string;

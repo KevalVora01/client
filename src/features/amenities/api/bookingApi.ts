@@ -73,4 +73,9 @@ export const bookingApi = {
     const response = await api.get('/bookings/stats');
     return response.data.data;
   },
+
+  getReceipt: async (id: number): Promise<string> => {
+    const response = await api.get(`/bookings/${id}/receipt`);
+    return response.data.data.url;
+  },
 };

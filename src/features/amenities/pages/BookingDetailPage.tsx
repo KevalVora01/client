@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check, X, Gavel, IndianRupee, QrCode, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Check, X, Gavel, IndianRupee, QrCode, AlertCircle, CheckCircle2, Download } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useBookingDetail } from '../hooks/useBookingDetail';
 import { useBookingMutations } from '../hooks/useBookingMutations';
 import { useAmenities } from '../hooks/useAmenities';
+import { bookingApi } from '../api/bookingApi';
 import BookingStatusBadge from '../components/BookingStatusBadge';
 import ReasonModal from '../components/ReasonModal';
 import BookingPaymentModal from '../components/BookingPaymentModal';
@@ -128,6 +129,7 @@ const BookingDetailPage = () => {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [showFinalizeConfirm, setShowFinalizeConfirm] = useState(false);
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
 
   useScrollLock(cancelOpen || payModalOpen || showFinalizeConfirm);
 
@@ -146,8 +148,17 @@ const BookingDetailPage = () => {
   const isPending = booking.status === 'Pending';
   const isConfirmed = booking.status === 'Confirmed';
   const isPaid = !!booking.paidAt;
-  const canCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected';
-  const canPay = isConfirmed && !isPaid && !isFree;
+
+  const loggedInResidentId = user?.residentId || user?.resident?.id;
+  const isBookingOwner =
+    !isAdmin &&
+    Boolean(
+      (loggedInResidentId && booking.residentId === loggedInResidentId) ||
+      (user?.id && booking.resident?.userId === user.id)
+    );
+
+  const canCancel = isBookingOwner && booking.status !== 'Cancelled' && booking.status !== 'Rejected';
+  const canPay = isBookingOwner && isConfirmed && !isPaid && !isFree;
 
   const votes = booking.votes || [];
   const committeeMembers = booking.committeeMembers || [];
@@ -165,6 +176,24 @@ const BookingDetailPage = () => {
   const confirmFinalize = async () => {
     setShowFinalizeConfirm(false);
     await finalize();
+  };
+
+  const handleDownloadReceipt = async () => {
+    if (booking.receiptUrl) {
+      window.open(booking.receiptUrl, '_blank');
+      return;
+    }
+    setDownloadingReceipt(true);
+    try {
+      const url = await bookingApi.getReceipt(booking.id);
+      if (url) {
+        window.open(url, '_blank');
+      }
+    } catch (err) {
+      console.error('Failed to download booking receipt:', err);
+    } finally {
+      setDownloadingReceipt(false);
+    }
   };
 
   const approvedCount =
@@ -271,40 +300,62 @@ const BookingDetailPage = () => {
       </button>
 
       {/* ── Status Banners ── */}
-      {isConfirmed && canPay && (
-        <div
-          className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-sm-4 py-3 rounded-3 mb-4 shadow-sm"
-          style={{
-            backgroundColor: '#eff6ff',
-            border: '1px solid #bfdbfe',
-            color: '#1e40af',
-          }}
-        >
-          <div className="d-flex align-items-center gap-2">
-            <CheckCircle2 size={20} className="text-primary flex-shrink-0" />
-            <div>
-              <div className="fw-bold" style={{ fontSize: '0.95rem' }}>
-                Booking Approved by Committee!
+      {isConfirmed && !isPaid && !isFree && (
+        isBookingOwner ? (
+          <div
+            className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-sm-4 py-3 rounded-3 mb-4 shadow-sm"
+            style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              color: '#1e40af',
+            }}
+          >
+            <div className="d-flex align-items-center gap-2">
+              <CheckCircle2 size={20} className="text-primary flex-shrink-0" />
+              <div>
+                <div className="fw-bold" style={{ fontSize: '0.95rem' }}>
+                  Booking Approved by Committee!
+                </div>
+                <div className="small" style={{ color: '#1e3a8a' }}>
+                  Please complete the payment of <strong>₹{amenityPrice}</strong> to finalize your booking reservation.
+                </div>
               </div>
-              <div className="small" style={{ color: '#1e3a8a' }}>
-                Please complete the payment of <strong>₹{amenityPrice}</strong> to finalize your booking reservation.
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold"
+              style={{ borderRadius: '8px', fontSize: '0.88rem', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
+              onClick={() => setPayModalOpen(true)}
+            >
+              <QrCode size={16} /> Pay ₹{amenityPrice} via UPI
+            </button>
+          </div>
+        ) : (
+          <div
+            className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3 mb-4"
+            style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              color: '#1e40af',
+              fontSize: '0.9rem',
+            }}
+          >
+            <CheckCircle2 size={18} className="text-primary flex-shrink-0" />
+            <div>
+              <span className="fw-semibold">
+                Booking Approved — Awaiting Payment from Resident
+              </span>
+              <div className="small text-muted mt-0.5">
+                The resident who requested this booking has been notified to complete the fee payment of ₹{amenityPrice} via UPI.
               </div>
             </div>
           </div>
-          <button
-            type="button"
-            className="btn btn-primary d-inline-flex align-items-center gap-2 shadow-sm fw-semibold"
-            style={{ borderRadius: '8px', fontSize: '0.88rem', backgroundColor: '#1a1f36', borderColor: '#1a1f36' }}
-            onClick={() => setPayModalOpen(true)}
-          >
-            <QrCode size={16} /> Pay ₹{amenityPrice} via UPI
-          </button>
-        </div>
+        )
       )}
 
       {isConfirmed && isPaid && (
         <div
-          className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3 mb-4"
+          className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-sm-4 py-3 rounded-3 mb-4 shadow-xs"
           style={{
             backgroundColor: '#ecfdf5',
             border: '1px solid #a7f3d0',
@@ -312,15 +363,26 @@ const BookingDetailPage = () => {
             fontSize: '0.9rem',
           }}
         >
-          <CheckCircle2 size={18} />
-          <div>
-            <span className="fw-semibold">
-              Booking confirmed and payment verified!
-            </span>
-            <div className="small text-muted mt-0.5">
-              UPI Reference: <code>{booking.paymentRef}</code>
+          <div className="d-flex align-items-center gap-2">
+            <CheckCircle2 size={18} className="text-success flex-shrink-0" />
+            <div>
+              <span className="fw-semibold">
+                Booking confirmed and payment verified!
+              </span>
+              <div className="small text-muted mt-0.5">
+                UPI Reference: <code>{booking.paymentRef}</code>
+              </div>
             </div>
           </div>
+          <button
+            type="button"
+            className="btn btn-sm btn-outline-success d-inline-flex align-items-center gap-1.5 px-3 py-1.5 fw-semibold shadow-xs"
+            style={{ borderRadius: '8px', fontSize: '0.85rem' }}
+            onClick={handleDownloadReceipt}
+            disabled={downloadingReceipt}
+          >
+            <Download size={14} /> {downloadingReceipt ? 'Generating Receipt...' : 'Download Receipt'}
+          </button>
         </div>
       )}
 

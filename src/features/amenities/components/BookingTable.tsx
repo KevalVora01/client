@@ -1,8 +1,9 @@
 import AppTable from '../../../components/AppTable/AppTable';
 import type { TableColumn } from '../../../components/AppTable/AppTable';
 import BookingStatusBadge from './BookingStatusBadge';
+import BookingRowActions from './BookingRowActions';
 import type { Booking } from '../types/amenity.types';
-import { Gavel, Eye, Calendar, Clock, CreditCard, Armchair, X } from 'lucide-react';
+import { Calendar, Clock, Armchair } from 'lucide-react';
 
 interface BookingTableProps {
   bookings: Booking[];
@@ -168,48 +169,14 @@ const BookingTable = ({
       width: otherColWidth,
       align: 'center',
       render: (b) => (
-        <div className="d-flex align-items-center justify-content-center gap-1">
-          {isAdmin && b.status === 'Pending' ? (
-            <button
-              type="button"
-              className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1 px-3 py-1 fw-semibold shadow-sm"
-              style={{ borderRadius: '8px', fontSize: '0.8rem', backgroundColor: '#1a1f36' }}
-              onClick={() => onView(b)}
-            >
-              <Gavel size={13} /> Vote
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 px-2 py-1"
-              style={{ borderRadius: '8px', fontSize: '0.8rem' }}
-              onClick={() => onView(b)}
-            >
-              <Eye size={13} /> View
-            </button>
-          )}
-          {!isAdmin && b.status === 'Confirmed' && !b.paidAt && onSettle && (
-            <button
-              type="button"
-              className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1 px-2 py-1"
-              style={{ borderRadius: '8px', fontSize: '0.8rem' }}
-              onClick={() => onSettle(b)}
-              title="Record Payment"
-            >
-              <CreditCard size={13} />
-            </button>
-          )}
-          {!isAdmin && b.status !== 'Cancelled' && b.status !== 'Rejected' && onCancel && (
-            <button
-              type="button"
-              className="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 px-2 py-1"
-              style={{ borderRadius: '8px', fontSize: '0.8rem' }}
-              onClick={() => onCancel(b)}
-              title="Cancel Booking"
-            >
-              <X size={13} />
-            </button>
-          )}
+        <div className="d-flex justify-content-center">
+          <BookingRowActions
+            booking={b}
+            isAdmin={isAdmin}
+            onView={onView}
+            onCancel={onCancel}
+            onSettle={onSettle}
+          />
         </div>
       ),
     },

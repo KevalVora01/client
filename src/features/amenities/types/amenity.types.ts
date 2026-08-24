@@ -40,26 +40,35 @@ export interface Booking {
   createdAt: string;
 }
 
-export type AvailabilitySlotStatus = 'free' | 'booked' | 'blackout' | 'closed';
-
-export interface AvailabilitySlot {
-  start: string;
-  end: string;
-  status: AvailabilitySlotStatus;
+export interface BusyInterval {
+  id?: number;
+  startTime: string;
+  endTime: string;
+  type: 'booking' | 'blackout';
+  status?: string;
+  label?: string;
 }
 
 export interface AvailabilityResult {
+  amenityId?: number;
   date: string;
   operatingStart: string;
   operatingEnd: string;
   slots: AvailabilitySlot[];
+  busyIntervals?: BusyInterval[];
 }
 
 export interface BookingStats {
-  Confirmed: number;
-  Pending: number;
-  Rejected: number;
-  Cancelled: number;
+  total: number;
+  pending: number;
+  confirmed: number;
+  rejected: number;
+  cancelled: number;
+  paid?: number;
+  Confirmed?: number;
+  Pending?: number;
+  Rejected?: number;
+  Cancelled?: number;
 }
 
 export interface CreateAmenityPayload {
@@ -102,4 +111,53 @@ export interface BookingListFilters {
   date?: string;
   status?: BookingStatus;
   residentId?: number;
+}
+
+export type VoteChoice = 'Approve' | 'Reject';
+
+export interface BookingVote {
+  id: number;
+  bookingId: number;
+  committeeMemberId: number | null;
+  vote: VoteChoice;
+  recordedByAdminId: number | null;
+  createdAt: string;
+  committeeMember?: {
+    id: number;
+    apartmentId: number;
+    user?: {
+      id: number;
+      name: string;
+      email: string;
+    };
+  } | null;
+}
+
+export interface CommitteeMember {
+  id: number;
+  fullName: string;
+  email: string;
+  apartmentId: number;
+}
+
+export interface BookingDetail extends Booking {
+  votes: BookingVote[];
+  committeeMembers: CommitteeMember[];
+  resident?: {
+    id: number;
+    apartmentId?: number;
+    user?: {
+      id: number;
+      name: string;
+      email: string;
+      phone: string;
+    };
+    apartment?: {
+      id: number;
+      block: string;
+      floorNumber: number;
+      unitNumber: string;
+    };
+  } | null;
+  amenity?: Amenity | null;
 }

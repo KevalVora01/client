@@ -4,7 +4,7 @@ import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useMyBookings } from '../hooks/useBookings';
 import { useAmenities } from '../hooks/useAmenities';
 import { useBookingMutations } from '../hooks/useBookingMutations';
-import BookingRow from '../components/BookingRow';
+import BookingTable from '../components/BookingTable';
 import ReasonModal from '../components/ReasonModal';
 import SettleModal from '../components/SettleModal';
 import type { Booking } from '../types/amenity.types';
@@ -69,42 +69,17 @@ const MyBookingsPage = () => {
         })}
       </div>
 
-      {loading ? (
-        <div className="text-center py-5"><div className="spinner-border text-primary" /></div>
-      ) : bookings.length === 0 ? (
-        <div className="text-center text-muted py-5">No {scope} bookings found.</div>
-      ) : (
-        <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', overflow: 'hidden' }}>
-          <div className="table-responsive">
-            <table className="table align-middle mb-0">
-              <thead className="bg-light">
-                <tr>
-                  <th className="small text-secondary fw-semibold">Booking</th>
-                  <th className="small text-secondary fw-semibold">Amenity</th>
-                  <th className="small text-secondary fw-semibold">Date</th>
-                  <th className="small text-secondary fw-semibold">Time</th>
-                  <th className="small text-secondary fw-semibold">Status</th>
-                  <th className="small text-secondary fw-semibold">Payment</th>
-                  <th className="small text-secondary fw-semibold text-end">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bookings.map((b) => (
-                  <BookingRow
-                    key={b.id}
-                    booking={b}
-                    amenityName={amenityMap[b.amenityId]}
-                    isAdmin={false}
-                    onView={(bk) => navigate(`/bookings/${bk.id}`)}
-                    onCancel={setCancelTarget}
-                    onSettle={setSettleTarget}
-                  />
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-3">
+        <BookingTable
+          bookings={bookings}
+          loading={loading}
+          amenityMap={amenityMap}
+          isAdmin={false}
+          onView={(bk) => navigate(`/bookings/${bk.id}`)}
+          onCancel={setCancelTarget}
+          onSettle={setSettleTarget}
+        />
+      </div>
 
       {cancelTarget && (
         <ReasonModal

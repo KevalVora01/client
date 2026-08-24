@@ -1,9 +1,12 @@
 import api from '../../../config/api';
 import type {
   Booking,
+  BookingDetail,
+  BookingVote,
   BookingStats,
   BookingListFilters,
   CreateBookingPayload,
+  VoteChoice,
 } from '../types/amenity.types';
 
 export const bookingApi = {
@@ -24,6 +27,25 @@ export const bookingApi = {
 
   get: async (id: number): Promise<Booking> => {
     const response = await api.get(`/bookings/${id}`);
+    return response.data.data;
+  },
+
+  getDetail: async (id: number): Promise<BookingDetail> => {
+    const response = await api.get(`/bookings/${id}/detail`);
+    return response.data.data;
+  },
+
+  bulkRecordVotes: async (
+    id: number,
+    votes: { committeeMemberId: number; vote: VoteChoice }[],
+    adminVote?: VoteChoice
+  ): Promise<BookingVote[]> => {
+    const response = await api.post(`/bookings/${id}/votes`, { votes, adminVote });
+    return response.data.data;
+  },
+
+  finalizeBooking: async (id: number): Promise<Booking> => {
+    const response = await api.post(`/bookings/${id}/finalize`);
     return response.data.data;
   },
 

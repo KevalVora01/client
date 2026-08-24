@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { bookingApi } from '../api/bookingApi';
 import type { BookingStats } from '../types/amenity.types';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
@@ -8,22 +8,21 @@ export const useBookingStats = () => {
   const [stats, setStats] = useState<BookingStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const data = await bookingApi.stats();
-        if (!cancelled) setStats(data);
-      } catch (err: unknown) {
-        if (!cancelled) showError(getErrorMessage(err, 'Failed to load booking stats'));
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    load();
-    return () => { cancelled = true; };
+  const fetchStats = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await bookingApi.stats();
+      setStats(data);
+    } catch (err: unknown) {
+      showError(getErrorMessage(err, 'Failed to load booking stats'));
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { stats, loading };
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
+
+  return { stats, loading, refetch: fetchStats };
 };

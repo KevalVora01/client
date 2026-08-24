@@ -99,7 +99,7 @@ const AppRoutes = () => {
           <Route path="/bookings/me" element={<MyBookingsPage />} />
           <Route path="/bookings" element={<BookingsAdminPage />} />
           <Route path="/bookings/:id" element={<BookingDetailPage />} />
-          <Route path="/bookings/stats" element={<AmenityStatsPage />} />
+          <Route path="/bookings/stats" element={<Navigate to="/bookings" replace />} />
         </Route>
       </Route>
 

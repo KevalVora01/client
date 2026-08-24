@@ -48,12 +48,12 @@ const ReasonModal = ({ title, submitLabel, icon, loading, onSubmit, onCancel }: 
               <label className="form-label fw-medium text-secondary small mb-1">Reason <span className="text-danger">*</span></label>
               <textarea
                 name="reason"
-                rows={3}
                 className={`form-control shadow-none ${formik.touched.reason && formik.errors.reason ? 'is-invalid' : 'border-light-subtle'}`}
                 value={formik.values.reason}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                style={{ fontSize: '0.875rem', resize: 'vertical' }}
+                placeholder="Enter reason..."
+                style={{ fontSize: '0.875rem', height: '90px', resize: 'none' }}
               />
               {formik.touched.reason && formik.errors.reason && <div className="invalid-feedback">{formik.errors.reason}</div>}
               <div className="d-grid d-sm-flex gap-2 justify-content-sm-end mt-3">

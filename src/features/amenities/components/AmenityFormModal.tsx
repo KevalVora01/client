@@ -100,12 +100,12 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   <label className="form-label fw-medium text-secondary small mb-1">Description</label>
                   <textarea
                     name="description"
-                    rows={3}
                     className={fieldClass('description')}
                     value={formik.values.description}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    style={{ fontSize: '0.875rem', resize: 'vertical', minHeight: '80px' }}
+                    placeholder="Enter amenity description (optional)"
+                    style={{ fontSize: '0.875rem', height: '90px', resize: 'none' }}
                   />
                 </div>
 

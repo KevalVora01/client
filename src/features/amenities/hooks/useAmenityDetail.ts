@@ -12,9 +12,12 @@ export const useAmenityDetail = (id: number) => {
   const fetchDetail = useCallback(async () => {
     setLoading(true);
     try {
-      const [a, b] = await Promise.all([amenityApi.get(id), amenityApi.listBlackouts(id)]);
+      const [a, b] = await Promise.all([
+        amenityApi.get(id),
+        amenityApi.listBlackouts(id).catch(() => []),
+      ]);
       setAmenity(a);
-      setBlackouts(b);
+      setBlackouts(b || []);
     } catch (err: unknown) {
       showError(getErrorMessage(err, 'Failed to load amenity'));
     } finally {
@@ -27,10 +30,13 @@ export const useAmenityDetail = (id: number) => {
     const load = async () => {
       setLoading(true);
       try {
-        const [a, b] = await Promise.all([amenityApi.get(id), amenityApi.listBlackouts(id)]);
+        const [a, b] = await Promise.all([
+          amenityApi.get(id),
+          amenityApi.listBlackouts(id).catch(() => []),
+        ]);
         if (!cancelled) {
           setAmenity(a);
-          setBlackouts(b);
+          setBlackouts(b || []);
         }
       } catch (err: unknown) {
         if (!cancelled) showError(getErrorMessage(err, 'Failed to load amenity'));

@@ -45,12 +45,24 @@ const BookingRow = ({
       </td>
       <td className="align-middle">
         <div className="d-flex flex-wrap gap-2 justify-content-end">
-          <button type="button" className="btn btn-sm btn-outline-secondary" style={{ borderRadius: '8px' }} onClick={() => onView(booking)}>View</button>
-          {canApprove && (
-            <button type="button" className="btn btn-sm btn-success" style={{ borderRadius: '8px' }} onClick={() => onApprove?.(booking)}>Approve</button>
-          )}
-          {canReject && (
-            <button type="button" className="btn btn-sm btn-outline-danger" style={{ borderRadius: '8px' }} onClick={() => onReject?.(booking)}>Reject</button>
+          {canApprove ? (
+            <button
+              type="button"
+              className="btn btn-sm btn-dark d-inline-flex align-items-center gap-1"
+              style={{ borderRadius: '8px' }}
+              onClick={() => onView(booking)}
+            >
+              <i className="bi bi-shield-check" /> Vote & Review
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn btn-sm btn-outline-secondary"
+              style={{ borderRadius: '8px' }}
+              onClick={() => onView(booking)}
+            >
+              View
+            </button>
           )}
           {canSettle && (
             <button type="button" className="btn btn-sm btn-dark" style={{ borderRadius: '8px' }} onClick={() => onSettle?.(booking)}>Settle</button>

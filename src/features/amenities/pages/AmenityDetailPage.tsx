@@ -167,12 +167,16 @@ const AmenityDetailPage = () => {
               <AvailabilityGrid
                 availability={availability}
                 loading={avLoading}
-                onSelectSlot={(start, end) => openBooking(start, end)}
+                onOpenBooking={() => openBooking()}
               />
 
-              <div className="mt-3 d-grid d-sm-flex justify-content-sm-end">
-                <button className="btn btn-dark fw-medium px-3" style={{ borderRadius: '8px' }} onClick={() => openBooking()}>
-                  <i className="bi bi-calendar-plus me-1" /> Book this amenity
+              <div className="mt-4 d-grid d-sm-flex justify-content-sm-end">
+                <button
+                  className="btn btn-dark fw-medium px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
+                  style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#1a1f36' }}
+                  onClick={() => openBooking()}
+                >
+                  <i className="bi bi-calendar-plus" /> Book This Amenity (Custom Duration)
                 </button>
               </div>
             </div>
@@ -187,6 +191,8 @@ const AmenityDetailPage = () => {
           initialDate={date}
           initialStart={prefill.start}
           initialEnd={prefill.end}
+          operatingStart={amenity.operatingStart}
+          operatingEnd={amenity.operatingEnd}
           loading={bookingMutations.loading}
           onSubmit={handleBook}
           onCancel={() => setBookingOpen(false)}

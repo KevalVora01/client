@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Armchair, Clock, Users, Camera, Edit2, Eye } from 'lucide-react';
+import { Armchair, Clock, Users, Camera, Edit2, Eye, Lock } from 'lucide-react';
 import type { Amenity } from '../types/amenity.types';
 
 interface AmenityCardProps {
@@ -14,7 +14,8 @@ const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
 
   const images: string[] = Array.isArray(amenity.images) ? amenity.images : [];
   const coverImage = !imageError && images.length > 0 ? images[0] : null;
-  const isFree = !amenity.price || amenity.price === 0;
+  const isShared = amenity.bookingType === 'SHARED_CAPACITY' || amenity.isSharedCapacity;
+  const isFree = isShared || !amenity.price || amenity.price === 0;
 
   return (
     <div className="card border-0 shadow-sm h-100 overflow-hidden" style={{ borderRadius: '12px' }}>
@@ -42,6 +43,31 @@ const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>No photo uploaded</span>
           </div>
         )}
+
+        {/* Facility Type Badge (Top Left) */}
+        <span
+          className="badge position-absolute fw-semibold d-flex align-items-center gap-1"
+          style={{
+            top: 10,
+            left: 10,
+            backgroundColor: isShared ? 'rgba(16, 185, 129, 0.92)' : 'rgba(30, 41, 59, 0.85)',
+            color: '#fff',
+            fontSize: '0.72rem',
+            backdropFilter: 'blur(4px)',
+            padding: '4px 8px',
+            borderRadius: '6px',
+          }}
+        >
+          {isShared ? (
+            <>
+              <Users size={11} /> Shared Facility
+            </>
+          ) : (
+            <>
+              <Lock size={11} /> Exclusive Booking
+            </>
+          )}
+        </span>
 
         {/* Price Badge (Top Right) */}
         <span
@@ -92,7 +118,7 @@ const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
           {amenity.capacity != null && (
             <div className="d-flex align-items-center gap-1">
               <Users size={14} className="text-muted" />
-              <span>Cap: {amenity.capacity}</span>
+              <span>{isShared ? `Cap: ${amenity.capacity} people` : `Cap: ${amenity.capacity}`}</span>
             </div>
           )}
         </div>

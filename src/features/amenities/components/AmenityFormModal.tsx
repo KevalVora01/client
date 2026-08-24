@@ -1,17 +1,18 @@
 import React, { useState, useRef } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { UploadCloud, Trash2 } from 'lucide-react';
-import type { Amenity } from '../types/amenity.types';
+import { UploadCloud, Trash2, Users, Lock } from 'lucide-react';
+import type { Amenity, AmenityBookingType } from '../types/amenity.types';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const schema = Yup.object({
   name: Yup.string().trim().min(2, 'Min 2 characters').max(100, 'Max 100 characters').required('Name is required'),
   description: Yup.string().nullable(),
-  capacity: Yup.number().nullable().min(0, 'Must be 0 or more'),
+  capacity: Yup.number().nullable().min(1, 'Capacity must be at least 1 person'),
   operatingStart: Yup.string().matches(TIME_RE, 'HH:MM required').required('Operating start is required'),
   operatingEnd: Yup.string().matches(TIME_RE, 'HH:MM required').required('Operating end is required'),
+  bookingType: Yup.string().oneOf(['EXCLUSIVE', 'SHARED_CAPACITY']).default('EXCLUSIVE'),
   price: Yup.number().min(0, 'Price cannot be negative').default(0),
   isActive: Yup.boolean(),
 });
@@ -101,9 +102,10 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
       name: amenity?.name ?? '',
       description: amenity?.description ?? '',
       capacity: amenity?.capacity ?? '',
-      operatingStart: amenity?.operatingStart ?? '08:00',
-      operatingEnd: amenity?.operatingEnd ?? '20:00',
-      price: amenity?.price ?? 0,
+      operatingStart: amenity?.operatingStart ?? '06:00',
+      operatingEnd: amenity?.operatingEnd ?? '22:00',
+      bookingType: (amenity?.bookingType ?? 'EXCLUSIVE') as AmenityBookingType,
+      price: amenity?.bookingType === 'SHARED_CAPACITY' ? 0 : (amenity?.price ?? 0),
       isActive: amenity?.isActive ?? true,
     },
     validationSchema: schema,
@@ -116,7 +118,8 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
       }
       formData.append('operatingStart', values.operatingStart);
       formData.append('operatingEnd', values.operatingEnd);
-      formData.append('price', String(values.price || 0));
+      formData.append('bookingType', values.bookingType);
+      formData.append('price', String(values.bookingType === 'SHARED_CAPACITY' ? 0 : (values.price || 0)));
       formData.append('isActive', String(isEdit ? values.isActive : true));
 
       // Separate existing URLs and newly uploaded file objects
@@ -132,11 +135,13 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
     },
   });
 
+  const isShared = formik.values.bookingType === 'SHARED_CAPACITY';
+
   const fieldClass = (field: string) =>
     `form-control shadow-none ${formik.touched[field as keyof typeof formik.touched] && formik.errors[field as keyof typeof formik.errors] ? 'is-invalid' : 'border-light-subtle'}`;
 
   return (
-    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
+    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1050 }}>
       <div className="modal-dialog modal-lg modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
         <div className="modal-content border-0 rounded-3 shadow-lg bg-white" style={{ overflow: 'visible' }}>
           <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
@@ -145,7 +150,7 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                 {isEdit ? 'Edit Amenity' : 'Add Amenity'}
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>
-                Configure operating hours, pricing, photos, and details.
+                Configure facility access type, capacity, hours, and photos.
               </p>
             </div>
             <button
@@ -163,14 +168,71 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
           <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
             <form onSubmit={formik.handleSubmit}>
               <div className="row g-3">
-                <div className="col-12 col-md-8">
+                {/* ── Facility Booking Type Selector ── */}
+                <div className="col-12">
+                  <label className="form-label fw-medium text-secondary small mb-2">
+                    Facility Access Type <span className="text-danger">*</span>
+                  </label>
+                  <div className="row g-2">
+                    <div className="col-12 col-md-6">
+                      <div
+                        onClick={() => {
+                          formik.setFieldValue('bookingType', 'SHARED_CAPACITY');
+                          formik.setFieldValue('price', 0);
+                          if (!formik.values.capacity) formik.setFieldValue('capacity', 25);
+                        }}
+                        className={`p-3 rounded-3 border d-flex align-items-start gap-3 cursor-pointer ${
+                          isShared ? 'border-primary bg-primary-subtle' : 'border-light-subtle bg-white'
+                        }`}
+                        style={{ cursor: 'pointer', transition: 'all 0.15s' }}
+                      >
+                        <div className={`p-2 rounded-2 ${isShared ? 'bg-primary text-white' : 'bg-light text-secondary'}`}>
+                          <Users size={20} />
+                        </div>
+                        <div>
+                          <div className="fw-bold small text-dark d-flex align-items-center gap-1">
+                            Shared Public Facility
+                            <span className="badge bg-success-subtle text-success border border-success-subtle" style={{ fontSize: '0.68rem' }}>Free</span>
+                          </div>
+                          <p className="text-secondary small mb-0" style={{ fontSize: '0.76rem' }}>
+                            Gym, Yoga Studio, Pool. Multiple residents book concurrently with live crowd stats.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-12 col-md-6">
+                      <div
+                        onClick={() => formik.setFieldValue('bookingType', 'EXCLUSIVE')}
+                        className={`p-3 rounded-3 border d-flex align-items-start gap-3 cursor-pointer ${
+                          !isShared ? 'border-dark bg-light' : 'border-light-subtle bg-white'
+                        }`}
+                        style={{ cursor: 'pointer', transition: 'all 0.15s' }}
+                      >
+                        <div className={`p-2 rounded-2 ${!isShared ? 'bg-dark text-white' : 'bg-light text-secondary'}`}>
+                          <Lock size={20} />
+                        </div>
+                        <div>
+                          <div className="fw-bold small text-dark">
+                            Exclusive Private Booking
+                          </div>
+                          <p className="text-secondary small mb-0" style={{ fontSize: '0.76rem' }}>
+                            Banquet Hall, Party Lawn, Tennis Court. Reserved exclusively for 1 apartment per slot.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col-12 col-md-7">
                   <label className="form-label fw-medium text-secondary small mb-1">
                     Amenity Name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
                     name="name"
-                    placeholder="e.g. Swimming Pool, Clubhouse, Tennis Court"
+                    placeholder="e.g. Fitness Gymnasium, Swimming Pool, Clubhouse Hall"
                     className={fieldClass('name')}
                     value={formik.values.name}
                     onChange={formik.handleChange}
@@ -182,48 +244,16 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   )}
                 </div>
 
-                <div className="col-12 col-md-4">
+                <div className="col-12 col-md-5">
                   <label className="form-label fw-medium text-secondary small mb-1">
-                    Booking Price (₹)
+                    {isShared ? 'Max Concurrent People (Capacity)' : 'Capacity (Max Attendees)'}
+                    <span className="text-danger">*</span>
                   </label>
-                  <div className="input-group">
-                    <span className="input-group-text bg-light border-light-subtle text-secondary small">₹</span>
-                    <input
-                      type="number"
-                      min={0}
-                      name="price"
-                      placeholder="0 for free"
-                      className={fieldClass('price')}
-                      value={formik.values.price}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      style={{ fontSize: '0.875rem', height: '40px' }}
-                    />
-                  </div>
-                  {formik.touched.price && formik.errors.price && (
-                    <div className="text-danger small mt-1">{formik.errors.price}</div>
-                  )}
-                </div>
-
-                <div className="col-12">
-                  <label className="form-label fw-medium text-secondary small mb-1">Description</label>
-                  <textarea
-                    name="description"
-                    className={fieldClass('description')}
-                    value={formik.values.description}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    placeholder="Enter amenity rules, equipment provided, or booking guidelines..."
-                    style={{ fontSize: '0.875rem', height: '85px', resize: 'none' }}
-                  />
-                </div>
-
-                <div className="col-12 col-md-4">
-                  <label className="form-label fw-medium text-secondary small mb-1">Capacity</label>
                   <input
                     type="number"
+                    min={1}
                     name="capacity"
-                    placeholder="Max people (optional)"
+                    placeholder={isShared ? 'e.g. 25 people' : 'e.g. 100 people'}
                     className={fieldClass('capacity')}
                     value={formik.values.capacity}
                     onChange={formik.handleChange}
@@ -235,7 +265,32 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   )}
                 </div>
 
-                <div className="col-12 col-md-4">
+                {!isShared && (
+                  <div className="col-12 col-md-4">
+                    <label className="form-label fw-medium text-secondary small mb-1">
+                      Booking Fee (₹)
+                    </label>
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-light-subtle text-secondary small">₹</span>
+                      <input
+                        type="number"
+                        min={0}
+                        name="price"
+                        placeholder="0 for free"
+                        className={fieldClass('price')}
+                        value={formik.values.price}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        style={{ fontSize: '0.875rem', height: '40px' }}
+                      />
+                    </div>
+                    {formik.touched.price && formik.errors.price && (
+                      <div className="text-danger small mt-1">{formik.errors.price}</div>
+                    )}
+                  </div>
+                )}
+
+                <div className={isShared ? 'col-12 col-md-6' : 'col-12 col-md-4'}>
                   <label className="form-label fw-medium text-secondary small mb-1">Opens <span className="text-danger">*</span></label>
                   <input
                     type="time"
@@ -251,7 +306,7 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   )}
                 </div>
 
-                <div className="col-12 col-md-4">
+                <div className={isShared ? 'col-12 col-md-6' : 'col-12 col-md-4'}>
                   <label className="form-label fw-medium text-secondary small mb-1">Closes <span className="text-danger">*</span></label>
                   <input
                     type="time"
@@ -265,6 +320,19 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   {formik.touched.operatingEnd && formik.errors.operatingEnd && (
                     <div className="invalid-feedback">{formik.errors.operatingEnd}</div>
                   )}
+                </div>
+
+                <div className="col-12">
+                  <label className="form-label fw-medium text-secondary small mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    className={fieldClass('description')}
+                    value={formik.values.description}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    placeholder="Enter facility description, equipment available, guidelines..."
+                    style={{ fontSize: '0.875rem', height: '80px', resize: 'none' }}
+                  />
                 </div>
 
                 {/* ── Photos Section (Up to 5 images) ── */}
@@ -302,12 +370,12 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                         transition: 'all 0.2s ease',
                       }}
                     >
-                      <UploadCloud size={24} className="text-secondary mb-1" />
-                      <div className="fw-semibold text-dark small" style={{ fontSize: '0.85rem' }}>
-                        Click to upload photos from device or drag & drop
+                      <UploadCloud size={28} className="text-secondary mb-1" />
+                      <div className="small fw-semibold text-dark mb-0">
+                        Click or drag & drop photos here
                       </div>
                       <div className="text-muted" style={{ fontSize: '0.75rem' }}>
-                        PNG, JPG, WEBP up to 5MB each (up to {5 - images.length} more)
+                        PNG, JPG, WEBP up to 5MB each ({5 - images.length} remaining)
                       </div>
                     </div>
                   )}
@@ -316,37 +384,32 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                     <div className="text-danger small mb-2">{imageError}</div>
                   )}
 
-                  {/* Thumbnail gallery */}
+                  {/* Uploaded Thumbnails Preview */}
                   {images.length > 0 && (
                     <div className="d-flex flex-wrap gap-2 pt-1">
-                      {images.map((img, idx) => (
+                      {images.map((img, index) => (
                         <div
                           key={img.id}
-                          className="position-relative rounded-3 overflow-hidden border border-light-subtle shadow-sm"
-                          style={{ width: '92px', height: '72px', background: '#f8fafc' }}
+                          className="position-relative rounded-2 overflow-hidden border border-light-subtle shadow-sm"
+                          style={{ width: '82px', height: '82px', background: '#f8fafc' }}
                         >
                           <img
                             src={img.url}
-                            alt={`Amenity photo ${idx + 1}`}
-                            className="w-100 h-100"
-                            style={{ objectFit: 'cover' }}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://placehold.co/180x140?text=Invalid+Image';
-                            }}
+                            alt={`Preview ${index + 1}`}
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                           />
-                          {idx === 0 && (
-                            <span
-                              className="badge bg-dark position-absolute"
-                              style={{ bottom: 2, left: 2, fontSize: '0.6rem', padding: '2px 4px' }}
-                            >
-                              Cover
-                            </span>
-                          )}
                           <button
                             type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            className="btn btn-danger position-absolute p-0 d-flex align-items-center justify-content-center rounded-circle"
-                            style={{ top: 3, right: 3, width: '20px', height: '20px', fontSize: '0.7rem' }}
+                            onClick={() => handleRemoveImage(index)}
+                            className="btn btn-sm btn-danger position-absolute p-0 d-flex align-items-center justify-content-center"
+                            style={{
+                              top: 4,
+                              right: 4,
+                              width: 22,
+                              height: 22,
+                              borderRadius: '50%',
+                              opacity: 0.9,
+                            }}
                             title="Remove photo"
                           >
                             <Trash2 size={11} />
@@ -357,15 +420,28 @@ const AmenityFormModal = ({ amenity, loading, onSubmit, onCancel }: AmenityFormM
                   )}
                 </div>
 
-                <div className="col-12">
+                <div className="col-12 pt-2">
                   <div className="d-grid d-sm-flex gap-2 justify-content-sm-end">
-                    <button type="button" className="btn btn-outline-secondary rounded-2 px-3 small" onClick={onCancel} disabled={loading} style={{ height: '38px', fontSize: '0.875rem' }}>
+                    <button
+                      type="button"
+                      className="btn btn-outline-secondary rounded-2 px-3 small"
+                      onClick={onCancel}
+                      disabled={loading}
+                      style={{ height: '38px', fontSize: '0.875rem' }}
+                    >
                       Cancel
                     </button>
-                    <button type="submit" className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center justify-content-center" disabled={loading} style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: loading ? 0.55 : 1 }}>
-                      {loading
-                        ? <span className="spinner-border spinner-border-sm" />
-                        : <><i className={`bi ${isEdit ? 'bi-check-lg' : 'bi-plus-lg'} me-1`} /> {isEdit ? 'Save Changes' : 'Add Amenity'}</>}
+                    <button
+                      type="submit"
+                      className="btn btn-dark fw-medium px-4 d-inline-flex align-items-center justify-content-center"
+                      disabled={loading}
+                      style={{ height: '38px', fontSize: '0.875rem', borderRadius: '8px', opacity: loading ? 0.55 : 1 }}
+                    >
+                      {loading ? (
+                        <span className="spinner-border spinner-border-sm" />
+                      ) : (
+                        isEdit ? 'Save Changes' : 'Create Amenity'
+                      )}
                     </button>
                   </div>
                 </div>

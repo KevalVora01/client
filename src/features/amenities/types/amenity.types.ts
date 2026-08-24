@@ -1,5 +1,10 @@
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Rejected' | 'Cancelled';
 
+export enum AmenityBookingType {
+  EXCLUSIVE = 'EXCLUSIVE',
+  SHARED_CAPACITY = 'SHARED_CAPACITY',
+}
+
 export interface Amenity {
   id: number;
   name: string;
@@ -9,6 +14,8 @@ export interface Amenity {
   operatingEnd: string;
   price: number;
   images?: string[];
+  bookingType?: AmenityBookingType;
+  isSharedCapacity?: boolean;
   isActive: boolean;
   createdAt: string;
 } 
@@ -51,19 +58,47 @@ export interface BusyInterval {
   label?: string;
 }
 
+export interface SharedCapacitySlot {
+  startTime: string;
+  endTime: string;
+  totalCapacity: number;
+  currentOccupancy: number;
+  availableSpots: number;
+  occupancyPercent: number;
+  isBlackout: boolean;
+  blackoutReason?: string;
+  status: 'Available' | 'Moderate' | 'Almost Full' | 'Full' | 'Blackout';
+  isAvailable: boolean;
+}
+
+export interface CurrentCrowdStats {
+  currentHourSlot: string;
+  currentOccupancy: number;
+  totalCapacity: number;
+  availableSpots: number;
+  crowdLevel: 'Quiet' | 'Moderate' | 'Busy' | 'Full' | 'Closed';
+}
+
 export interface AvailabilityResult {
   amenityId?: number;
   date: string;
   operatingStart: string;
   operatingEnd: string;
+  bookingType?: AmenityBookingType;
+  totalCapacity?: number;
   slots: AvailabilitySlot[];
   busyIntervals?: BusyInterval[];
+  sharedSlots?: SharedCapacitySlot[];
+  currentCrowdNow?: CurrentCrowdStats;
 }
 
 export interface AvailabilitySlot {
-  startTime: string;
-  endTime: string;
-  available: boolean;
+  startTime?: string;
+  endTime?: string;
+  start?: string;
+  end?: string;
+  status?: string;
+  available?: boolean;
 }
 
 export interface BookingStats {
@@ -87,6 +122,7 @@ export interface CreateAmenityPayload {
   operatingEnd: string;
   price?: number;
   images?: string[];
+  bookingType?: AmenityBookingType;
   isActive?: boolean;
 }
 
@@ -98,6 +134,7 @@ export interface UpdateAmenityPayload {
   operatingEnd?: string;
   price?: number;
   images?: string[];
+  bookingType?: AmenityBookingType;
   isActive?: boolean;
 }
 
@@ -121,55 +158,33 @@ export interface CreateBookingPayload {
 export interface BookingListFilters {
   amenityId?: number;
   date?: string;
-  status?: BookingStatus;
-  residentId?: number;
+  status?: BookingStatus | 'all';
+  search?: string;
+  page?: number;
+  limit?: number;
 }
-
-export type VoteChoice = 'Approve' | 'Reject';
 
 export interface BookingVote {
   id: number;
   bookingId: number;
-  committeeMemberId: number | null;
-  vote: VoteChoice;
-  recordedByAdminId: number | null;
+  userId: number;
+  decision: 'Approve' | 'Reject';
+  comment: string | null;
   createdAt: string;
-  committeeMember?: {
+  user?: {
     id: number;
-    apartmentId: number;
-    user?: {
-      id: number;
-      name: string;
-      email: string;
-    };
-  } | null;
+    name: string;
+    role: string;
+  };
 }
 
-export interface CommitteeMember {
-  id: number;
-  fullName: string;
-  email: string;
-  apartmentId: number;
-}
-
-export interface BookingDetail extends Booking {
-  votes: BookingVote[];
-  committeeMembers: CommitteeMember[];
-  resident?: {
-    id: number;
-    apartmentId?: number;
-    user?: {
-      id: number;
-      name: string;
-      email: string;
-      phone: string;
-    };
-    apartment?: {
-      id: number;
-      block: string;
-      floorNumber: number;
-      unitNumber: string;
-    };
-  } | null;
-  amenity?: Amenity | null;
+export interface BookingDecisionSummary {
+  status: 'Pending' | 'Confirmed' | 'Rejected';
+  totalEligible: number;
+  votedCount: number;
+  approvals: number;
+  rejections: number;
+  adminVoted: boolean;
+  adminDecision: 'Approve' | 'Reject' | null;
+  isConcluded: boolean;
 }

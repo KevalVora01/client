@@ -1,5 +1,6 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { CheckCircle2, Users } from 'lucide-react';
 import DatePicker from '../../../components/DatePicker/DatePicker';
 import type { CreateBookingPayload } from '../types/amenity.types';
 
@@ -10,6 +11,8 @@ const today = () => new Date().toISOString().slice(0, 10);
 
 interface BookingFormModalProps {
   amenityId: number;
+  amenityName?: string;
+  isShared?: boolean;
   isAdmin?: boolean;
   initialDate?: string;
   initialStart?: string;
@@ -23,6 +26,8 @@ interface BookingFormModalProps {
 
 const BookingFormModal = ({
   amenityId,
+  amenityName,
+  isShared = false,
   initialDate,
   initialStart,
   initialEnd,
@@ -78,8 +83,8 @@ const BookingFormModal = ({
     initialValues: {
       bookingDate: initialDate ?? today(),
       startTime: initialStart ?? operatingStart ?? '08:00',
-      endTime: initialEnd ?? operatingEnd ?? '10:00',
-      purpose: '',
+      endTime: initialEnd ?? operatingEnd ?? '09:00',
+      purpose: isShared ? `${amenityName || 'Amenity'} Session` : '',
     },
     validationSchema: schema,
     onSubmit: async (values) => {
@@ -103,7 +108,7 @@ const BookingFormModal = ({
     }`;
 
   return (
-    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)' }}>
+    <div className="modal d-block bg-dark bg-opacity-50" style={{ backdropFilter: 'blur(4px)', zIndex: 1050 }}>
       <div
         className="modal-dialog modal-lg modal-dialog-centered"
         onClick={(e) => e.stopPropagation()}
@@ -112,13 +117,13 @@ const BookingFormModal = ({
           <div className="modal-header border-bottom border-light-subtle px-3 px-sm-4 pt-4 pb-3 align-items-start position-relative">
             <div>
               <h5 className="modal-title fw-bold fs-6" style={{ color: '#1a1f36' }}>
-                Book Amenity
+                {isShared ? `Reserve Spot: ${amenityName || 'Shared Facility'}` : `Book Amenity: ${amenityName || ''}`}
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>
-                Pick a date and choose any custom start and end time.
+                Pick a date and your desired session time.
                 {operatingStart && operatingEnd && (
                   <span className="fw-medium text-dark ms-1">
-                    (Operating: {operatingStart} – {operatingEnd})
+                    (Operating Hours: {operatingStart} – {operatingEnd})
                   </span>
                 )}
               </p>
@@ -145,6 +150,21 @@ const BookingFormModal = ({
           </div>
 
           <div className="modal-body p-3 p-sm-4" style={{ overflow: 'visible' }}>
+            {/* Shared Facility Info Alert */}
+            {isShared && (
+              <div className="p-3 rounded-3 mb-3 d-flex align-items-center gap-3 bg-success-subtle border border-success-subtle">
+                <CheckCircle2 size={24} className="text-success flex-shrink-0" />
+                <div>
+                  <div className="fw-bold small text-success">
+                    Instant Auto-Confirmation • 100% Free Amenity
+                  </div>
+                  <div className="text-secondary small" style={{ fontSize: '0.78rem' }}>
+                    As a shared resident wellness facility, no committee voting or payment is required. Your slot will be reserved immediately upon booking.
+                  </div>
+                </div>
+              </div>
+            )}
+
             <form onSubmit={formik.handleSubmit}>
               <div className="row g-3">
                 <div className="col-12 col-md-4">
@@ -200,19 +220,25 @@ const BookingFormModal = ({
                 </div>
 
                 <div className="col-12">
-                  <label className="form-label fw-medium text-secondary small mb-1">Purpose</label>
+                  <label className="form-label fw-medium text-secondary small mb-1">
+                    {isShared ? 'Notes / Activity (Optional)' : 'Purpose of Booking (Optional)'}
+                  </label>
                   <textarea
                     name="purpose"
                     className={fieldClass('purpose')}
                     value={formik.values.purpose}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
-                    placeholder="Enter purpose of booking (optional)"
-                    style={{ fontSize: '0.875rem', height: '90px', resize: 'none' }}
+                    placeholder={
+                      isShared
+                        ? 'e.g. Cardio workout, Morning yoga routine...'
+                        : 'e.g. Birthday party, Annual get-together...'
+                    }
+                    style={{ fontSize: '0.875rem', height: '75px', resize: 'none' }}
                   />
                 </div>
 
-                <div className="col-12">
+                <div className="col-12 pt-2">
                   <div className="d-grid d-sm-flex gap-2 justify-content-sm-end">
                     <button
                       type="button"
@@ -225,7 +251,7 @@ const BookingFormModal = ({
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-dark fw-medium px-3 d-inline-flex align-items-center justify-content-center"
+                      className="btn btn-dark fw-medium px-4 d-inline-flex align-items-center justify-content-center"
                       disabled={loading}
                       style={{
                         height: '38px',
@@ -236,6 +262,10 @@ const BookingFormModal = ({
                     >
                       {loading ? (
                         <span className="spinner-border spinner-border-sm" />
+                      ) : isShared ? (
+                        <>
+                          <Users size={16} className="me-1" /> Confirm Free Spot
+                        </>
                       ) : (
                         <>
                           <i className="bi bi-check-lg me-1" /> Submit Request

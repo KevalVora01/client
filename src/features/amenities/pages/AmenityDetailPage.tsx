@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, ShieldAlert, Plus, Trash2 } from 'lucide-react';
+import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, Plus, Trash2, Lock, CheckCircle2 } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useAmenityDetail } from '../hooks/useAmenityDetail';
@@ -87,9 +87,9 @@ const AmenityDetailPage = () => {
   }
 
   const images = Array.isArray(amenity.images) ? amenity.images : [];
-
   const currentPhoto = images[selectedPhotoIndex] ?? images[0] ?? null;
-  const isFree = !amenity.price || amenity.price === 0;
+  const isShared = amenity.bookingType === 'SHARED_CAPACITY' || amenity.isSharedCapacity;
+  const isFree = isShared || !amenity.price || amenity.price === 0;
 
   return (
     <div className="container-fluid p-3 p-md-4">
@@ -100,20 +100,43 @@ const AmenityDetailPage = () => {
       {/* ── Header ── */}
       <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap mb-4">
         <div>
-          <div className="d-flex align-items-center gap-2 mb-1">
+          <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
             <h4 className="fw-bold mb-0 fs-4" style={{ color: '#1a1f36' }}>{amenity.name}</h4>
             <span
-              className="badge"
+              className="badge d-inline-flex align-items-center gap-1"
               style={{
-                backgroundColor: isFree ? '#ecfdf5' : '#eef2ff',
-                color: isFree ? '#065f46' : '#4338ca',
+                backgroundColor: isShared ? '#ecfdf5' : '#f8fafc',
+                color: isShared ? '#065f46' : '#334155',
                 fontSize: '0.8rem',
-                border: isFree ? '1px solid #a7f3d0' : '1px solid #c7d2fe',
+                border: isShared ? '1px solid #a7f3d0' : '1px solid #cbd5e1',
                 fontWeight: 600,
+                padding: '5px 10px',
               }}
             >
-              {isFree ? 'Free to Book' : `₹${amenity.price} / booking`}
+              {isShared ? (
+                <>
+                  <Users size={13} /> Shared Facility
+                </>
+              ) : (
+                <>
+                  <Lock size={13} /> Exclusive Booking
+                </>
+              )}
             </span>
+            {!isFree && (
+              <span
+                className="badge"
+                style={{
+                  backgroundColor: '#eef2ff',
+                  color: '#4338ca',
+                  fontSize: '0.8rem',
+                  border: '1px solid #c7d2fe',
+                  fontWeight: 600,
+                }}
+              >
+                ₹{amenity.price} / booking
+              </span>
+            )}
           </div>
           <p className="text-muted mb-0 small">{amenity.description ?? 'No description provided.'}</p>
         </div>
@@ -157,7 +180,7 @@ const AmenityDetailPage = () => {
                   backdropFilter: 'blur(4px)',
                 }}
               >
-                {isFree ? 'Free Amenity' : `₹${amenity.price}`}
+                {isFree ? 'Free Facility' : `₹${amenity.price}`}
               </div>
             </div>
 
@@ -196,17 +219,19 @@ const AmenityDetailPage = () => {
           {/* Details & Blackouts Card */}
           <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
             <div className="card-body">
-              <h6 className="fw-bold mb-3" style={{ color: '#1a1f36' }}>Details & Rules</h6>
+              <h6 className="fw-bold mb-3" style={{ color: '#1a1f36' }}>Facility Details & Guidelines</h6>
               
               <div className="d-flex flex-column gap-2 mb-3">
                 <div className="d-flex align-items-center gap-2 small text-secondary">
                   <Clock size={15} className="text-muted flex-shrink-0" />
-                  <span><strong>Operating:</strong> {amenity.operatingStart} – {amenity.operatingEnd}</span>
+                  <span><strong>Operating Hours:</strong> {amenity.operatingStart} – {amenity.operatingEnd}</span>
                 </div>
                 {amenity.capacity != null && (
                   <div className="d-flex align-items-center gap-2 small text-secondary">
                     <Users size={15} className="text-muted flex-shrink-0" />
-                    <span><strong>Capacity:</strong> {amenity.capacity} people max</span>
+                    <span>
+                      <strong>{isShared ? 'Max Concurrent People:' : 'Capacity:'}</strong> {amenity.capacity} people
+                    </span>
                   </div>
                 )}
                 <div className="d-flex align-items-center gap-2 small text-secondary">
@@ -214,18 +239,24 @@ const AmenityDetailPage = () => {
                   <span>
                     <strong>Booking Fee:</strong>{' '}
                     {isFree ? (
-                      <span className="text-success fw-semibold">Free of charge</span>
+                      <span className="text-success fw-semibold">Free (Instant Confirmation)</span>
                     ) : (
                       <span className="text-dark fw-bold">₹{amenity.price} (payable after voting approval)</span>
                     )}
                   </span>
                 </div>
+                {isShared && (
+                  <div className="d-flex align-items-center gap-2 small text-success">
+                    <CheckCircle2 size={15} className="flex-shrink-0" />
+                    <span>Auto-approved instantly with no committee voting required.</span>
+                  </div>
+                )}
               </div>
 
               <hr className="border-light-subtle" />
 
               <div className="d-flex justify-content-between align-items-center mb-2">
-                <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Blackouts</h6>
+                <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Maintenance Blackouts</h6>
                 {isAdmin && (
                   <button className="btn btn-sm btn-outline-dark d-flex align-items-center gap-1" style={{ borderRadius: '8px' }} onClick={() => setBlackoutOpen(true)}>
                     <Plus size={14} /> Add
@@ -272,7 +303,9 @@ const AmenityDetailPage = () => {
           <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>Availability Schedule</h6>
+                <h6 className="fw-bold mb-0" style={{ color: '#1a1f36' }}>
+                  {isShared ? 'Facility Schedule & Live Crowd' : 'Availability Schedule'}
+                </h6>
                 <div style={{ width: '190px' }}>
                   <DatePicker
                     value={date}
@@ -291,7 +324,7 @@ const AmenityDetailPage = () => {
               <AvailabilityGrid
                 availability={availability}
                 loading={avLoading}
-                onOpenBooking={() => openBooking()}
+                onOpenBooking={(prefillSlot) => openBooking(prefillSlot?.start, prefillSlot?.end)}
               />
 
               <div className="mt-4 d-grid d-sm-flex justify-content-sm-end">
@@ -300,7 +333,8 @@ const AmenityDetailPage = () => {
                   style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#1a1f36' }}
                   onClick={() => openBooking()}
                 >
-                  <CalendarPlus size={16} /> Book This Amenity {isFree ? '(Free)' : `(₹${amenity.price})`}
+                  <CalendarPlus size={16} />
+                  {isShared ? 'Reserve Free Spot' : `Book This Amenity (₹${amenity.price})`}
                 </button>
               </div>
             </div>
@@ -311,6 +345,8 @@ const AmenityDetailPage = () => {
       {bookingOpen && (
         <BookingFormModal
           amenityId={amenityId}
+          amenityName={amenity.name}
+          isShared={isShared}
           isAdmin={isAdmin}
           initialDate={date}
           initialStart={prefill.start}

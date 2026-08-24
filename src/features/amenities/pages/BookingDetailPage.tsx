@@ -177,7 +177,46 @@ const BookingDetailPage = () => {
   const votedCount = Object.keys(draftVotes).length + (draftAdminVote ? 1 : 0);
 
   const residentUser = booking.resident?.user;
-  const residentApt = booking.resident?.apartment;
+  let aptDisplay = '—';
+  const apt = booking.apartment || booking.resident?.apartment;
+  if (apt) {
+    if (apt.unitFormatted) {
+      aptDisplay = apt.unitFormatted;
+    } else {
+      const block = apt.block || '';
+      const floor = apt.floorNumber !== undefined && apt.floorNumber !== null ? String(apt.floorNumber) : '';
+      const unit = String(apt.unitNumber || '');
+      const fullUnit = unit.startsWith(floor) ? unit : `${floor}${unit}`;
+      aptDisplay = `${block}-${fullUnit}`;
+    }
+  } else if (booking.apartmentId) {
+    aptDisplay = `Apt #${booking.apartmentId}`;
+  }
+
+  const formatDisplayDate = (dateStr?: string | null): string => {
+    if (!dateStr) return '—';
+    try {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      if (!y || !m || !d) {
+        const dt = new Date(dateStr);
+        return dt.toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
+      }
+      const dateObj = new Date(y, m - 1, d);
+      return dateObj.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
 
   const rows: { label: string; value: React.ReactNode }[] = [
     { label: 'Amenity', value: <span className="fw-semibold">{amenityName}</span> },
@@ -191,13 +230,17 @@ const BookingDetailPage = () => {
     },
     {
       label: 'Resident',
-      value: residentUser?.name ? `${residentUser.name} (${residentUser.phone || residentUser.email})` : `Resident #${booking.residentId}`,
+      value: residentUser?.name
+        ? `${residentUser.name} (${residentUser.phone || residentUser.email})`
+        : booking.resident?.name
+        ? booking.resident.name
+        : `Resident #${booking.residentId}`,
     },
     {
       label: 'Apartment',
-      value: residentApt ? `${residentApt.block}-${residentApt.floorNumber}${residentApt.unitNumber}` : `Apt #${booking.apartmentId}`,
+      value: aptDisplay,
     },
-    { label: 'Booking Date', value: booking.bookingDate },
+    { label: 'Booking Date', value: formatDisplayDate(booking.bookingDate) },
     { label: 'Time', value: `${booking.startTime} – ${booking.endTime}` },
     { label: 'Purpose', value: booking.purpose ?? '—' },
     {

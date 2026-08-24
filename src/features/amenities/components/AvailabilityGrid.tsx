@@ -29,6 +29,7 @@ const toMinutes = (timeStr: string): number => {
 
 const AvailabilityGrid = ({ availability, loading, onOpenBooking }: AvailabilityGridProps) => {
   const [hoveredSlot, setHoveredSlot] = useState<SharedCapacitySlot | null>(null);
+  const [hoveredInterval, setHoveredInterval] = useState<BusyInterval | null>(null);
 
   if (loading) {
     return (
@@ -86,27 +87,42 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
             </span>
           )}
         </div>
-        <div className="d-flex align-items-center gap-3">
-          <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
-            <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
-            Low Crowd (&lt;40%)
-          </span>
-          {isShared && (
-            <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#f59e0b', display: 'inline-block' }} />
-              Moderate (40-75%)
-            </span>
+        <div className="d-flex align-items-center gap-3 flex-wrap">
+          {isShared ? (
+            <>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
+                Low Crowd (&lt;40%)
+              </span>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#f59e0b', display: 'inline-block' }} />
+                Moderate (40-75%)
+              </span>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block' }} />
+                Busy / Full (&gt;75%)
+              </span>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#94a3b8', display: 'inline-block' }} />
+                Past / Closed
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#22c55e', display: 'inline-block' }} />
+                Available
+              </span>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block' }} />
+                Reserved
+              </span>
+              <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
+                <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#64748b', display: 'inline-block' }} />
+                Blackout
+              </span>
+            </>
           )}
-          {isShared && (
-            <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
-              <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#ef4444', display: 'inline-block' }} />
-              Busy / Full (&gt;75%)
-            </span>
-          )}
-          <span className="d-inline-flex align-items-center gap-1 small text-secondary" style={{ fontSize: '0.78rem' }}>
-            <span style={{ width: 10, height: 10, borderRadius: '50%', backgroundColor: '#94a3b8', display: 'inline-block' }} />
-            Past / Closed
-          </span>
         </div>
       </div>
 
@@ -288,10 +304,46 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
             <span>{operatingEnd}</span>
           </div>
 
-          <div className="mb-4">
+          {/* Timeline Bar Container with generous top space for tooltip */}
+          <div className="position-relative pt-4 pb-2 mb-3">
+            {/* Hover Tooltip for Timeline */}
+            {hoveredInterval && (() => {
+              const intStart = Math.max(startMin, toMinutes(hoveredInterval.startTime));
+              const intEnd = Math.min(endMin, toMinutes(hoveredInterval.endTime));
+              const centerPct = ((intStart + (intEnd - intStart) / 2 - startMin) / totalMin) * 100;
+              const isBlackout = hoveredInterval.type === 'blackout';
+              const displayReason = hoveredInterval.label
+                ? hoveredInterval.label.replace(/^Reserved \((.*)\)$/, '$1').replace(/^Blackout: (.*)$/, '$1')
+                : isBlackout
+                ? 'Maintenance Blackout'
+                : 'Private Booking';
+
+              return (
+                <div
+                  className="position-absolute bg-dark text-white rounded-3 p-2 shadow-lg text-center"
+                  style={{
+                    bottom: 'calc(100% - 10px)',
+                    left: `${centerPct}%`,
+                    transform: centerPct < 18 ? 'translateX(-10%)' : centerPct > 82 ? 'translateX(-90%)' : 'translateX(-50%)',
+                    zIndex: 40,
+                    whiteSpace: 'nowrap',
+                    fontSize: '0.75rem',
+                    border: '1px solid #334155',
+                    pointerEvents: 'none',
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.35)',
+                  }}
+                >
+                  <div className="fw-bold text-white mb-0">{hoveredInterval.startTime} – {hoveredInterval.endTime}</div>
+                  <div style={{ color: isBlackout ? '#cbd5e1' : '#fca5a5', fontSize: '0.78rem' }}>
+                    {displayReason}
+                  </div>
+                </div>
+              );
+            })()}
+
             <div
               className="position-relative rounded-pill overflow-hidden shadow-inner"
-              style={{ height: '16px', backgroundColor: '#dcfce7', border: '1px solid #bbf7d0' }}
+              style={{ height: '20px', backgroundColor: '#dcfce7', border: '1px solid #bbf7d0' }}
             >
               {busyIntervals.map((interval: BusyInterval, index: number) => {
                 const intStart = Math.max(startMin, toMinutes(interval.startTime));
@@ -300,18 +352,23 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
 
                 const leftPct = ((intStart - startMin) / totalMin) * 100;
                 const widthPct = ((intEnd - intStart) / totalMin) * 100;
-                const bg = interval.type === 'blackout' ? '#64748b' : '#ef4444';
+                const isBlackout = interval.type === 'blackout';
+                const isHovered = hoveredInterval?.startTime === interval.startTime && hoveredInterval?.endTime === interval.endTime;
 
                 return (
                   <div
                     key={index}
-                    className="position-absolute top-0 bottom-0"
+                    className="position-absolute top-0 bottom-0 transition-all"
+                    onMouseEnter={() => setHoveredInterval(interval)}
+                    onMouseLeave={() => setHoveredInterval(null)}
                     style={{
                       left: `${leftPct}%`,
                       width: `${widthPct}%`,
-                      backgroundColor: bg,
+                      backgroundColor: isBlackout ? '#64748b' : '#ef4444',
+                      opacity: isHovered ? 1 : 0.9,
+                      filter: isHovered ? 'brightness(1.15)' : 'none',
+                      cursor: 'pointer',
                     }}
-                    title={`${interval.startTime} – ${interval.endTime}: ${interval.label || interval.type}`}
                   />
                 );
               })}
@@ -336,43 +393,67 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
                 <AlertTriangle size={15} className="text-warning" /> Reserved / Unavailable Times Today
               </h6>
               <div className="d-flex flex-column gap-2 mb-3">
-                {busyIntervals.map((interval: BusyInterval, index: number) => (
-                  <div
-                    key={index}
-                    className="d-flex align-items-center justify-content-between p-2 px-3 rounded-2 border"
-                    style={{
-                      backgroundColor: interval.type === 'blackout' ? '#f8fafc' : '#fef2f2',
-                      borderColor: interval.type === 'blackout' ? '#e2e8f0' : '#fecaca',
-                    }}
-                  >
-                    <div className="d-flex align-items-center gap-2">
-                      {interval.type === 'blackout' ? (
-                        <ShieldAlert size={16} className="text-secondary flex-shrink-0" />
-                      ) : (
-                        <Calendar size={16} className="text-danger flex-shrink-0" />
-                      )}
-                      <div>
-                        <span className="fw-bold text-dark small">
-                          {interval.startTime} – {interval.endTime}
-                        </span>
-                        <span className="text-muted small ms-2" style={{ fontSize: '0.78rem' }}>
-                          {interval.label || (interval.type === 'blackout' ? 'Maintenance Blackout' : 'Booked')}
-                        </span>
-                      </div>
-                    </div>
-                    <span
-                      className="badge rounded-pill"
+                {busyIntervals.map((interval: BusyInterval, index: number) => {
+                  const isBlackout = interval.type === 'blackout';
+                  // Strip redundant "Reserved (" prefix if present
+                  const displayReason = interval.label
+                    ? interval.label.replace(/^Reserved \((.*)\)$/, '$1').replace(/^Blackout: (.*)$/, '$1')
+                    : isBlackout
+                    ? 'Maintenance Blackout'
+                    : 'Private Booking';
+
+                  return (
+                    <div
+                      key={index}
+                      className="d-flex align-items-center justify-content-between p-2 px-3 rounded-3 border shadow-sm"
                       style={{
-                        backgroundColor: interval.type === 'blackout' ? '#e2e8f0' : '#fee2e2',
-                        color: interval.type === 'blackout' ? '#475569' : '#991b1b',
-                        fontSize: '0.72rem',
-                        fontWeight: 600,
+                        backgroundColor: isBlackout ? '#f8fafc' : '#fff',
+                        borderColor: isBlackout ? '#e2e8f0' : '#fee2e2',
+                        borderLeft: `4px solid ${isBlackout ? '#64748b' : '#ef4444'}`,
                       }}
                     >
-                      {interval.type === 'blackout' ? 'Blackout' : 'Reserved'}
-                    </span>
-                  </div>
-                ))}
+                      <div className="d-flex align-items-center gap-3">
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                          style={{
+                            width: '34px',
+                            height: '34px',
+                            backgroundColor: isBlackout ? '#f1f5f9' : '#fef2f2',
+                          }}
+                        >
+                          {isBlackout ? (
+                            <ShieldAlert size={17} className="text-secondary" />
+                          ) : (
+                            <Calendar size={17} className="text-danger" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <span className="fw-bold text-dark" style={{ fontSize: '0.88rem' }}>
+                              {interval.startTime} – {interval.endTime}
+                            </span>
+                            <span className="text-muted small">•</span>
+                            <span className="text-secondary small fw-medium" style={{ fontSize: '0.82rem' }}>
+                              {displayReason}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <span
+                        className="badge rounded-pill"
+                        style={{
+                          backgroundColor: isBlackout ? '#e2e8f0' : '#fee2e2',
+                          color: isBlackout ? '#475569' : '#991b1b',
+                          fontSize: '0.72rem',
+                          fontWeight: 600,
+                          padding: '4px 8px',
+                        }}
+                      >
+                        {isBlackout ? 'Blackout' : 'Reserved'}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
               <p className="text-muted small mb-0" style={{ fontSize: '0.8rem' }}>
                 <i className="bi bi-info-circle me-1" />

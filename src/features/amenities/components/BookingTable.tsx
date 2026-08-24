@@ -23,27 +23,14 @@ const BookingTable = ({
   onCancel,
   onSettle,
 }: BookingTableProps) => {
+  const firstColWidth = isAdmin ? '22%' : '25%';
+  const otherColWidth = isAdmin ? '13%' : '15%';
+
   const columns: TableColumn<Booking>[] = [
-    {
-      key: 'id',
-      label: 'ID',
-      width: '8%',
-      align: 'center',
-      render: (b) => (
-        <button
-          type="button"
-          className="btn btn-link p-0 text-decoration-none fw-bold"
-          style={{ color: '#1a1f36', fontSize: '0.875rem' }}
-          onClick={() => onView(b)}
-        >
-          #{b.id}
-        </button>
-      ),
-    },
     {
       key: 'amenity',
       label: 'Amenity',
-      width: '22%',
+      width: firstColWidth,
       render: (b) => {
         const amenityName = amenityMap[b.amenityId] ?? `Amenity #${b.amenityId}`;
         return (
@@ -60,7 +47,7 @@ const BookingTable = ({
               <Armchair size={18} />
             </div>
             <div className="overflow-hidden text-truncate">
-              <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.9rem', letterSpacing: '-0.01em' }}>
+              <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem', letterSpacing: '-0.01em' }}>
                 {amenityName}
               </p>
               {b.purpose && (
@@ -73,10 +60,51 @@ const BookingTable = ({
         );
       },
     },
+    ...(isAdmin
+      ? ([
+          {
+            key: 'requestedBy',
+            label: 'Requested By',
+            width: otherColWidth,
+            render: (b: Booking) => {
+              const residentName = b.resident?.name || (b.residentId ? `Resident #${b.residentId}` : '—');
+
+              let aptDisplay = '';
+              const apt = b.apartment;
+              if (apt) {
+                if (apt.unitFormatted) {
+                  aptDisplay = apt.unitFormatted;
+                } else {
+                  const block = apt.block || '';
+                  const floor = apt.floorNumber !== undefined && apt.floorNumber !== null ? String(apt.floorNumber) : '';
+                  const unit = String(apt.unitNumber || '');
+                  const fullUnit = unit.startsWith(floor) ? unit : `${floor}${unit}`;
+                  aptDisplay = `${block}-${fullUnit}`;
+                }
+              } else if (b.apartmentId) {
+                aptDisplay = `Apt #${b.apartmentId}`;
+              }
+
+              return (
+                <div className="py-1 overflow-hidden">
+                  <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem' }}>
+                    {residentName}
+                  </p>
+                  {aptDisplay ? (
+                    <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
+                      {aptDisplay}
+                    </p>
+                  ) : null}
+                </div>
+              );
+            },
+          },
+        ] as TableColumn<Booking>[])
+      : []),
     {
       key: 'bookingDate',
       label: 'Date',
-      width: '15%',
+      width: otherColWidth,
       align: 'center',
       render: (b) => (
         <span className="d-inline-flex align-items-center gap-1 text-dark fw-medium" style={{ fontSize: '0.85rem' }}>
@@ -88,7 +116,7 @@ const BookingTable = ({
     {
       key: 'time',
       label: 'Time Slot',
-      width: '16%',
+      width: otherColWidth,
       align: 'center',
       render: (b) => (
         <span className="d-inline-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.85rem' }}>
@@ -100,14 +128,14 @@ const BookingTable = ({
     {
       key: 'status',
       label: 'Status',
-      width: '14%',
+      width: otherColWidth,
       align: 'center',
       render: (b) => <BookingStatusBadge status={b.status} />,
     },
     {
       key: 'payment',
       label: 'Payment',
-      width: '11%',
+      width: otherColWidth,
       align: 'center',
       render: (b) =>
         b.paidAt ? (
@@ -137,7 +165,7 @@ const BookingTable = ({
     {
       key: 'actions',
       label: 'Actions',
-      width: '14%',
+      width: otherColWidth,
       align: 'center',
       render: (b) => (
         <div className="d-flex align-items-center justify-content-center gap-1">

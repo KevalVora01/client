@@ -31,6 +31,22 @@ export interface Blackout {
   createdAt: string;
 }
 
+export interface BookingResidentInfo {
+  id: number;
+  userId: number;
+  name: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface BookingApartmentInfo {
+  id: number;
+  block: string;
+  floorNumber: number;
+  unitNumber: string;
+  unitFormatted?: string;
+}
+
 export interface Booking {
   id: number;
   amenityId: number;
@@ -46,6 +62,8 @@ export interface Booking {
   approvedBySecurityId: number | null;
   paidAt: string | null;
   paymentRef: string | null;
+  resident?: BookingResidentInfo | null;
+  apartment?: BookingApartmentInfo | null;
   createdAt: string;
 }
 

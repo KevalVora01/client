@@ -34,10 +34,9 @@ const BookingFilters = ({ amenities, filters, onChange }: BookingFiltersProps) =
   ];
 
   return (
-    <div className="row g-2 align-items-end">
+    <div className="row g-2 align-items-center">
       <div className={hasActiveFilters ? "col-12 col-md-4" : "col-12 col-md-4"}>
         <Select
-          label="Amenity"
           options={amenityOptions}
           placeholder="All Amenities"
           value={filters.amenityId ? String(filters.amenityId) : ''}
@@ -49,7 +48,6 @@ const BookingFilters = ({ amenities, filters, onChange }: BookingFiltersProps) =
 
       <div className={hasActiveFilters ? "col-12 col-md-3" : "col-12 col-md-4"}>
         <DatePicker
-          label="Date"
           placeholder="Filter by date"
           value={filters.date ?? ''}
           onChange={(e) => {
@@ -62,7 +60,6 @@ const BookingFilters = ({ amenities, filters, onChange }: BookingFiltersProps) =
 
       <div className={hasActiveFilters ? "col-12 col-md-3" : "col-12 col-md-4"}>
         <Select
-          label="Status"
           options={statusOptions}
           placeholder="All Statuses"
           value={filters.status ?? ''}

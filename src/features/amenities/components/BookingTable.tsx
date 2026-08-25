@@ -26,9 +26,6 @@ const BookingTable = ({
   onSettle,
   amenityPriceMap,
 }: BookingTableProps) => {
-  const firstColWidth = isAdmin ? '22%' : '25%';
-  const otherColWidth = isAdmin ? '13%' : '15%';
-
   const checkIsFree = (b: Booking): boolean => {
     if (b.amenity) {
       if (b.amenity.bookingType === 'SHARED_CAPACITY') return true;
@@ -46,7 +43,7 @@ const BookingTable = ({
     {
       key: 'amenity',
       label: 'Amenity',
-      width: firstColWidth,
+      width: isAdmin ? '15%' : '26%',
       render: (b) => {
         const amenityName = amenityMap[b.amenityId] ?? `Amenity #${b.amenityId}`;
         return (
@@ -78,7 +75,7 @@ const BookingTable = ({
           {
             key: 'requestedBy',
             label: 'Requested By',
-            width: otherColWidth,
+            width: '17%',
             render: (b: Booking) => {
               const res = b.resident;
               const name = res?.name ?? `Resident #${b.residentId}`;
@@ -100,7 +97,7 @@ const BookingTable = ({
           {
             key: 'apartment',
             label: 'Apartment',
-            width: otherColWidth,
+            width: '11%',
             align: 'center' as const,
             render: (b: Booking) => {
               let aptDisplay = '—';
@@ -129,7 +126,7 @@ const BookingTable = ({
     {
       key: 'date',
       label: 'Date',
-      width: otherColWidth,
+      width: isAdmin ? '13%' : '16%',
       align: 'center',
       render: (b) => {
         const [y, m, d] = b.bookingDate.split('-').map(Number);
@@ -148,7 +145,7 @@ const BookingTable = ({
     {
       key: 'time',
       label: 'Time Slot',
-      width: otherColWidth,
+      width: isAdmin ? '15%' : '18%',
       align: 'center',
       render: (b) => (
         <span className="d-inline-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.85rem' }}>
@@ -160,14 +157,14 @@ const BookingTable = ({
     {
       key: 'status',
       label: 'Status',
-      width: otherColWidth,
+      width: isAdmin ? '11%' : '14%',
       align: 'center',
       render: (b) => <BookingStatusBadge status={b.status} />,
     },
     {
       key: 'payment',
       label: 'Payment',
-      width: otherColWidth,
+      width: isAdmin ? '11%' : '14%',
       align: 'center',
       render: (b) => {
         const isFree = checkIsFree(b);
@@ -218,7 +215,7 @@ const BookingTable = ({
     {
       key: 'actions',
       label: 'Actions',
-      width: otherColWidth,
+      width: isAdmin ? '7%' : '12%',
       align: 'center',
       render: (b) => (
         <div className="d-flex justify-content-center">

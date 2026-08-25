@@ -34,6 +34,7 @@ const useMyResident = (enabled: boolean = true) => {
     isCurrentOccupant,
     canRaiseComplaint: isCurrentOccupant,
     canPayMaintenance: isCurrentOccupant,
+    canBookAmenity: isCurrentOccupant,
     refetch: () => Promise.resolve(),
   };
 };

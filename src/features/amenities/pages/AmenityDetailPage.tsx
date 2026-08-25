@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, Plus, Trash2, Lock, CheckCircle2, Sparkles } from 'lucide-react';
+import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, Plus, Trash2, Lock, CheckCircle2, Sparkles, Info } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
+import useMyResident from '../../residents/hooks/useMyResident';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useAmenityDetail } from '../hooks/useAmenityDetail';
 import { useBookingMutations } from '../hooks/useBookingMutations';
@@ -18,6 +19,8 @@ const AmenityDetailPage = () => {
   const amenityId = Number(id);
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
+  const { isCurrentOccupant } = useMyResident(!isAdmin);
+  const canBookAmenity = isAdmin || isCurrentOccupant;
   const { amenity, blackouts, loading, refetch } = useAmenityDetail(amenityId);
   const bookingMutations = useBookingMutations();
   const blackoutOps = useBlackouts(amenityId, refetch);
@@ -344,18 +347,30 @@ const AmenityDetailPage = () => {
               <AvailabilityGrid
                 availability={availability}
                 loading={avLoading}
-                onOpenBooking={(prefillSlot) => openBooking(prefillSlot?.start, prefillSlot?.end)}
+                onOpenBooking={canBookAmenity ? (prefillSlot) => openBooking(prefillSlot?.start, prefillSlot?.end) : undefined}
               />
 
               <div className="mt-4 d-grid d-sm-flex justify-content-sm-end">
-                <button
-                  className="btn btn-dark fw-medium px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
-                  style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#1a1f36' }}
-                  onClick={() => openBooking()}
-                >
-                  <CalendarPlus size={16} />
-                  {isShared ? 'Reserve Free Spot' : `Book This Amenity (₹${amenity.price})`}
-                </button>
+                {canBookAmenity ? (
+                  <button
+                    className="btn btn-dark fw-medium px-4 py-2 d-inline-flex align-items-center justify-content-center gap-2 shadow-sm"
+                    style={{ borderRadius: '8px', fontSize: '0.9rem', backgroundColor: '#1a1f36' }}
+                    onClick={() => openBooking()}
+                  >
+                    <CalendarPlus size={16} />
+                    {isShared ? 'Reserve Free Spot' : `Book This Amenity (₹${amenity.price})`}
+                  </button>
+                ) : (
+                  <div
+                    className="alert alert-warning d-flex align-items-center gap-2 mb-0 py-2 px-3 small border-0 w-100"
+                    style={{ borderRadius: '8px', backgroundColor: '#fffbeb', color: '#92400e' }}
+                  >
+                    <Info size={18} className="flex-shrink-0 text-warning" />
+                    <span>
+                      Amenity booking is reserved for active residents currently residing in the apartment. Since your unit is currently rented to an active tenant, only the residing tenant can book amenities.
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

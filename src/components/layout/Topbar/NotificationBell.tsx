@@ -284,6 +284,88 @@ const NotificationBell = () => {
     }
   };
 
+  const getNotificationPath = (n: NotificationItem): string => {
+    switch (n.type) {
+      // ── Bookings ──
+      case 'booking_requested':
+      case 'booking_confirmed':
+      case 'booking_rejected':
+      case 'booking_cancelled':
+      case 'booking_reminder':
+      case 'booking_payment_succeeded': {
+        if (isAdmin) {
+          const bookingId = n.data?.bookingId;
+          return bookingId ? `/bookings/${bookingId}` : '/bookings';
+        }
+        return '/bookings/me';
+      }
+
+      // ── Complaints ──
+      case 'complaint_created':
+      case 'complaint_status_changed':
+      case 'complaint_comment_added': {
+        const complaintId = n.data?.complaintId;
+        return complaintId ? `/complaints?expandedId=${complaintId}` : '/complaints';
+      }
+
+      // ── Notices ──
+      case 'notice_created':
+        return '/notices';
+
+      // ── Maintenance ──
+      case 'maintenance_due_soon':
+      case 'maintenance_due_today':
+      case 'maintenance_overdue':
+      case 'maintenance_overdue_reminder':
+      case 'maintenance_payment_succeeded':
+        return '/maintenance';
+
+      // ── Tenant Requests ──
+      case 'tenant_request_submitted': {
+        const trId = n.data?.tenantRequestId || n.data?.id;
+        if (isAdmin) {
+          return trId ? `/tenant-requests/${trId}` : '/tenant-requests';
+        }
+        return '/tenant';
+      }
+      case 'tenant_request_approved':
+      case 'tenant_request_rejected':
+      case 'tenancy_revoked':
+        return '/tenant';
+
+      // ── Document Requests ──
+      case 'document_request_created':
+      case 'document_request_status_changed':
+      case 'document_request_approved':
+      case 'document_request_uploaded':
+      case 'document_request_rejected':
+      case 'document_request_cancelled': {
+        const docReqId = n.data?.documentRequestId || n.data?.id;
+        if (docReqId) {
+          return `/documents/${docReqId}`;
+        }
+        if (n.type === 'document_request_created') {
+          return '/documents?tab=received-requests';
+        }
+        return '/documents';
+      }
+
+      // ── Visitors ──
+      case 'visitor_approval_needed':
+        return isSecurity ? '/check-in' : '/my-visitors';
+      case 'visitor_approval_timed_out':
+        return isSecurity ? '/visitor-logs' : '/my-visitors';
+      case 'visitor_checked_in':
+        return isSecurity ? '/check-out' : '/my-visitors';
+      case 'visitor_approved':
+      case 'visitor_rejected':
+        return isSecurity ? '/visitor-logs' : '/my-visitors';
+
+      default:
+        return NAV_MAP[n.type] || '/';
+    }
+  };
+
   const handleNavigate = async (n: NotificationItem) => {
     if (!n.isRead) {
       setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
@@ -306,113 +388,7 @@ const NotificationBell = () => {
       }
     }
 
-    let path = '';
-
-    switch (n.type) {
-      // ── Bookings ──
-      case 'booking_requested':
-      case 'booking_confirmed':
-      case 'booking_rejected':
-      case 'booking_cancelled':
-      case 'booking_reminder':
-      case 'booking_payment_succeeded': {
-        if (isAdmin) {
-          const bookingId = n.data?.bookingId;
-          path = bookingId ? `/bookings/${bookingId}` : '/bookings';
-        } else {
-          path = '/bookings/me';
-        }
-        break;
-      }
-
-      // ── Complaints ──
-      case 'complaint_created':
-      case 'complaint_status_changed':
-      case 'complaint_comment_added': {
-        const complaintId = n.data?.complaintId;
-        if (complaintId) {
-          path = `/complaints?expandedId=${complaintId}`;
-        } else {
-          path = '/complaints';
-        }
-        break;
-      }
-
-      // ── Notices ──
-      case 'notice_created': {
-        path = '/notices';
-        break;
-      }
-
-      // ── Maintenance ──
-      case 'maintenance_due_soon':
-      case 'maintenance_due_today':
-      case 'maintenance_overdue':
-      case 'maintenance_overdue_reminder':
-      case 'maintenance_payment_succeeded': {
-        path = '/maintenance';
-        break;
-      }
-
-      // ── Tenant Requests ──
-      case 'tenant_request_submitted': {
-        const trId = n.data?.tenantRequestId || n.data?.id;
-        if (isAdmin) {
-          path = trId ? `/tenant-requests/${trId}` : '/tenant-requests';
-        } else {
-          path = '/tenant';
-        }
-        break;
-      }
-      case 'tenant_request_approved':
-      case 'tenant_request_rejected':
-      case 'tenancy_revoked': {
-        path = '/tenant';
-        break;
-      }
-
-      // ── Document Requests ──
-      case 'document_request_created':
-      case 'document_request_status_changed':
-      case 'document_request_approved':
-      case 'document_request_uploaded':
-      case 'document_request_rejected':
-      case 'document_request_cancelled': {
-        const docReqId = n.data?.documentRequestId || n.data?.id;
-        if (docReqId) {
-          path = `/documents/${docReqId}`;
-        } else if (n.type === 'document_request_created') {
-          path = '/documents?tab=received-requests';
-        } else {
-          path = '/documents';
-        }
-        break;
-      }
-
-      // ── Visitors ──
-      case 'visitor_approval_needed': {
-        path = isSecurity ? '/check-in' : '/my-visitors';
-        break;
-      }
-      case 'visitor_approval_timed_out': {
-        path = isSecurity ? '/visitor-logs' : '/my-visitors';
-        break;
-      }
-      case 'visitor_checked_in': {
-        path = isSecurity ? '/check-out' : '/my-visitors';
-        break;
-      }
-      case 'visitor_approved':
-      case 'visitor_rejected': {
-        path = isSecurity ? '/visitor-logs' : '/my-visitors';
-        break;
-      }
-
-      default: {
-        path = NAV_MAP[n.type] || '/';
-      }
-    }
-
+    const path = getNotificationPath(n);
     if (path) {
       navigate(path);
     }

@@ -30,6 +30,7 @@ const BookingsAdminPage = () => {
   useScrollLock(!!rejectTarget);
 
   const amenityMap = Object.fromEntries(amenities.map((a) => [a.id, a.name]));
+  const amenityPriceMap = Object.fromEntries(amenities.map((a) => [a.id, a.bookingType === 'SHARED_CAPACITY' ? 0 : (a.price ?? 0)]));
 
   const handleReject = async (reason: string): Promise<boolean> => {
     if (!rejectTarget) return false;
@@ -68,6 +69,7 @@ const BookingsAdminPage = () => {
             bookings={bookings}
             loading={loading}
             amenityMap={amenityMap}
+            amenityPriceMap={amenityPriceMap}
             isAdmin
             onView={(bk) => navigate(`/bookings/${bk.id}`)}
           />

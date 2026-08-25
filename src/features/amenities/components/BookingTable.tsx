@@ -3,7 +3,7 @@ import type { TableColumn } from '../../../components/AppTable/AppTable';
 import BookingStatusBadge from './BookingStatusBadge';
 import BookingRowActions from './BookingRowActions';
 import type { Booking } from '../types/amenity.types';
-import { Calendar, Clock, Armchair } from 'lucide-react';
+import { Calendar, Clock, Sparkles } from 'lucide-react';
 
 interface BookingTableProps {
   bookings: Booking[];
@@ -13,6 +13,7 @@ interface BookingTableProps {
   onView: (booking: Booking) => void;
   onCancel?: (booking: Booking) => void;
   onSettle?: (booking: Booking) => void;
+  amenityPriceMap?: Record<number, number>;
 }
 
 const BookingTable = ({
@@ -23,9 +24,23 @@ const BookingTable = ({
   onView,
   onCancel,
   onSettle,
+  amenityPriceMap,
 }: BookingTableProps) => {
   const firstColWidth = isAdmin ? '22%' : '25%';
   const otherColWidth = isAdmin ? '13%' : '15%';
+
+  const checkIsFree = (b: Booking): boolean => {
+    if (b.amenity) {
+      if (b.amenity.bookingType === 'SHARED_CAPACITY') return true;
+      if (b.amenity.price !== undefined && b.amenity.price !== null) {
+        return b.amenity.price === 0;
+      }
+    }
+    if (amenityPriceMap && amenityPriceMap[b.amenityId] !== undefined) {
+      return amenityPriceMap[b.amenityId] === 0;
+    }
+    return false;
+  };
 
   const columns: TableColumn<Booking>[] = [
     {
@@ -45,12 +60,19 @@ const BookingTable = ({
                 height: '36px',
               }}
             >
-              <Armchair size={18} />
+              <Sparkles size={18} />
             </div>
             <div className="overflow-hidden text-truncate">
-              <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem', letterSpacing: '-0.01em' }}>
-                {amenityName}
-              </p>
+              <div className="d-flex align-items-center gap-1.5">
+                <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem', letterSpacing: '-0.01em' }}>
+                  {amenityName}
+                </p>
+                {b.memberCount && b.memberCount > 1 ? (
+                  <span className="badge rounded-pill bg-light text-secondary border border-light-subtle flex-shrink-0" style={{ fontSize: '0.68rem', fontWeight: 500 }}>
+                    👥 {b.memberCount}
+                  </span>
+                ) : null}
+              </div>
               {b.purpose && (
                 <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
                   {b.purpose}
@@ -68,51 +90,70 @@ const BookingTable = ({
             label: 'Requested By',
             width: otherColWidth,
             render: (b: Booking) => {
-              const residentName = b.resident?.name || (b.residentId ? `Resident #${b.residentId}` : '—');
-
-              let aptDisplay = '';
-              const apt = b.apartment;
-              if (apt) {
-                if (apt.unitFormatted) {
-                  aptDisplay = apt.unitFormatted;
+              const res = b.resident;
+              const name = res?.name ?? `Resident #${b.residentId}`;
+              const email = res?.email ?? '';
+              return (
+                <div className="text-truncate">
+                  <p className="fw-semibold m-0 text-dark text-truncate" style={{ fontSize: '0.85rem' }}>
+                    {name}
+                  </p>
+                  {email && (
+                    <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.75rem' }}>
+                      {email}
+                    </p>
+                  )}
+                </div>
+              );
+            },
+          },
+          {
+            key: 'apartment',
+            label: 'Apartment',
+            width: otherColWidth,
+            align: 'center' as const,
+            render: (b: Booking) => {
+              let aptDisplay = '—';
+              if (b.apartment) {
+                if (b.apartment.unitFormatted) {
+                  aptDisplay = b.apartment.unitFormatted;
                 } else {
-                  const block = apt.block || '';
-                  const floor = apt.floorNumber !== undefined && apt.floorNumber !== null ? String(apt.floorNumber) : '';
-                  const unit = String(apt.unitNumber || '');
+                  const block = b.apartment.block || '';
+                  const floor = b.apartment.floorNumber !== undefined && b.apartment.floorNumber !== null ? String(b.apartment.floorNumber) : '';
+                  const unit = String(b.apartment.unitNumber || '');
                   const fullUnit = unit.startsWith(floor) ? unit : `${floor}${unit}`;
                   aptDisplay = `${block}-${fullUnit}`;
                 }
               } else if (b.apartmentId) {
                 aptDisplay = `Apt #${b.apartmentId}`;
               }
-
               return (
-                <div className="py-1 overflow-hidden">
-                  <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem' }}>
-                    {residentName}
-                  </p>
-                  {aptDisplay ? (
-                    <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
-                      {aptDisplay}
-                    </p>
-                  ) : null}
-                </div>
+                <span className="badge rounded-pill text-dark border border-secondary-subtle px-2 py-1" style={{ fontSize: '0.75rem', background: '#f8fafc' }}>
+                  {aptDisplay}
+                </span>
               );
             },
           },
         ] as TableColumn<Booking>[])
       : []),
     {
-      key: 'bookingDate',
+      key: 'date',
       label: 'Date',
       width: otherColWidth,
       align: 'center',
-      render: (b) => (
-        <span className="d-inline-flex align-items-center gap-1 text-dark fw-medium" style={{ fontSize: '0.85rem' }}>
-          <Calendar size={14} className="text-secondary" />
-          {b.bookingDate}
-        </span>
-      ),
+      render: (b) => {
+        const [y, m, d] = b.bookingDate.split('-').map(Number);
+        const dateObj = new Date(y, m - 1, d);
+        const day = dateObj.getDate();
+        const month = dateObj.toLocaleString('en-US', { month: 'short' });
+        const year = dateObj.getFullYear();
+        return (
+          <span className="d-inline-flex align-items-center gap-1 text-secondary" style={{ fontSize: '0.85rem' }}>
+            <Calendar size={14} />
+            {`${day} ${month}, ${year}`}
+          </span>
+        );
+      },
     },
     {
       key: 'time',
@@ -138,30 +179,51 @@ const BookingTable = ({
       label: 'Payment',
       width: otherColWidth,
       align: 'center',
-      render: (b) =>
-        b.paidAt ? (
+      render: (b) => {
+        const isFree = checkIsFree(b);
+        if (b.paidAt) {
+          return (
+            <span
+              className="badge rounded-pill fw-medium px-2 py-1"
+              style={{
+                fontSize: '0.75rem',
+                backgroundColor: '#dcfce7',
+                color: '#166534',
+              }}
+            >
+              Paid
+            </span>
+          );
+        }
+        if (isFree) {
+          return (
+            <span
+              className="badge rounded-pill fw-medium px-2 py-1"
+              style={{
+                fontSize: '0.75rem',
+                backgroundColor: '#f1f5f9',
+                color: '#475569',
+                border: '1px solid #e2e8f0',
+              }}
+            >
+              Free
+            </span>
+          );
+        }
+        return (
           <span
             className="badge rounded-pill fw-medium px-2 py-1"
             style={{
               fontSize: '0.75rem',
-              backgroundColor: '#dcfce7',
-              color: '#166534',
-            }}
-          >
-            Paid
-          </span>
-        ) : (
-          <span
-            className="badge rounded-pill fw-medium px-2 py-1"
-            style={{
-              fontSize: '0.75rem',
-              backgroundColor: '#f3f4f6',
-              color: '#6b7280',
+              backgroundColor: '#fef3c7',
+              color: '#92400e',
+              border: '1px solid #fde68a',
             }}
           >
             Unpaid
           </span>
-        ),
+        );
+      },
     },
     {
       key: 'actions',
@@ -176,6 +238,7 @@ const BookingTable = ({
             onView={onView}
             onCancel={onCancel}
             onSettle={onSettle}
+            isFree={checkIsFree(b)}
           />
         </div>
       ),

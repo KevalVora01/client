@@ -22,6 +22,7 @@ const MyBookingsPage = () => {
   useScrollLock(!!cancelTarget || !!settleTarget);
 
   const amenityMap = Object.fromEntries(amenities.map((a) => [a.id, a.name]));
+  const amenityPriceMap = Object.fromEntries(amenities.map((a) => [a.id, a.bookingType === 'SHARED_CAPACITY' ? 0 : (a.price ?? 0)]));
 
   const handleCancel = async (reason: string): Promise<boolean> => {
     if (!cancelTarget) return false;
@@ -67,6 +68,7 @@ const MyBookingsPage = () => {
           bookings={bookings}
           loading={loading}
           amenityMap={amenityMap}
+          amenityPriceMap={amenityPriceMap}
           isAdmin={false}
           onView={(bk) => navigate(`/bookings/${bk.id}`)}
           onCancel={setCancelTarget}

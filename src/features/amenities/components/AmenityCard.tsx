@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Armchair, Clock, Users, Camera, Edit2, Eye, Lock } from 'lucide-react';
+import { Sparkles, Clock, Users, Camera, Edit2, Eye, Lock } from 'lucide-react';
 import type { Amenity } from '../types/amenity.types';
+import { highlightMatch } from '../../../utils/highlight';
 
 interface AmenityCardProps {
   amenity: Amenity;
   isAdmin: boolean;
   onEdit: (amenity: Amenity) => void;
+  search?: string;
 }
 
-const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
+const AmenityCard = ({ amenity, isAdmin, onEdit, search }: AmenityCardProps) => {
   const [imageError, setImageError] = useState(false);
 
   const images: string[] = Array.isArray(amenity.images) ? amenity.images : [];
@@ -38,7 +40,7 @@ const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
               className="rounded-circle d-flex align-items-center justify-content-center mb-1"
               style={{ width: '48px', height: '48px', backgroundColor: '#ffffff', boxShadow: '0 2px 4px rgba(0,0,0,0.06)' }}
             >
-              <Armchair size={24} className="text-secondary opacity-75" />
+              <Sparkles size={24} className="text-secondary opacity-75" />
             </div>
             <span style={{ fontSize: '0.75rem', color: '#64748b' }}>No photo uploaded</span>
           </div>
@@ -99,7 +101,7 @@ const AmenityCard = ({ amenity, isAdmin, onEdit }: AmenityCardProps) => {
 
       <div className="card-body d-flex flex-column p-3">
         <h6 className="fw-bold mb-1" style={{ color: '#1a1f36', fontSize: '1rem' }}>
-          {amenity.name}
+          {highlightMatch(amenity.name, search)}
         </h6>
 
         {amenity.description ? (

@@ -2,12 +2,21 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { CheckCircle2, Users } from 'lucide-react';
 import DatePicker from '../../../components/DatePicker/DatePicker';
+import Select from '../../../components/Select/Select';
 import type { CreateBookingPayload } from '../types/amenity.types';
 
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 const today = () => new Date().toISOString().slice(0, 10);
+
+const PERSON_OPTIONS = [
+  { value: '1', label: '1 Person (Just Me)' },
+  { value: '2', label: '2 Persons' },
+  { value: '3', label: '3 Persons' },
+  { value: '4', label: '4 Persons' },
+  { value: '5', label: '5 Persons' },
+];
 
 interface BookingFormModalProps {
   amenityId: number;
@@ -76,6 +85,11 @@ const BookingFormModal = ({
         if (!value || !operatingEnd) return true;
         return value <= operatingEnd;
       }),
+    memberCount: Yup.number()
+      .integer('Must be a whole number')
+      .min(1, 'Minimum 1 person')
+      .max(5, 'Maximum 5 persons')
+      .required('Number of persons is required'),
     purpose: Yup.string().nullable(),
   });
 
@@ -84,6 +98,7 @@ const BookingFormModal = ({
       bookingDate: initialDate ?? today(),
       startTime: initialStart ?? operatingStart ?? '08:00',
       endTime: initialEnd ?? operatingEnd ?? '09:00',
+      memberCount: 1,
       purpose: isShared ? `${amenityName || 'Amenity'} Session` : '',
     },
     validationSchema: schema,
@@ -93,6 +108,7 @@ const BookingFormModal = ({
         bookingDate: values.bookingDate,
         startTime: values.startTime,
         endTime: values.endTime,
+        memberCount: values.memberCount,
         purpose: values.purpose?.trim() || null,
       };
       await onSubmit(payload);
@@ -120,7 +136,7 @@ const BookingFormModal = ({
                 {isShared ? `Reserve Spot: ${amenityName || 'Shared Facility'}` : `Book Amenity: ${amenityName || ''}`}
               </h5>
               <p className="text-muted mb-0" style={{ fontSize: '0.8rem' }}>
-                Pick a date and your desired session time.
+                Pick a date, desired time, and number of attending members.
                 {operatingStart && operatingEnd && (
                   <span className="fw-medium text-dark ms-1">
                     (Operating Hours: {operatingStart} – {operatingEnd})
@@ -159,7 +175,7 @@ const BookingFormModal = ({
                     Instant Auto-Confirmation • 100% Free Amenity
                   </div>
                   <div className="text-secondary small" style={{ fontSize: '0.78rem' }}>
-                    As a shared resident wellness facility, no committee voting or payment is required. Your slot will be reserved immediately upon booking.
+                    As a shared resident facility, you can reserve spots for yourself and your family members. No committee review is required.
                   </div>
                 </div>
               </div>
@@ -219,11 +235,32 @@ const BookingFormModal = ({
                   )}
                 </div>
 
-                <div className="col-12">
+                {isShared && (
+                  <div className="col-12 col-md-6">
+                    <Select
+                      label="Number of Persons"
+                      required
+                      name="memberCount"
+                      options={PERSON_OPTIONS}
+                      value={String(formik.values.memberCount)}
+                      onChange={(e) => {
+                        const val = Number(e.target.value);
+                        formik.setFieldValue('memberCount', val);
+                      }}
+                      onBlur={() => formik.setFieldTouched('memberCount', true)}
+                      error={formik.errors.memberCount}
+                      touched={formik.touched.memberCount}
+                      style={{ height: '40px' }}
+                    />
+                  </div>
+                )}
+
+                <div className={isShared ? "col-12 col-md-6" : "col-12"}>
                   <label className="form-label fw-medium text-secondary small mb-1">
                     {isShared ? 'Notes / Activity (Optional)' : 'Purpose of Booking (Optional)'}
                   </label>
-                  <textarea
+                  <input
+                    type="text"
                     name="purpose"
                     className={fieldClass('purpose')}
                     value={formik.values.purpose}
@@ -231,10 +268,10 @@ const BookingFormModal = ({
                     onBlur={formik.handleBlur}
                     placeholder={
                       isShared
-                        ? 'e.g. Cardio workout, Morning yoga routine...'
+                        ? 'e.g. Swimming practice, Gym workout...'
                         : 'e.g. Birthday party, Annual get-together...'
                     }
-                    style={{ fontSize: '0.875rem', height: '75px', resize: 'none' }}
+                    style={{ fontSize: '0.875rem', height: '40px' }}
                   />
                 </div>
 
@@ -264,7 +301,7 @@ const BookingFormModal = ({
                         <span className="spinner-border spinner-border-sm" />
                       ) : isShared ? (
                         <>
-                          <Users size={16} className="me-1" /> Confirm Free Spot
+                          <Users size={16} className="me-1" /> Confirm {formik.values.memberCount > 1 ? `${formik.values.memberCount} Spots` : 'Free Spot'}
                         </>
                       ) : (
                         <>

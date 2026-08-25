@@ -12,7 +12,7 @@ import {
   X,
   Home,
   FileText,
-  Armchair,
+  Sparkles,
   CalendarCheck,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -46,7 +46,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
-    { label: 'Amenities', icon: Armchair, path: '/amenities' },
+    { label: 'Amenities', icon: Sparkles, path: '/amenities' },
     { label: 'Bookings', icon: CalendarCheck, path: '/bookings' },
     { label: 'Visitor Logs', icon: History, path: '/visitor-logs' },
   ],
@@ -56,7 +56,7 @@ const navConfig: Record<UserRole, NavItem[]> = {
     { label: 'My Complaints', icon: MessageSquareWarning, path: '/complaints' },
     { label: 'maintenance', icon: ReceiptText, path: '/maintenance' },
     { label: 'Documents', icon: FileText, path: '/documents' },
-    { label: 'Amenities', icon: Armchair, path: '/amenities' },
+    { label: 'Amenities', icon: Sparkles, path: '/amenities' },
     { label: 'My Bookings', icon: CalendarCheck, path: '/bookings/me' },
     { label: 'My Visitors', icon: UserCheck, path: '/my-visitors' },
   ],

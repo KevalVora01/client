@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, Plus, Trash2, Lock, CheckCircle2 } from 'lucide-react';
+import { Clock, Users, IndianRupee, Image as ImageIcon, CalendarPlus, Plus, Trash2, Lock, CheckCircle2, Sparkles } from 'lucide-react';
 import useAuth from '../../../hooks/useAuth';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useAmenityDetail } from '../hooks/useAmenityDetail';
@@ -83,7 +83,27 @@ const AmenityDetailPage = () => {
     return <div className="container-fluid p-4 text-center"><div className="spinner-border text-primary" /></div>;
   }
   if (!amenity) {
-    return <div className="container-fluid p-4 text-center text-muted">Amenity not found.</div>;
+    return (
+      <div className="container-fluid p-4 text-center">
+        <div className="py-5 card border-0 shadow-sm rounded-3 p-5 my-4">
+          <div className="d-flex justify-content-center">
+            <Sparkles size={48} className="text-secondary mb-3 opacity-50" />
+          </div>
+          <h5 className="fw-semibold text-dark mb-1">Amenity Not Found</h5>
+          <p className="small text-muted mb-3">The facility you are looking for does not exist or has been removed.</p>
+          <div>
+            <button
+              type="button"
+              className="btn btn-sm btn-dark px-3 py-1.5 fw-medium"
+              onClick={() => navigate('/amenities')}
+              style={{ borderRadius: '8px', fontSize: '0.85rem' }}
+            >
+              Back to Amenities
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const images = Array.isArray(amenity.images) ? amenity.images : [];

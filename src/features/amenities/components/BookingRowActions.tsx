@@ -8,6 +8,7 @@ interface BookingRowActionsProps {
   onView: (booking: Booking) => void;
   onCancel?: (booking: Booking) => void;
   onSettle?: (booking: Booking) => void;
+  isFree?: boolean;
 }
 
 const BookingRowActions = ({
@@ -16,6 +17,7 @@ const BookingRowActions = ({
   onView,
   onCancel,
   onSettle,
+  isFree,
 }: BookingRowActionsProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -72,8 +74,14 @@ const BookingRowActions = ({
     }
   };
 
+  const isFreeAmenity = isFree ?? Boolean(
+    !booking.amenity?.price ||
+    booking.amenity?.price === 0 ||
+    booking.amenity?.bookingType === 'SHARED_CAPACITY'
+  );
+
   const showVote = isAdmin && booking.status === 'Pending';
-  const showPay = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt && Boolean(onSettle);
+  const showPay = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt && !isFreeAmenity && Boolean(onSettle);
   const showCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected' && Boolean(onCancel);
   const showReceipt = Boolean(booking.paidAt);
 

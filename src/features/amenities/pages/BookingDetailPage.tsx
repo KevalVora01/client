@@ -143,7 +143,7 @@ const BookingDetailPage = () => {
   const amenity = booking.amenity || amenities.find((a) => a.id === booking.amenityId);
   const amenityName = amenity?.name ?? `Amenity #${booking.amenityId}`;
   const amenityPrice = amenity?.price ?? 0;
-  const isFree = !amenityPrice || amenityPrice === 0;
+  const isFree = !amenityPrice || amenityPrice === 0 || amenity?.bookingType === 'SHARED_CAPACITY' || amenity?.isSharedCapacity;
 
   const isPending = booking.status === 'Pending';
   const isConfirmed = booking.status === 'Confirmed';
@@ -268,6 +268,16 @@ const BookingDetailPage = () => {
     {
       label: 'Apartment',
       value: aptDisplay,
+    },
+    {
+      label: 'Attendees',
+      value: (
+        <span className="fw-medium text-dark">
+          {booking.memberCount && booking.memberCount > 1
+            ? `${booking.memberCount} Persons (Resident + ${booking.memberCount - 1} Member${booking.memberCount - 1 > 1 ? 's' : ''})`
+            : '1 Person'}
+        </span>
+      ),
     },
     { label: 'Booking Date', value: formatDisplayDate(booking.bookingDate) },
     { label: 'Time', value: `${booking.startTime} – ${booking.endTime}` },

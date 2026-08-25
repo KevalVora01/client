@@ -63,6 +63,7 @@ export interface Booking {
   paidAt: string | null;
   paymentRef: string | null;
   receiptUrl?: string | null;
+  memberCount?: number;
   resident?: BookingResidentInfo | null;
   apartment?: BookingApartmentInfo | null;
   createdAt: string;
@@ -75,6 +76,7 @@ export interface BusyInterval {
   type: 'booking' | 'blackout';
   status?: string;
   label?: string;
+  memberCount?: number;
 }
 
 export interface SharedCapacitySlot {
@@ -169,6 +171,7 @@ export interface CreateBookingPayload {
   bookingDate: string;
   startTime: string;
   endTime: string;
+  memberCount?: number;
   purpose?: string | null;
   residentId?: number;
   apartmentId?: number;

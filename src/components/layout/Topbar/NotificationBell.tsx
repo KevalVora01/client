@@ -15,6 +15,7 @@ import {
   XCircle,
   UserMinus,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import useSocket from '../../../hooks/useSocket';
 import { SOCKET_EVENTS } from '../../../services/socket';
@@ -47,6 +48,12 @@ const ICON_MAP: Record<string, typeof FileText> = {
   document_request_uploaded: FileText,
   document_request_rejected: XCircle,
   document_request_cancelled: XCircle,
+  booking_requested: Sparkles,
+  booking_confirmed: CheckCheck,
+  booking_rejected: XCircle,
+  booking_cancelled: XCircle,
+  booking_reminder: Clock,
+  booking_payment_succeeded: ReceiptText,
 };
 
 const CLASS_MAP: Record<string, string> = {
@@ -74,11 +81,17 @@ const CLASS_MAP: Record<string, string> = {
   document_request_uploaded: 'bg-success-subtle text-success-emphasis',
   document_request_rejected: 'bg-danger-subtle text-danger-emphasis',
   document_request_cancelled: 'bg-warning-subtle text-warning-emphasis',
+  booking_requested: 'bg-primary-subtle text-primary-emphasis',
+  booking_confirmed: 'bg-success-subtle text-success-emphasis',
+  booking_rejected: 'bg-danger-subtle text-danger-emphasis',
+  booking_cancelled: 'bg-warning-subtle text-warning-emphasis',
+  booking_reminder: 'bg-info-subtle text-info-emphasis',
+  booking_payment_succeeded: 'bg-success-subtle text-success-emphasis',
 };
 
 const NAV_MAP: Record<string, string> = {
   visitor_approval_needed: '/check-in',
-  visitor_approval_timed_out: '/visitors-log',
+  visitor_approval_timed_out: '/visitor-logs',
   visitor_checked_in: '/check-out',
   visitor_approved: '/my-visitors',
   visitor_rejected: '/my-visitors',
@@ -101,6 +114,12 @@ const NAV_MAP: Record<string, string> = {
   document_request_uploaded: '/documents',
   document_request_rejected: '/documents',
   document_request_cancelled: '/documents',
+  booking_requested: '/bookings',
+  booking_confirmed: '/bookings/me',
+  booking_rejected: '/bookings/me',
+  booking_cancelled: '/bookings/me',
+  booking_reminder: '/bookings/me',
+  booking_payment_succeeded: '/bookings/me',
 };
 
 function timeAgo(dateStr: string, nowMs: number): string {
@@ -119,7 +138,9 @@ function timeAgo(dateStr: string, nowMs: number): string {
 
 const NotificationBell = () => {
   const socket = useSocket();
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const isAdmin = user?.role === 'admin';
+  const isSecurity = user?.role === 'security';
   const navigate = useNavigate();
   const [now, setNow] = useState(() => Date.now());
   const [unreadCount, setUnreadCount] = useState(0);
@@ -251,6 +272,18 @@ const NotificationBell = () => {
     }
   };
 
+  const closeDropdown = () => {
+    const toggleBtn = dropdownRef.current?.querySelector('[data-bs-toggle="dropdown"]') as HTMLElement;
+    if (toggleBtn) {
+      toggleBtn.blur();
+      const bs = (window as unknown as { bootstrap?: { Dropdown: { getInstance: (el: HTMLElement) => { hide: () => void } | null } } }).bootstrap;
+      if (bs?.Dropdown) {
+        const instance = bs.Dropdown.getInstance(toggleBtn);
+        if (instance) instance.hide();
+      }
+    }
+  };
+
   const handleNavigate = async (n: NotificationItem) => {
     if (!n.isRead) {
       setNotifications((prev) => prev.map((item) => item.id === n.id ? { ...item, isRead: true } : item));
@@ -262,26 +295,127 @@ const NotificationBell = () => {
       }
     }
 
-    // Open approval dialog for visitor approval notifications
+    closeDropdown();
+
+    // Visitor approval dialog for residents
     if (n.type === 'visitor_approval_needed' && n.data?.visitorId) {
       const visitorId = Number(n.data.visitorId);
-      if (!isNaN(visitorId) && visitorId > 0) {
+      if (!isNaN(visitorId) && visitorId > 0 && !isSecurity) {
         setApprovalDialogVisitorId(visitorId);
         return;
       }
     }
 
-    let path = NAV_MAP[n.type];
-    if (path && n.type === 'complaint_comment_added') {
-      const complaintId = n.data?.complaintId;
-      if (complaintId) {
-        path = `${path}?expandedId=${complaintId}`;
+    let path = '';
+
+    switch (n.type) {
+      // ── Bookings ──
+      case 'booking_requested':
+      case 'booking_confirmed':
+      case 'booking_rejected':
+      case 'booking_cancelled':
+      case 'booking_reminder':
+      case 'booking_payment_succeeded': {
+        if (isAdmin) {
+          const bookingId = n.data?.bookingId;
+          path = bookingId ? `/bookings/${bookingId}` : '/bookings';
+        } else {
+          path = '/bookings/me';
+        }
+        break;
+      }
+
+      // ── Complaints ──
+      case 'complaint_created':
+      case 'complaint_status_changed':
+      case 'complaint_comment_added': {
+        const complaintId = n.data?.complaintId;
+        if (complaintId) {
+          path = `/complaints?expandedId=${complaintId}`;
+        } else {
+          path = '/complaints';
+        }
+        break;
+      }
+
+      // ── Notices ──
+      case 'notice_created': {
+        path = '/notices';
+        break;
+      }
+
+      // ── Maintenance ──
+      case 'maintenance_due_soon':
+      case 'maintenance_due_today':
+      case 'maintenance_overdue':
+      case 'maintenance_overdue_reminder':
+      case 'maintenance_payment_succeeded': {
+        path = '/maintenance';
+        break;
+      }
+
+      // ── Tenant Requests ──
+      case 'tenant_request_submitted': {
+        const trId = n.data?.tenantRequestId || n.data?.id;
+        if (isAdmin) {
+          path = trId ? `/tenant-requests/${trId}` : '/tenant-requests';
+        } else {
+          path = '/tenant';
+        }
+        break;
+      }
+      case 'tenant_request_approved':
+      case 'tenant_request_rejected':
+      case 'tenancy_revoked': {
+        path = '/tenant';
+        break;
+      }
+
+      // ── Document Requests ──
+      case 'document_request_created':
+      case 'document_request_status_changed':
+      case 'document_request_approved':
+      case 'document_request_uploaded':
+      case 'document_request_rejected':
+      case 'document_request_cancelled': {
+        const docReqId = n.data?.documentRequestId || n.data?.id;
+        if (docReqId) {
+          path = `/documents/${docReqId}`;
+        } else if (n.type === 'document_request_created') {
+          path = '/documents?tab=received-requests';
+        } else {
+          path = '/documents';
+        }
+        break;
+      }
+
+      // ── Visitors ──
+      case 'visitor_approval_needed': {
+        path = isSecurity ? '/check-in' : '/my-visitors';
+        break;
+      }
+      case 'visitor_approval_timed_out': {
+        path = isSecurity ? '/visitor-logs' : '/my-visitors';
+        break;
+      }
+      case 'visitor_checked_in': {
+        path = isSecurity ? '/check-out' : '/my-visitors';
+        break;
+      }
+      case 'visitor_approved':
+      case 'visitor_rejected': {
+        path = isSecurity ? '/visitor-logs' : '/my-visitors';
+        break;
+      }
+
+      default: {
+        path = NAV_MAP[n.type] || '/';
       }
     }
-    if (path && n.type === 'document_request_created') {
-      path = `${path}?tab=received-requests`;
+
+    if (path) {
+      navigate(path);
     }
-    if (path) navigate(path);
   };
 
   const handleApprovalDialogClose = useCallback(() => {
@@ -478,26 +612,25 @@ const NotificationBell = () => {
                       className="btn btn-light btn-sm border-0 rounded-circle d-flex align-items-center justify-content-center p-0"
                       onClick={(e) => handleDismiss(n.id, e)}
                       aria-label="Dismiss"
-                      style={{ width: '24px', height: '24px' }}
+                      title="Dismiss"
+                      style={{ width: '24px', height: '24px', color: '#9ca3af' }}
                     >
-                      <X size={14} strokeWidth={2.2} className="text-secondary" />
+                      <X size={14} />
                     </button>
                   </div>
                 </div>
               );
             })}
+
             {hasNextPage && (
-              <div className="text-center py-2 border-top border-light-subtle">
+              <div className="p-2 text-center bg-light border-top border-light-subtle">
                 <button
-                  className="btn btn-sm btn-link text-primary fw-semibold text-decoration-none"
+                  className="btn btn-sm btn-link text-decoration-none fw-semibold text-secondary"
                   onClick={loadMore}
                   disabled={loadingMore}
                   style={{ fontSize: '0.8rem' }}
                 >
-                  {loadingMore && (
-                    <span className="spinner-border spinner-border-sm me-1" role="status" />
-                  )}
-                  {loadingMore ? 'Loading...' : 'Load More'}
+                  {loadingMore ? 'Loading...' : 'Load more'}
                 </button>
               </div>
             )}
@@ -505,8 +638,7 @@ const NotificationBell = () => {
         )}
       </div>
 
-      {/* Visitor Approval Dialog */}
-      {approvalDialogVisitorId && (
+      {approvalDialogVisitorId !== null && (
         <VisitorApprovalDialog
           visitorId={approvalDialogVisitorId}
           onClose={handleApprovalDialogClose}

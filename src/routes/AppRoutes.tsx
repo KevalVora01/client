@@ -59,6 +59,9 @@ const AppRoutes = () => {
             <Route path="/apartments/:id" element={<ApartmentDetailPage />} />
             <Route path="/tenant-requests" element={<TenantRequestsPage />} />
             <Route path="/tenant-requests/:id" element={<TenantRequestDetailPage />} />
+            <Route path="/bookings" element={<BookingsAdminPage />} />
+            <Route path="/bookings/:id" element={<BookingDetailPage />} />
+            <Route path="/bookings/stats" element={<Navigate to="/bookings" replace />} />
           </Route>
         </Route>
 
@@ -69,6 +72,7 @@ const AppRoutes = () => {
             <Route path="/my-apartment" element={<MyApartmentPage />} />
             <Route path="/tenant" element={<TenantManagementPage />} />
             <Route path="/tenant/:id" element={<TenantDetailPage />} />
+            <Route path="/bookings/me" element={<MyBookingsPage />} />
           </Route>
         </Route>
 
@@ -92,16 +96,12 @@ const AppRoutes = () => {
             <Route path="/notices" element={<NoticesPage />} />
             <Route path="/complaints" element={<ComplaintsPage />} />
             <Route path="/maintenance" element={<MaintenancePage />} />
-          <Route path="/documents" element={<DocumentsPage />} />
-          <Route path="/documents/:id" element={<DocumentRequestDetailPage />} />
-          <Route path="/amenities" element={<AmenitiesPage />} />
-          <Route path="/amenities/:id" element={<AmenityDetailPage />} />
-          <Route path="/bookings/me" element={<MyBookingsPage />} />
-          <Route path="/bookings" element={<BookingsAdminPage />} />
-          <Route path="/bookings/:id" element={<BookingDetailPage />} />
-          <Route path="/bookings/stats" element={<Navigate to="/bookings" replace />} />
+            <Route path="/documents" element={<DocumentsPage />} />
+            <Route path="/documents/:id" element={<DocumentRequestDetailPage />} />
+            <Route path="/amenities" element={<AmenitiesPage />} />
+            <Route path="/amenities/:id" element={<AmenityDetailPage />} />
+          </Route>
         </Route>
-      </Route>
 
         {/* ─── Shared routes (admin, resident, security) ───────────────── */}
         <Route element={<ProtectedRoute allowedRoles={['admin', 'resident', 'security']} />}>

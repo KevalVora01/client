@@ -4,7 +4,7 @@ export const BOOKING_STATUS_CONFIG: Record<BookingStatus, { bg: string; color: s
   Pending: { bg: '#fef3c7', color: '#92400e', icon: 'bi-hourglass-split' },
   Confirmed: { bg: '#dbeafe', color: '#1e40af', icon: 'bi-check-circle' },
   Rejected: { bg: '#fee2e2', color: '#991b1b', icon: 'bi-x-circle' },
-  Cancelled: { bg: '#f3f4f6', color: '#6b7280', icon: 'bi-slash-circle' },
+  Cancelled: { bg: '#fee2e2', color: '#991b1b', icon: 'bi-slash-circle' },
 };
 
 export const SLOT_CONFIG: Record<AvailabilitySlotStatus, { bg: string; color: string; label: string }> = {

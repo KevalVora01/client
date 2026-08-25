@@ -157,8 +157,24 @@ const BookingDetailPage = () => {
       (user?.id && booking.resident?.userId === user.id)
     );
 
-  const canCancel = isBookingOwner && booking.status !== 'Cancelled' && booking.status !== 'Rejected';
-  const canPay = isBookingOwner && isConfirmed && !isPaid && !isFree;
+  const isPastBooking = (() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const nowTimeStr = `${hours}:${minutes}`;
+
+    if (booking.bookingDate < todayStr) return true;
+    if (booking.bookingDate === todayStr && booking.startTime <= nowTimeStr) return true;
+    return false;
+  })();
+
+  const canCancel = isBookingOwner && booking.status !== 'Cancelled' && booking.status !== 'Rejected' && !isPastBooking;
+  const canPay = isBookingOwner && isConfirmed && !isPaid && !isFree && !isPastBooking;
 
   const votes = booking.votes || [];
   const committeeMembers = booking.committeeMembers || [];
@@ -179,16 +195,17 @@ const BookingDetailPage = () => {
   };
 
   const handleDownloadReceipt = async () => {
-    if (booking.receiptUrl) {
-      window.open(booking.receiptUrl, '_blank');
-      return;
-    }
     setDownloadingReceipt(true);
     try {
-      const url = await bookingApi.getReceipt(booking.id);
-      if (url) {
-        window.open(url, '_blank');
-      }
+      const blob = await bookingApi.downloadReceipt(booking.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `booking-receipt-${booking.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download booking receipt:', err);
     } finally {
@@ -269,16 +286,20 @@ const BookingDetailPage = () => {
       label: 'Apartment',
       value: aptDisplay,
     },
-    {
-      label: 'Attendees',
-      value: (
-        <span className="fw-medium text-dark">
-          {booking.memberCount && booking.memberCount > 1
-            ? `${booking.memberCount} Persons (Resident + ${booking.memberCount - 1} Member${booking.memberCount - 1 > 1 ? 's' : ''})`
-            : '1 Person'}
-        </span>
-      ),
-    },
+    ...((amenity?.bookingType === 'SHARED_CAPACITY' || amenity?.isSharedCapacity)
+      ? [
+          {
+            label: 'Attendees',
+            value: (
+              <span className="fw-medium text-dark">
+                {booking.memberCount && booking.memberCount > 1
+                  ? `${booking.memberCount} Persons`
+                  : '1 Person'}
+              </span>
+            ),
+          },
+        ]
+      : []),
     { label: 'Booking Date', value: formatDisplayDate(booking.bookingDate) },
     { label: 'Time', value: `${booking.startTime} – ${booking.endTime}` },
     { label: 'Purpose', value: booking.purpose ?? '—' },
@@ -400,25 +421,25 @@ const BookingDetailPage = () => {
         <div
           className="d-flex align-items-center gap-2 px-3 px-sm-4 py-3 rounded-3 mb-4"
           style={{
-            backgroundColor: booking.status === 'Cancelled' ? '#f3f4f6' : '#fef2f2',
-            border: `1px solid ${booking.status === 'Cancelled' ? '#e5e7eb' : '#fecaca'}`,
-            color: booking.status === 'Cancelled' ? '#4b5563' : '#991b1b',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#991b1b',
             fontSize: '0.9rem',
           }}
         >
-          <X size={18} />
+          <X size={18} className="flex-shrink-0 text-danger" />
           <div>
             <span className="fw-semibold">
               This booking request was {booking.status.toLowerCase()}.
             </span>
             {booking.status === 'Rejected' && booking.rejectionReason && (
-              <div className="mt-1" style={{ fontSize: '0.85rem' }}>
-                Reason: {booking.rejectionReason}
+              <div className="mt-1" style={{ fontSize: '0.85rem', color: '#b91c1c' }}>
+                <strong>Rejection Reason:</strong> {booking.rejectionReason}
               </div>
             )}
             {booking.status === 'Cancelled' && booking.cancellationReason && (
-              <div className="mt-1" style={{ fontSize: '0.85rem' }}>
-                Cancellation Reason: {booking.cancellationReason}
+              <div className="mt-1" style={{ fontSize: '0.85rem', color: '#b91c1c' }}>
+                <strong>Cancellation Reason:</strong> {booking.cancellationReason}
               </div>
             )}
           </div>

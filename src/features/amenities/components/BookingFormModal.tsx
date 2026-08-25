@@ -11,7 +11,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const today = () => new Date().toISOString().slice(0, 10);
 
 const PERSON_OPTIONS = [
-  { value: '1', label: '1 Person (Just Me)' },
+  { value: '1', label: '1 Person' },
   { value: '2', label: '2 Persons' },
   { value: '3', label: '3 Persons' },
   { value: '4', label: '4 Persons' },

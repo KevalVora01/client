@@ -5,7 +5,7 @@ import { bookingApi } from '../api/bookingApi';
 interface BookingRowActionsProps {
   booking: Booking;
   isAdmin: boolean;
-  onView: (booking: Booking) => void;
+  onView?: (booking: Booking) => void;
   onCancel?: (booking: Booking) => void;
   onSettle?: (booking: Booking) => void;
   isFree?: boolean;
@@ -55,17 +55,17 @@ const BookingRowActions = ({
   };
 
   const handleDownloadReceipt = async () => {
-    if (booking.receiptUrl) {
-      window.open(booking.receiptUrl, '_blank');
-      setIsOpen(false);
-      return;
-    }
     setDownloading(true);
     try {
-      const url = await bookingApi.getReceipt(booking.id);
-      if (url) {
-        window.open(url, '_blank');
-      }
+      const blob = await bookingApi.downloadReceipt(booking.id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `booking-receipt-${booking.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Failed to download booking receipt:', err);
     } finally {
@@ -80,10 +80,32 @@ const BookingRowActions = ({
     booking.amenity?.bookingType === 'SHARED_CAPACITY'
   );
 
+  const isPastBooking = (() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayStr = `${year}-${month}-${day}`;
+
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const nowTimeStr = `${hours}:${minutes}`;
+
+    if (booking.bookingDate < todayStr) return true;
+    if (booking.bookingDate === todayStr && booking.startTime <= nowTimeStr) return true;
+    return false;
+  })();
+
   const showVote = isAdmin && booking.status === 'Pending';
-  const showPay = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt && !isFreeAmenity && Boolean(onSettle);
-  const showCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected' && Boolean(onCancel);
+  const showAdminView = isAdmin;
+  const showPay = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt && !isFreeAmenity && !isPastBooking && Boolean(onSettle);
+  const showCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected' && !isPastBooking && Boolean(onCancel);
   const showReceipt = Boolean(booking.paidAt);
+
+  const hasActions = showAdminView || showReceipt || showPay || showCancel;
+  if (!hasActions) {
+    return <span className="text-muted" style={{ fontSize: '0.8rem' }}>—</span>;
+  }
 
   return (
     <>
@@ -111,7 +133,7 @@ const BookingRowActions = ({
                 type="button"
                 className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small fw-semibold text-dark"
                 onClick={() => {
-                  onView(booking);
+                  onView?.(booking);
                   setIsOpen(false);
                 }}
                 style={{ fontSize: '0.85rem' }}
@@ -119,13 +141,13 @@ const BookingRowActions = ({
                 <i className="bi bi-shield-check text-primary" /> Vote & Review
               </button>
             </li>
-          ) : (
+          ) : showAdminView ? (
             <li>
               <button
                 type="button"
                 className="dropdown-item d-flex align-items-center gap-2 px-3 py-2 rounded-2 small"
                 onClick={() => {
-                  onView(booking);
+                  onView?.(booking);
                   setIsOpen(false);
                 }}
                 style={{ fontSize: '0.85rem' }}
@@ -133,7 +155,7 @@ const BookingRowActions = ({
                 <i className="bi bi-eye text-muted" /> View Details
               </button>
             </li>
-          )}
+          ) : null}
 
           {showReceipt && (
             <li>

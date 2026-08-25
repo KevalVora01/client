@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user as unknown as User;
   }, []);
 
-
   const logout = useCallback(async (): Promise<void> => {
     try {
       await logoutApi();

@@ -70,7 +70,6 @@ const MyBookingsPage = () => {
           amenityMap={amenityMap}
           amenityPriceMap={amenityPriceMap}
           isAdmin={false}
-          onView={(bk) => navigate(`/bookings/${bk.id}`)}
           onCancel={setCancelTarget}
           onSettle={setSettleTarget}
         />

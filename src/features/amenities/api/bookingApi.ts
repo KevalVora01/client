@@ -74,8 +74,15 @@ export const bookingApi = {
     return response.data.data;
   },
 
+  downloadReceipt: async (id: number): Promise<Blob> => {
+    const response = await api.get(`/bookings/${id}/receipt`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
   getReceipt: async (id: number): Promise<string> => {
-    const response = await api.get(`/bookings/${id}/receipt`);
+    const response = await api.get(`/bookings/${id}/receipt`, { params: { format: 'json' } });
     return response.data.data.url;
   },
 };

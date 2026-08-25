@@ -3,14 +3,14 @@ import type { TableColumn } from '../../../components/AppTable/AppTable';
 import BookingStatusBadge from './BookingStatusBadge';
 import BookingRowActions from './BookingRowActions';
 import type { Booking } from '../types/amenity.types';
-import { Calendar, Clock, Sparkles } from 'lucide-react';
+import { Calendar, Clock } from 'lucide-react';
 
 interface BookingTableProps {
   bookings: Booking[];
   loading: boolean;
   amenityMap: Record<number, string>;
   isAdmin: boolean;
-  onView: (booking: Booking) => void;
+  onView?: (booking: Booking) => void;
   onCancel?: (booking: Booking) => void;
   onSettle?: (booking: Booking) => void;
   amenityPriceMap?: Record<number, number>;
@@ -50,35 +50,25 @@ const BookingTable = ({
       render: (b) => {
         const amenityName = amenityMap[b.amenityId] ?? `Amenity #${b.amenityId}`;
         return (
-          <div className="d-flex align-items-center gap-2 py-1 overflow-hidden">
-            <div
-              className="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-              style={{
-                background: '#f3f4f6',
-                color: '#1a1f36',
-                width: '36px',
-                height: '36px',
-              }}
-            >
-              <Sparkles size={18} />
+          <div className="py-1 overflow-hidden">
+            <div className="d-flex align-items-center flex-wrap">
+              <span className="fw-semibold text-dark text-truncate" style={{ fontSize: '0.88rem', letterSpacing: '-0.01em' }}>
+                {amenityName}
+              </span>
+              {b.memberCount && b.memberCount > 1 ? (
+                <span
+                  className="badge rounded-pill bg-light text-secondary border border-light-subtle flex-shrink-0 ms-2"
+                  style={{ fontSize: '0.7rem', fontWeight: 500, padding: '3px 8px' }}
+                >
+                  👥 {b.memberCount}
+                </span>
+              ) : null}
             </div>
-            <div className="overflow-hidden text-truncate">
-              <div className="d-flex align-items-center gap-1.5">
-                <p className="fw-bold m-0 text-dark text-truncate" style={{ fontSize: '0.88rem', letterSpacing: '-0.01em' }}>
-                  {amenityName}
-                </p>
-                {b.memberCount && b.memberCount > 1 ? (
-                  <span className="badge rounded-pill bg-light text-secondary border border-light-subtle flex-shrink-0" style={{ fontSize: '0.68rem', fontWeight: 500 }}>
-                    👥 {b.memberCount}
-                  </span>
-                ) : null}
-              </div>
-              {b.purpose && (
-                <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
-                  {b.purpose}
-                </p>
-              )}
-            </div>
+            {b.purpose && (
+              <p className="m-0 text-muted text-truncate" style={{ fontSize: '0.78rem' }}>
+                {b.purpose}
+              </p>
+            )}
           </div>
         );
       },

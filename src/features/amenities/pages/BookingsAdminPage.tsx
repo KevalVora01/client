@@ -9,11 +9,14 @@ import BookingStatsCards from '../components/BookingStatsCards';
 import BookingTable from '../components/BookingTable';
 import BookingFilters from '../components/BookingFilters';
 import ReasonModal from '../components/ReasonModal';
+import Pagination from '../../../components/Pagination/Pagination';
 import type { Booking, BookingListFilters } from '../types/amenity.types';
 
 const BookingsAdminPage = () => {
   const { amenities } = useAmenities();
   const [filters, setFilters] = useState<BookingListFilters>({});
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { stats, loading: statsLoading, refetch: refetchStats } = useBookingStats();
 
   const handleRefetchAll = useCallback(() => {
@@ -21,13 +24,18 @@ const BookingsAdminPage = () => {
     refetchStats();
   }, [refetchStats]);
 
-  const { bookings, loading, refetch } = useAdminBookings(filters);
+  const { bookings, pagination, loading, refetch } = useAdminBookings(filters, page, pageSize);
   const bookingMutations = useBookingMutations(handleRefetchAll);
   const navigate = useNavigate();
 
   const [rejectTarget, setRejectTarget] = useState<Booking | null>(null);
 
   useScrollLock(!!rejectTarget);
+
+  const handleFiltersChange = (next: BookingListFilters) => {
+    setFilters(next);
+    setPage(1);
+  };
 
   const amenityMap = Object.fromEntries(amenities.map((a) => [a.id, a.name]));
   const amenityPriceMap = Object.fromEntries(amenities.map((a) => [a.id, a.bookingType === 'SHARED_CAPACITY' ? 0 : (a.price ?? 0)]));
@@ -60,7 +68,7 @@ const BookingsAdminPage = () => {
       <div className="card bg-white border border-light-subtle rounded-3 shadow-sm mt-4">
         {/* Filters Header Block */}
         <div className="card-header bg-white border-bottom border-light-subtle p-3">
-          <BookingFilters amenities={amenities} filters={filters} onChange={setFilters} />
+          <BookingFilters amenities={amenities} filters={filters} onChange={handleFiltersChange} />
         </div>
 
         {/* Dynamic List Table Area */}
@@ -74,6 +82,17 @@ const BookingsAdminPage = () => {
             onView={(bk) => navigate(`/bookings/${bk.id}`)}
           />
         </div>
+
+        {/* Pagination */}
+        {!loading && bookings.length > 0 && (
+          <div className="d-flex justify-content-end p-3">
+            <Pagination
+              pagination={pagination}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          </div>
+        )}
       </div>
 
       {rejectTarget && (

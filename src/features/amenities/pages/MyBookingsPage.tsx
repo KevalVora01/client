@@ -7,11 +7,14 @@ import { useBookingMutations } from '../hooks/useBookingMutations';
 import BookingTable from '../components/BookingTable';
 import ReasonModal from '../components/ReasonModal';
 import BookingPaymentModal from '../components/BookingPaymentModal';
+import Pagination from '../../../components/Pagination/Pagination';
 import type { Booking } from '../types/amenity.types';
 
 const MyBookingsPage = () => {
   const [scope, setScope] = useState<'upcoming' | 'past'>('upcoming');
-  const { bookings, loading, refetch } = useMyBookings(scope);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const { bookings, pagination, loading, refetch } = useMyBookings(scope, page, pageSize);
   const { amenities } = useAmenities();
   const bookingMutations = useBookingMutations(refetch);
   const navigate = useNavigate();
@@ -20,6 +23,11 @@ const MyBookingsPage = () => {
   const [settleTarget, setSettleTarget] = useState<Booking | null>(null);
 
   useScrollLock(!!cancelTarget || !!settleTarget);
+
+  const handleScopeChange = (key: 'upcoming' | 'past') => {
+    setScope(key);
+    setPage(1);
+  };
 
   const amenityMap = Object.fromEntries(amenities.map((a) => [a.id, a.name]));
   const amenityPriceMap = Object.fromEntries(amenities.map((a) => [a.id, a.bookingType === 'SHARED_CAPACITY' ? 0 : (a.price ?? 0)]));
@@ -47,7 +55,7 @@ const MyBookingsPage = () => {
             <button
               key={key}
               type="button"
-              onClick={() => setScope(key)}
+              onClick={() => handleScopeChange(key)}
               className="btn btn-sm fw-semibold px-3 py-2"
               style={{
                 borderRadius: '8px',
@@ -73,6 +81,16 @@ const MyBookingsPage = () => {
           onCancel={setCancelTarget}
           onSettle={setSettleTarget}
         />
+
+        {!loading && bookings.length > 0 && (
+          <div className="d-flex justify-content-end p-3">
+            <Pagination
+              pagination={pagination}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+            />
+          </div>
+        )}
       </div>
 
       {cancelTarget && (

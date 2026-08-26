@@ -8,6 +8,7 @@ import type {
   CreateBookingPayload,
   VoteChoice,
 } from '../types/amenity.types';
+import type { PaginatedResult } from '../../../types/pagination.types';
 
 export const bookingApi = {
   create: async (payload: CreateBookingPayload): Promise<Booking> => {
@@ -15,12 +16,18 @@ export const bookingApi = {
     return response.data.data;
   },
 
-  listMine: async (scope: 'upcoming' | 'past' = 'upcoming'): Promise<Booking[]> => {
-    const response = await api.get('/bookings/me', { params: { scope } });
+  listMine: async (
+    scope: 'upcoming' | 'past' = 'upcoming',
+    pageNumber = 1,
+    pageSize = 10
+  ): Promise<PaginatedResult<Booking>> => {
+    const response = await api.get('/bookings/me', { params: { scope, pageNumber, pageSize } });
     return response.data.data;
   },
 
-  listAdmin: async (filters: BookingListFilters = {}): Promise<Booking[]> => {
+  listAdmin: async (
+    filters: BookingListFilters & { pageNumber?: number; pageSize?: number } = {}
+  ): Promise<PaginatedResult<Booking>> => {
     const response = await api.get('/bookings', { params: filters });
     return response.data.data;
   },

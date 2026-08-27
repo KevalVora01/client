@@ -96,7 +96,6 @@ const AmenitiesPage = () => {
         )}
       </div>
 
-      {/* ── Filter Bar (Matches Resident Page Layout & Styling) ── */}
       <div className="d-flex flex-md-row flex-column align-items-stretch align-items-md-center gap-2 w-100 mb-4">
         <div className="flex-grow-1" style={{ maxWidth: '550px' }}>
           <div

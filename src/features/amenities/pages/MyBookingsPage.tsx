@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useScrollLock } from '../../../hooks/useScrollLock';
 import { useMyBookings } from '../hooks/useBookings';
 import { useAmenities } from '../hooks/useAmenities';
@@ -17,7 +16,6 @@ const MyBookingsPage = () => {
   const { bookings, pagination, loading, refetch } = useMyBookings(scope, page, pageSize);
   const { amenities } = useAmenities();
   const bookingMutations = useBookingMutations(refetch);
-  const navigate = useNavigate();
 
   const [cancelTarget, setCancelTarget] = useState<Booking | null>(null);
   const [settleTarget, setSettleTarget] = useState<Booking | null>(null);

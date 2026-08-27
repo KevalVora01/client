@@ -1,12 +1,11 @@
 import { useBookingStats } from '../hooks/useBookingStats';
 import StatCard from '../components/StatCard';
-import type { BookingStats } from '../types/amenity.types';
 
-const STATUS_CARDS: { key: keyof BookingStats; label: string; bg: string; color: string; icon: string }[] = [
-  { key: 'Confirmed', label: 'Confirmed', bg: '#dbeafe', color: '#1e40af', icon: 'bi-check-circle' },
-  { key: 'Pending', label: 'Pending', bg: '#fef3c7', color: '#92400e', icon: 'bi-hourglass-split' },
-  { key: 'Rejected', label: 'Rejected', bg: '#fee2e2', color: '#991b1b', icon: 'bi-x-circle' },
-  { key: 'Cancelled', label: 'Cancelled', bg: '#f3f4f6', color: '#6b7280', icon: 'bi-slash-circle' },
+const STATUS_CARDS: { key: 'confirmed' | 'pending' | 'rejected' | 'cancelled'; label: string; bg: string; color: string; icon: string }[] = [
+  { key: 'confirmed', label: 'Confirmed', bg: '#dbeafe', color: '#1e40af', icon: 'bi-check-circle' },
+  { key: 'pending', label: 'Pending', bg: '#fef3c7', color: '#92400e', icon: 'bi-hourglass-split' },
+  { key: 'rejected', label: 'Rejected', bg: '#fee2e2', color: '#991b1b', icon: 'bi-x-circle' },
+  { key: 'cancelled', label: 'Cancelled', bg: '#f3f4f6', color: '#6b7280', icon: 'bi-slash-circle' },
 ];
 
 const AmenityStatsPage = () => {

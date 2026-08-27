@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import type { AvailabilityResult, BusyInterval, SharedCapacitySlot } from '../types/amenity.types';
-import { Calendar, Clock, AlertTriangle, CheckCircle2, ShieldAlert, Users, BarChart2, Info } from 'lucide-react';
+import { Calendar, Clock, AlertTriangle, CheckCircle2, ShieldAlert, BarChart2, Info } from 'lucide-react';
 
 interface AvailabilityGridProps {
   availability: AvailabilityResult | null;
@@ -53,7 +53,6 @@ const AvailabilityGrid = ({ availability, loading, onOpenBooking }: Availability
     operatingEnd,
     busyIntervals = [],
     sharedSlots = [],
-    currentCrowdNow,
     date,
     bookingType,
     totalCapacity = 25,

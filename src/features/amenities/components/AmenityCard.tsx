@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Sparkles, Clock, Users, Camera, Edit2, Eye, Lock } from 'lucide-react';
 import type { Amenity } from '../types/amenity.types';

@@ -6,8 +6,6 @@ interface BookingRowProps {
   amenityName?: string;
   isAdmin: boolean;
   onView: (booking: Booking) => void;
-  onApprove?: (booking: Booking) => void;
-  onReject?: (booking: Booking) => void;
   onCancel?: (booking: Booking) => void;
   onSettle?: (booking: Booking) => void;
 }
@@ -17,13 +15,10 @@ const BookingRow = ({
   amenityName,
   isAdmin,
   onView,
-  onApprove,
-  onReject,
   onCancel,
   onSettle,
 }: BookingRowProps) => {
   const canApprove = isAdmin && booking.status === 'Pending';
-  const canReject = isAdmin && booking.status === 'Pending';
   const canCancel = !isAdmin && booking.status !== 'Cancelled' && booking.status !== 'Rejected';
   const canSettle = !isAdmin && booking.status === 'Confirmed' && !booking.paidAt;
 

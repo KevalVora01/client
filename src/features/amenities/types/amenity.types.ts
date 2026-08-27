@@ -1,9 +1,8 @@
 export type BookingStatus = 'Pending' | 'Confirmed' | 'Rejected' | 'Cancelled';
 
-export enum AmenityBookingType {
-  EXCLUSIVE = 'EXCLUSIVE',
-  SHARED_CAPACITY = 'SHARED_CAPACITY',
-}
+export type AmenityBookingType = 'EXCLUSIVE' | 'SHARED_CAPACITY';
+
+export type VoteChoice = 'Approve' | 'Reject';
 
 export interface Amenity {
   id: number;
@@ -37,6 +36,13 @@ export interface BookingResidentInfo {
   name: string;
   email?: string;
   phone?: string;
+  user?: {
+    id: number;
+    name: string;
+    email?: string;
+    phone?: string;
+  } | null;
+  apartment?: BookingApartmentInfo | null;
 }
 
 export interface BookingApartmentInfo {
@@ -66,6 +72,7 @@ export interface Booking {
   memberCount?: number;
   resident?: BookingResidentInfo | null;
   apartment?: BookingApartmentInfo | null;
+  amenity?: Amenity | null;
   createdAt: string;
 }
 
@@ -121,6 +128,8 @@ export interface AvailabilitySlot {
   status?: string;
   available?: boolean;
 }
+
+export type AvailabilitySlotStatus = 'free' | 'booked' | 'blackout' | 'closed';
 
 export interface BookingStats {
   total: number;
@@ -186,18 +195,33 @@ export interface BookingListFilters {
   limit?: number;
 }
 
-export interface BookingVote {
+export interface CommitteeMember {
   id: number;
-  bookingId: number;
   userId: number;
-  decision: 'Approve' | 'Reject';
-  comment: string | null;
-  createdAt: string;
+  apartmentId: number | null;
+  fullName?: string | null;
+  name?: string;
+  email: string;
   user?: {
     id: number;
     name: string;
-    role: string;
-  };
+    email: string;
+  } | null;
+}
+
+export interface BookingVote {
+  id: number;
+  bookingId: number;
+  committeeMemberId: number | null;
+  vote: VoteChoice;
+  recordedByAdminId?: number | null;
+  createdAt: string;
+  committeeMember?: CommitteeMember | null;
+}
+
+export interface BookingDetail extends Booking {
+  committeeMembers?: CommitteeMember[];
+  votes?: BookingVote[];
 }
 
 export interface BookingDecisionSummary {

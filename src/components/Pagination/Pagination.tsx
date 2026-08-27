@@ -1,12 +1,19 @@
 import type { PaginatedResult } from '../../types/pagination.types';
+import Select from '../Select/Select';
 
 interface PaginationProps {
   pagination: Omit<PaginatedResult<unknown>, 'items'>;
   onPageChange: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
+  pageSizeOptions?: number[];
 }
 
-const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
+const Pagination = ({
+  pagination,
+  onPageChange,
+  onPageSizeChange,
+  pageSizeOptions = [5, 10, 20, 50],
+}: PaginationProps) => {
   const { hasNextPage, hasPreviousPage } = pagination || {};
 
   const safePageNumber = Number(pagination?.pageNumber) || 1;
@@ -35,39 +42,87 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
     return pages;
   };
 
-  const btnClass =
-    "btn btn-outline-secondary border-light-subtle btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-medium";
-  const btnStyle: React.CSSProperties = { minWidth: "32px", height: "32px", padding: "0 8px" };
+  const baseBtn =
+    "d-inline-flex align-items-center justify-content-center rounded-2 fw-medium";
+  const btnStyle: React.CSSProperties = {
+    minWidth: "36px",
+    height: "36px",
+    padding: "0 8px",
+    fontSize: "0.875rem",
+    border: "1px solid #dee2e6",
+    transition: "all .15s ease-in-out",
+  };
+  const navBtnStyle: React.CSSProperties = {
+    ...btnStyle,
+    fontSize: "1.1rem",
+    fontWeight: 700,
+  };
+
+  const navBtn = (disabled: boolean) =>
+    `${baseBtn} ${disabled ? "text-secondary bg-light" : "text-dark bg-white"}`;
+  const pageBtn = (active: boolean) =>
+    `${baseBtn} ${active ? "text-white bg-dark" : "text-dark bg-white"}`;
+  const disabledStyle: React.CSSProperties = { cursor: "not-allowed", opacity: 0.55 };
 
   return (
-    <div className="d-flex align-items-center justify-content-between flex-wrap w-100" style={{ gap: "12px" }}>
-      <div className="d-flex align-items-center gap-3 flex-wrap">
-        <span className="small text-muted">
-          Showing {from} to {to} of {safeTotalCount} entries
-        </span>
+    <div
+      className="d-flex align-items-center justify-content-between flex-wrap w-100"
+      style={{ gap: "12px" }}
+    >
+      <span className="text-muted" style={{ fontSize: "0.875rem" }}>
+        Showing <strong className="text-dark">{from}</strong>–
+        <strong className="text-dark">{to}</strong> of{" "}
+        <strong className="text-dark">{safeTotalCount}</strong>
+      </span>
 
-      </div>
+      {onPageSizeChange && (
+        <label className="d-flex align-items-center gap-2 text-muted" style={{ fontSize: "0.875rem" }}>
+          Rows per page
+          <Select
+            name="pageSize"
+            value={String(safePageSize)}
+            options={pageSizeOptions.map(String)}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          />
+        </label>
+      )}
 
       <div className="d-flex align-items-center gap-1">
         <button
-          className={btnClass}
-          style={btnStyle}
+          className={navBtn(!hasPreviousPage)}
+          style={{ ...navBtnStyle, ...(!hasPreviousPage ? disabledStyle : {}) }}
+          onClick={() => onPageChange(1)}
+          disabled={!hasPreviousPage}
+          aria-label="First page"
+          title="First page"
+        >
+          «
+        </button>
+
+        <button
+          className={navBtn(!hasPreviousPage)}
+          style={{ ...navBtnStyle, ...(!hasPreviousPage ? disabledStyle : {}) }}
           onClick={() => onPageChange(safePageNumber - 1)}
           disabled={!hasPreviousPage}
           aria-label="Previous page"
+          title="Previous page"
         >
           ‹
         </button>
 
         {getPageNumbers().map((page, index) =>
           page === '...' ? (
-            <span key={`ellipsis-${index}`} className="small text-secondary px-1">
-              ...
+            <span
+              key={`ellipsis-${index}`}
+              className="text-secondary px-1 d-inline-flex align-items-center"
+              style={{ height: "36px", fontSize: "0.875rem" }}
+            >
+              …
             </span>
           ) : (
             <button
               key={page}
-              className={page === safePageNumber ? "btn btn-dark btn-sm d-inline-flex align-items-center justify-content-center rounded-2 fw-semibold" : btnClass}
+              className={pageBtn(page === safePageNumber)}
               style={btnStyle}
               onClick={() => onPageChange(page as number)}
             >
@@ -77,13 +132,25 @@ const Pagination = ({ pagination, onPageChange }: PaginationProps) => {
         )}
 
         <button
-          className={btnClass}
-          style={btnStyle}
+          className={navBtn(!hasNextPage)}
+          style={{ ...navBtnStyle, ...(!hasNextPage ? disabledStyle : {}) }}
           onClick={() => onPageChange(safePageNumber + 1)}
           disabled={!hasNextPage}
           aria-label="Next page"
+          title="Next page"
         >
           ›
+        </button>
+
+        <button
+          className={navBtn(!hasNextPage)}
+          style={{ ...navBtnStyle, ...(!hasNextPage ? disabledStyle : {}) }}
+          onClick={() => onPageChange(safeTotalPages)}
+          disabled={!hasNextPage}
+          aria-label="Last page"
+          title="Last page"
+        >
+          »
         </button>
       </div>
     </div>

@@ -506,6 +506,7 @@ const BookingDetailPage = () => {
         </div>
 
         {/* ── Committee Voting Card ── */}
+        {!isFree && (
         <div className="col-12 col-lg-6">
           <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
             <div className="card-body">
@@ -612,6 +613,8 @@ const BookingDetailPage = () => {
             </div>
           </div>
         </div>
+        )}
+
       </div>
 
       {cancelOpen && (

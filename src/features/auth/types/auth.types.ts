@@ -38,15 +38,18 @@ export interface RegisterPayload {
 
 export interface AuthTokens {
   accessToken: string;
+  refreshToken: string;
 }
 
 export interface AuthResponse {
   accessToken: string;
+  refreshToken: string;
   user: User;
 }
 
 export interface RefreshTokenResponse {
   accessToken: string;
+  refreshToken: string;
   user: User;
 }
 

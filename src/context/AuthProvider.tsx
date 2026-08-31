@@ -3,7 +3,7 @@ import {
 } from 'react';
 import { AuthContext } from './AuthContext';
 import type { AuthContextType } from './AuthContext';
-import { setAccessToken } from '../config/api';
+import { setAccessToken, setRefreshToken, getRefreshToken, clearTokens } from '../config/api';
 import { getMeApi, loginApi, logoutApi, refreshTokenApi } from '../features/auth/api/authApi';
 import type { User, LoginPayload } from '../features/auth/types/auth.types';
 
@@ -16,9 +16,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const silentRefresh = async () => {
       if (isRefreshingRef.current) return;
       isRefreshingRef.current = true;
+      const storedRefreshToken = getRefreshToken();
+      if (!storedRefreshToken) {
+        clearTokens();
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
       try {
-        const { accessToken, user: refreshedUser } = await refreshTokenApi();
+        const { accessToken, refreshToken, user: refreshedUser } = await refreshTokenApi(storedRefreshToken);
         setAccessToken(accessToken);
+        if (refreshToken) {
+          setRefreshToken(refreshToken);
+        }
         if (refreshedUser?.mustResetPassword) {
           setUser(refreshedUser as unknown as User);
         } else {
@@ -26,7 +36,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setUser(user as unknown as User);
         }
       } catch {
-        setAccessToken(null);
+        clearTokens();
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -38,6 +48,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = useCallback(async (payload: LoginPayload): Promise<User | null> => {
     const loginResponse = await loginApi(payload);
     setAccessToken(loginResponse.accessToken);
+    if (loginResponse.refreshToken) {
+      setRefreshToken(loginResponse.refreshToken);
+    }
     if (loginResponse.user?.mustResetPassword) {
       const user = loginResponse.user as unknown as User;
       setUser(user);
@@ -54,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch {
       // Even if API fails, clear client state
     } finally {
-      setAccessToken(null);
+      clearTokens();
       setUser(null);
     }
   }, []);

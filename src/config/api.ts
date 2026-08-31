@@ -3,7 +3,7 @@ import { connectSocket } from '../services/socket';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ─── In-memory access token ───────────────────────────────────────
+// ─── Token management ─────────────────────────────────────────────
 let accessToken: string | null = null;
 
 export const setAccessToken = (token: string | null): void => {
@@ -14,10 +14,26 @@ export const getAccessToken = (): string | null => {
   return accessToken;
 };
 
+export const getRefreshToken = (): string | null => {
+  return localStorage.getItem('refreshToken');
+};
+
+export const setRefreshToken = (token: string | null): void => {
+  if (token) {
+    localStorage.setItem('refreshToken', token);
+  } else {
+    localStorage.removeItem('refreshToken');
+  }
+};
+
+export const clearTokens = (): void => {
+  setAccessToken(null);
+  setRefreshToken(null);
+};
+
 // ─── Axios instance ───────────────────────────────────────────────
 const api: AxiosInstance = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -78,12 +94,18 @@ api.interceptors.response.use(
       typeof error.response?.data?.error === 'string' &&
       error.response.data.error.includes('Password reset required')
     ) {
-      setAccessToken(null);
+      clearTokens();
       window.location.href = '/set-password-required';
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && !originalRequest._retry && !isSkipped) {
+      const storedRefreshToken = getRefreshToken();
+
+      if (!storedRefreshToken) {
+        clearTokens();
+        return Promise.reject(error);
+      }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -100,13 +122,18 @@ api.interceptors.response.use(
       try {
         const { data } = await axios.post(
           `${BASE_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
+          { refreshToken: storedRefreshToken }
         );
 
         const newToken: string = data.data.accessToken;
+        const newRefreshToken: string = data.data.refreshToken;
+
         setAccessToken(newToken);
-        connectSocket(accessToken ?? '');
+        if (newRefreshToken) {
+          setRefreshToken(newRefreshToken);
+        }
+
+        connectSocket(newToken);
         processQueue(null, newToken);
 
         originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -114,7 +141,7 @@ api.interceptors.response.use(
 
       } catch (refreshError) {
         processQueue(refreshError, null);
-        setAccessToken(null);
+        clearTokens();
         window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {

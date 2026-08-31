@@ -6,7 +6,7 @@ import { resetPasswordApi } from '../api/authApi';
 import { getErrorMessage } from '../../../utils/getErrorMessage';
 import { showSuccess, showError } from '../../../utils/toast';
 import useAuth from '../../../hooks/useAuth';
-import { setAccessToken } from '../../../config/api';
+import { setAccessToken, setRefreshToken } from '../../../config/api';
 
 const validationSchema = Yup.object({
   newPassword: Yup.string()
@@ -47,6 +47,9 @@ export const useResetPassword = () => {
         const res = await resetPasswordApi(token, values.newPassword);
         if (res?.accessToken) {
           setAccessToken(res.accessToken);
+        }
+        if (res?.refreshToken) {
+          setRefreshToken(res.refreshToken);
         }
         showSuccess('Password updated successfully!');
 

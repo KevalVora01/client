@@ -1,4 +1,4 @@
-import api from '../../../config/api';
+import api, { getRefreshToken } from '../../../config/api';
 import type { ApiResponse } from '../../../types/api.types';
 import type {
   LoginPayload,
@@ -21,8 +21,11 @@ export const registerApi = async (payload: RegisterPayload): Promise<AuthRespons
 };
 
 // ─── Refresh token ────────────────────────────────────────────────
-export const refreshTokenApi = async (): Promise<RefreshTokenResponse> => {
-  const response = await api.post<ApiResponse<RefreshTokenResponse>>('/auth/refresh');
+export const refreshTokenApi = async (refreshToken?: string): Promise<RefreshTokenResponse> => {
+  const token = refreshToken || getRefreshToken();
+  const response = await api.post<ApiResponse<RefreshTokenResponse>>('/auth/refresh', {
+    refreshToken: token,
+  });
   return response.data.data;
 };
 
@@ -33,8 +36,9 @@ export const getMeApi = async (): Promise<MeResponse> => {
 };
 
 // ─── Logout ───────────────────────────────────────────────────────
-export const logoutApi = async (): Promise<void> => {
-  await api.post('/auth/logout');
+export const logoutApi = async (refreshToken?: string): Promise<void> => {
+  const token = refreshToken || getRefreshToken();
+  await api.post('/auth/logout', { refreshToken: token });
 };
 
 // ─── Forgot password ──────────────────────────────────────────────

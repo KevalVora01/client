@@ -4,6 +4,7 @@ import { Ban, Calendar, Mail, Phone, ArrowRight, UserCheck, Clock } from "lucide
 import useTenantHistory from "../hooks/useTenantHistory";
 import { tenantRequestApi } from "../api/tenantRequestApi";
 import { showError, showSuccess } from "../../../utils/toast";
+import { getErrorMessage } from "../../../utils/getErrorMessage";
 import { getAvatarColor, getInitials, formatDate } from "../../residents/components/residentTableHelpers";
 import type { TenantHistoryItem } from "../../residents/types/resident.types";
 import ConfirmDialog from "../../../components/ConfirmDialog/ConfirmDialog";
@@ -133,8 +134,7 @@ const TenantHistorySection = () => {
       setShowRevokeModal(null);
       await load();
     } catch (err) {
-      const axiosError = err as { response?: { data?: { error?: string } } };
-      showError(axiosError?.response?.data?.error || "Failed to revoke tenancy");
+      showError(getErrorMessage(err, "Failed to revoke tenancy"));
     } finally {
       setRevokingId(null);
     }

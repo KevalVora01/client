@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { tenantRequestApi } from '../api/tenantRequestApi';
 import type { OwnerTenantStatus, SubmitTenantRequestPayload } from '../types/tenantRequest.types';
 import { showError, showSuccess } from '../../../utils/toast';
+import { getErrorMessage } from '../../../utils/getErrorMessage';
 
 const useOwnerTenantRequest = () => {
   const [status, setStatus] = useState<OwnerTenantStatus | null>(null);
@@ -74,8 +75,7 @@ const useOwnerTenantRequest = () => {
       showSuccess('Tenancy revoked successfully');
       await load();
     } catch (err) {
-      const axiosError = err as { response?: { data?: { error?: string } } };
-      showError(axiosError?.response?.data?.error || 'Failed to revoke tenancy');
+      showError(getErrorMessage(err, 'Failed to revoke tenancy'));
       throw err;
     } finally {
       setActionLoading(false);

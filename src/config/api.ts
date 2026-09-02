@@ -3,7 +3,6 @@ import { connectSocket } from '../services/socket';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-// ─── Token management ─────────────────────────────────────────────
 let accessToken: string | null = null;
 
 export const setAccessToken = (token: string | null): void => {

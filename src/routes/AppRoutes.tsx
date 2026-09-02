@@ -26,7 +26,6 @@ import AmenityDetailPage from '../features/amenities/pages/AmenityDetailPage';
 import MyBookingsPage from '../features/amenities/pages/MyBookingsPage';
 import BookingsAdminPage from '../features/amenities/pages/BookingsAdminPage';
 import BookingDetailPage from '../features/amenities/pages/BookingDetailPage';
-import AmenityStatsPage from '../features/amenities/pages/AmenityStatsPage';
 import CheckInPage from '../features/visitors/pages/CheckInPage';
 import CheckOutPage from '../features/visitors/pages/CheckOutPage';
 import VisitorLogPage from '../features/visitors/pages/VisitorLogPage';

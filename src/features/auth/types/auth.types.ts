@@ -17,8 +17,6 @@ export interface User {
   isActive: boolean;
   mustResetPassword?: boolean;
   resetToken?: string;
-  createdAt: string;
-  updatedAt: string;
   residentId?: number | null;
   resident?: ResidentSummary | null;
 }
